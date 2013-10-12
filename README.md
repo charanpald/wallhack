@@ -1,4 +1,4 @@
-tripping-wallhack
-=================
+Wallhack
+========
 
-This is a repository of new algorithms and experiments in Python, mostly in machine learning. 
+This is a repository of some algorithms and experiments in Python, mostly in machine learning. 
