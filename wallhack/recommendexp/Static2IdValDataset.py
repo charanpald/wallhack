@@ -7,7 +7,7 @@ import array
 import numpy 
 import logging
 import scipy.sparse 
-from exp.util.IdIndexer import IdIndexer
+from sandbox.util.IdIndexer import IdIndexer
 
 class Static2IdValDataset(object):
     def __init__(self, dataFilename, split=0.8):
