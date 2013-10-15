@@ -1,16 +1,28 @@
-
+import sys 
 import numpy 
-from exp.influence2.ArnetMinerDataset import ArnetMinerDataset
-from exp.influence2.GraphRanker import GraphRanker
-from exp.influence2.RankAggregator import RankAggregator
+import logging
+from sandbox.util.IdIndexer import IdIndexer
+from wallhack.influence2.ArnetMinerDataset import ArnetMinerDataset
+from wallhack.influence2.GraphRanker import GraphRanker
+from wallhack.influence2.RankAggregator import RankAggregator
 from apgl.util.Latex import Latex 
 from apgl.util.Util import Util 
 from apgl.util.Evaluator import Evaluator 
 
+#logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+
 ranLSI = True
+printOutputLists = False
+printPrecisions = False 
+printDocuments = True
 numpy.set_printoptions(suppress=True, precision=3, linewidth=100)
 dataset = ArnetMinerDataset(runLSI=ranLSI)
 #dataset.fields = ["Intelligent Agents"]
+
+if printDocuments: 
+    print("Reading article data")
+    authorList, documentList, citationList = dataset.readAuthorsAndDocuments(useAbstract=False)
+    print("Done")
 
 ns = numpy.arange(5, 55, 5)
 bestaverageTestPrecisions = numpy.zeros(len(dataset.fields))
@@ -31,14 +43,18 @@ print(coverages)
 for s, field in enumerate(dataset.fields): 
     if ranLSI: 
         outputFilename = dataset.getOutputFieldDir(field) + "outputListsLSI.npz"
+        documentFilename = dataset.getOutputFieldDir(field) + "relevantDocsLSI.npy"
     else: 
         outputFilename = dataset.getOutputFieldDir(field) + "outputListsLDA.npz"
+        documentFilename = dataset.getOutputFieldDir(field) + "relevantDocsLDA.npy"
         
     try: 
         print(field)  
+        print("-----------")
         outputLists, trainExpertMatchesInds, testExpertMatchesInds = Util.loadPickle(outputFilename)
-        graph, authorIndexer = Util.loadPickle(dataset.getCoauthorsFilename(field))
         
+        graph, authorIndexer = Util.loadPickle(dataset.getCoauthorsFilename(field))
+
         trainPrecisions = numpy.zeros((len(ns), numMethods))
         testPrecisions = numpy.zeros((len(ns), numMethods))
         
@@ -101,14 +117,34 @@ for s, field in enumerate(dataset.fields):
             testPrecisions[i, j] = Evaluator.precisionFromIndLists(testExpertMatchesInds, rankAggregate) 
             averageTestPrecisions[s, i, j] = Evaluator.averagePrecisionFromLists(testExpertMatchesInds, rankAggregate, n) 
         
-        print(authorIndexer.reverseTranslate(trainExpertMatchesInds))
-        print(authorIndexer.reverseTranslate(testExpertMatchesInds))
-        print(authorIndexer.reverseTranslate(testOutputLists[0][0:10]))
+        if printOutputLists: 
+            print("Training expert matches")
+            print(authorIndexer.reverseTranslate(trainExpertMatchesInds))
+            
+            print("\nTest expert matches")
+            print(authorIndexer.reverseTranslate(testExpertMatchesInds))
+            
+            print("\nLists of experts")
+            
+            for ind in range(len(testOutputLists)):
+                print(authorIndexer.reverseTranslate(testOutputLists[ind][0:50]))
+                print("")
+            print("-----------")
         
-        print(trainPrecisions)
-        print(averageTrainPrecisions[s, :, :])
-        print(testPrecisions)
-        print(averageTestPrecisions[s, :, :])
+        if printDocuments: 
+            print("Relevant Documents: ")
+            relevantDocs = numpy.load(documentFilename)
+            for i in relevantDocs: 
+                print(documentList[i] + " " + ", ".join(authorList[i]))            
+            print("-----------")
+            
+        if printPrecisions: 
+            print("Precisions")
+            print(trainPrecisions)
+            print(averageTrainPrecisions[s, :, :])
+            print(testPrecisions)
+            print(averageTestPrecisions[s, :, :])
+            print("-----------")
     except IOError as e: 
         print(e)
 
