@@ -1,7 +1,7 @@
 import numpy 
 import logging
-from exp.influence2.MaxInfluence import MaxInfluence 
-from exp.influence2.RankAggregator import RankAggregator
+from wallhack.influence2.MaxInfluence import MaxInfluence 
+from wallhack.influence2.RankAggregator import RankAggregator
 
 class GraphRanker(object): 
     def __init__(self, k=100, p=0.5, numRuns=1000, computeInfluence=False, inputRanking=None): 

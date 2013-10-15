@@ -7,9 +7,9 @@ import numpy
 import logging 
 import sys 
 import argparse
-from exp.influence2.GraphRanker import GraphRanker 
-from exp.influence2.RankAggregator import RankAggregator
-from exp.influence2.ArnetMinerDataset import ArnetMinerDataset
+from wallhack.influence2.GraphRanker import GraphRanker 
+from wallhack.influence2.RankAggregator import RankAggregator
+from wallhack.influence2.ArnetMinerDataset import ArnetMinerDataset
 from apgl.util.Latex import Latex 
 from apgl.util.Evaluator import Evaluator
 from apgl.util.Util import Util
