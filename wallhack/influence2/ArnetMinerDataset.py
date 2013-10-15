@@ -17,9 +17,9 @@ from gensim.models.lsimodel import LsiModel
 import gensim.similarities
 from apgl.util.Util import Util 
 from apgl.util.PathDefaults import PathDefaults 
-from exp.util.IdIndexer import IdIndexer
+from sandbox.util.IdIndexer import IdIndexer
 from collections import Counter, OrderedDict 
-from exp.util.PorterTokeniser import PorterTokeniser
+from sandbox.util.PorterTokeniser import PorterTokeniser
 
 class ArnetMinerDataset(object): 
     """
@@ -272,7 +272,7 @@ class ArnetMinerDataset(object):
         
         return newExpertsByDocSimilarity, newExpertsByCitations 
 
-    def readAuthorsAndDocuments(self): 
+    def readAuthorsAndDocuments(self, useAbstract=True): 
         logging.debug("About to read file " + self.dataFilename)
         inFile = open(self.dataFilename)  
         authorList = []
@@ -297,7 +297,10 @@ class ArnetMinerDataset(object):
             citationNo = re.findall("#citation(.*)", line)
             
             if emptyLine:
-                document = lastTitle + " " + lastAbstract 
+                if useAbstract: 
+                    document = lastTitle + " " + lastAbstract 
+                else: 
+                    document = lastTitle     
                 documentList.append(document) 
                 authorList.append(lastAuthors)
                 citationList.append(lastCitationNo)
