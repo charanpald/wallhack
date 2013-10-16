@@ -119,13 +119,6 @@ class HIVEpidemicModel():
             muCTt = numpy.sum(contactTracingRates)
             #rhot = sigmat + muRSt + muCTt
             
-            if len(infectedSet) > 50: 
-                print("output")
-                print(numpy.arange(self.graph.size)[self.graph.degreeSequence() == 0])
-                print(contactInds)
-                print(self.graph.vList.V[self.graph.degreeSequence() == 0, HIVVertices.stateIndex])
-                #Why do we always get same contact inds? 
-
             assert sigmat >= 0
             assert muRSt >= 0
             assert muCTt >= 0 
