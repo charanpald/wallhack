@@ -1,5 +1,5 @@
 import numpy
-from exp.viroscopy.model.HIVVertices import HIVVertices
+from wallhack.viroscopy.model.HIVVertices import HIVVertices
 from apgl.util.Util import *
 import numpy.testing as nptst
 
@@ -87,7 +87,7 @@ class HIVRates():
 
         #contactTimesArr is an array of the index of the last sexual contact or -1 
         #if no previous contact 
-        self.contactTimesArr = numpy.ones(graph.getNumVertices())*-1
+        self.previousContact = numpy.ones(graph.getNumVertices())*-1
         self.neighboursList = []
         self.detectedNeighboursList = [] 
 
@@ -162,8 +162,8 @@ class HIVRates():
         self.graph.addEdge(vertexInd1, vertexInd2, t)
         self.neighboursList[vertexInd1] = self.graph.neighbours(vertexInd1)
         self.neighboursList[vertexInd2] = self.graph.neighbours(vertexInd2)
-        self.contactTimesArr[vertexInd1] = vertexInd2
-        self.contactTimesArr[vertexInd2] = vertexInd1
+        self.previousContact[vertexInd1] = vertexInd2
+        self.previousContact[vertexInd2] = vertexInd1
 
         assert (self.degSequence == self.graph.outDegreeSequence()).all()
 
@@ -231,17 +231,14 @@ class HIVRates():
         and then restrict to the people given in contactList.
         """
         if len(infectedList) == 0:
-            return numpy.array([])
+            return numpy.array([]), numpy.array([])
 
         infectedV = self.graph.vlist.V[infectedList, :]
         
         maleInfectInds = infectedV[:, HIVVertices.genderIndex]==HIVVertices.male
         femaleInfectInds = numpy.logical_not(maleInfectInds)
         biInfectInds = infectedV[:, HIVVertices.orientationIndex]==HIVVertices.bi
-        heteroInfectInds = numpy.logical_not(biInfectInds)
-        maleHeteroInfectInds = numpy.logical_and(maleInfectInds, heteroInfectInds)
         maleBiInfectInds = numpy.logical_and(maleInfectInds, biInfectInds)
-        femaleHeteroInfectInds = numpy.logical_and(femaleInfectInds, heteroInfectInds)
         femaleBiInfectInds = numpy.logical_and(femaleInfectInds, biInfectInds)
 
         #possibleContacts has as its first column the previous contacts.
@@ -251,16 +248,12 @@ class HIVRates():
         possibleContacts = numpy.zeros((len(infectedList), numPossibleContacts), numpy.int)
         possibleContactWeights = numpy.zeros((len(infectedList), numPossibleContacts))
         
-        possibleContacts[:, 0] = self.contactTimesArr[infectedList]
-
-        totalDegSequence = numpy.array(self.hiddenDegSeq*self.p + self.degSequence*(self.q-self.p), numpy.float)
-        #assert (self.expandedDegSeqFemales.shape[0] + self.expandedDegSeqMales.shape[0]) == totalDegSequence.sum(), \
-        #    "totalDegSequence.sum()=%d, expanded=%d" % (totalDegSequence.sum(), self.expandedDegSeqFemales.shape[0] + self.expandedDegSeqMales.shape[0])
+        possibleContacts[:, 0] = self.previousContact[infectedList]
 
         #Note that we may get duplicates for possible contacts since we don't check for it
-        edsInds = numpy.random.randint(0, self.expandedDegSeqFemales.shape[0], maleHeteroInfectInds.sum())
+        edsInds = numpy.random.randint(0, self.expandedDegSeqFemales.shape[0], maleInfectInds.sum())
         contactInds = self.expandedDegSeqFemales[edsInds]
-        possibleContacts[maleHeteroInfectInds, 1] = contactInds
+        possibleContacts[maleInfectInds, 1] = contactInds
 
         edsInds = numpy.random.randint(0, self.expandedDegSeqMales.shape[0], femaleInfectInds.sum())
         contactInds = self.expandedDegSeqMales[edsInds]
@@ -276,39 +269,20 @@ class HIVRates():
             contactInds = self.expandedDegSeqBiFemales[edsInds]
             possibleContacts[femaleBiInfectInds, 1] = contactInds
 
-
-        #Now compute weights for all
-        
-        #If someone has no previous contact, make sure the probability is zero
-        #Could exclude zero probability events from randomChoice if that speed things up
-        epsilon = 0.0001
-
         #Choose randomly between the last contact (if any) and current one
-        hadLastContact = numpy.array(self.contactTimesArr[infectedList]!=-1, numpy.int)
+        hadLastContact = numpy.array(self.previousContact[infectedList]!=-1, numpy.int)
         possibleContactWeights[:, 0] = self.alpha*hadLastContact
         possibleContactWeights[:, 1] = 1-self.alpha + self.alpha*(1-hadLastContact)
+        
 
         assert (possibleContactWeights >= numpy.zeros((len(infectedList), numPossibleContacts))).all()
         contactInds = Util.random2Choice(possibleContactWeights).ravel()
-        contacts = possibleContacts[(numpy.arange(possibleContacts.shape[0]), contactInds)]
-        contactsV = self.graph.vlist.V[contacts, :]
 
-        #The first column is the contact (if any) and the 2nd is the contact rate 
-        contactRateInds = numpy.ones(len(infectedList), numpy.int)*-1
-        contactRates = numpy.zeros(len(infectedList))
+        contactRateInds = possibleContacts[(numpy.arange(possibleContacts.shape[0]), contactInds)]
+        contactRates = numpy.ones(len(infectedList))*self.contactRate
         
-        #We compute sexual contact rates between infected and everyone else
-        equalGender = infectedV[:, HIVVertices.genderIndex]==contactsV[:, HIVVertices.genderIndex]
-        hInds = numpy.nonzero(numpy.logical_not(equalGender))[0]
-        contactRateInds[hInds] = contacts[hInds]
-        contactRates[hInds] = self.contactRate
+        #print(contactRateInds)
         
-        #We only simulate contact between male homosexuals (woman-women contact is not interesting)
-        bothMale = numpy.logical_and(equalGender, infectedV[:, HIVVertices.genderIndex]==HIVVertices.male)
-        bInds = numpy.nonzero(numpy.logical_and(numpy.logical_and(bothMale, contactsV[:, HIVVertices.orientationIndex]==HIVVertices.bi), biInfectInds))[0]
-        contactRateInds[bInds] = contacts[bInds]
-        contactRates[bInds] = self.contactRate
-
         return contactRateInds, contactRates
 
     """
