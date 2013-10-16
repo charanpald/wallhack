@@ -8,6 +8,8 @@ from wallhack.viroscopy.model.HIVGraph import HIVGraph
 from wallhack.viroscopy.model.HIVEpidemicModel import HIVEpidemicModel
 from wallhack.viroscopy.model.HIVRates import HIVRates
 from wallhack.viroscopy.model.HIVModelUtils import HIVModelUtils
+import matplotlib 
+matplotlib.use("GTK3Agg")
 import matplotlib.pyplot as plt 
 
 """
@@ -24,7 +26,7 @@ numpy.set_printoptions(suppress=True, precision=4, linewidth=100)
 
 startDate, endDate, recordStep, M, targetGraph = HIVModelUtils.realSimulationParams()
 M = 100
-endDate = startDate + 2000
+endDate = startDate + 1000
 meanTheta, sigmaTheta = HIVModelUtils.estimatedRealTheta()
 meanTheta = numpy.array([ 1,   0.1,    0.0,    0.00,         0.5,      0.1])
 outputDir = PathDefaults.getOutputDir() + "viroscopy/"
