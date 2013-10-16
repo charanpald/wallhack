@@ -25,42 +25,56 @@ class HIVRates():
         self.heteroMaleInds = numpy.logical_and(self.maleInds, self.graph.vlist.V[:, HIVVertices.orientationIndex]==HIVVertices.hetero)
         self.biFemaleInds = numpy.logical_and(self.femaleInds, self.graph.vlist.V[:, HIVVertices.orientationIndex]==HIVVertices.bi)
 
-        #We need to store degree sequences for 3 types
-        self.expandedDegSeqFemales = Util.expandIntArray(graph.outDegreeSequence()[self.femaleInds]*(self.q-self.p))
-        self.expandedDegSeqFemales = numpy.append(self.expandedDegSeqFemales, Util.expandIntArray(hiddenDegSeq[self.femaleInds]*self.p))
-        self.expandedDegSeqFemales = numpy.arange(graph.size)[self.femaleInds][self.expandedDegSeqFemales]
+        #We need to store degree sequences for 4 types
+        #Each expanded degree sequence is a list of indices repeated according to the degree of the corresponding vertex 
+        degreeCounts = numpy.zeros(self.graph.size, numpy.int)
+        degreeCounts[self.femaleInds] = 1
+        degreeCounts[self.femaleInds] += graph.outDegreeSequence()[self.femaleInds]*(self.q-self.p)
+        degreeCounts[self.femaleInds] += hiddenDegSeq[self.femaleInds]*self.p
+        self.expandedDegSeqFemales = Util.expandIntArray(degreeCounts)
         
-        self.expandedDegSeqMales = Util.expandIntArray(graph.outDegreeSequence()[self.maleInds]*(self.q-self.p))
-        self.expandedDegSeqMales = numpy.append(self.expandedDegSeqMales, Util.expandIntArray(hiddenDegSeq[self.maleInds]*self.p))
-        self.expandedDegSeqMales = numpy.arange(graph.size)[self.maleInds][self.expandedDegSeqMales]        
+        degreeCounts = numpy.zeros(self.graph.size, numpy.int)
+        degreeCounts[self.maleInds] = 1
+        degreeCounts[self.maleInds] += graph.outDegreeSequence()[self.maleInds]*(self.q-self.p)
+        degreeCounts[self.maleInds] += hiddenDegSeq[self.maleInds]*self.p
+        self.expandedDegSeqMales = Util.expandIntArray(degreeCounts)      
         
-        self.expandedDegSeqBiMales = Util.expandIntArray(graph.outDegreeSequence()[self.biMaleInds]*(self.q-self.p))
-        self.expandedDegSeqBiMales = numpy.append(self.expandedDegSeqBiMales, Util.expandIntArray(hiddenDegSeq[self.biMaleInds]*self.p))
-        self.expandedDegSeqBiMales = numpy.arange(graph.size)[self.biMaleInds][self.expandedDegSeqBiMales]   
+        degreeCounts = numpy.zeros(self.graph.size, numpy.int)
+        degreeCounts[self.biMaleInds] = 1
+        degreeCounts[self.biMaleInds] += graph.outDegreeSequence()[self.biMaleInds]*(self.q-self.p)
+        degreeCounts[self.biMaleInds] += hiddenDegSeq[self.biMaleInds]*self.p
+        self.expandedDegSeqBiMales = Util.expandIntArray(degreeCounts)          
         
-        self.expandedDegSeqBiFemales = Util.expandIntArray(graph.outDegreeSequence()[self.biFemaleInds]*(self.q-self.p))
-        self.expandedDegSeqBiFemales = numpy.append(self.expandedDegSeqBiFemales, Util.expandIntArray(hiddenDegSeq[self.biFemaleInds]*self.p))
-        self.expandedDegSeqBiFemales = numpy.arange(graph.size)[self.biFemaleInds][self.expandedDegSeqBiFemales]   
+        degreeCounts = numpy.zeros(self.graph.size, numpy.int)
+        degreeCounts[self.biFemaleInds] = 1
+        degreeCounts[self.biFemaleInds] += graph.outDegreeSequence()[self.biFemaleInds]*(self.q-self.p)
+        degreeCounts[self.biFemaleInds] += hiddenDegSeq[self.biFemaleInds]*self.p
+        self.expandedDegSeqBiFemales = Util.expandIntArray(degreeCounts)  
+        
+        nptst.assert_array_equal(numpy.unique(self.expandedDegSeqFemales), numpy.arange(self.graph.size)[self.femaleInds]) 
+        nptst.assert_array_equal(numpy.unique(self.expandedDegSeqMales), numpy.arange(self.graph.size)[self.maleInds])
+        nptst.assert_array_equal(numpy.unique(self.expandedDegSeqBiMales), numpy.arange(self.graph.size)[self.biMaleInds])
+        nptst.assert_array_equal(numpy.unique(self.expandedDegSeqBiFemales), numpy.arange(self.graph.size)[self.biFemaleInds])
 
         #Check degree sequence         
         if __debug__: 
             binShape = numpy.bincount(self.expandedDegSeqFemales).shape[0]
             assert (numpy.bincount(self.expandedDegSeqFemales)[self.femaleInds[0:binShape]] == 
-                (graph.outDegreeSequence()*(self.q-self.p)+hiddenDegSeq*self.p)[self.femaleInds[0:binShape]]).all()
+                (graph.outDegreeSequence()*(self.q-self.p)+hiddenDegSeq*self.p)[self.femaleInds[0:binShape]] + 1).all()
               
             binShape = numpy.bincount(self.expandedDegSeqMales).shape[0]
             assert (numpy.bincount(self.expandedDegSeqMales)[self.maleInds[0:binShape]] == 
-                (graph.outDegreeSequence()*(self.q-self.p)+hiddenDegSeq*self.p)[self.maleInds[0:binShape]]).all()
+                (graph.outDegreeSequence()*(self.q-self.p)+hiddenDegSeq*self.p)[self.maleInds[0:binShape]] + 1).all()
                 
             if self.expandedDegSeqBiMales.shape[0]!=0:
                 binShape = numpy.bincount(self.expandedDegSeqBiMales).shape[0]                
                 assert (numpy.bincount(self.expandedDegSeqBiMales)[self.biMaleInds[0:binShape]] == 
-                    (graph.outDegreeSequence()*(self.q-self.p)+hiddenDegSeq*self.p)[self.biMaleInds[0:binShape]]).all()
+                    (graph.outDegreeSequence()*(self.q-self.p)+hiddenDegSeq*self.p)[self.biMaleInds[0:binShape]] + 1).all()
                     
             if self.expandedDegSeqBiFemales.shape[0]!=0:
                 binShape = numpy.bincount(self.expandedDegSeqBiFemales).shape[0]                
                 assert (numpy.bincount(self.expandedDegSeqBiFemales)[self.biFemaleInds[0:binShape]] == 
-                    (graph.outDegreeSequence()*(self.q-self.p)+hiddenDegSeq*self.p)[self.biFemaleInds[0:binShape]]).all()
+                    (graph.outDegreeSequence()*(self.q-self.p)+hiddenDegSeq*self.p)[self.biFemaleInds[0:binShape]] + 1).all()
 
         self.hiddenDegSeq = hiddenDegSeq
         self.degSequence = graph.outDegreeSequence() 
