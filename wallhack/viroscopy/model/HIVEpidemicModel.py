@@ -2,8 +2,8 @@ import logging
 import numpy
 from apgl.graph import *
 from apgl.util import *
-from exp.viroscopy.model.HIVGraph import HIVGraph
-from exp.viroscopy.model.HIVVertices import HIVVertices
+from wallhack.viroscopy.model.HIVGraph import HIVGraph
+from wallhack.viroscopy.model.HIVVertices import HIVVertices
 
 class HIVEpidemicModel():
     def __init__(self, graph, rates, T=100.0, T0=0.0, metrics=None):
@@ -119,8 +119,12 @@ class HIVEpidemicModel():
             muCTt = numpy.sum(contactTracingRates)
             #rhot = sigmat + muRSt + muCTt
             
-            
-            #print(randomDetectRates)
+            if len(infectedSet) > 50: 
+                print("output")
+                print(numpy.arange(self.graph.size)[self.graph.degreeSequence() == 0])
+                print(contactInds)
+                print(self.graph.vList.V[self.graph.degreeSequence() == 0, HIVVertices.stateIndex])
+                #Why do we always get same contact inds? 
 
             assert sigmat >= 0
             assert muRSt >= 0
