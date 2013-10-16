@@ -2,7 +2,7 @@ import numpy
 import logging 
 
 from apgl.util.Parameter import Parameter
-from exp.sandbox.GraphMatch import GraphMatch 
+from sandbox.misc.GraphMatch import GraphMatch 
 
 class HIVGraphMetrics2(object): 
     def __init__(self, realGraph, breakDist=0.2, matcher=None, T=1000):

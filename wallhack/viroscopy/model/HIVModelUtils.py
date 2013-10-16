@@ -8,11 +8,11 @@ import logging
 from apgl.util import Util 
 from apgl.util import PathDefaults 
 from apgl.graph.GraphStatistics import GraphStatistics
-from exp.viroscopy.model.HIVGraph import HIVGraph
-from exp.viroscopy.model.HIVEpidemicModel import HIVEpidemicModel
-from exp.viroscopy.model.HIVRates import HIVRates
-from exp.viroscopy.model.HIVVertices import HIVVertices
-from exp.viroscopy.HIVGraphReader import HIVGraphReader, CsvConverters
+from wallhack.viroscopy.model.HIVGraph import HIVGraph
+from wallhack.viroscopy.model.HIVEpidemicModel import HIVEpidemicModel
+from wallhack.viroscopy.model.HIVRates import HIVRates
+from wallhack.viroscopy.model.HIVVertices import HIVVertices
+from wallhack.viroscopy.HIVGraphReader import HIVGraphReader, CsvConverters
 
 class HIVModelUtils(object):
     def __init__(self): 

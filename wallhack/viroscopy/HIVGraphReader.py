@@ -1,8 +1,8 @@
 from apgl.io.MultiGraphCsvReader import MultiGraphCsvReader
 from apgl.util.PathDefaults import PathDefaults
-from apgl.data.FeatureGenerator import FeatureGenerator
-from exp.viroscopy.model.HIVGraph import HIVGraph 
-from exp.viroscopy.model.HIVVertices import HIVVertices
+from sandbox.data.FeatureGenerator import FeatureGenerator
+from wallhack.viroscopy.model.HIVGraph import HIVGraph 
+from wallhack.viroscopy.model.HIVVertices import HIVVertices
 import datetime
 import numpy
 import logging

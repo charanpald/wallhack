@@ -4,10 +4,10 @@ import sys
 import numpy
 from apgl.graph import *
 from apgl.util import *
-from exp.viroscopy.model.HIVGraph import HIVGraph
-from exp.viroscopy.model.HIVEpidemicModel import HIVEpidemicModel
-from exp.viroscopy.model.HIVRates import HIVRates
-from exp.viroscopy.model.HIVModelUtils import HIVModelUtils
+from wallhack.viroscopy.model.HIVGraph import HIVGraph
+from wallhack.viroscopy.model.HIVEpidemicModel import HIVEpidemicModel
+from wallhack.viroscopy.model.HIVRates import HIVRates
+from wallhack.viroscopy.model.HIVModelUtils import HIVModelUtils
 from apgl.graph.GraphStatistics import GraphStatistics
 import matplotlib 
 matplotlib.use("GTK3Agg")

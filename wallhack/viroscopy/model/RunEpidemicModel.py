@@ -4,15 +4,15 @@ import sys
 import numpy
 from apgl.graph import *
 from apgl.util import *
-from exp.viroscopy.model.HIVGraph import HIVGraph
-from exp.viroscopy.model.HIVEpidemicModel import HIVEpidemicModel
-from exp.viroscopy.model.HIVRates import HIVRates
-from exp.viroscopy.model.HIVModelUtils import HIVModelUtils
+from wallhack.viroscopy.model.HIVGraph import HIVGraph
+from wallhack.viroscopy.model.HIVEpidemicModel import HIVEpidemicModel
+from wallhack.viroscopy.model.HIVRates import HIVRates
+from wallhack.viroscopy.model.HIVModelUtils import HIVModelUtils
 import matplotlib.pyplot as plt 
 
 """
-This is the epidemic model for the HIV spread in cuba. We try to get more bisexual 
-contacts  
+This is the epidemic model for the HIV spread in cuba. Let's try to get an 
+exponential infection. 
 """
 
 assert False, "Must run with -O flag"
@@ -23,9 +23,10 @@ numpy.random.seed(24)
 numpy.set_printoptions(suppress=True, precision=4, linewidth=100)
 
 startDate, endDate, recordStep, M, targetGraph = HIVModelUtils.realSimulationParams()
-endDate = startDate + 1000
+M = 100
+endDate = startDate + 2000
 meanTheta, sigmaTheta = HIVModelUtils.estimatedRealTheta()
-meanTheta = numpy.array([ 50,   0.9,    0.1,    0.01,    325,        0.34,      0.001])
+meanTheta = numpy.array([ 1,   0.1,    0.0,    0.00,         0.5,      0.1])
 outputDir = PathDefaults.getOutputDir() + "viroscopy/"
 
 undirected = True
@@ -48,20 +49,19 @@ logging.debug("MeanTheta=" + str(meanTheta))
 
 times, infectedIndices, removedIndices, graph = model.simulate(True)
 
-times, vertexArray, removedGraphStats = HIVModelUtils.generateStatistics(graph, startDate, endDate, recordStep)
+statistics = GraphStatistics()
+vertexArray, infectedIndices, removedIndices, contactGraphStats, removedGraphStats = HIVModelUtils.generateStatistics(graph, times)
+
+numInfectedIndices = [len(x) for x in infectedIndices]
 
 plt.figure(0)
-plt.plot(times, vertexArray[:, 0])
+plt.plot(times, numInfectedIndices)
 plt.xlabel("Time")
-plt.ylabel("Removed")
+plt.ylabel("Infected")
 
-plt.figure(2)
-plt.plot(times, vertexArray[:, 5])
+plt.figure(1)
+plt.plot(times, contactGraphStats[:, statistics.numVerticesIndex])
 plt.xlabel("Time")
-plt.ylabel("Rand Detect")
+plt.ylabel("Contact graph size")
 
-plt.figure(3)
-plt.plot(times, vertexArray[:, 6])
-plt.xlabel("Time")
-plt.ylabel("Contact Trace")
 plt.show()

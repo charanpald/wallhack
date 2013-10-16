@@ -8,11 +8,11 @@ from apgl.graph.GraphStatistics import GraphStatistics
 from apgl.util.PathDefaults import PathDefaults
 from apgl.util.Util import Util 
 from apgl.util.Latex import Latex 
-from apgl.predictors.ABCSMC import loadThetaArray 
-from exp.viroscopy.model.HIVModelUtils import HIVModelUtils
-from exp.viroscopy.model.HIVVertices import HIVVertices
-from exp.sandbox.GraphMatch import GraphMatch
-from exp.viroscopy.model.HIVGraphMetrics2 import HIVGraphMetrics2
+from sandbox.predictors.ABCSMC import loadThetaArray 
+from wallhack.viroscopy.model.HIVModelUtils import HIVModelUtils
+from wallhack.viroscopy.model.HIVVertices import HIVVertices
+from sandbox.misc.GraphMatch import GraphMatch
+from wallhack.viroscopy.model.HIVGraphMetrics2 import HIVGraphMetrics2
 
 assert False, "Must run with -O flag"
 

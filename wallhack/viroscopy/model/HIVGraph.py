@@ -2,8 +2,8 @@ import numpy
 import os
 import zipfile
 import logging
-from exp.sandbox.graph.CsArrayGraph import CsArrayGraph
-from exp.viroscopy.model.HIVVertices import HIVVertices
+from apgl.graph.CsArrayGraph import CsArrayGraph
+from wallhack.viroscopy.model.HIVVertices import HIVVertices
 from apgl.graph.VertexList import VertexList
 from apgl.util.Parameter import Parameter
 from apgl.util.Util import Util 
