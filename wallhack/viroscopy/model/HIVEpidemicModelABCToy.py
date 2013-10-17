@@ -71,7 +71,7 @@ purtScale = 0.05
 meanTheta, sigmaTheta = HIVModelUtils.toyTheta()
 abcParams = HIVABCParameters(meanTheta, sigmaTheta, purtScale)
 thetaDir = resultsDir + "theta/"
-logging.debug(meanTheta, sigmaTheta)
+logging.debug((meanTheta, sigmaTheta))
 
 abcSMC = ABCSMC(epsilonArray, createModel, abcParams, thetaDir, True)
 abcSMC.setPosteriorSampleSize(posteriorSampleSize)
