@@ -73,7 +73,6 @@ class HIVEpidemicModel():
         self.rates.setContactRate(theta[4])
         self.rates.setInfectProb(theta[5])
         
-    #@profile
     def simulate(self, verboseOut=False):
         """
         Simulate epidemic propogation until there are no more infectives or
@@ -112,8 +111,6 @@ class HIVEpidemicModel():
             assert (contactTracingRates == numpy.abs(contactTracingRates)).all()
             assert (randomDetectRates == numpy.abs(randomDetectRates)).all()
             
-            assert (contactTracingRates!=0).sum() <= self.rates.maxDetects 
-
             sigmat = contactRates.sum()
             muRSt = numpy.sum(randomDetectRates)
             muCTt = numpy.sum(contactTracingRates)
@@ -183,7 +180,7 @@ class HIVEpidemicModel():
 
             infectedList = list(infectedSet)
             removedList = list(removedSet)
-            contactList = list(contactSet)
+            #contactList = list(contactSet)
 
             if t >= nextStep:
                 logging.debug("t-T0=" + str(t-self.T0) + " S=" + str(len(susceptibleSet)) + " I=" + str(len(infectedSet)) + " R=" + str(len(removedSet)) + " C=" + str(numContacts) + " E=" + str(self.graph.getNumEdges()))
