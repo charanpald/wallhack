@@ -5,10 +5,10 @@ import scipy.stats
 
 from apgl.graph import *
 from apgl.util import *
-from exp.viroscopy.model.HIVEpidemicModel import HIVEpidemicModel
-from exp.viroscopy.model.HIVGraph import HIVGraph
-from exp.viroscopy.model.HIVRates import HIVRates
-from exp.viroscopy.model.HIVModelUtils import HIVModelUtils
+from wallhack.viroscopy.model.HIVEpidemicModel import HIVEpidemicModel
+from wallhack.viroscopy.model.HIVGraph import HIVGraph
+from wallhack.viroscopy.model.HIVRates import HIVRates
+from wallhack.viroscopy.model.HIVModelUtils import HIVModelUtils
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.random.seed(24)
@@ -20,10 +20,8 @@ class HIVEpidemicModelProfile():
         assert False, "Must run with -O flag"
 
     def profileSimulate(self):
-        startDate, endDate, recordStep, printStep, M, targetGraph = HIVModelUtils.realSimulationParams()
+        startDate, endDates, numRecordSteps, M, targetGraph = HIVModelUtils.realSimulationParams()
         meanTheta, sigmaTheta = HIVModelUtils.estimatedRealTheta()
-        meanTheta = numpy.array([337,        1.4319,    0.211,     0.0048,    0.0032,    0.5229,    0.042,     0.0281,    0.0076,    0.0293])
-
         
         undirected = True
         graph = HIVGraph(M, undirected)
@@ -37,9 +35,8 @@ class HIVEpidemicModelProfile():
         rates = HIVRates(graph, hiddenDegSeq)
         model = HIVEpidemicModel(graph, rates)
         model.setT0(startDate)
-        model.setT(startDate+100)
-        model.setRecordStep(recordStep)
-        model.setPrintStep(printStep)
+        model.setT(startDate+1000)
+        model.setRecordStep(10)
         model.setParams(meanTheta)
         
         logging.debug("MeanTheta=" + str(meanTheta))
