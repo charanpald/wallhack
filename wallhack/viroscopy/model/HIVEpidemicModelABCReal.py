@@ -2,16 +2,15 @@
 A script to estimate the HIV epidemic model parameters using ABC for real data.
 """
 from apgl.util import *
-from exp.viroscopy.model.HIVGraph import HIVGraph
-from exp.viroscopy.model.HIVABCParameters import HIVABCParameters
-from exp.viroscopy.model.HIVEpidemicModel import HIVEpidemicModel
-from exp.viroscopy.model.HIVRates import HIVRates
-from exp.viroscopy.model.HIVVertices import HIVVertices
-from exp.viroscopy.model.HIVModelUtils import HIVModelUtils
-from exp.viroscopy.model.HIVGraphMetrics2 import HIVGraphMetrics2
-from exp.sandbox.GraphMatch import GraphMatch
-from apgl.predictors.ABCSMC import ABCSMC
-
+from wallhack.viroscopy.model.HIVGraph import HIVGraph
+from wallhack.viroscopy.model.HIVABCParameters import HIVABCParameters
+from wallhack.viroscopy.model.HIVEpidemicModel import HIVEpidemicModel
+from wallhack.viroscopy.model.HIVRates import HIVRates
+from wallhack.viroscopy.model.HIVModelUtils import HIVModelUtils
+from wallhack.viroscopy.model.HIVGraphMetrics2 import HIVGraphMetrics2
+from wallhack.viroscopy.model.HIVVertices import HIVVertices
+from sandbox.misc.GraphMatch import GraphMatch
+from sandbox.predictors.ABCSMC import ABCSMC
 import os
 import logging
 import sys
@@ -25,10 +24,9 @@ if len(sys.argv) > 1:
 else: 
     numProcesses = multiprocessing.cpu_count()
 
-logging.debug("Number of processes: " + str(numProcesses))
-
 FORMAT = "%(levelname)s:root:%(process)d:%(message)s"
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, format=FORMAT)
+logging.debug("Number of processes: " + str(numProcesses))
 numpy.set_printoptions(suppress=True, precision=4, linewidth=150)
 numpy.seterr(invalid='raise')
 
