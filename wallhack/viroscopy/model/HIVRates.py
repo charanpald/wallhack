@@ -27,6 +27,7 @@ class HIVRates():
 
         #We need to store degree sequences for 4 types
         #Each expanded degree sequence is a list of indices repeated according to the degree of the corresponding vertex 
+        #We add 1 to the hidden degree sequence and degree sequence of the graph 
         degreeCounts = numpy.zeros(self.graph.size, numpy.int)
         degreeCounts[self.femaleInds] = 1
         degreeCounts[self.femaleInds] += graph.outDegreeSequence()[self.femaleInds]*(self.q-self.p)
@@ -80,8 +81,7 @@ class HIVRates():
         self.degSequence = graph.outDegreeSequence() 
 
         #Parameters for sexual contact
-        self.alpha = 0.5
-        
+        self.alpha = 0.5 
         self.contactRate = 0.5
 
         #Infection probabilities are from wikipedia
@@ -89,9 +89,6 @@ class HIVRates():
 
         #Random detection
         self.randDetectRate = 1/720.0
-        
-        #The max number of people who are being simultaneously detected 
-        self.maxDetects = 10
 
         #Contact tracing parameters 
         self.ctRatePerPerson = 0.3
@@ -117,8 +114,6 @@ class HIVRates():
         
         self.alpha = alpha
 
-
-
     def setContactRate(self, contactRate):
         Parameter.checkFloat(contactRate, 0.0, float('inf'))
         self.contactRate = contactRate
@@ -135,10 +130,6 @@ class HIVRates():
         Parameter.checkFloat(infectProb, 0.0, 1.0)
         self.infectProb = infectProb
         
-    def setMaxDetects(self, maxDetects): 
-        Parameter.checkInt(maxDetects, 1, float("inf"))
-        self.maxDetects = maxDetects 
-
     #@profile
     def contactEvent(self, vertexInd1, vertexInd2, t):
         """
@@ -203,7 +194,6 @@ class HIVRates():
             if self.graph.vlist.V[vertexInd, HIVVertices.orientationIndex]==HIVVertices.bi:
                 self.expandedDegSeqBiFemales = self.expandedDegSeqBiFemales[self.expandedDegSeqBiFemales!=vertexInd]    
         
-
         #Update set of detected neighbours
         for neighbour in self.neighboursList[vertexInd]:
             self.detectedNeighboursList[neighbour] = numpy.append(self.detectedNeighboursList[neighbour], numpy.array([vertexInd])) 
@@ -313,16 +303,13 @@ class HIVRates():
         if vertex1[HIVVertices.stateIndex]!=HIVVertices.infected or vertex2[HIVVertices.stateIndex]!=HIVVertices.susceptible:
             return 0.0
 
-        if vertex1[HIVVertices.genderIndex] == HIVVertices.female and vertex2[HIVVertices.genderIndex] == HIVVertices.male:
-            return self.infectProb
-        elif vertex1[HIVVertices.genderIndex] == HIVVertices.male and vertex2[HIVVertices.genderIndex] == HIVVertices.female:
+        if vertex1[HIVVertices.genderIndex] != vertex2[HIVVertices.genderIndex]:
             return self.infectProb
         elif vertex1[HIVVertices.genderIndex] == HIVVertices.male and vertex1[HIVVertices.orientationIndex]==HIVVertices.bi and vertex2[HIVVertices.genderIndex] == HIVVertices.male and vertex2[HIVVertices.orientationIndex]==HIVVertices.bi:
             return self.infectProb
         else:
             #Corresponds to 2 bisexual women 
             return 0.0 
-
 
     def randomDetectionRates(self, infectedList, n, seed=21):
         """
