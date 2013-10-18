@@ -83,6 +83,8 @@ for i, endDate in enumerate(endDates):
     
     epsilonArray = numpy.ones(numEpsilons)    
     
+    os.system('taskset -p 0xffffffff %d' % os.getpid())
+    
     abcSMC = ABCSMC(epsilonArray, createModel, abcParams, thetaDir, True)
     abcSMC.setPosteriorSampleSize(posteriorSampleSize)
     abcSMC.setNumProcesses(numProcesses)
