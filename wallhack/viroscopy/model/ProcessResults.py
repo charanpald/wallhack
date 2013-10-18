@@ -24,6 +24,7 @@ saveResults = False
 
 if processReal: 
     ind = 0 
+    N = 50 
     resultsDir = PathDefaults.getOutputDir() + "viroscopy/real/theta" + str(ind) + "/"
     outputDir = resultsDir + "stats/"
     startDate, endDates, numRecordSteps, M, targetGraph = HIVModelUtils.realSimulationParams()
@@ -32,6 +33,7 @@ if processReal:
     #endDate += HIVModelUtils.toyTestPeriod
     realTheta, sigmaTheta = HIVModelUtils.estimatedRealTheta()
 else: 
+    N = 20 
     resultsDir = PathDefaults.getOutputDir() + "viroscopy/toy/theta/"
     outputDir = resultsDir + "stats/"
     startDate, endDate, recordStep, M, targetGraph = HIVModelUtils.toySimulationParams()
@@ -44,7 +46,7 @@ except:
     pass 
 
 graphStats = GraphStatistics()
-N = 20 
+
 t = 0
 maxT = 10
 minVal = 10 
