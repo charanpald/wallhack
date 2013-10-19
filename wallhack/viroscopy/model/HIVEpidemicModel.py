@@ -159,14 +159,14 @@ class HIVEpidemicModel():
                     susceptibleSet.remove(contactIndex)
                     
             elif p >= contactProb and p < contactProb+detectionRandom:             
-                eventInd = Util.randomChoice(randomDetectRates)
+                eventInd = Util.randomChoice(randomDetectRates)[0]
                 newDetectedIndex = infectedList[eventInd]
                 self.rates.removeEvent(newDetectedIndex, HIVVertices.randomDetect, t)
                 removedSet.add(newDetectedIndex)
                 infectedSet.remove(newDetectedIndex)
                 contactSet.remove(newDetectedIndex)
             elif p >= contactProb+detectionRandom and p < contactProb+detectionRandom+detectionContact:
-                eventInd = Util.randomChoice(contactTracingRates)
+                eventInd = Util.randomChoice(contactTracingRates)[0]
                 newDetectedIndex = infectedList[eventInd]
                 self.rates.removeEvent(newDetectedIndex, HIVVertices.contactTrace, t)
                 removedSet.add(newDetectedIndex)
