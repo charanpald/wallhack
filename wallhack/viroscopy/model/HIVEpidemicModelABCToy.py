@@ -36,7 +36,7 @@ startDate, endDate, recordStep, M, targetGraph = HIVModelUtils.toySimulationPara
 epsilonArray = numpy.linspace(0.6, 0, 5)
 logging.debug("Total time of simulation is " + str(endDate-startDate))
 
-posteriorSampleSize = 30
+posteriorSampleSize = 50
 breakDist = 0.7
 logging.debug("Posterior sample size " + str(posteriorSampleSize))
 alpha = 2
@@ -68,7 +68,7 @@ def createModel(t):
 
     return model
 
-purtScale = 0.05 
+purtScale = 0.1 
 meanTheta, sigmaTheta = HIVModelUtils.toyTheta()
 abcParams = HIVABCParameters(meanTheta, sigmaTheta, purtScale)
 thetaDir = resultsDir + "theta/"
