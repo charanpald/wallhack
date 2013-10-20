@@ -72,6 +72,10 @@ purtScale = 0.1
 meanTheta, sigmaTheta = HIVModelUtils.toyTheta()
 abcParams = HIVABCParameters(meanTheta, sigmaTheta, purtScale)
 thetaDir = resultsDir + "theta/"
+
+if not os.path.exists(thetaDir): 
+    os.mkdir(thetaDir)
+
 logging.debug((meanTheta, sigmaTheta))
 
 abcSMC = ABCSMC(epsilonArray, createModel, abcParams, thetaDir, True)
