@@ -21,7 +21,7 @@ numpy.random.seed(24)
 numpy.set_printoptions(suppress=True, precision=4, linewidth=100)
 
 startDate, endDate, recordStep, M = HIVModelUtils.toySimulationParams(False)
-endDate += HIVModelUtils.toyTestPeriod
+#endDate += HIVModelUtils.toyTestPeriod
 
 numRepetitions = 10
 undirected = True
@@ -29,6 +29,8 @@ outputDir = PathDefaults.getOutputDir() + "viroscopy/toy/"
 theta, sigmaTheta = HIVModelUtils.toyTheta() 
 
 graphList = []
+numInfected = numpy.zeros(numRepetitions)
+numRemoved = numpy.zeros(numRepetitions)
 
 for j in range(numRepetitions):
     graph = HIVGraph(M, undirected)
@@ -52,5 +54,9 @@ for j in range(numRepetitions):
     graph.save(graphFileName)
     
     graphList.append(graph)
+    numInfected[j] = len(graph.getInfectedSet())
+    numRemoved[j] = len(graph.getRemovedSet())
 
-logging.debug("All done. ")
+logging.debug("Infected (mean, std): " + str((numpy.mean(numInfected), numpy.std(numInfected))))
+logging.debug("Removed (mean, std): " + str((numpy.mean(numRemoved), numpy.std(numRemoved))))
+logging.debug("All done.")
