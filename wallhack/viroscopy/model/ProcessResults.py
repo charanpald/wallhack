@@ -19,7 +19,7 @@ assert False, "Must run with -O flag"
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.set_printoptions(suppress=True, precision=4, linewidth=150)
 
-processReal = True
+processReal = False
 saveResults = False 
 
 if processReal: 
@@ -33,7 +33,7 @@ if processReal:
     #endDate += HIVModelUtils.toyTestPeriod
     realTheta, sigmaTheta = HIVModelUtils.estimatedRealTheta()
 else: 
-    N = 20 
+    N = 50 
     resultsDir = PathDefaults.getOutputDir() + "viroscopy/toy/theta/"
     outputDir = resultsDir + "stats/"
     startDate, endDate, recordStep, M, targetGraph = HIVModelUtils.toySimulationParams()
@@ -80,7 +80,7 @@ def saveStats(args):
     times, infectedIndices, removedIndices, graph = HIVModelUtils.simulate(thetaArray[i], startDate, endDate, recordStep, M, graphMetrics)
     times = numpy.arange(startDate, endDate+1, recordStep)
     vertexArray, infectedIndices, removedIndices, contactGraphStats, removedGraphStats = HIVModelUtils.generateStatistics(graph, times)
-    stats = times, vertexArray, removedGraphStats, graphMetrics.dists, graphMetrics.graphDists, graphMetrics.labelDists
+    stats = times, vertexArray, infectedIndices, removedGraphStats, graphMetrics.dists, graphMetrics.graphDists, graphMetrics.labelDists
     resultsFileName = outputDir + "SimStats" + str(i) + ".pkl"
     Util.savePickle(stats, resultsFileName)
 
@@ -120,149 +120,94 @@ else:
 
     resultsFileName = outputDir + "IdealStats.pkl"
     stats = Util.loadPickle(resultsFileName)  
-    vertexArrayIdeal, infectedIndices, removedIndices, contactGraphStats, removedGraphStats = stats 
+    vertexArrayIdeal, idealInfectedIndices, removedIndices, contactGraphStats, removedGraphStats = stats 
     times = numpy.arange(startDate, endDate+1, recordStep)  
     print(times)    
     
     graphStats = GraphStatistics()
     
-    #First plot graphs for ideal theta 
     plotInd = 0 
-    
-    plt.figure(plotInd)
-    plt.plot(times, vertexArrayIdeal[:, 0], "r")
-    plt.xlabel("Time (days)")
-    plt.ylabel("Removed")
-    plotInd += 1
-    
-    plt.figure(plotInd)
-    plt.plot(times, vertexArrayIdeal[:, 1], "r")
-    plt.xlabel("Time (days)")
-    plt.ylabel("Males")
-    plotInd += 1
-    
-    plt.figure(plotInd)
-    plt.plot(times, vertexArrayIdeal[:, 2], "r")
-    plt.xlabel("Time (days)")
-    plt.ylabel("Females")
-    plotInd += 1
-    
-    plt.figure(plotInd)
-    plt.plot(times, vertexArrayIdeal[:, 3], "r")
-    plt.xlabel("Time (days)")
-    plt.ylabel("Hetero")
-    plotInd += 1
-    
-    plt.figure(plotInd)
-    plt.plot(times, vertexArrayIdeal[:, 4], "r")
-    plt.xlabel("Time (days)")
-    plt.ylabel("Bi")
-    plotInd += 1
-    
-    plt.figure(plotInd)
-    plt.plot(times, vertexArrayIdeal[:, 5], "r")
-    plt.xlabel("Time (days)")
-    plt.ylabel("Random detection")
-    plotInd += 1
-    
-    plt.figure(plotInd)
-    plt.plot(times, vertexArrayIdeal[:, 6], "r")
-    plt.xlabel("Time (days)")
-    plt.ylabel("Contact Tracing")
-    plotInd += 1
-    
-    plt.figure(plotInd)
-    plt.plot(times, removedGraphStats[:, graphStats.numComponentsIndex], "r")
-    plt.xlabel("Time (days)")
-    plt.ylabel("Number of components")
-    plotInd += 1
-
-    plt.figure(plotInd)
-    plt.xlabel("Time (days)")
-    plt.ylabel("Distance")
-    plotInd += 1
-    
-    plt.figure(plotInd)
-    plt.xlabel("Time (days)")
-    plt.ylabel("Graph distance")
-    plotInd += 1
-    
-    plt.figure(plotInd)
-    plt.xlabel("Time (days)")
-    plt.ylabel("Label distance")
-    plotInd += 1
     
     distsArr = []
     detectsArr = []
+    infectsArr = []
+    numComponentsArr = []
+    randDetectsArr = []
+    contactTracingArr = []
 
     for i in range(thetaArray.shape[0]): 
         plotInd = 0
         resultsFileName = outputDir + "SimStats" + str(i) + ".pkl"
         stats = Util.loadPickle(resultsFileName)
         
-        times, vertexArray, removedGraphStats, dists, graphDists, labelDists = stats 
+        times, vertexArray, infectedIndices, removedGraphStats, dists, graphDists, labelDists = stats 
 
-        plt.figure(plotInd)
-        plt.plot(times, vertexArray[:, 0], plotStyles[0])
-        plotInd += 1 
         detectsArr.append(vertexArray[:, 0])
-        
-        plt.figure(plotInd)
-        plt.plot(times, vertexArray[:, 1], plotStyles[0])
-        plotInd += 1 
+        randDetectsArr.append(vertexArray[:, 5])
+        contactTracingArr.append(vertexArray[:, 6])
+        numComponentsArr.append(removedGraphStats[:, graphStats.numComponentsIndex])
+        distsArr.append(dists)        
+        numInfects = [len(x) for x in infectedIndices]
+        infectsArr.append(numInfects)
 
-        plt.figure(plotInd)
-        plt.plot(times, vertexArray[:, 2], plotStyles[0])
-        plotInd += 1 
-        
-        plt.figure(plotInd)
-        plt.plot(times, vertexArray[:, 3], plotStyles[0])
-        plotInd += 1
-        
-        plt.figure(plotInd)
-        plt.plot(times, vertexArray[:, 4], plotStyles[0])
-        plotInd += 1
-        
-        plt.figure(plotInd)
-        plt.plot(times, vertexArray[:, 5], plotStyles[0])
-        plotInd += 1
-        
-        plt.figure(plotInd)
-        plt.plot(times, vertexArray[:, 6], plotStyles[0])
-        plotInd += 1
+
+    contactTracingArr = numpy.array(contactTracingArr)
+    meanContactDetectsArr = numpy.mean(contactTracingArr, 0)
+    stdContactDetectsArr = numpy.std(contactTracingArr, 0)
+    plt.figure(plotInd)
+    plt.errorbar(times, meanContactDetectsArr, yerr=stdContactDetectsArr, label="est. CT detections") 
+    plt.plot(times, vertexArrayIdeal[:, 6], "r", label="CT detections")
+
+    meanRandDetects = numpy.array(randDetectsArr).mean(0)
+    stdRandDetects = numpy.array(randDetectsArr).std(0)
+    plt.errorbar(times, meanRandDetects, yerr=stdRandDetects, label="est. rand detections") 
+    plt.xlabel("time (days)")
+    plt.ylabel("detections")
+    plt.plot(times, vertexArrayIdeal[:, 5], "k", label="rand detections")
+    lims = plt.xlim()
+    plt.xlim([0, lims[1]]) 
+    plt.legend(loc="upper left")
+    plt.savefig(outputDir + "ToyCTRandDetects.eps")
+    plotInd += 1
     
-        plt.figure(plotInd)
-        plt.plot(times, removedGraphStats[:, graphStats.numComponentsIndex], plotStyles[0])
-        plotInd += 1
-        
-
-        plt.figure(plotInd)
-        distPlotInd = plotInd
-        plt.plot(times[1:], dists, plotStyles[0], label="Distance")
-        plotInd += 1
-        distsArr.append(dists)
-
-        
-        plt.figure(plotInd)
-        plt.plot(times[1:], graphDists, plotStyles[0])
-        plotInd += 1
-        
-        plt.figure(plotInd)
-        plt.plot(times[1:], labelDists, plotStyles[0])
-        plotInd += 1
+    infectsArr = numpy.array(infectsArr)
+    meanInfectsArr = numpy.mean(infectsArr, 0)
+    stdInfectsArr = numpy.std(infectsArr, 0)
+    numInfects = [len(x) for x in idealInfectedIndices]
+    plt.figure(plotInd)
+    plt.errorbar(times, meanInfectsArr, yerr=stdInfectsArr, label="est. infectives") 
+    plt.plot(times, numInfects, "r", label="infectives")
 
     meanDetects = numpy.array(detectsArr).mean(0)
     stdDetects = numpy.array(detectsArr).std(0)
-    plt.figure(plotInd)
-    plt.errorbar(times, meanDetects, yerr=stdDetects)  
-    plt.plot(times, vertexArrayIdeal[:, 0], "r")
-    plotInd += 1
+    plt.errorbar(times, meanDetects, yerr=stdDetects, label="est. detections") 
+    plt.xlabel("time (days)")
+    plt.ylabel("infectives/detections")
+    plt.plot(times, vertexArrayIdeal[:, 0], "k", label="detections")
+    lims = plt.xlim()
+    plt.xlim([0, lims[1]]) 
+    plt.legend(loc="lower right")
+    plt.savefig(outputDir + "ToyInfectDetects.eps")
+    plotInd += 1    
     
+
+    numComponentsArr = numpy.array(numComponentsArr)
+    meanNumComponents = numpy.mean(numComponentsArr, 0)
+    stdNumComponents = numpy.std(numComponentsArr, 0)
+    plt.figure(plotInd)
+    plt.errorbar(times, meanNumComponents, yerr=stdNumComponents) 
+    plt.xlabel("time (days)")
+    plt.ylabel("num components")
+    plt.plot(times, removedGraphStats[:, graphStats.numComponentsIndex], "r")
+    plotInd += 1
+
     
     meanDists = numpy.array(distsArr).mean(0)
     stdDists = numpy.array(distsArr).std(0)
     plt.figure(plotInd)
     plt.errorbar(times[1:], meanDists, yerr=stdDists) 
+    plt.xlabel("time (days)")
+    plt.ylabel("distances")
     plotInd += 1
     
     plt.show()
