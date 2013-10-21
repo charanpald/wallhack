@@ -35,6 +35,7 @@ startDate, endDates, numRecordSteps, M, targetGraph = HIVModelUtils.realSimulati
 posteriorSampleSize, matchAlpha, breakDist, pertScale = HIVModelUtils.realABCParams()
 
 abcMaxRuns = 1500
+batchSize = 50
 numEpsilons = 10
 alpha = 2
 zeroVal = 0.9
@@ -69,8 +70,13 @@ for i, endDate in enumerate(endDates):
         model.setRecordStep(recordStep)
     
         return model
-
-    meanTheta, sigmaTheta = HIVModelUtils.estimatedRealTheta()
+    if i == 0: 
+        meanTheta, sigmaTheta = HIVModelUtils.estimatedRealTheta()
+    else: 
+        logging.debug("Using mean theta of " + str(meanTheta))
+        logging.debug("Using std theta of " + str(stdTheta))    
+        
+        
     abcParams = HIVABCParameters(meanTheta, sigmaTheta, pertScale)
     thetaDir = resultsDir + "theta" + str(i) + "/"
     
@@ -84,7 +90,7 @@ for i, endDate in enumerate(endDates):
     abcSMC = ABCSMC(epsilonArray, createModel, abcParams, thetaDir, True)
     abcSMC.setPosteriorSampleSize(posteriorSampleSize)
     abcSMC.setNumProcesses(numProcesses)
-    abcSMC.batchSize = 50
+    abcSMC.batchSize = batchSize
     abcSMC.maxRuns = abcMaxRuns
     thetasArray = abcSMC.run()
     
