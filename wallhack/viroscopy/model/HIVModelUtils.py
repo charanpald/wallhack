@@ -101,6 +101,8 @@ class HIVModelUtils(object):
             infectedIndices.append(graph.infectedIndsAt(t))
             contactIndices.append(graph.contactIndsAt(t))
 
+        infectedIndices = numpy.array(infectedIndices)
+
         V = graph.getVertexList().getVertices()
         graphStatsList = []
         
