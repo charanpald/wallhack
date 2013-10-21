@@ -84,7 +84,7 @@ for i, endDate in enumerate(endDates):
     abcSMC = ABCSMC(epsilonArray, createModel, abcParams, thetaDir, True)
     abcSMC.setPosteriorSampleSize(posteriorSampleSize)
     abcSMC.setNumProcesses(numProcesses)
-    abcSMC.batchSize = 20
+    abcSMC.batchSize = 50
     abcSMC.maxRuns = abcMaxRuns
     thetasArray = abcSMC.run()
     
