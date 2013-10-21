@@ -66,6 +66,24 @@ class HIVModelUtils(object):
         
         return float(startDate), endDates, numRecordSteps, M, targetGraph
     
+    @staticmethod
+    def realABCParams():
+        N = 50 
+        matchAlpha = 0.2 
+        breakDist = 0.7 
+        pertScale = 0.05
+        
+        return N, matchAlpha, breakDist, pertScale 
+
+    @staticmethod
+    def toyABCParams():
+        N = 50 
+        matchAlpha = 0.2 
+        breakDist = 0.7 
+        pertScale = 0.05
+        
+        return N, matchAlpha, breakDist, pertScale  
+   
     @staticmethod     
     def simulate(theta, startDate, endDate, recordStep, M, graphMetrics=None): 
         undirected = True

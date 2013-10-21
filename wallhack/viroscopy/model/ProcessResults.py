@@ -19,12 +19,12 @@ assert False, "Must run with -O flag"
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.set_printoptions(suppress=True, precision=4, linewidth=150)
 
-processReal = False
+processReal = True
 saveResults = False 
 
 if processReal: 
     ind = 0 
-    N = 50 
+    N, matchAlpha, breakDist, pertScale = HIVModelUtils.realABCParams()
     resultsDir = PathDefaults.getOutputDir() + "viroscopy/real/theta" + str(ind) + "/"
     outputDir = resultsDir + "stats/"
     startDate, endDates, numRecordSteps, M, targetGraph = HIVModelUtils.realSimulationParams()
@@ -32,27 +32,26 @@ if processReal:
     recordStep = (endDate-startDate)/float(numRecordSteps)
     #endDate += HIVModelUtils.toyTestPeriod
     realTheta, sigmaTheta = HIVModelUtils.estimatedRealTheta()
+    prefix = "Real"
 else: 
-    N = 50 
+    N, matchAlpha, breakDist, pertScale = HIVModelUtils.toyABCParams()
     resultsDir = PathDefaults.getOutputDir() + "viroscopy/toy/theta/"
     outputDir = resultsDir + "stats/"
     startDate, endDate, recordStep, M, targetGraph = HIVModelUtils.toySimulationParams()
     endDate += HIVModelUtils.toyTestPeriod
     realTheta, sigmaTheta = HIVModelUtils.toyTheta()
+    prefix = "Toy"
 
 try: 
     os.mkdir(outputDir)
 except: 
-    pass 
+    logging.debug("Directory exists: " + outputDir) 
 
 graphStats = GraphStatistics()
 
 t = 0
 maxT = 10
 minVal = 10 
-matchAlpha = 0.2 
-breakDist = 1.0
-
 plotStyles = ['k-', 'kx-', 'k+-', 'k.-', 'k*-']
 
 for i in range(maxT): 
@@ -164,33 +163,41 @@ else:
     plt.xlabel("time (days)")
     plt.ylabel("detections")
     plt.plot(times, vertexArrayIdeal[:, 5], "k", label="rand detections")
-    lims = plt.xlim()
-    plt.xlim([0, lims[1]]) 
+    if not processReal: 
+        lims = plt.xlim()
+        plt.xlim([0, lims[1]]) 
     plt.legend(loc="upper left")
-    plt.savefig(outputDir + "ToyCTRandDetects.eps")
+    plt.savefig(outputDir + prefix + "CTRandDetects.eps")
     plotInd += 1
     
-    infectsArr = numpy.array(infectsArr)
-    meanInfectsArr = numpy.mean(infectsArr, 0)
-    stdInfectsArr = numpy.std(infectsArr, 0)
-    numInfects = [len(x) for x in idealInfectedIndices]
-    plt.figure(plotInd)
-    plt.errorbar(times, meanInfectsArr, yerr=stdInfectsArr, label="est. infectives") 
-    plt.plot(times, numInfects, "r", label="infectives")
+
+    plt.figure(plotInd)    
+    if not processReal: 
+        infectsArr = numpy.array(infectsArr)
+        meanInfectsArr = numpy.mean(infectsArr, 0)
+        stdInfectsArr = numpy.std(infectsArr, 0)
+        numInfects = [len(x) for x in idealInfectedIndices]
+        plt.errorbar(times, meanInfectsArr, yerr=stdInfectsArr, label="est. infectives") 
+        plt.plot(times, numInfects, "r", label="infectives")
 
     meanDetects = numpy.array(detectsArr).mean(0)
     stdDetects = numpy.array(detectsArr).std(0)
     plt.errorbar(times, meanDetects, yerr=stdDetects, label="est. detections") 
     plt.xlabel("time (days)")
-    plt.ylabel("infectives/detections")
     plt.plot(times, vertexArrayIdeal[:, 0], "k", label="detections")
-    lims = plt.xlim()
-    plt.xlim([0, lims[1]]) 
+    if not processReal:
+        plt.ylabel("infectives/detections")
+        lims = plt.xlim()
+        plt.xlim([0, lims[1]]) 
+        filename = outputDir + prefix + "InfectDetects.eps"
+    else: 
+        plt.ylabel("detections")
+        filename = outputDir + prefix + "Detects" + str(ind) + ".eps"
+
     plt.legend(loc="lower right")
-    plt.savefig(outputDir + "ToyInfectDetects.eps")
+    plt.savefig(filename)
     plotInd += 1    
     
-
     numComponentsArr = numpy.array(numComponentsArr)
     meanNumComponents = numpy.mean(numComponentsArr, 0)
     stdNumComponents = numpy.std(numComponentsArr, 0)
@@ -200,7 +207,6 @@ else:
     plt.ylabel("num components")
     plt.plot(times, removedGraphStats[:, graphStats.numComponentsIndex], "r")
     plotInd += 1
-
     
     meanDists = numpy.array(distsArr).mean(0)
     stdDists = numpy.array(distsArr).std(0)
