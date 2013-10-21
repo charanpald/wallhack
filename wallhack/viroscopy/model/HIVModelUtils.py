@@ -70,7 +70,7 @@ class HIVModelUtils(object):
     def realABCParams():
         N = 50 
         matchAlpha = 0.2 
-        breakDist = 0.7 
+        breakDist = 0.8 
         pertScale = 0.05
         
         return N, matchAlpha, breakDist, pertScale 
