@@ -32,7 +32,7 @@ numpy.seterr(invalid='raise')
 
 resultsDir = PathDefaults.getOutputDir() + "viroscopy/real/" 
 startDate, endDates, numRecordSteps, M, targetGraph = HIVModelUtils.realSimulationParams()
-posteriorSampleSize, matchAlpha, breakDist, pertScale = HIVModelUtils.realABCParams()
+posteriorSampleSize, matchAlpha, breakDist, purtScale = HIVModelUtils.realABCParams()
 
 abcMaxRuns = 1500
 batchSize = 50
@@ -78,7 +78,7 @@ for i, endDate in enumerate(endDates):
         logging.debug("Using std theta of " + str(stdTheta))    
         
         
-    abcParams = HIVABCParameters(meanTheta, sigmaTheta, pertScale)
+    abcParams = HIVABCParameters(meanTheta, sigmaTheta, purtScale)
     thetaDir = resultsDir + "theta" + str(i) + "/"
     
     if not os.path.exists(thetaDir): 

@@ -71,18 +71,18 @@ class HIVModelUtils(object):
         N = 50 
         matchAlpha = 0.2 
         breakDist = 0.8 
-        pertScale = 0.05
+        purtScale = 0.05
         
-        return N, matchAlpha, breakDist, pertScale 
+        return N, matchAlpha, breakDist, purtScale 
 
     @staticmethod
     def toyABCParams():
         N = 50 
         matchAlpha = 0.2 
-        breakDist = 0.7 
-        pertScale = 0.05
+        breakDist = 0.8 
+        purtScale = 0.05
         
-        return N, matchAlpha, breakDist, pertScale  
+        return N, matchAlpha, breakDist, purtScale  
    
     @staticmethod     
     def simulate(theta, startDate, endDate, recordStep, M, graphMetrics=None): 
