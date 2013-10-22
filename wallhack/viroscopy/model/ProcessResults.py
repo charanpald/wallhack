@@ -24,7 +24,7 @@ saveResults = False
 
 if processReal: 
     ind = 0 
-    N, matchAlpha, breakDist, pertScale = HIVModelUtils.realABCParams()
+    N, matchAlpha, breakDist, purtScale = HIVModelUtils.realABCParams()
     resultsDir = PathDefaults.getOutputDir() + "viroscopy/real/theta" + str(ind) + "/"
     outputDir = resultsDir + "stats/"
     startDate, endDates, numRecordSteps, M, targetGraph = HIVModelUtils.realSimulationParams()
@@ -34,7 +34,7 @@ if processReal:
     realTheta, sigmaTheta = HIVModelUtils.estimatedRealTheta()
     prefix = "Real"
 else: 
-    N, matchAlpha, breakDist, pertScale = HIVModelUtils.toyABCParams()
+    N, matchAlpha, breakDist, purtScale = HIVModelUtils.toyABCParams()
     resultsDir = PathDefaults.getOutputDir() + "viroscopy/toy/theta/"
     outputDir = resultsDir + "stats/"
     startDate, endDate, recordStep, M, targetGraph = HIVModelUtils.toySimulationParams()
