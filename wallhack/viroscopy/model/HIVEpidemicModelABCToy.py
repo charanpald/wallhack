@@ -44,6 +44,7 @@ numEpsilons = 10
 epsilon = 0.8
 alpha = 2
 zeroVal = 0.9
+eps = 0.05
 
 epsilonArray = numpy.ones(numEpsilons)*epsilon   
 
@@ -80,7 +81,7 @@ if not os.path.exists(thetaDir):
 
 logging.debug((meanTheta, sigmaTheta))
 
-abcSMC = ABCSMC(epsilonArray, createModel, abcParams, thetaDir, True)
+abcSMC = ABCSMC(epsilonArray, createModel, abcParams, thetaDir, True, eps=eps)
 abcSMC.setPosteriorSampleSize(posteriorSampleSize)
 abcSMC.batchSize = batchSize
 abcSMC.maxRuns = abcMaxRuns

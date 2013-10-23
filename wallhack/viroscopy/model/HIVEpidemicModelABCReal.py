@@ -40,6 +40,7 @@ numEpsilons = 10
 epsilon = 0.8
 alpha = 2
 zeroVal = 0.9
+eps = 0.05
 
 logging.debug("Posterior sample size " + str(posteriorSampleSize))
 
@@ -88,7 +89,7 @@ for i, endDate in enumerate(endDates):
     
     os.system('taskset -p 0xffffffff %d' % os.getpid())
     
-    abcSMC = ABCSMC(epsilonArray, createModel, abcParams, thetaDir, True)
+    abcSMC = ABCSMC(epsilonArray, createModel, abcParams, thetaDir, True, eps=eps)
     abcSMC.setPosteriorSampleSize(posteriorSampleSize)
     abcSMC.setNumProcesses(numProcesses)
     abcSMC.batchSize = batchSize
