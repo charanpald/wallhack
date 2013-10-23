@@ -38,13 +38,13 @@ posteriorSampleSize, matchAlpha, breakDist, purtScale = HIVModelUtils.toyABCPara
 logging.debug("Total time of simulation is " + str(endDate-startDate))
 logging.debug("Posterior sample size " + str(posteriorSampleSize))
 
-abcMaxRuns = 1500
+abcMaxRuns = 5000
 batchSize = 50
 numEpsilons = 10
 epsilon = 0.8
 alpha = 2
 zeroVal = 0.9
-eps = 0.02
+eps = 0.01
 matchAlg = "RANK" 
 
 epsilonArray = numpy.ones(numEpsilons)*epsilon   
