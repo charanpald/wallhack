@@ -41,7 +41,7 @@ epsilon = 0.8
 alpha = 2
 zeroVal = 0.9
 eps = 0.02
-matchAlg = "U"
+matchAlg = "RANK"
 
 logging.debug("Posterior sample size " + str(posteriorSampleSize))
 
