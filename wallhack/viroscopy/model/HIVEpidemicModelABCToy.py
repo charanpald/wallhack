@@ -44,7 +44,8 @@ numEpsilons = 10
 epsilon = 0.8
 alpha = 2
 zeroVal = 0.9
-eps = 0.05
+eps = 0.02
+matchAlg = "U" 
 
 epsilonArray = numpy.ones(numEpsilons)*epsilon   
 
@@ -63,7 +64,7 @@ def createModel(t):
     featureInds[HIVVertices.hiddenDegreeIndex] = False 
     featureInds[HIVVertices.stateIndex] = False
     featureInds = numpy.arange(featureInds.shape[0])[featureInds]
-    matcher = GraphMatch("PATH", alpha=matchAlpha, featureInds=featureInds, useWeightM=False)
+    matcher = GraphMatch(matchAlg, alpha=matchAlpha, featureInds=featureInds, useWeightM=False)
     graphMetrics = HIVGraphMetrics2(targetGraph, breakDist, matcher, endDate)
 
     rates = HIVRates(graph, hiddenDegSeq)
