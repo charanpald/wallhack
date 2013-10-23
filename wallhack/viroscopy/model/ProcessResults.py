@@ -121,7 +121,6 @@ else:
     stats = Util.loadPickle(resultsFileName)  
     vertexArrayIdeal, idealInfectedIndices, removedIndices, contactGraphStats, removedGraphStats = stats 
     times = numpy.arange(startDate, endDate+1, recordStep)  
-    print(times)    
     
     graphStats = GraphStatistics()
     
@@ -149,6 +148,7 @@ else:
         numInfects = [len(x) for x in infectedIndices]
         infectsArr.append(numInfects)
 
+    times = times - numpy.min(times)
 
     contactTracingArr = numpy.array(contactTracingArr)
     meanContactDetectsArr = numpy.mean(contactTracingArr, 0)
