@@ -36,11 +36,11 @@ posteriorSampleSize, matchAlpha, breakDist, purtScale = HIVModelUtils.realABCPar
 
 abcMaxRuns = 1500
 batchSize = 50
-numEpsilons = 10
+numEpsilons = 8
 epsilon = 0.8
 alpha = 2
 zeroVal = 0.9
-eps = 0.05
+eps = 0.02
 
 logging.debug("Posterior sample size " + str(posteriorSampleSize))
 
