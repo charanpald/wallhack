@@ -45,7 +45,7 @@ eps = 0.02
 logging.debug("Posterior sample size " + str(posteriorSampleSize))
 
 for i, endDate in enumerate(endDates): 
-    logging.debug("="*10 + "Starting new simulation batch" + "="*10) 
+    logging.debug("="*10 + "Starting new simulation batch with index " + str(i) + "="*10) 
     logging.debug("Total time of simulation is " + str(endDate-startDate))    
     
     def createModel(t):
@@ -73,13 +73,14 @@ for i, endDate in enumerate(endDates):
     
         return model
     if i == 0: 
-        meanTheta, sigmaTheta = HIVModelUtils.estimatedRealTheta()
+        meanTheta, stdTheta = HIVModelUtils.estimatedRealTheta()
     else: 
         logging.debug("Using mean theta of " + str(meanTheta))
-        logging.debug("Using std theta of " + str(stdTheta))    
+        logging.debug("Using std theta of " + str(stdTheta))
+        #stdTheta *= 2
         
         
-    abcParams = HIVABCParameters(meanTheta, sigmaTheta, purtScale)
+    abcParams = HIVABCParameters(meanTheta, stdTheta, purtScale)
     thetaDir = resultsDir + "theta" + str(i) + "/"
     
     if not os.path.exists(thetaDir): 
