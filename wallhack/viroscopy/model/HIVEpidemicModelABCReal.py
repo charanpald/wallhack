@@ -34,7 +34,7 @@ resultsDir = PathDefaults.getOutputDir() + "viroscopy/real/"
 startDate, endDates, numRecordSteps, M, targetGraph = HIVModelUtils.realSimulationParams()
 posteriorSampleSize, matchAlpha, breakDist, purtScale = HIVModelUtils.realABCParams()
 
-abcMaxRuns = 2000
+abcMaxRuns = 3000
 batchSize = 50
 numEpsilons = 10
 epsilon = 0.8
