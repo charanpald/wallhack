@@ -20,10 +20,10 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.set_printoptions(suppress=True, precision=4, linewidth=150)
 
 processReal = True
-saveResults = False 
+saveResults = True 
 
 if processReal: 
-    ind = 0 
+    ind = 1 
     N, matchAlpha, breakDist, purtScale = HIVModelUtils.realABCParams()
     resultsDir = PathDefaults.getOutputDir() + "viroscopy/real/theta" + str(ind) + "/"
     outputDir = resultsDir + "stats/"
@@ -52,6 +52,7 @@ graphStats = GraphStatistics()
 t = 0
 maxT = 10
 minVal = 10 
+matchAlg = "QCV"
 plotStyles = ['k-', 'kx-', 'k+-', 'k.-', 'k*-']
 
 for i in range(maxT): 
@@ -74,7 +75,7 @@ def saveStats(args):
     featureInds[HIVVertices.stateIndex] = False 
     featureInds = numpy.arange(featureInds.shape[0])[featureInds]        
     
-    matcher = GraphMatch("PATH", alpha=matchAlpha, featureInds=featureInds, useWeightM=False)
+    matcher = GraphMatch(matchAlg, alpha=matchAlpha, featureInds=featureInds, useWeightM=False)
     graphMetrics = HIVGraphMetrics2(targetGraph, breakDist, matcher, float(endDate))        
     times, infectedIndices, removedIndices, graph = HIVModelUtils.simulate(thetaArray[i], startDate, endDate, recordStep, M, graphMetrics)
     times = numpy.arange(startDate, endDate+1, recordStep)
