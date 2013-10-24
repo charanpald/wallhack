@@ -45,7 +45,7 @@ epsilon = 0.8
 alpha = 2
 zeroVal = 0.9
 eps = 0.01
-matchAlg = "RANK" 
+matchAlg = "QCV" 
 
 epsilonArray = numpy.ones(numEpsilons)*epsilon   
 
