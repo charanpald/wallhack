@@ -78,7 +78,7 @@ for i, endDate in enumerate(endDates):
     else: 
         logging.debug("Using mean theta of " + str(meanTheta))
         logging.debug("Using std theta of " + str(stdTheta))
-        #stdTheta *= 2
+        stdTheta *= 2
         
         
     abcParams = HIVABCParameters(meanTheta, stdTheta, purtScale)

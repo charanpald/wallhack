@@ -71,7 +71,7 @@ class HIVModelUtils(object):
         N = 50 
         matchAlpha = 0.2 
         breakDist = 0.8 
-        purtScale = 0.05
+        purtScale = 0.1
         
         return N, matchAlpha, breakDist, purtScale 
 
@@ -80,7 +80,7 @@ class HIVModelUtils(object):
         N = 50 
         matchAlpha = 0.2 
         breakDist = 0.8 
-        purtScale = 0.05
+        purtScale = 0.1
         
         return N, matchAlpha, breakDist, purtScale  
    
