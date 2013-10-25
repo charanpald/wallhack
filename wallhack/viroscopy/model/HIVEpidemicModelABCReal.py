@@ -40,7 +40,7 @@ numEpsilons = 10
 epsilon = 0.8
 alpha = 2
 zeroVal = 0.9
-eps = 0.01
+eps = 0.02
 matchAlg = "QCV"
 
 logging.debug("Posterior sample size " + str(posteriorSampleSize))
