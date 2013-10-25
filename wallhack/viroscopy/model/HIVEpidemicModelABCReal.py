@@ -34,13 +34,13 @@ resultsDir = PathDefaults.getOutputDir() + "viroscopy/real/"
 startDate, endDates, numRecordSteps, M, targetGraph = HIVModelUtils.realSimulationParams()
 posteriorSampleSize, matchAlpha, breakDist, purtScale = HIVModelUtils.realABCParams()
 
-abcMaxRuns = 3000
+abcMaxRuns = 2500
 batchSize = 50
 numEpsilons = 10
 epsilon = 0.8
 alpha = 2
 zeroVal = 0.9
-eps = 0.02
+eps = 0.01
 matchAlg = "QCV"
 
 logging.debug("Posterior sample size " + str(posteriorSampleSize))
@@ -78,7 +78,7 @@ for i, endDate in enumerate(endDates):
     else: 
         logging.debug("Using mean theta of " + str(meanTheta))
         logging.debug("Using std theta of " + str(stdTheta))
-        stdTheta *= 2
+        stdTheta *= 5
         
         
     abcParams = HIVABCParameters(meanTheta, stdTheta, purtScale)
