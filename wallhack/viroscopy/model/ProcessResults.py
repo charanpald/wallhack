@@ -19,11 +19,11 @@ assert False, "Must run with -O flag"
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.set_printoptions(suppress=True, precision=4, linewidth=150)
 
-processReal = True
-saveResults = True 
+processReal = True 
+saveResults = False 
 
 if processReal: 
-    ind = 1 
+    ind = 1
     N, matchAlpha, breakDist, purtScale = HIVModelUtils.realABCParams()
     resultsDir = PathDefaults.getOutputDir() + "viroscopy/real/theta" + str(ind) + "/"
     outputDir = resultsDir + "stats/"
@@ -133,6 +133,8 @@ else:
     numComponentsArr = []
     randDetectsArr = []
     contactTracingArr = []
+    maxCompSizesArr = []
+    numEdgesArr = []
 
     for i in range(thetaArray.shape[0]): 
         plotInd = 0
@@ -148,6 +150,8 @@ else:
         distsArr.append(dists)        
         numInfects = [len(x) for x in infectedIndices]
         infectsArr.append(numInfects)
+        maxCompSizesArr.append(removedGraphStats[:, graphStats.maxComponentSizeIndex])
+        numEdgesArr.append(removedGraphStats[:, graphStats.numEdgesIndex])
 
     times = times - numpy.min(times)
 
@@ -207,6 +211,26 @@ else:
     plt.xlabel("time (days)")
     plt.ylabel("num components")
     plt.plot(times, removedGraphStats[:, graphStats.numComponentsIndex], "r")
+    plotInd += 1
+    
+    maxCompSizesArr = numpy.array(maxCompSizesArr)
+    meanMaxCompSizesArr = numpy.mean(maxCompSizesArr, 0)
+    stdMaxCompSizesArr = numpy.std(maxCompSizesArr, 0)
+    plt.figure(plotInd)
+    plt.errorbar(times, meanMaxCompSizesArr, yerr=stdMaxCompSizesArr) 
+    plt.xlabel("time (days)")
+    plt.ylabel("max component size")
+    plt.plot(times, removedGraphStats[:, graphStats.maxComponentSizeIndex], "r")
+    plotInd += 1
+    
+    numEdgesArr = numpy.array(numEdgesArr)
+    meanNumEdgesArr = numpy.mean(numEdgesArr, 0)
+    stdNumEdgesArr = numpy.std(numEdgesArr, 0)
+    plt.figure(plotInd)
+    plt.errorbar(times, meanNumEdgesArr, yerr=stdNumEdgesArr) 
+    plt.xlabel("time (days)")
+    plt.ylabel("number of edges")
+    plt.plot(times, removedGraphStats[:, graphStats.numEdgesIndex], "r")
     plotInd += 1
     
     meanDists = numpy.array(distsArr).mean(0)
