@@ -80,6 +80,10 @@ for i, endDate in enumerate(endDates):
         logging.debug("Using std theta of " + str(stdTheta))
         stdTheta *= 10
         
+        #Must clip the probabilities 
+        stdTheta[1] = numpy.clip(stdTheta[1], 0, 1)
+        stdTheta[5] = numpy.clip(stdTheta[5], 0, 1)
+        
         
     abcParams = HIVABCParameters(meanTheta, stdTheta, purtScale)
     thetaDir = resultsDir + "theta" + str(i) + "/"
