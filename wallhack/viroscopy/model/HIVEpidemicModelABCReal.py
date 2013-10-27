@@ -76,14 +76,14 @@ for i, endDate in enumerate(endDates):
     if i == 0: 
         meanTheta, stdTheta = HIVModelUtils.estimatedRealTheta()
     else: 
-        logging.debug("Using mean theta of " + str(meanTheta))
-        logging.debug("Using std theta of " + str(stdTheta))
         stdTheta *= 10
         
         #Must clip the probabilities 
         stdTheta[1] = numpy.clip(stdTheta[1], 0, 1)
         stdTheta[5] = numpy.clip(stdTheta[5], 0, 1)
         
+        logging.debug("Using mean theta of " + str(meanTheta))
+        logging.debug("Using std theta of " + str(stdTheta))
         
     abcParams = HIVABCParameters(meanTheta, stdTheta, purtScale)
     thetaDir = resultsDir + "theta" + str(i) + "/"
