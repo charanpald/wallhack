@@ -194,7 +194,7 @@ class HIVEpidemicModel():
                     self.metrics.addGraph(self.graph)
                 
                     if self.metrics.shouldBreak(): 
-                        logging.debug("Breaking as distance has become too large")
+                        logging.debug("Breaking as objective has become too large")
                         break 
 
         logging.debug("Finished simulation at time " + str(t) + " for a total time of " + str(t-self.T0))
@@ -210,9 +210,11 @@ class HIVEpidemicModel():
         else: 
             return self.graph
 
-    def distance(self): 
-        logging.debug("Distance is " + str(self.metrics.distance()) + ", and final event on graph occured at time " + str(self.graph.endTime() - self.T0))
-        return self.metrics.distance() 
+    def objective(self): 
+        logging.debug("Objective is " + str(self.metrics.meanObjective()) + ", and final event on graph occured at time " + str(self.graph.endTime() - self.T0))
+        return self.metrics.meanObjective() 
         
     def getNumContacts(self): 
         return self.numContacts
+    
+    distance = objective 
