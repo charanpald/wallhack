@@ -5,7 +5,7 @@ from apgl.util.Parameter import Parameter
 from sandbox.misc.GraphMatch import GraphMatch 
 
 class HIVGraphMetrics2(object): 
-    def __init__(self, realGraph, breakDist=0.2, matcher=None, T=1000):
+    def __init__(self, realGraph, breakObj=0.5, matcher=None, T=1000):
         """
         A class to model metrics about and between HIVGraphs such as summary 
         statistics and distances. In this case we perform graph matching 
@@ -13,94 +13,87 @@ class HIVGraphMetrics2(object):
         
         :param realGraph: The target epidemic graph 
         
-        :param epsilon: The max mean distance before we break the simulation
+        :param epsilon: The max mean objective before we break the simulation
         
-        :param matcher: The graph matcher object to compute graph distances. 
+        :param matcher: The graph matcher object to compute graph objective. 
         
-        :param T: The end time of the simulation. If the simulation quits before T, then distance = 1.
+        :param T: The end time of the simulation. If the simulation quits before T, then objective = 1.
+    
         """
         
-        self.dists = [] 
-        self.graphDists = []
-        self.labelDists = []
+        self.objectives = [] 
+        self.graphObjs = []
+        self.labelObjs = []
         self.realGraph = realGraph
-        self.breakDist = breakDist 
+        self.breakObj = breakObj 
         self.breakIgnore = 3
         self.T = T 
         self.times = []
         
         if matcher == None: 
-            self.matcher = GraphMatch("U")
+            self.matcher = GraphMatch("QCV")
         else: 
             self.matcher = matcher 
         
     def addGraph(self, graph): 
         """
-        Compute the distance between this graph and the realGraph at the time 
+        Compute the objective between this graph and the realGraph at the time 
         of the last event of this one. 
         """
         t = graph.endTime()
         subgraph = graph.subgraph(graph.removedIndsAt(t))  
         subRealGraph = self.realGraph.subgraph(self.realGraph.removedIndsAt(t))  
         
-        #Only add distance if the real graph has nonzero size
+        #Only add objective if the real graph has nonzero size
         if subRealGraph.size != 0: 
             permutation, distance, time = self.matcher.match(subgraph, subRealGraph)
-            lastDist, lastGraphDist, lastLabelDist = self.matcher.distance(subgraph, subRealGraph, permutation, True, False, True) 
+            lastObj, lastGraphObj, lastLabelObj = self.matcher.distance(subgraph, subRealGraph, permutation, True, False, True) 
             
-            #logging.debug("Time " + str(t) + "  " + str(lastDist) + " with simulated size " + str(subgraph.size) + " and real size " + str(subRealGraph.size))        
+            #logging.debug("Time " + str(t) + "  " + str(lastObj) + " with simulated size " + str(subgraph.size) + " and real size " + str(subRealGraph.size))        
             
-            self.dists.append(lastDist)
-            self.graphDists.append(lastGraphDist)
-            self.labelDists.append(lastLabelDist)
+            self.objectives.append(lastObj)
+            self.graphObjs.append(lastGraphObj)
+            self.labelObjs.append(lastLabelObj)
             self.times.append(t) 
         else: 
-            logging.debug("Not adding distance at time " + str(t) + " with simulated size " + str(subgraph.size) + " and real size " + str(subRealGraph.size))
-    
-    def distance(self): 
+            logging.debug("Not adding objective at time " + str(t) + " with simulated size " + str(subgraph.size) + " and real size " + str(subRealGraph.size))
+            
+    def meanObjective(self):
         """
-        If we have the required number of time steps, return the mean distance 
-        otherwise return a distance of 1 (the max distance).
+        This is the moving average objective of the graph matches so far. 
         """
-        if len(self.times) != 0 and self.times[-1] >= self.T: 
-            return self.meanDistance()
-        else: 
-            return 1 
+        objectives = numpy.array(self.objectives)       
         
-    def meanDistance(self):
-        """
-        This is the mean distance of the graph matches so far. 
-        """
-        dists = numpy.array(self.dists)
-        if dists.shape[0]!=0: 
-            return dists.mean()
+        if objectives.shape[0]!=0: 
+            weights = numpy.arange(1, objectives.shape[0]+1)
+            return numpy.average(objectives, weights=weights)
         else: 
             return 0
             
-    def meanGraphDistance(self):
+    def meanGraphObjective(self):
         """
-        This is the mean graph distance of the graph matches so far. 
+        This is the mean graph objective of the graph matches so far. 
         """
-        graphDists = numpy.array(self.graphDists)
-        if graphDists.shape[0]!=0: 
-            return graphDists.mean()
+        graphObjs = numpy.array(self.graphObjs)
+        if graphObjs.shape[0]!=0: 
+            return graphObjs.mean()
         else: 
             return 0
             
-    def meanLabelDistance(self):
+    def meanLabelObjective(self):
         """
-        This is the mean label distance of the graph matches so far. 
+        This is the mean label objective of the graph matches so far. 
         """
-        labelDists = numpy.array(self.labelDists)
-        if labelDists.shape[0]!=0: 
-            return labelDists.mean()
+        labelObjs = numpy.array(self.labelObjs)
+        if labelObjs.shape[0]!=0: 
+            return labelObjs.mean()
         else: 
             return 0
         
     def shouldBreak(self): 
-        if len(self.dists) < self.breakIgnore: 
+        if len(self.objectives) < self.breakIgnore: 
             return False 
         else:
-            logging.debug("Checking break distance: " + str(self.meanDistance()) + " and break distance: " + str(self.breakDist))
-            return self.meanDistance() > self.breakDist 
+            logging.debug("Checking objective: " + str(self.meanObjective()) + " and break objective: " + str(self.breakObj))
+            return self.meanObjective() > self.breakObj 
         
