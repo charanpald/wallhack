@@ -32,7 +32,7 @@ numpy.seterr(invalid='raise')
 
 resultsDir = PathDefaults.getOutputDir() + "viroscopy/real/" 
 startDate, endDates, numRecordSteps, M, targetGraph = HIVModelUtils.realSimulationParams()
-posteriorSampleSize, matchAlpha, breakDist, purtScale = HIVModelUtils.realABCParams()
+posteriorSampleSize, matchAlpha, breakDist, pertScale = HIVModelUtils.realABCParams()
 
 abcMaxRuns = 2500
 batchSize = 50
@@ -76,17 +76,19 @@ for i, endDate in enumerate(endDates):
         
     if i == 0: 
         meanTheta, stdTheta, pertTheta = HIVModelUtils.estimatedRealTheta()
-    else: 
-        pertTheta = stdTheta.copy()
-        stdTheta *= 5
+    else:
+        #Perturbations are based on the stds of the last thetas 
+        pertTheta = stdTheta.copy()*pertScale
+        #The prior is very loose as we do not want to bias too much to previous solutions 
+        stdTheta = HIVModelUtils.estimatedRealTheta()[1]
         
         #Must clip the probabilities 
         stdTheta[1] = numpy.clip(stdTheta[1], 0, 1)
         stdTheta[5] = numpy.clip(stdTheta[5], 0, 1)
         
-        logging.debug("Using mean theta of " + str(meanTheta))
-        logging.debug("Using std theta of " + str(stdTheta))
-        logging.debug("Using perturbationStd theta of " + str(pertTheta))
+    logging.debug("Using mean theta of " + str(meanTheta))
+    logging.debug("Using std theta of " + str(stdTheta))
+    logging.debug("Using perturbation std theta of " + str(pertTheta))
         
     abcParams = HIVABCParameters(meanTheta, stdTheta, pertTheta)
     thetaDir = resultsDir + "theta" + str(i) + "/"
