@@ -73,7 +73,7 @@ class HIVModelUtils(object):
         N = 50 
         matchAlpha = 0.2 
         breakDist = 0.8 
-        pertScale = 0.1
+        pertScale = 0.5
         
         return N, matchAlpha, breakDist, pertScale 
 
