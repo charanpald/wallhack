@@ -23,14 +23,15 @@ processReal = True
 saveResults = False 
 
 if processReal: 
-    ind = 1
+    ind = 0
     N, matchAlpha, breakDist, purtScale = HIVModelUtils.realABCParams()
     resultsDir = PathDefaults.getOutputDir() + "viroscopy/real/theta" + str(ind) + "/"
     outputDir = resultsDir + "stats/"
     startDate, endDates, numRecordSteps, M, targetGraph = HIVModelUtils.realSimulationParams()
     endDate = endDates[ind]
+    endDate += 100
     recordStep = (endDate-startDate)/float(numRecordSteps)
-    #endDate += HIVModelUtils.toyTestPeriod
+    
     realTheta, sigmaTheta = HIVModelUtils.estimatedRealTheta()
     prefix = "Real"
 else: 
@@ -80,7 +81,7 @@ def saveStats(args):
     times, infectedIndices, removedIndices, graph = HIVModelUtils.simulate(thetaArray[i], startDate, endDate, recordStep, M, graphMetrics)
     times = numpy.arange(startDate, endDate+1, recordStep)
     vertexArray, infectedIndices, removedIndices, contactGraphStats, removedGraphStats = HIVModelUtils.generateStatistics(graph, times)
-    stats = times, vertexArray, infectedIndices, removedGraphStats, graphMetrics.dists, graphMetrics.graphDists, graphMetrics.labelDists
+    stats = times, vertexArray, infectedIndices, removedGraphStats, graphMetrics.objectives, graphMetrics.graphObjs, graphMetrics.labelObjs
     resultsFileName = outputDir + "SimStats" + str(i) + ".pkl"
     Util.savePickle(stats, resultsFileName)
 
@@ -94,8 +95,8 @@ if saveResults:
         paramList.append((i, thetaArray[i, :]))
 
     pool = multiprocessing.Pool(multiprocessing.cpu_count())               
-    resultIterator = pool.map(saveStats, paramList)  
-    #resultIterator = map(saveStats, paramList)  
+    #resultIterator = pool.map(saveStats, paramList)  
+    resultIterator = map(saveStats, paramList)  
     pool.terminate()
 
     #Now save the statistics on the target graph 
