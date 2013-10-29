@@ -73,10 +73,12 @@ for i, endDate in enumerate(endDates):
         model.setRecordStep(recordStep)
     
         return model
+        
     if i == 0: 
-        meanTheta, stdTheta = HIVModelUtils.estimatedRealTheta()
+        meanTheta, stdTheta, pertTheta = HIVModelUtils.estimatedRealTheta()
     else: 
-        stdTheta *= 10
+        pertTheta = stdTheta.copy()
+        stdTheta *= 5
         
         #Must clip the probabilities 
         stdTheta[1] = numpy.clip(stdTheta[1], 0, 1)
@@ -84,8 +86,9 @@ for i, endDate in enumerate(endDates):
         
         logging.debug("Using mean theta of " + str(meanTheta))
         logging.debug("Using std theta of " + str(stdTheta))
+        logging.debug("Using perturbationStd theta of " + str(pertTheta))
         
-    abcParams = HIVABCParameters(meanTheta, stdTheta, purtScale)
+    abcParams = HIVABCParameters(meanTheta, stdTheta, pertTheta)
     thetaDir = resultsDir + "theta" + str(i) + "/"
     
     if not os.path.exists(thetaDir): 

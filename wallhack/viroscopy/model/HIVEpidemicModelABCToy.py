@@ -73,8 +73,8 @@ def createModel(t):
 
     return model
 
-meanTheta, sigmaTheta = HIVModelUtils.toyTheta()
-abcParams = HIVABCParameters(meanTheta, sigmaTheta, purtScale)
+meanTheta, sigmaTheta, pertTheta = HIVModelUtils.toyTheta()
+abcParams = HIVABCParameters(meanTheta, sigmaTheta, pertTheta)
 thetaDir = resultsDir + "theta/"
 
 if not os.path.exists(thetaDir): 
