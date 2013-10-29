@@ -19,8 +19,8 @@ assert False, "Must run with -O flag"
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.set_printoptions(suppress=True, precision=4, linewidth=150)
 
-processReal = True 
-saveResults = False 
+processReal = False 
+saveResults = True 
 
 if processReal: 
     ind = 0
@@ -40,7 +40,7 @@ else:
     outputDir = resultsDir + "stats/"
     startDate, endDate, recordStep, M, targetGraph = HIVModelUtils.toySimulationParams()
     endDate += HIVModelUtils.toyTestPeriod
-    realTheta, sigmaTheta = HIVModelUtils.toyTheta()
+    realTheta, sigmaTheta, purtTheta = HIVModelUtils.toyTheta()
     prefix = "Toy"
 
 try: 
@@ -95,8 +95,8 @@ if saveResults:
         paramList.append((i, thetaArray[i, :]))
 
     pool = multiprocessing.Pool(multiprocessing.cpu_count())               
-    #resultIterator = pool.map(saveStats, paramList)  
-    resultIterator = map(saveStats, paramList)  
+    resultIterator = pool.map(saveStats, paramList)  
+    #resultIterator = map(saveStats, paramList)  
     pool.terminate()
 
     #Now save the statistics on the target graph 
@@ -106,7 +106,7 @@ if saveResults:
     resultsFileName = outputDir + "IdealStats.pkl"
     Util.savePickle(stats, resultsFileName)
 else:
-    realTheta, sigmaTheta = HIVModelUtils.toyTheta()
+    realTheta, sigmaTheta, purtTheta = HIVModelUtils.toyTheta()
     thetaArray, distArray = loadThetaArray(N, resultsDir, t)
     print(realTheta)
     print(thetaArray)    

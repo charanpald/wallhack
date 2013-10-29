@@ -26,7 +26,7 @@ endDate += HIVModelUtils.toyTestPeriod
 numRepetitions = 10
 undirected = True
 outputDir = PathDefaults.getOutputDir() + "viroscopy/toy/"
-theta, sigmaTheta = HIVModelUtils.toyTheta() 
+theta, sigmaTheta, purtTheta = HIVModelUtils.toyTheta() 
 
 graphList = []
 numInfected = numpy.zeros(numRepetitions)
