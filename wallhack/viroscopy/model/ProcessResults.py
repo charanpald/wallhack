@@ -19,12 +19,12 @@ assert False, "Must run with -O flag"
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.set_printoptions(suppress=True, precision=4, linewidth=150)
 
-processReal = False 
-saveResults = True 
+processReal = True 
+saveResults = False 
 
 if processReal: 
-    ind = 0
-    N, matchAlpha, breakDist, purtScale = HIVModelUtils.realABCParams()
+    ind = 2
+    N, matchAlpha, breakDist, pertScale = HIVModelUtils.realABCParams()
     resultsDir = PathDefaults.getOutputDir() + "viroscopy/real/theta" + str(ind) + "/"
     outputDir = resultsDir + "stats/"
     startDate, endDates, numRecordSteps, M, targetGraph = HIVModelUtils.realSimulationParams()
@@ -32,15 +32,15 @@ if processReal:
     endDate += 100
     recordStep = (endDate-startDate)/float(numRecordSteps)
     
-    realTheta, sigmaTheta = HIVModelUtils.estimatedRealTheta()
+    realTheta, sigmaTheta, pertTheta = HIVModelUtils.estimatedRealTheta()
     prefix = "Real"
 else: 
-    N, matchAlpha, breakDist, purtScale = HIVModelUtils.toyABCParams()
+    N, matchAlpha, breakDist, pertScale = HIVModelUtils.toyABCParams()
     resultsDir = PathDefaults.getOutputDir() + "viroscopy/toy/theta/"
     outputDir = resultsDir + "stats/"
     startDate, endDate, recordStep, M, targetGraph = HIVModelUtils.toySimulationParams()
     endDate += HIVModelUtils.toyTestPeriod
-    realTheta, sigmaTheta, purtTheta = HIVModelUtils.toyTheta()
+    realTheta, sigmaTheta, pertTheta = HIVModelUtils.toyTheta()
     prefix = "Toy"
 
 try: 
