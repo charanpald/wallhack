@@ -36,7 +36,7 @@ posteriorSampleSize, matchAlpha, breakDist, pertScale = HIVModelUtils.realABCPar
 
 abcMaxRuns = 2500
 batchSize = 50
-numEpsilons = 15
+numEpsilons = [10, 10, 15]
 epsilon = 0.8
 alpha = 2
 zeroVal = 0.9
@@ -96,7 +96,7 @@ for i, endDate in enumerate(endDates):
     if not os.path.exists(thetaDir): 
         os.mkdir(thetaDir)
     
-    epsilonArray = numpy.ones(numEpsilons)*epsilon    
+    epsilonArray = numpy.ones(numEpsilons[i])*epsilon    
     
     os.system('taskset -p 0xffffffff %d' % os.getpid())
     
