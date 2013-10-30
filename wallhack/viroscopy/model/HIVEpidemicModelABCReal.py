@@ -36,7 +36,7 @@ posteriorSampleSize, matchAlpha, breakDist, pertScale = HIVModelUtils.realABCPar
 
 abcMaxRuns = 2500
 batchSize = 50
-numEpsilons = 10
+numEpsilons = 15
 epsilon = 0.8
 alpha = 2
 zeroVal = 0.9
