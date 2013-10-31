@@ -51,7 +51,7 @@ except:
 graphStats = GraphStatistics()
 
 t = 0
-maxT = 10
+maxT = 15
 minVal = 10 
 matchAlg = "QCV"
 plotStyles = ['k-', 'kx-', 'k+-', 'k.-', 'k*-']
