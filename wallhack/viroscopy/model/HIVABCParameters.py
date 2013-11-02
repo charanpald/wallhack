@@ -7,7 +7,7 @@ import scipy.stats as stats
 from apgl.util.Parameter import Parameter
 
 class HIVABCParameters(object):
-    def __init__(self, meanTheta, sigmaTheta, pertTheta, upperInfected=1000):
+    def __init__(self, meanTheta, sigmaTheta, pertTheta, upperInfected=1500):
         """
         Initialised this object with a mean value of theta 
         """
