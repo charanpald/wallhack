@@ -32,18 +32,12 @@ numpy.seterr(invalid='raise')
 
 resultsDir = PathDefaults.getOutputDir() + "viroscopy/real/" 
 startDate, endDates, numRecordSteps, M, targetGraph = HIVModelUtils.realSimulationParams()
-posteriorSampleSize, matchAlpha, breakDist, pertScale = HIVModelUtils.realABCParams()
+N, matchAlpha, breakDist, numEpsilons, epsilon, minEpsilon, matchAlg, abcMaxRuns, batchSize = HIVModelUtils.realABCParams()
 
-abcMaxRuns = 2500
-batchSize = 50
-numEpsilons = 15
-epsilon = 0.8
-minEpsilon = 0.4
-matchAlg = "QCV"
+logging.debug("Posterior sample size " + str(N))
+
 alpha = 2
 zeroVal = 0.9
-
-logging.debug("Posterior sample size " + str(posteriorSampleSize))
 
 for i, endDate in enumerate(endDates): 
     logging.debug("="*10 + "Starting new simulation batch with index " + str(i) + "="*10) 
@@ -99,10 +93,8 @@ for i, endDate in enumerate(endDates):
     
     epsilonArray = numpy.ones(numEpsilons)*epsilon    
     
-    os.system('taskset -p 0xffffffff %d' % os.getpid())
-    
     abcSMC = ABCSMC(epsilonArray, createModel, abcParams, thetaDir, True, minEpsilon=minEpsilon)
-    abcSMC.setPosteriorSampleSize(posteriorSampleSize)
+    abcSMC.setPosteriorSampleSize(N)
     abcSMC.setNumProcesses(numProcesses)
     abcSMC.batchSize = batchSize
     abcSMC.maxRuns = abcMaxRuns

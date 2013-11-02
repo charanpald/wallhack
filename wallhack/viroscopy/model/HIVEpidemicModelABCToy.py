@@ -33,20 +33,13 @@ numpy.seterr(invalid='raise')
 
 resultsDir = PathDefaults.getOutputDir() + "viroscopy/toy/" 
 startDate, endDate, recordStep, M, targetGraph = HIVModelUtils.toySimulationParams()
-posteriorSampleSize, matchAlpha, breakDist, purtScale = HIVModelUtils.toyABCParams()
+N, matchAlpha, breakDist, numEpsilons, epsilon, minEpsilon, matchAlg, abcMaxRuns, batchSize  = HIVModelUtils.toyABCParams()
 
 logging.debug("Total time of simulation is " + str(endDate-startDate))
-logging.debug("Posterior sample size " + str(posteriorSampleSize))
+logging.debug("Posterior sample size " + str(N))
 
-abcMaxRuns = 10000
-batchSize = 50
-numEpsilons = 10
-epsilon = 0.8
 alpha = 2
 zeroVal = 0.9
-eps = 0.001
-matchAlg = "QCV" 
-
 epsilonArray = numpy.ones(numEpsilons)*epsilon   
 
 def createModel(t):
@@ -82,13 +75,11 @@ if not os.path.exists(thetaDir):
 
 logging.debug((meanTheta, sigmaTheta))
 
-abcSMC = ABCSMC(epsilonArray, createModel, abcParams, thetaDir, True, eps=eps)
-abcSMC.setPosteriorSampleSize(posteriorSampleSize)
+abcSMC = ABCSMC(epsilonArray, createModel, abcParams, thetaDir, True, minEpsilon=minEpsilon)
+abcSMC.setPosteriorSampleSize(N)
 abcSMC.batchSize = batchSize
 abcSMC.maxRuns = abcMaxRuns
 abcSMC.setNumProcesses(numProcesses)
-
-os.system('taskset -p 0xffffffff %d' % os.getpid())
 
 thetasArray = abcSMC.run()
 

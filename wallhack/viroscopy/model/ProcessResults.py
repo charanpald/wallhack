@@ -24,18 +24,18 @@ saveResults = False
 
 if processReal: 
     ind = 2
-    N, matchAlpha, breakDist, pertScale = HIVModelUtils.realABCParams()
+    N, matchAlpha, breakDist, numEpsilons, epsilon, minEpsilon, matchAlg, abcMaxRuns, batchSize = HIVModelUtils.realABCParams()
     resultsDir = PathDefaults.getOutputDir() + "viroscopy/real/theta" + str(ind) + "/"
     outputDir = resultsDir + "stats/"
     startDate, endDates, numRecordSteps, M, targetGraph = HIVModelUtils.realSimulationParams()
     endDate = endDates[ind]
-    endDate += 100
+    endDate += (endDate-startDate)/10.0
     recordStep = (endDate-startDate)/float(numRecordSteps)
     
     realTheta, sigmaTheta, pertTheta = HIVModelUtils.estimatedRealTheta()
     prefix = "Real"
 else: 
-    N, matchAlpha, breakDist, pertScale = HIVModelUtils.toyABCParams()
+    N, matchAlpha, breakDist, numEpsilons, epsilon, minEpsilon, matchAlg, abcMaxRuns, batchSize = HIVModelUtils.toyABCParams()
     resultsDir = PathDefaults.getOutputDir() + "viroscopy/toy/theta/"
     outputDir = resultsDir + "stats/"
     startDate, endDate, recordStep, M, targetGraph = HIVModelUtils.toySimulationParams()
@@ -51,9 +51,7 @@ except:
 graphStats = GraphStatistics()
 
 t = 0
-maxT = 15
-minVal = 10 
-matchAlg = "QCV"
+maxT = numEpsilons
 plotStyles = ['k-', 'kx-', 'k+-', 'k.-', 'k*-']
 
 for i in range(maxT): 
