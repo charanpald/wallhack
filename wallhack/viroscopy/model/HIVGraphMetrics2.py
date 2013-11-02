@@ -68,7 +68,7 @@ class HIVGraphMetrics2(object):
             weights = numpy.arange(1, objectives.shape[0]+1)
             return numpy.average(objectives, weights=weights)
         else: 
-            return 0
+            return float("inf")
             
     def meanGraphObjective(self):
         """
@@ -78,7 +78,7 @@ class HIVGraphMetrics2(object):
         if graphObjs.shape[0]!=0: 
             return graphObjs.mean()
         else: 
-            return 0
+            return float("inf")
             
     def meanLabelObjective(self):
         """
@@ -88,7 +88,7 @@ class HIVGraphMetrics2(object):
         if labelObjs.shape[0]!=0: 
             return labelObjs.mean()
         else: 
-            return 0
+            return float("inf")
         
     def shouldBreak(self): 
         if len(self.objectives) < self.breakIgnore: 
