@@ -36,12 +36,12 @@ posteriorSampleSize, matchAlpha, breakDist, pertScale = HIVModelUtils.realABCPar
 
 abcMaxRuns = 2500
 batchSize = 50
-numEpsilons = [10, 10, 15]
+numEpsilons = 15
 epsilon = 0.8
+minEpsilon = 0.4
+matchAlg = "QCV"
 alpha = 2
 zeroVal = 0.9
-eps = 0.001
-matchAlg = "QCV"
 
 logging.debug("Posterior sample size " + str(posteriorSampleSize))
 
@@ -77,10 +77,11 @@ for i, endDate in enumerate(endDates):
     if i == 0: 
         meanTheta, stdTheta, pertTheta = HIVModelUtils.estimatedRealTheta()
     else:
-        #Perturbations are based on the stds of the last thetas 
-        pertTheta = stdTheta.copy()*pertScale
         #The prior is very loose as we do not want to bias too much to previous solutions 
+        meanTheta = HIVModelUtils.estimatedRealTheta()[0]
         stdTheta = HIVModelUtils.estimatedRealTheta()[1]
+        #Maybe this should change 
+        pertTheta = HIVModelUtils.estimatedRealTheta()[2]
         
         #Must clip the probabilities 
         stdTheta[1] = numpy.clip(stdTheta[1], 0, 1)
@@ -96,11 +97,11 @@ for i, endDate in enumerate(endDates):
     if not os.path.exists(thetaDir): 
         os.mkdir(thetaDir)
     
-    epsilonArray = numpy.ones(numEpsilons[i])*epsilon    
+    epsilonArray = numpy.ones(numEpsilons)*epsilon    
     
     os.system('taskset -p 0xffffffff %d' % os.getpid())
     
-    abcSMC = ABCSMC(epsilonArray, createModel, abcParams, thetaDir, True, eps=eps)
+    abcSMC = ABCSMC(epsilonArray, createModel, abcParams, thetaDir, True, minEpsilon=minEpsilon)
     abcSMC.setPosteriorSampleSize(posteriorSampleSize)
     abcSMC.setNumProcesses(numProcesses)
     abcSMC.batchSize = batchSize

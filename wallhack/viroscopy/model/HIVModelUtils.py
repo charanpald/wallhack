@@ -23,8 +23,8 @@ class HIVModelUtils(object):
         """
         This is taken from simulated runs using the real data 
         """
-        theta = numpy.array([200, 0.9, 0.5, 0.1, 0.1, 0.1])
-        sigmaTheta = numpy.array([200, 0.4, 0.5, 0.1, 0.1, 0.1])
+        theta = numpy.array([500, 0.5, 0.5, 0.1, 0.1, 0.1])
+        sigmaTheta = numpy.array([400, 0.5, 0.5, 0.1, 0.1, 0.1])
         pertTheta = sigmaTheta/10
         return theta, sigmaTheta, pertTheta
   
@@ -63,14 +63,14 @@ class HIVModelUtils(object):
         M = targetGraph.size * 5
         #This needs to be from 1986 to 2004 
         startDate = CsvConverters.dateConv("01/01/1986")
-        endDates = [CsvConverters.dateConv("01/01/1987"), CsvConverters.dateConv("01/01/1989"), CsvConverters.dateConv("01/01/1991")]
+        endDates = [CsvConverters.dateConv("01/01/1989"), CsvConverters.dateConv("01/01/1991"), CsvConverters.dateConv("01/01/1993")]
         endDates = [float(i) for i in endDates]
         
         return float(startDate), endDates, numRecordSteps, M, targetGraph
     
     @staticmethod
     def realABCParams():
-        N = 50 
+        N = 30 
         matchAlpha = 0.2 
         breakDist = 0.8 
         pertScale = 0.5
