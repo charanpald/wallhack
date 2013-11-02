@@ -72,7 +72,7 @@ class HIVModelUtils(object):
     def realABCParams():
         N = 30 
         matchAlpha = 0.2 
-        breakDist = 0.8 
+        breakDist = 0.7 
         numEpsilons = 15
         epsilon = 0.8
         minEpsilon = 0.4
