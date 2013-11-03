@@ -33,7 +33,7 @@ numpy.seterr(invalid='raise')
 
 resultsDir = PathDefaults.getOutputDir() + "viroscopy/toy/" 
 startDate, endDate, recordStep, M, targetGraph = HIVModelUtils.toySimulationParams()
-N, matchAlpha, breakDist, numEpsilons, epsilon, minEpsilon, matchAlg, abcMaxRuns, batchSize  = HIVModelUtils.toyABCParams()
+N, matchAlpha, breakScale, numEpsilons, epsilon, minEpsilon, matchAlg, abcMaxRuns, batchSize  = HIVModelUtils.toyABCParams()
 
 logging.debug("Total time of simulation is " + str(endDate-startDate))
 logging.debug("Posterior sample size " + str(N))
@@ -41,6 +41,9 @@ logging.debug("Posterior sample size " + str(N))
 alpha = 2
 zeroVal = 0.9
 epsilonArray = numpy.ones(numEpsilons)*epsilon   
+
+breakSize = targetGraph.subgraph(targetGraph.removedIndsAt(endDate)).size * breakScale
+logging.debug("Largest acceptable graph is " + str(breakSize))
 
 def createModel(t):
     """
@@ -58,7 +61,7 @@ def createModel(t):
     featureInds[HIVVertices.stateIndex] = False
     featureInds = numpy.arange(featureInds.shape[0])[featureInds]
     matcher = GraphMatch(matchAlg, alpha=matchAlpha, featureInds=featureInds, useWeightM=False)
-    graphMetrics = HIVGraphMetrics2(targetGraph, breakDist, matcher, endDate)
+    graphMetrics = HIVGraphMetrics2(targetGraph, breakSize, matcher, endDate)
 
     rates = HIVRates(graph, hiddenDegSeq)
     model = HIVEpidemicModel(graph, rates, T=float(endDate), T0=float(startDate), metrics=graphMetrics)

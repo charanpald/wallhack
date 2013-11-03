@@ -5,11 +5,11 @@ from apgl.util.Parameter import Parameter
 from sandbox.misc.GraphMatch import GraphMatch 
 
 class HIVGraphMetrics2(object): 
-    def __init__(self, realGraph, breakObj=0.5, matcher=None, T=1000):
+    def __init__(self, realGraph, maxSize=100, matcher=None, T=1000):
         """
         A class to model metrics about and between HIVGraphs such as summary 
         statistics and distances. In this case we perform graph matching 
-        using the PATH algorithm and other graph matching methods. 
+        using the QCV algorithm and other graph matching methods. 
         
         :param realGraph: The target epidemic graph 
         
@@ -23,10 +23,10 @@ class HIVGraphMetrics2(object):
         
         self.objectives = [] 
         self.graphObjs = []
+        self.graphSizes = []
         self.labelObjs = []
         self.realGraph = realGraph
-        self.breakObj = breakObj 
-        self.breakIgnore = 4
+        self.maxSize = maxSize
         self.T = T 
         self.times = []
         
@@ -43,13 +43,12 @@ class HIVGraphMetrics2(object):
         t = graph.endTime()
         subgraph = graph.subgraph(graph.removedIndsAt(t))  
         subRealGraph = self.realGraph.subgraph(self.realGraph.removedIndsAt(t))  
+        self.graphSizes.append(graph.size)
         
         #Only add objective if the real graph has nonzero size
-        if subRealGraph.size != 0: 
+        if subRealGraph.size != 0 and graph.size <= self.maxSize: 
             permutation, distance, time = self.matcher.match(subgraph, subRealGraph)
             lastObj, lastGraphObj, lastLabelObj = self.matcher.distance(subgraph, subRealGraph, permutation, True, False, True) 
-            
-            #logging.debug("Time " + str(t) + "  " + str(lastObj) + " with simulated size " + str(subgraph.size) + " and real size " + str(subRealGraph.size))        
             
             self.objectives.append(lastObj)
             self.graphObjs.append(lastGraphObj)
@@ -91,9 +90,11 @@ class HIVGraphMetrics2(object):
             return float("inf")
         
     def shouldBreak(self): 
-        if len(self.objectives) <= self.breakIgnore: 
-            return False 
-        else:
-            logging.debug("Checking objective: " + str(self.meanObjective()) + " and break objective: " + str(self.breakObj))
-            return self.meanObjective() > self.breakObj 
+        """
+        We break when the graph size exceeds a threshold 
+        """
+        if self.graphSizes[-1] > self.maxSize:
+            logging.debug("Breaking as size has become too large: " + str(self.graphSizes[-1]) + ">" + str(self.maxSize))
+            
+        return self.graphSizes[-1] > self.maxSize 
         

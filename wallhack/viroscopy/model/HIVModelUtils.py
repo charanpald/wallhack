@@ -72,7 +72,7 @@ class HIVModelUtils(object):
     def realABCParams():
         N = 30 
         matchAlpha = 0.2 
-        breakDist = 0.7 
+        breakScale = 1.2 
         numEpsilons = 15
         epsilon = 0.8
         minEpsilon = 0.4
@@ -80,13 +80,13 @@ class HIVModelUtils(object):
         abcMaxRuns = 2500
         batchSize = 50
         
-        return N, matchAlpha, breakDist, numEpsilons, epsilon, minEpsilon, matchAlg, abcMaxRuns, batchSize  
+        return N, matchAlpha, breakScale, numEpsilons, epsilon, minEpsilon, matchAlg, abcMaxRuns, batchSize  
 
     @staticmethod
     def toyABCParams():
         N = 50 
         matchAlpha = 0.2 
-        breakDist = 0.8 
+        breakScale = 1.2 
         numEpsilons = 15
         epsilon = 0.8
         minEpsilon = 0.2
@@ -94,7 +94,7 @@ class HIVModelUtils(object):
         abcMaxRuns = 10000
         batchSize = 50
         
-        return N, matchAlpha, breakDist, numEpsilons, epsilon, minEpsilon, matchAlg, abcMaxRuns, batchSize  
+        return N, matchAlpha, breakScale, numEpsilons, epsilon, minEpsilon, matchAlg, abcMaxRuns, batchSize  
    
     @staticmethod     
     def simulate(theta, startDate, endDate, recordStep, M, graphMetrics=None): 
