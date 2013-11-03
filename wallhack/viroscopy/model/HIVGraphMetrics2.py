@@ -43,7 +43,7 @@ class HIVGraphMetrics2(object):
         t = graph.endTime()
         subgraph = graph.subgraph(graph.removedIndsAt(t))  
         subRealGraph = self.realGraph.subgraph(self.realGraph.removedIndsAt(t))  
-        self.graphSizes.append(graph.size)
+        self.graphSizes.append(subgraph.size)
         
         #Only add objective if the real graph has nonzero size
         if subRealGraph.size != 0 and graph.size <= self.maxSize: 
