@@ -46,7 +46,7 @@ class HIVGraphMetrics2(object):
         self.graphSizes.append(subgraph.size)
         
         #Only add objective if the real graph has nonzero size
-        if subRealGraph.size != 0 and graph.size <= self.maxSize: 
+        if subRealGraph.size != 0 and subgraph.size <= self.maxSize: 
             permutation, distance, time = self.matcher.match(subgraph, subRealGraph)
             lastObj, lastGraphObj, lastLabelObj = self.matcher.distance(subgraph, subRealGraph, permutation, True, False, True) 
             
@@ -94,7 +94,7 @@ class HIVGraphMetrics2(object):
         We break when the graph size exceeds a threshold 
         """
         if self.graphSizes[-1] > self.maxSize:
-            logging.debug("Breaking as size has become too large: " + str(self.graphSizes[-1]) + ">" + str(self.maxSize))
+            logging.debug("Breaking as size has become too large: " + str(self.graphSizes[-1]) + " > " + str(self.maxSize))
             
         return self.graphSizes[-1] > self.maxSize 
         
