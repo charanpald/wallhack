@@ -194,7 +194,7 @@ class HIVEpidemicModel():
                     self.metrics.addGraph(self.graph)
                 
                     if self.metrics.shouldBreak(): 
-                        logging.debug("Breaking as objective has become too large")
+                        logging.debug("Breaking as objective " + str(self.metrics.meanObjective()) + ">" + str(self.metrics.breakObj))
                         break 
 
         logging.debug("Finished simulation at time " + str(t) + " for a total time of " + str(t-self.T0))
