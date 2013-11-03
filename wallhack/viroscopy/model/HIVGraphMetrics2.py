@@ -26,7 +26,7 @@ class HIVGraphMetrics2(object):
         self.labelObjs = []
         self.realGraph = realGraph
         self.breakObj = breakObj 
-        self.breakIgnore = 3
+        self.breakIgnore = 4
         self.T = T 
         self.times = []
         
@@ -91,7 +91,7 @@ class HIVGraphMetrics2(object):
             return float("inf")
         
     def shouldBreak(self): 
-        if len(self.objectives) < self.breakIgnore: 
+        if len(self.objectives) <= self.breakIgnore: 
             return False 
         else:
             logging.debug("Checking objective: " + str(self.meanObjective()) + " and break objective: " + str(self.breakObj))
