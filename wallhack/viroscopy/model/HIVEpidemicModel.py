@@ -49,8 +49,7 @@ class HIVEpidemicModel():
         """
         Set thetime interval in order to record statistics over the model. 
         """
-        if abs((self.T-self.T0) % recordStep) > 10**-6:
-            print((self.T-self.T0) % recordStep)
+        if abs((self.T-self.T0)/recordStep - round((self.T-self.T0)/recordStep)) >= 10**-4:
             raise ValueError("Record Step must divide exactly into T-T0")
         self.recordStep = recordStep 
 
