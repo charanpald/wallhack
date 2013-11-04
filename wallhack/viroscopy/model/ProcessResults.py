@@ -20,10 +20,10 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.set_printoptions(suppress=True, precision=4, linewidth=150)
 
 processReal = True 
-saveResults = True 
+saveResults = False 
 
 if processReal: 
-    ind = 0
+    ind = 1
     N, matchAlpha, breakScale, numEpsilons, epsilon, minEpsilon, matchAlg, abcMaxRuns, batchSize = HIVModelUtils.realABCParams()
     resultsDir = PathDefaults.getOutputDir() + "viroscopy/real/theta" + str(ind) + "/"
     outputDir = resultsDir + "stats/"
@@ -51,6 +51,7 @@ except:
 
 graphStats = GraphStatistics()
 breakSize = targetGraph.subgraph(targetGraph.removedIndsAt(endDate)).size * breakScale
+print(breakSize)
 t = 0
 maxT = numEpsilons
 plotStyles = ['k-', 'kx-', 'k+-', 'k.-', 'k*-']
@@ -93,7 +94,7 @@ if saveResults:
         paramList.append((i, thetaArray[i, :]))
 
     pool = multiprocessing.Pool(multiprocessing.cpu_count())               
-    resultIterator = pool.map(saveStats, paramList)  
+    #resultIterator = pool.map(saveStats, paramList)  
     #resultIterator = map(saveStats, paramList)  
     pool.terminate()
 
@@ -119,7 +120,7 @@ else:
 
     resultsFileName = outputDir + "IdealStats.pkl"
     stats = Util.loadPickle(resultsFileName)  
-    vertexArrayIdeal, idealInfectedIndices, removedIndices, contactGraphStats, removedGraphStats = stats 
+    vertexArrayIdeal, idealInfectedIndices, idealRemovedIndices, idealContactGraphStats, idealRemovedGraphStats = stats 
     times = numpy.arange(startDate, endDate+1, recordStep)  
     
     graphStats = GraphStatistics()
@@ -209,7 +210,7 @@ else:
     plt.errorbar(times, meanNumComponents, yerr=stdNumComponents) 
     plt.xlabel("time (days)")
     plt.ylabel("num components")
-    plt.plot(times, removedGraphStats[:, graphStats.numComponentsIndex], "r")
+    plt.plot(times, idealRemovedGraphStats[:, graphStats.numComponentsIndex], "r")
     plotInd += 1
     
     maxCompSizesArr = numpy.array(maxCompSizesArr)
@@ -219,7 +220,7 @@ else:
     plt.errorbar(times, meanMaxCompSizesArr, yerr=stdMaxCompSizesArr) 
     plt.xlabel("time (days)")
     plt.ylabel("max component size")
-    plt.plot(times, removedGraphStats[:, graphStats.maxComponentSizeIndex], "r")
+    plt.plot(times, idealRemovedGraphStats[:, graphStats.maxComponentSizeIndex], "r")
     plotInd += 1
     
     numEdgesArr = numpy.array(numEdgesArr)
@@ -229,7 +230,7 @@ else:
     plt.errorbar(times, meanNumEdgesArr, yerr=stdNumEdgesArr) 
     plt.xlabel("time (days)")
     plt.ylabel("number of edges")
-    plt.plot(times, removedGraphStats[:, graphStats.numEdgesIndex], "r")
+    plt.plot(times, idealRemovedGraphStats[:, graphStats.numEdgesIndex], "r")
     plotInd += 1
     
     """
