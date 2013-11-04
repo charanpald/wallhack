@@ -20,11 +20,11 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.set_printoptions(suppress=True, precision=4, linewidth=150)
 
 processReal = True 
-saveResults = False 
+saveResults = True 
 
 if processReal: 
-    ind = 2
-    N, matchAlpha, breakDist, numEpsilons, epsilon, minEpsilon, matchAlg, abcMaxRuns, batchSize = HIVModelUtils.realABCParams()
+    ind = 0
+    N, matchAlpha, breakScale, numEpsilons, epsilon, minEpsilon, matchAlg, abcMaxRuns, batchSize = HIVModelUtils.realABCParams()
     resultsDir = PathDefaults.getOutputDir() + "viroscopy/real/theta" + str(ind) + "/"
     outputDir = resultsDir + "stats/"
     startDate, endDates, numRecordSteps, M, targetGraph = HIVModelUtils.realSimulationParams()
@@ -32,10 +32,11 @@ if processReal:
     endDate += (endDate-startDate)/10.0
     recordStep = (endDate-startDate)/float(numRecordSteps)
     
+    
     realTheta, sigmaTheta, pertTheta = HIVModelUtils.estimatedRealTheta()
     prefix = "Real"
 else: 
-    N, matchAlpha, breakDist, numEpsilons, epsilon, minEpsilon, matchAlg, abcMaxRuns, batchSize = HIVModelUtils.toyABCParams()
+    N, matchAlpha, breakScale, numEpsilons, epsilon, minEpsilon, matchAlg, abcMaxRuns, batchSize = HIVModelUtils.toyABCParams()
     resultsDir = PathDefaults.getOutputDir() + "viroscopy/toy/theta/"
     outputDir = resultsDir + "stats/"
     startDate, endDate, recordStep, M, targetGraph = HIVModelUtils.toySimulationParams()
@@ -49,7 +50,7 @@ except:
     logging.debug("Directory exists: " + outputDir) 
 
 graphStats = GraphStatistics()
-
+breakSize = targetGraph.subgraph(targetGraph.removedIndsAt(endDate)).size * breakScale
 t = 0
 maxT = numEpsilons
 plotStyles = ['k-', 'kx-', 'k+-', 'k.-', 'k*-']
@@ -60,7 +61,6 @@ for i in range(maxT):
         t = i   
     
 logging.debug("Using population " + str(t))
-
 #We plot some stats for the ideal simulated epidemic 
 #and those epidemics found using ABC. 
 
@@ -75,7 +75,7 @@ def saveStats(args):
     featureInds = numpy.arange(featureInds.shape[0])[featureInds]        
     
     matcher = GraphMatch(matchAlg, alpha=matchAlpha, featureInds=featureInds, useWeightM=False)
-    graphMetrics = HIVGraphMetrics2(targetGraph, breakDist, matcher, float(endDate))        
+    graphMetrics = HIVGraphMetrics2(targetGraph, breakSize, matcher, float(endDate))        
     times, infectedIndices, removedIndices, graph = HIVModelUtils.simulate(thetaArray[i], startDate, endDate, recordStep, M, graphMetrics)
     times = numpy.arange(startDate, endDate+1, recordStep)
     vertexArray, infectedIndices, removedIndices, contactGraphStats, removedGraphStats = HIVModelUtils.generateStatistics(graph, times)
@@ -232,6 +232,7 @@ else:
     plt.plot(times, removedGraphStats[:, graphStats.numEdgesIndex], "r")
     plotInd += 1
     
+    """
     meanDists = numpy.array(distsArr).mean(0)
     stdDists = numpy.array(distsArr).std(0)
     plt.figure(plotInd)
@@ -239,5 +240,6 @@ else:
     plt.xlabel("time (days)")
     plt.ylabel("distances")
     plotInd += 1
+    """
     
     plt.show()
