@@ -27,49 +27,43 @@ class HIVABCParameters(object):
         ind = 0 
         mu = meanTheta[ind]
         sigma = sigmaTheta[ind]
-        pertSigma = pertTheta[ind]
         priorDist, priorDensity = self.createDiscTruncNormParam(float(sigma), float(mu), upperInfected)
-        perturbationKernel, perturbationKernelDensity = self.__createNormalDiscPert(pertSigma)
+        perturbationKernel, perturbationKernelDensity = self.__createNormalDiscPert()
         self.__addParameter(("graph", "setRandomInfected"), priorDist, priorDensity, perturbationKernel, perturbationKernelDensity)
 
         ind += 1
         mu = meanTheta[ind]
         sigma = sigmaTheta[ind]
-        pertSigma = pertTheta[ind]
         priorDist, priorDensity = self.createTruncNormParam(sigma, mu)
-        perturbationKernel, perturbationKernelDensity = self.__createNormalPert(pertSigma)
+        perturbationKernel, perturbationKernelDensity = self.__createNormalPert()
         self.__addParameter(("rates", "setAlpha"), priorDist, priorDensity, perturbationKernel, perturbationKernelDensity)
 
         ind += 1
         mu = meanTheta[ind]
         sigma = sigmaTheta[ind]
-        pertSigma = pertTheta[ind]
         priorDist, priorDensity = self.createGammaParam(sigma, mu)
-        perturbationKernel, perturbationKernelDensity = self.__createNormalPert(pertSigma)
+        perturbationKernel, perturbationKernelDensity = self.__createNormalPert()
         self.__addParameter(("rates", "setRandDetectRate"), priorDist, priorDensity, perturbationKernel, perturbationKernelDensity)
 
         ind += 1
         mu = meanTheta[ind]
         sigma = sigmaTheta[ind]
-        pertSigma = pertTheta[ind]
         priorDist, priorDensity = self.createGammaParam(sigma, mu)
-        perturbationKernel, perturbationKernelDensity = self.__createNormalPert(pertSigma)
+        perturbationKernel, perturbationKernelDensity = self.__createNormalPert()
         self.__addParameter(("rates", "setCtRatePerPerson"), priorDist, priorDensity, perturbationKernel, perturbationKernelDensity)
 
         ind += 1
         mu = meanTheta[ind]
         sigma = sigmaTheta[ind]
-        pertSigma = pertTheta[ind]
         priorDist, priorDensity = self.createGammaParam(sigma, mu)
-        perturbationKernel, perturbationKernelDensity = self.__createNormalPert(pertSigma)
+        perturbationKernel, perturbationKernelDensity = self.__createNormalPert()
         self.__addParameter(("rates", "setContactRate"), priorDist, priorDensity, perturbationKernel, perturbationKernelDensity)
 
         ind += 1
         mu = meanTheta[ind]
         sigma = sigmaTheta[ind]
-        pertSigma = pertTheta[ind]
         priorDist, priorDensity = self.createTruncNormParam(sigma, mu)
-        perturbationKernel, perturbationKernelDensity = self.__createNormalPert(pertSigma)
+        perturbationKernel, perturbationKernelDensity = self.__createNormalPert()
         self.__addParameter(("rates", "setInfectProb"), priorDist, priorDensity, perturbationKernel, perturbationKernelDensity)
 
 
@@ -116,16 +110,14 @@ class HIVABCParameters(object):
 
         return priorDist, priorDensity 
 
-    def __createNormalPert(self, sigma):
-        Parameter.checkFloat(sigma, 0.0, float('inf'))
-        perturbationKernel = lambda x: stats.norm.rvs(x, sigma)
-        perturbationKernelDensity = lambda old, new: stats.norm.pdf(new, old, sigma)
+    def __createNormalPert(self):
+        perturbationKernel = lambda x, sigma: stats.norm.rvs(x, sigma)
+        perturbationKernelDensity = lambda old, new, sigma: stats.norm.pdf(new, old, sigma)
         return perturbationKernel, perturbationKernelDensity
 
-    def __createNormalDiscPert(self, sigma):
-        Parameter.checkFloat(sigma, 0.0, float('inf'))
-        perturbationKernel = lambda x: numpy.round(stats.norm.rvs(x, sigma))
-        perturbationKernelDensity = lambda old, new: stats.norm.pdf(new, old, sigma)
+    def __createNormalDiscPert(self):
+        perturbationKernel = lambda x, sigma: numpy.round(stats.norm.rvs(x, sigma))
+        perturbationKernelDensity = lambda old, new, sigma: stats.norm.pdf(new, old, sigma)
         return perturbationKernel, perturbationKernelDensity
 
     def __addParameter(self, paramFunc, priorDist, priorDensity, perturbationKernel, perturbationKernelDensity):
@@ -165,24 +157,33 @@ class HIVABCParameters(object):
             return density.prod()
  
 
-    def perturbationKernel(self, theta):
+    def perturbationKernel(self, theta, pertTheta=None):
         """
         Find a pertubation of theta based on the same random distributions used 
-        to generate theta. The std is given by self.pertScale. 
+        to generate theta. The std is given by pertTheta. 
         """
+        if pertTheta==None: 
+            pertTheta = self.pertTheta
+        
         newTheta = []
 
-        for i in range(len(self.perturbationKernels)):
-            newTheta.append(self.perturbationKernels[i](theta[i]))
+        for i, perturbationKernel in enumerate(self.perturbationKernels):
+            newTheta.append(perturbationKernel(theta[i], pertTheta[i]))
         
         newTheta = numpy.array(newTheta)
         return newTheta
 
-    def perturbationKernelDensity(self, oldTheta, theta, full=False):
+    def perturbationKernelDensity(self, oldTheta, theta, pertTheta=None, full=False):
+        """
+        Find a pertubation probability density of theta based on the same random 
+        distributions used to generate theta. The std is given by pertTheta. 
+        """
+        if pertTheta==None: 
+            pertTheta = self.pertTheta
         density = []
 
-        for i in range(len(self.perturbationKernelDensities)):
-            density.append(self.perturbationKernelDensities[i](oldTheta[i], theta[i]))
+        for i, perturbationKernelDensity in enumerate(self.perturbationKernelDensities):
+            density.append(perturbationKernelDensity(oldTheta[i], theta[i], pertTheta[i]))
 
         density = numpy.array(density) 
         
