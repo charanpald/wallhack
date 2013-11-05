@@ -2,6 +2,7 @@ import numpy
 from wallhack.viroscopy.model.HIVVertices import HIVVertices
 from apgl.util.Util import *
 import numpy.testing as nptst
+from random import choice 
 
 """
 Model the contact rate of an infected individual and other susceptibles.
@@ -105,6 +106,10 @@ class HIVRates():
         for i in range(graph.size):
             self.neighboursList.append(graph.neighbours(i))
             self.detectedNeighboursList.append(numpy.array([], numpy.int))
+            
+            #For a graph with edges choose the previous contact randomly 
+            if len(self.neighboursList[-1]) != 0: 
+                self.previousContact[i] = choice(self.neighboursList[-1])    
 
     def setAlpha(self, alpha):
         Parameter.checkFloat(alpha, 0.0, 1.0)
