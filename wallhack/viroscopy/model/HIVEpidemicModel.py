@@ -78,7 +78,7 @@ class HIVEpidemicModel():
         time T is reached. 
         """
         if self.graph.getNumEdges()!=0:
-            raise ValueError("Must start simulation with empty (no edges) graph: " + str(self.graph.getNumEdges()))
+            logging.warn("Starting with a non-empty graph and " + str(self.graph.getNumEdges()) + " edges")
 
         susceptibleSet = self.graph.getSusceptibleSet()
         infectedSet = self.graph.getInfectedSet()
@@ -99,6 +99,8 @@ class HIVEpidemicModel():
         numContacts = 0 
 
         logging.debug("Starting simulation at time " + str(t) + " with graph of size " + str(self.graph.size))
+        logging.debug("t-T0=" + str(t-self.T0) + " S=" + str(len(susceptibleSet)) + " I=" + str(len(infectedSet)) + " R=" + str(len(removedSet)) + " C=" + str(numContacts) + " E=" + str(self.graph.getNumEdges()))
+                
 
         #Now, start the simulation
         while t < self.T and len(infectedSet) != 0:
