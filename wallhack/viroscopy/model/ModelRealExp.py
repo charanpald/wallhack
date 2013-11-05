@@ -1,7 +1,8 @@
 """
 A script to estimate the HIV epidemic model parameters using ABC for real data.
 """
-from apgl.util import *
+from apgl.util.PathDefaults import PathDefaults
+from apgl.util.Util import Util
 from wallhack.viroscopy.model.HIVGraph import HIVGraph
 from wallhack.viroscopy.model.HIVABCParameters import HIVABCParameters
 from wallhack.viroscopy.model.HIVEpidemicModel import HIVEpidemicModel
@@ -31,7 +32,7 @@ numpy.set_printoptions(suppress=True, precision=4, linewidth=150)
 numpy.seterr(invalid='raise')
 
 resultsDir = PathDefaults.getOutputDir() + "viroscopy/real/" 
-startDate, endDates, numRecordSteps, M, targetGraph = HIVModelUtils.realSimulationParams()
+startDates, endDates, numRecordSteps, M, targetGraph = HIVModelUtils.realSimulationParams()
 N, matchAlpha, breakScale, numEpsilons, epsilon, minEpsilon, matchAlg, abcMaxRuns, batchSize = HIVModelUtils.realABCParams()
 
 logging.debug("Posterior sample size " + str(N))
@@ -40,6 +41,7 @@ alpha = 2
 zeroVal = 0.9
 
 for i, endDate in enumerate(endDates): 
+    startDate = startDates[i]
     logging.debug("="*10 + "Starting new simulation batch with index " + str(i) + "="*10) 
     logging.debug("Total time of simulation is " + str(endDate-startDate))    
     
@@ -50,12 +52,17 @@ for i, endDate in enumerate(endDates):
         """
         The parameter t is the particle index. 
         """
-        undirected = True
-        graph = HIVGraph(M, undirected)
+        #undirected = True
+        #graph = HIVGraph(M, undirected)
+ 
+        #We start with the observed graph at the start date 
+        graph = targetGraph.subgraph(targetGraph.removedIndsAt(startDate)) 
+        graph.addVertices(M-graph.size)
+        
         p = Util.powerLawProbs(alpha, zeroVal)
         hiddenDegSeq = Util.randomChoice(p, graph.getNumVertices())
         
-        featureInds= numpy.ones(graph.vlist.getNumFeatures(), numpy.bool)
+        featureInds = numpy.ones(graph.vlist.getNumFeatures(), numpy.bool)
         featureInds[HIVVertices.dobIndex] = False 
         featureInds[HIVVertices.infectionTimeIndex] = False 
         featureInds[HIVVertices.hiddenDegreeIndex] = False 
