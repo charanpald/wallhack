@@ -62,11 +62,14 @@ class HIVModelUtils(object):
         #Note that 5% of the population is bi 
         M = targetGraph.size * 5
         #This needs to be from 1986 to 2004 
-        startDate = CsvConverters.dateConv("01/01/1986")
+        #startDates = [CsvConverters.dateConv("01/01/1988"), CsvConverters.dateConv("01/01/1990")]
+        startDates = [CsvConverters.dateConv("01/01/1986"), CsvConverters.dateConv("01/01/1988"), CsvConverters.dateConv("01/01/1990")]
+        endDates = [float(i) for i in startDates]
+        #endDates = [CsvConverters.dateConv("01/01/1991"), CsvConverters.dateConv("01/01/1993")]
         endDates = [CsvConverters.dateConv("01/01/1989"), CsvConverters.dateConv("01/01/1991"), CsvConverters.dateConv("01/01/1993")]
         endDates = [float(i) for i in endDates]
         
-        return float(startDate), endDates, numRecordSteps, M, targetGraph
+        return startDates, endDates, numRecordSteps, M, targetGraph
     
     @staticmethod
     def realABCParams():
