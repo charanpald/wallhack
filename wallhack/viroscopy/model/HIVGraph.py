@@ -43,11 +43,13 @@ class HIVGraph(CsArrayGraph):
         """
         Pick a number of people randomly to be infected at time t.  
         """
-        Parameter.checkInt(numInitialInfected, 0, self.size)
-        infectInds = numpy.random.permutation(self.size)[0:numInitialInfected]
+        Parameter.checkInt(numInitialInfected, 0, len(self.getSusceptibleSet()))
+        infectInds = numpy.random.permutation(len(self.getSusceptibleSet()))[0:numInitialInfected]
+        
+        susceptibleList = list(self.getSusceptibleSet())
 
         for i in infectInds:
-            self.vlist.setInfected(i, t)
+            self.vlist.setInfected(susceptibleList[i], t)
             
     def detectedNeighbours(self, vertexInd):
         """
@@ -167,5 +169,22 @@ class HIVGraph(CsArrayGraph):
         
         #return numpy.max(numpy.array([imin, rmin]))
         return self.endEventTime
-        
+
+    def subgraph(self, vertexIndices):
+        """
+        Pass in a list or set of vertexIndices and returns the subgraph containing
+        those vertices only, and edges between them.
+
+        :param vertexIndices: the indices of the subgraph vertices.
+        :type vertexIndices: :class:`list`
+        """
+        Parameter.checkList(vertexIndices, Parameter.checkIndex, (0, self.getNumVertices()))
+        vertexIndices = numpy.unique(numpy.array(vertexIndices)).tolist()
+        vList = self.vList.subList(vertexIndices)
+
+        subGraph = HIVGraph(vList.getNumVertices(), self.undirected)
+        subGraph.W = self.W[vertexIndices, :][:, vertexIndices]
+        subGraph.vList = vList 
+
+        return subGraph
         
