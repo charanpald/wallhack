@@ -13,9 +13,10 @@ class HIVRates():
         Graph is the initial HIV graph and hiddenDegSeq is the initial degree
         sequence. 
         """
-        #Trade off between choosing new contact from known degrees and random is p/q
+        #Trade off between choosing new contact from known degrees and random is q-p for real degree 
+        #against p for the hidden degree
         self.p = 1
-        self.q = 3
+        self.q = 2
 
         self.graph = graph
 
