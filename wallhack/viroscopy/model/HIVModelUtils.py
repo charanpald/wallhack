@@ -72,13 +72,16 @@ class HIVModelUtils(object):
         return startDates, endDates, numRecordSteps, M, targetGraph
     
     @staticmethod
-    def realABCParams():
+    def realABCParams(test=False):
         N = 30 
         matchAlpha = 0.2 
-        breakScale = 1.5 
+        if test: 
+            breakScale = 5.0 
+        else: 
+            breakScale = 1.5 
         numEpsilons = 15
         epsilon = 0.8
-        minEpsilon = 0.4
+        minEpsilon = 0.2
         matchAlg = "QCV"   
         abcMaxRuns = 2500
         batchSize = 50
@@ -100,10 +103,8 @@ class HIVModelUtils(object):
         return N, matchAlpha, breakScale, numEpsilons, epsilon, minEpsilon, matchAlg, abcMaxRuns, batchSize  
    
     @staticmethod     
-    def simulate(theta, startDate, endDate, recordStep, M, graphMetrics=None): 
-        undirected = True
-        graph = HIVGraph(M, undirected)
-        logging.debug("Created graph: " + str(graph))
+    def simulate(theta, graph, startDate, endDate, recordStep, graphMetrics=None): 
+
     
         alpha = 2
         zeroVal = 0.9
