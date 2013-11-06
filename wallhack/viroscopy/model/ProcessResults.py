@@ -24,10 +24,11 @@ saveResults = False
 
 if processReal: 
     ind = 1
-    N, matchAlpha, breakScale, numEpsilons, epsilon, minEpsilon, matchAlg, abcMaxRuns, batchSize = HIVModelUtils.realABCParams()
+    N, matchAlpha, breakScale, numEpsilons, epsilon, minEpsilon, matchAlg, abcMaxRuns, batchSize = HIVModelUtils.realABCParams(True)
     resultsDir = PathDefaults.getOutputDir() + "viroscopy/real/theta" + str(ind) + "/"
     outputDir = resultsDir + "stats/"
-    startDate, endDates, numRecordSteps, M, targetGraph = HIVModelUtils.realSimulationParams()
+    startDates, endDates, numRecordSteps, M, targetGraph = HIVModelUtils.realSimulationParams()
+    startDate = startDates[ind]
     endDate = endDates[ind]
     endDate += (endDate-startDate)/10.0
     recordStep = (endDate-startDate)/float(numRecordSteps)
@@ -75,9 +76,13 @@ def saveStats(args):
     featureInds[HIVVertices.stateIndex] = False 
     featureInds = numpy.arange(featureInds.shape[0])[featureInds]        
     
+    graph = targetGraph.subgraph(targetGraph.removedIndsAt(startDate)) 
+    graph.addVertices(M-graph.size)
+    logging.debug("Created graph: " + str(graph))    
+    
     matcher = GraphMatch(matchAlg, alpha=matchAlpha, featureInds=featureInds, useWeightM=False)
     graphMetrics = HIVGraphMetrics2(targetGraph, breakSize, matcher, float(endDate))        
-    times, infectedIndices, removedIndices, graph = HIVModelUtils.simulate(thetaArray[i], startDate, endDate, recordStep, M, graphMetrics)
+    times, infectedIndices, removedIndices, graph = HIVModelUtils.simulate(thetaArray[i], graph, startDate, endDate, recordStep, graphMetrics)
     times = numpy.arange(startDate, endDate+1, recordStep)
     vertexArray, infectedIndices, removedIndices, contactGraphStats, removedGraphStats = HIVModelUtils.generateStatistics(graph, times)
     stats = times, vertexArray, infectedIndices, removedGraphStats, graphMetrics.objectives, graphMetrics.graphObjs, graphMetrics.labelObjs
@@ -94,7 +99,7 @@ if saveResults:
         paramList.append((i, thetaArray[i, :]))
 
     pool = multiprocessing.Pool(multiprocessing.cpu_count())               
-    #resultIterator = pool.map(saveStats, paramList)  
+    resultIterator = pool.map(saveStats, paramList)  
     #resultIterator = map(saveStats, paramList)  
     pool.terminate()
 
