@@ -212,8 +212,12 @@ class HIVEpidemicModel():
             return self.graph
 
     def objective(self): 
-        logging.debug("Objective is " + str(self.metrics.meanObjective()) + ", and final event on graph occured at time " + str(self.graph.endTime() - self.T0))
-        return self.metrics.meanObjective() 
+        if self.graph.endTime() >= self.T:
+            objective = self.metrics.meanObjective() 
+        else: 
+            objective = float("inf")
+        logging.debug("Objective is " + str(objective) + ", and final event on graph occured at time " + str(self.graph.endTime() - self.T0))
+        return objective
         
     def getNumContacts(self): 
         return self.numContacts
