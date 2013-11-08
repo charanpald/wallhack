@@ -107,7 +107,7 @@ for i, endDate in enumerate(endDates):
         theta = result[0]
         objective = result[1]
         logging.debug("Accepting theta=" + str(result[0]))
-        logging.debug("objective=" + str(result[1]))
+        logging.debug("Objective=" + str(result[1]))
         logging.debug("Number of iterations: " + str(result[4]))        
         
         currentTheta = loadThetaArray(N, thetaDir, 0)[0].tolist()
