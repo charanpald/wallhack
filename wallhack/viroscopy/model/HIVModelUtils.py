@@ -76,7 +76,7 @@ class HIVModelUtils(object):
         return startDates, endDates, numRecordSteps, M, targetGraph
     
     @staticmethod
-    def realABCParams(test=False):
+    def realABCParams(i, test=False):
         N = 30 
         matchAlpha = 0.2 
         if test: 
@@ -86,7 +86,10 @@ class HIVModelUtils(object):
         numEpsilons = 15
         epsilon = 0.8
         minEpsilon = 0.3
-        matchAlg = "QCV"   
+        if i != 2: 
+            matchAlg = "QCV"  
+        else: 
+            matchAlg = "U"
         abcMaxRuns = 1000
         batchSize = 50
         
