@@ -84,19 +84,8 @@ def createModel(t):
 
     return model
     
-if i == 0: 
-    meanTheta, stdTheta, pertTheta = HIVModelUtils.estimatedRealTheta()
-else:
-    #The prior is very loose as we do not want to bias too much to previous solutions 
-    meanTheta = HIVModelUtils.estimatedRealTheta()[0]
-    stdTheta = HIVModelUtils.estimatedRealTheta()[1]
-    #Maybe this should change 
-    pertTheta = HIVModelUtils.estimatedRealTheta()[2]
-    
-    #Must clip the probabilities 
-    stdTheta[1] = numpy.clip(stdTheta[1], 0, 1)
-    stdTheta[5] = numpy.clip(stdTheta[5], 0, 1)
-    
+meanTheta, stdTheta, pertTheta = HIVModelUtils.estimatedRealTheta(i)
+
 logging.debug("Using mean theta of " + str(meanTheta))
 logging.debug("Using std theta of " + str(stdTheta))
 logging.debug("Using perturbation std theta of " + str(pertTheta))
