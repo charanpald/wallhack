@@ -2,7 +2,7 @@ import numpy
 import logging
 import sys 
 import matplotlib 
-matplotlib.use("GTK3Agg")
+matplotlib.use("WXAgg")
 import multiprocessing 
 import matplotlib.pyplot as plt 
 import os
