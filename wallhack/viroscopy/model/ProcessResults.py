@@ -49,6 +49,11 @@ else:
     realTheta, sigmaTheta, pertTheta = HIVModelUtils.toyTheta()
     prefix = "Toy"
 
+logging.debug("Record step: " + str(recordStep))
+logging.debug("Start date: " + str(startDate))
+logging.debug("End date: " + str(endDate))
+logging.debug("End date - start date: " + str(endDate - startDate))
+
 try: 
     os.mkdir(outputDir)
 except: 
