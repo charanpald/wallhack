@@ -23,12 +23,12 @@ class HIVModelUtils(object):
         """
         This is taken from simulated runs using the real data 
         """
-        if i==2: 
-            theta = numpy.array([200, 0.8, 0.2, 0.1, 0.1, 0.1]) 
-            sigmaTheta = numpy.array([100, 0.2, 0.2, 0.1, 0.1, 0.1])
-        else: 
-            theta = numpy.array([500, 0.5, 0.5, 0.1, 0.1, 0.1])
-            sigmaTheta = numpy.array([400, 0.5, 0.5, 0.1, 0.1, 0.1])
+        #if i==2: 
+        #    theta = numpy.array([200, 0.8, 0.2, 0.1, 0.1, 0.1]) 
+        #    sigmaTheta = numpy.array([100, 0.2, 0.2, 0.1, 0.1, 0.1])
+         
+        theta = numpy.array([500, 0.5, 0.5, 0.1, 0.1, 0.1])
+        sigmaTheta = numpy.array([400, 0.5, 0.5, 0.1, 0.1, 0.1])
         pertTheta = sigmaTheta/10
         return theta, sigmaTheta, pertTheta
   
@@ -62,7 +62,7 @@ class HIVModelUtils(object):
             return startDate, endDate, recordStep, M
         
     @staticmethod 
-    def realSimulationParams(test=False): 
+    def realSimulationParams(test=False, ind=0): 
         hivReader = HIVGraphReader()
         targetGraph = hivReader.readSimulationHIVGraph()
         
@@ -82,7 +82,11 @@ class HIVModelUtils(object):
             numRecordSteps += numRecordSteps*testPeriod
             endDates += (endDates-startDates) * testPeriod    
         
-        return startDates, endDates, numRecordSteps, M, targetGraph
+        startDate = startDates[ind]
+        endDate = endDates[ind]
+        recordStep = (endDate-startDate)/float(numRecordSteps)        
+        
+        return startDate, endDate, recordStep, M, targetGraph
     
     @staticmethod
     def realABCParams(i, test=False):
@@ -95,10 +99,11 @@ class HIVModelUtils(object):
         numEpsilons = 15
         epsilon = 0.8
         minEpsilon = 0.3
-        if i != 2: 
-            matchAlg = "QCV"  
-        else: 
-            matchAlg = "U"
+        #if i != 2: 
+        #    matchAlg = "QCV"  
+        #else: 
+        #    matchAlg = "U"
+        matchAlg = "QCV"
         abcMaxRuns = 1000
         batchSize = 50
         
