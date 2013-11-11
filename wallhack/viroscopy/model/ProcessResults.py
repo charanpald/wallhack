@@ -19,11 +19,11 @@ assert False, "Must run with -O flag"
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.set_printoptions(suppress=True, precision=4, linewidth=150)
 
-processReal = True 
-saveResults = False 
+processReal = False 
+saveResults = True 
 
 if processReal: 
-    ind = 1
+    ind = 2
     N, matchAlpha, breakScale, numEpsilons, epsilon, minEpsilon, matchAlg, abcMaxRuns, batchSize = HIVModelUtils.realABCParams(True)
     resultsDir = PathDefaults.getOutputDir() + "viroscopy/real/theta" + str(ind) + "/"
     outputDir = resultsDir + "stats/"
@@ -34,7 +34,7 @@ if processReal:
     recordStep = (endDate-startDate)/float(numRecordSteps)
     
     
-    realTheta, sigmaTheta, pertTheta = HIVModelUtils.estimatedRealTheta()
+    realTheta, sigmaTheta, pertTheta = HIVModelUtils.estimatedRealTheta(ind)
     prefix = "Real"
 else: 
     N, matchAlpha, breakScale, numEpsilons, epsilon, minEpsilon, matchAlg, abcMaxRuns, batchSize = HIVModelUtils.toyABCParams()
@@ -75,13 +75,12 @@ def saveStats(args):
     featureInds[HIVVertices.hiddenDegreeIndex] = False 
     featureInds[HIVVertices.stateIndex] = False 
     featureInds = numpy.arange(featureInds.shape[0])[featureInds]        
-    
     graph = targetGraph.subgraph(targetGraph.removedIndsAt(startDate)) 
     graph.addVertices(M-graph.size)
     logging.debug("Created graph: " + str(graph))    
     
     matcher = GraphMatch(matchAlg, alpha=matchAlpha, featureInds=featureInds, useWeightM=False)
-    graphMetrics = HIVGraphMetrics2(targetGraph, breakSize, matcher, float(endDate))        
+    graphMetrics = HIVGraphMetrics2(targetGraph, breakSize, matcher, float(endDate))     
     times, infectedIndices, removedIndices, graph = HIVModelUtils.simulate(thetaArray[i], graph, startDate, endDate, recordStep, graphMetrics)
     times = numpy.arange(startDate, endDate+1, recordStep)
     vertexArray, infectedIndices, removedIndices, contactGraphStats, removedGraphStats = HIVModelUtils.generateStatistics(graph, times)
