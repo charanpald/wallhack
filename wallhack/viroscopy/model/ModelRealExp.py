@@ -38,16 +38,15 @@ numpy.set_printoptions(suppress=True, precision=4, linewidth=150)
 numpy.seterr(invalid='raise')
 
 resultsDir = PathDefaults.getOutputDir() + "viroscopy/real/" 
-startDates, endDates, numRecordSteps, M, targetGraph = HIVModelUtils.realSimulationParams()
+startDate, endDate, recordStep, M, targetGraph = HIVModelUtils.realSimulationParams(ind=i)
 N, matchAlpha, breakScale, numEpsilons, epsilon, minEpsilon, matchAlg, abcMaxRuns, batchSize = HIVModelUtils.realABCParams(i)
 
 logging.debug("Posterior sample size " + str(N))
+logging.debug("Matching algorithm " + str(matchAlg))
 
 alpha = 2
 zeroVal = 0.9
 
-endDate = endDates[i]
-startDate = startDates[i]
 logging.debug("="*10 + "Starting new simulation batch with index " + str(i) + "="*10) 
 logging.debug("Total time of simulation is " + str(endDate-startDate))    
 
@@ -77,7 +76,6 @@ def createModel(t):
     matcher = GraphMatch(matchAlg, alpha=matchAlpha, featureInds=featureInds, useWeightM=False)
     graphMetrics = HIVGraphMetrics2(targetGraph, breakSize, matcher, float(endDate))
     
-    recordStep = (endDate-startDate)/float(numRecordSteps)
     rates = HIVRates(graph, hiddenDegSeq)
     model = HIVEpidemicModel(graph, rates, T=float(endDate), T0=float(startDate), metrics=graphMetrics)
     model.setRecordStep(recordStep)
