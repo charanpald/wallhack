@@ -80,7 +80,7 @@ class HIVModelUtils(object):
         
         if test:
             numRecordSteps += numRecordSteps*testPeriod
-            endDates += endDates * testPeriod    
+            endDates += (endDates-startDates) * testPeriod    
         
         return startDates, endDates, numRecordSteps, M, targetGraph
     
