@@ -2,7 +2,7 @@ import numpy
 import logging
 import sys 
 import matplotlib 
-matplotlib.use("WXAgg")
+matplotlib.use("GTK3Agg")
 import multiprocessing 
 import matplotlib.pyplot as plt 
 import os
@@ -17,7 +17,6 @@ from sandbox.misc.GraphMatch import GraphMatch
 from wallhack.viroscopy.model.HIVGraphMetrics2 import HIVGraphMetrics2
 
 assert False, "Must run with -O flag"
-
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.set_printoptions(suppress=True, precision=4, linewidth=150)
 
@@ -28,54 +27,47 @@ else:
     ind = 0 
 
 processReal = True 
-saveResults = True 
+saveResults = False 
 
-if processReal: 
-    N, matchAlpha, breakScale, numEpsilons, epsilon, minEpsilon, matchAlg, abcMaxRuns, batchSize = HIVModelUtils.realABCParams(True)
-    resultsDir = PathDefaults.getOutputDir() + "viroscopy/real/theta" + str(ind) + "/"
-    outputDir = resultsDir + "stats/"
-    startDates, endDates, numRecordSteps, M, targetGraph = HIVModelUtils.realSimulationParams(test=True)
-    startDate = startDates[ind]
-    endDate = endDates[ind]
-    recordStep = (endDate-startDate)/float(numRecordSteps)
-    realTheta, sigmaTheta, pertTheta = HIVModelUtils.estimatedRealTheta(ind)
-    prefix = "Real"
-else: 
-    N, matchAlpha, breakScale, numEpsilons, epsilon, minEpsilon, matchAlg, abcMaxRuns, batchSize = HIVModelUtils.toyABCParams()
-    resultsDir = PathDefaults.getOutputDir() + "viroscopy/toy/theta/"
-    outputDir = resultsDir + "stats/"
-    startDate, endDate, recordStep, M, targetGraph = HIVModelUtils.toySimulationParams(test=True)
-    
-    realTheta, sigmaTheta, pertTheta = HIVModelUtils.toyTheta()
-    prefix = "Toy"
+def loadParams(ind): 
+    if processReal: 
+        resultsDir = PathDefaults.getOutputDir() + "viroscopy/real/theta" + str(ind) + "/"
+        outputDir = resultsDir + "stats/"
+        
+        N, matchAlpha, breakScale, numEpsilons, epsilon, minEpsilon, matchAlg, abcMaxRuns, batchSize = HIVModelUtils.realABCParams(True)
+        startDate, endDate, recordStep, M, targetGraph = HIVModelUtils.realSimulationParams(test=True, ind=ind)
+        realTheta, sigmaTheta, pertTheta = HIVModelUtils.estimatedRealTheta(ind)
+        prefix = "Real"
+    else: 
+        resultsDir = PathDefaults.getOutputDir() + "viroscopy/toy/theta/"
+        outputDir = resultsDir + "stats/"        
+        
+        N, matchAlpha, breakScale, numEpsilons, epsilon, minEpsilon, matchAlg, abcMaxRuns, batchSize = HIVModelUtils.toyABCParams()
+        startDate, endDate, recordStep, M, targetGraph = HIVModelUtils.toySimulationParams(test=True)
+        realTheta, sigmaTheta, pertTheta = HIVModelUtils.toyTheta()
+        prefix = "Toy"
 
+    breakSize = targetGraph.subgraph(targetGraph.removedIndsAt(endDate)).size * breakScale        
+        
+    return N, resultsDir, outputDir, recordStep, startDate, endDate, prefix, targetGraph, breakSize, numEpsilons, M, matchAlpha, matchAlg
+
+N, resultsDir, outputDir, recordStep, startDate, endDate, prefix, targetGraph, breakSize, numEpsilons, M, matchAlpha, matchAlg = loadParams(ind)
 logging.debug("Record step: " + str(recordStep))
 logging.debug("Start date: " + str(startDate))
 logging.debug("End date: " + str(endDate))
 logging.debug("End date - start date: " + str(endDate - startDate))
 
-try: 
-    os.mkdir(outputDir)
-except: 
-    logging.debug("Directory exists: " + outputDir) 
-
-graphStats = GraphStatistics()
-breakSize = targetGraph.subgraph(targetGraph.removedIndsAt(endDate)).size * breakScale
 t = 0
-maxT = numEpsilons
-plotStyles = ['k-', 'kx-', 'k+-', 'k.-', 'k*-']
-
-for i in range(maxT): 
+for i in range(numEpsilons): 
     thetaArray, distArray = loadThetaArray(N, resultsDir, i)
     if thetaArray.shape[0] == N: 
         t = i   
     
 logging.debug("Using population " + str(t))
-#We plot some stats for the ideal simulated epidemic 
-#and those epidemics found using ABC. 
-
-def saveStats(args):
+ 
+def saveStats(args):    
     i, theta = args 
+    
     
     featureInds= numpy.ones(targetGraph.vlist.getNumFeatures(), numpy.bool)
     featureInds[HIVVertices.dobIndex] = False 
@@ -97,6 +89,11 @@ def saveStats(args):
     Util.savePickle(stats, resultsFileName)
 
 if saveResults:
+    try: 
+        os.mkdir(outputDir)
+    except: 
+        logging.debug("Directory exists: " + outputDir)     
+    
     thetaArray = loadThetaArray(N, resultsDir, t)[0]
     logging.debug(thetaArray)
     
@@ -117,142 +114,175 @@ if saveResults:
     resultsFileName = outputDir + "IdealStats.pkl"
     Util.savePickle(stats, resultsFileName)
 else:
-    realTheta, sigmaTheta, purtTheta = HIVModelUtils.toyTheta()
-    thetaArray, distArray = loadThetaArray(N, resultsDir, t)
-    print(realTheta)
-    print(thetaArray)    
-    print(distArray)
+    plotStyles = ['k-', 'kx-', 'k+-', 'k.-', 'k*-']
     
-    meanTable = numpy.c_[realTheta, thetaArray.mean(0)]
-    stdTable = numpy.c_[sigmaTheta, thetaArray.std(0)]
-    table = Latex.array2DToRows(meanTable, stdTable, precision=4)
-    rowNames = ["$\\|\\mathcal{I}_0 \\|$", "$\\alpha$", "$\\gamma$", "$\\beta$", "$\\lambda$",  "$\\sigma$"]
+    inds = range(3)
+    N, resultsDir, outputDir, recordStep, startDate, endDate, prefix, targetGraph, breakSize, numEpsilons, M, matchAlpha, matchAlg = loadParams(0) 
+    numRecordSteps = int((endDate-startDate)/recordStep)
+    
+    #We store: number of detections, CT detections, rand detections, infectives, max componnent size, num components, edges
+    numMeasures = 7 
+    thetas = []
+    measures = numpy.zeros((len(inds), numMeasures, N, numRecordSteps))
+    objectives = numpy.zeros((len(inds), numRecordSteps, N)) 
+    idealMeasures = numpy.zeros((len(inds), numMeasures, numRecordSteps))
+
+    plotInd = 0 
+    timeInds = [3, 6, 10]
+    
+    for ind in inds: 
+        logging.debug("ind=" + str(ind))
+        N, resultsDir, outputDir, recordStep, startDate, endDate, prefix, targetGraph, breakSize, numEpsilons, M, matchAlpha, matchAlg = loadParams(ind)
+        
+        times = numpy.arange(startDate, endDate+1, recordStep) 
+        realTheta, sigmaTheta, purtTheta = HIVModelUtils.toyTheta()
+        thetaArray, distArray = loadThetaArray(N, resultsDir, t)
+        thetas.append(thetaArray)
+        print(thetaArray) 
+        
+        resultsFileName = outputDir + "IdealStats.pkl"
+        stats = Util.loadPickle(resultsFileName)  
+        vertexArrayIdeal, idealInfectedIndices, idealRemovedIndices, idealContactGraphStats, idealRemovedGraphStats = stats 
+       
+        graphStats = GraphStatistics()
+        idealMeasures[ind, 0, :] = vertexArrayIdeal[:, 0]
+        idealMeasures[ind, 1, :] = vertexArrayIdeal[:, 5]
+        idealMeasures[ind, 2, :] = vertexArrayIdeal[:, 6]
+        idealMeasures[ind, 4, :] = idealRemovedGraphStats[:, graphStats.numComponentsIndex]
+        idealMeasures[ind, 5, :] = idealRemovedGraphStats[:, graphStats.maxComponentSizeIndex]
+        idealMeasures[ind, 6, :] = idealRemovedGraphStats[:, graphStats.numEdgesIndex]
+          
+        
+        for i in range(thetaArray.shape[0]): 
+            resultsFileName = outputDir + "SimStats" + str(i) + ".pkl"
+            stats = Util.loadPickle(resultsFileName)
+            
+            times, vertexArray, infectedIndices, removedGraphStats, objs, graphDists, labelDists = stats 
+    
+            measures[ind, 0, i, :] = vertexArray[:, 0]
+            measures[ind, 1, i, :] = vertexArray[:, 5]
+            measures[ind, 2, i, :] = vertexArray[:, 6]
+            measures[ind, 3, i, :] = numpy.array([len(x) for x in infectedIndices])
+            measures[ind, 4, i, :] = removedGraphStats[:, graphStats.numComponentsIndex]
+            measures[ind, 5, i, :] = removedGraphStats[:, graphStats.maxComponentSizeIndex]
+            measures[ind, 6, i, :] = removedGraphStats[:, graphStats.numEdgesIndex]
+            
+            #objectives[inds, i, :] = objs 
+
+    
+        times = times - numpy.min(times)
+        logging.debug("times="+str(times))
+        
+        meanMeasures = numpy.mean(measures, 2)
+        stdMeasures = numpy.std(measures, 2)
+
+        #Infections and detections 
+        plt.figure(plotInd)    
+        if not processReal: 
+            numInfects = [len(x) for x in idealInfectedIndices]
+            plt.errorbar(times, meanMeasures[ind, 3, :], yerr=stdMeasures[ind, 3, :], label="est. infectives") 
+            plt.plot(times, numInfects, "r", label="infectives")
+        
+        plt.errorbar(times, meanMeasures[ind, 0, :], yerr=stdMeasures[ind, 0, :], label="est. detections") 
+        plt.xlabel("time (days)")
+        plt.plot(times, idealMeasures[ind, 0, :], "k", label="detections")
+        if not processReal:
+            plt.ylabel("infectives/detections")
+            lims = plt.xlim()
+            plt.xlim([0, lims[1]]) 
+            filename = outputDir + prefix + "InfectDetects.eps"
+        else: 
+            plt.ylabel("detections")
+            filename = outputDir + prefix + "Detects" + str(ind) + ".eps"
+    
+        plt.legend(loc="lower right")
+        plt.savefig(filename)
+        plotInd += 1           
+        
+        #Contact tracing rand random detections 
+        plt.figure(plotInd)
+        plt.errorbar(times, meanMeasures[ind, 1, :], yerr=stdMeasures[ind, 1, :], label="est. CT detections") 
+        plt.plot(times, idealMeasures[ind, 1, :], "r", label="CT detections")
+    
+        plt.errorbar(times, meanMeasures[ind, 2, :], yerr=stdMeasures[ind, 2, :], label="est. rand detections") 
+        plt.xlabel("time (days)")
+        plt.ylabel("detections")
+        plt.plot(times, idealMeasures[ind, 2, :], "k", label="rand detections")
+        if not processReal: 
+            lims = plt.xlim()
+            plt.xlim([0, lims[1]]) 
+        plt.legend(loc="upper left")
+        plt.savefig(outputDir + prefix + "CTRandDetects.eps")
+        plotInd += 1
+        
+        #Number of components 
+        plt.figure(plotInd)
+        plt.errorbar(times, meanMeasures[ind, 3, :], yerr=stdMeasures[ind, 5, :]) 
+        plt.xlabel("time (days)")
+        plt.ylabel("num components")
+        plt.plot(times, idealMeasures[ind, 3, :], "r")
+        plotInd += 1
+        
+        #Max component size 
+        plt.figure(plotInd)
+        plt.errorbar(times, meanMeasures[ind, 5, :], yerr=stdMeasures[ind, 4, :]) 
+        plt.xlabel("time (days)")
+        plt.ylabel("max component size")
+        plt.plot(times, idealMeasures[ind, 5, :], "r")
+        plotInd += 1
+        
+        #Num edges 
+        plt.figure(plotInd)
+        plt.errorbar(times, meanMeasures[ind, 6, :], yerr=stdMeasures[ind, 6, :]) 
+        plt.xlabel("time (days)")
+        plt.ylabel("number of edges")
+        plt.plot(times, idealMeasures[ind, 6, :], "r")
+        plotInd += 1
+        
+        """
+        meanDists = numpy.array(distsArr).mean(0)
+        stdDists = numpy.array(distsArr).std(0)
+        plt.figure(plotInd)
+        plt.errorbar(times[1:], meanDists, yerr=stdDists) 
+        plt.xlabel("time (days)")
+        plt.ylabel("distances")
+        plotInd += 1
+        """
+        
+        print(meanMeasures[ind, :, timeInds])
+    
+    #Print the table of thetas 
+    thetas = numpy.array(thetas)
+    meanThetas = numpy.mean(thetas, 1)
+    stdThetas = numpy.std(thetas, 1)
+    table = Latex.array2DToRows(meanThetas.T, stdThetas.T, precision=3)
+    rowNames = ["$|\\mathcal{I}_0 |$", "$\\alpha$", "$\\gamma$", "$\\beta$", "$\\lambda$",  "$\\sigma$"]
+    table = Latex.addRowNames(rowNames, table)
+    print(table)    
+    
+    #Now print the graph properties 
+    idealTable = []
+    tableMeanArray = [] 
+    tableStdArray = [] 
+    for ind in inds: 
+        idealTable.append(idealMeasures[ind, :, timeInds])
+        tableMeanArray.append(meanMeasures[ind, :, timeInds])
+        tableStdArray.append(stdMeasures[ind, :, timeInds])
+        
+    idealTable = numpy.vstack(idealTable).T
+    tableMeanArray = numpy.vstack(tableMeanArray).T
+    tableStdArray = numpy.vstack(tableStdArray).T
+    
+    rowNames = ["$|\\mathcal{R}_T |$.", "CT", "Rand", "$|\\mathcal{I}_0 |$", "MC size", "Num comp.", "Edges"]
+    idealTable = Latex.array2DToRows(idealTable, precision=1)
+    idealTable = Latex.addRowNames(rowNames, idealTable)
+    print(idealTable)  
+    
+    rowNames = [x + " est." for x in rowNames]
+    table = Latex.array2DToRows(tableMeanArray, tableStdArray, precision=1)
     table = Latex.addRowNames(rowNames, table)
     print(table)
-
-    resultsFileName = outputDir + "IdealStats.pkl"
-    stats = Util.loadPickle(resultsFileName)  
-    vertexArrayIdeal, idealInfectedIndices, idealRemovedIndices, idealContactGraphStats, idealRemovedGraphStats = stats 
-    times = numpy.arange(startDate, endDate+1, recordStep)  
-    
-    graphStats = GraphStatistics()
-    
-    plotInd = 0 
-    
-    distsArr = []
-    detectsArr = []
-    infectsArr = []
-    numComponentsArr = []
-    randDetectsArr = []
-    contactTracingArr = []
-    maxCompSizesArr = []
-    numEdgesArr = []
-
-    for i in range(thetaArray.shape[0]): 
-        plotInd = 0
-        resultsFileName = outputDir + "SimStats" + str(i) + ".pkl"
-        stats = Util.loadPickle(resultsFileName)
-        
-        times, vertexArray, infectedIndices, removedGraphStats, dists, graphDists, labelDists = stats 
-
-        detectsArr.append(vertexArray[:, 0])
-        randDetectsArr.append(vertexArray[:, 5])
-        contactTracingArr.append(vertexArray[:, 6])
-        numComponentsArr.append(removedGraphStats[:, graphStats.numComponentsIndex])
-        distsArr.append(dists)        
-        numInfects = [len(x) for x in infectedIndices]
-        infectsArr.append(numInfects)
-        maxCompSizesArr.append(removedGraphStats[:, graphStats.maxComponentSizeIndex])
-        numEdgesArr.append(removedGraphStats[:, graphStats.numEdgesIndex])
-
-    times = times - numpy.min(times)
-
-    contactTracingArr = numpy.array(contactTracingArr)
-    meanContactDetectsArr = numpy.mean(contactTracingArr, 0)
-    stdContactDetectsArr = numpy.std(contactTracingArr, 0)
-    plt.figure(plotInd)
-    plt.errorbar(times, meanContactDetectsArr, yerr=stdContactDetectsArr, label="est. CT detections") 
-    plt.plot(times, vertexArrayIdeal[:, 6], "r", label="CT detections")
-
-    meanRandDetects = numpy.array(randDetectsArr).mean(0)
-    stdRandDetects = numpy.array(randDetectsArr).std(0)
-    plt.errorbar(times, meanRandDetects, yerr=stdRandDetects, label="est. rand detections") 
-    plt.xlabel("time (days)")
-    plt.ylabel("detections")
-    plt.plot(times, vertexArrayIdeal[:, 5], "k", label="rand detections")
-    if not processReal: 
-        lims = plt.xlim()
-        plt.xlim([0, lims[1]]) 
-    plt.legend(loc="upper left")
-    plt.savefig(outputDir + prefix + "CTRandDetects.eps")
-    plotInd += 1
     
 
-    plt.figure(plotInd)    
-    if not processReal: 
-        infectsArr = numpy.array(infectsArr)
-        meanInfectsArr = numpy.mean(infectsArr, 0)
-        stdInfectsArr = numpy.std(infectsArr, 0)
-        numInfects = [len(x) for x in idealInfectedIndices]
-        plt.errorbar(times, meanInfectsArr, yerr=stdInfectsArr, label="est. infectives") 
-        plt.plot(times, numInfects, "r", label="infectives")
-
-    meanDetects = numpy.array(detectsArr).mean(0)
-    stdDetects = numpy.array(detectsArr).std(0)
-    plt.errorbar(times, meanDetects, yerr=stdDetects, label="est. detections") 
-    plt.xlabel("time (days)")
-    plt.plot(times, vertexArrayIdeal[:, 0], "k", label="detections")
-    if not processReal:
-        plt.ylabel("infectives/detections")
-        lims = plt.xlim()
-        plt.xlim([0, lims[1]]) 
-        filename = outputDir + prefix + "InfectDetects.eps"
-    else: 
-        plt.ylabel("detections")
-        filename = outputDir + prefix + "Detects" + str(ind) + ".eps"
-
-    plt.legend(loc="lower right")
-    plt.savefig(filename)
-    plotInd += 1    
-    
-    numComponentsArr = numpy.array(numComponentsArr)
-    meanNumComponents = numpy.mean(numComponentsArr, 0)
-    stdNumComponents = numpy.std(numComponentsArr, 0)
-    plt.figure(plotInd)
-    plt.errorbar(times, meanNumComponents, yerr=stdNumComponents) 
-    plt.xlabel("time (days)")
-    plt.ylabel("num components")
-    plt.plot(times, idealRemovedGraphStats[:, graphStats.numComponentsIndex], "r")
-    plotInd += 1
-    
-    maxCompSizesArr = numpy.array(maxCompSizesArr)
-    meanMaxCompSizesArr = numpy.mean(maxCompSizesArr, 0)
-    stdMaxCompSizesArr = numpy.std(maxCompSizesArr, 0)
-    plt.figure(plotInd)
-    plt.errorbar(times, meanMaxCompSizesArr, yerr=stdMaxCompSizesArr) 
-    plt.xlabel("time (days)")
-    plt.ylabel("max component size")
-    plt.plot(times, idealRemovedGraphStats[:, graphStats.maxComponentSizeIndex], "r")
-    plotInd += 1
-    
-    numEdgesArr = numpy.array(numEdgesArr)
-    meanNumEdgesArr = numpy.mean(numEdgesArr, 0)
-    stdNumEdgesArr = numpy.std(numEdgesArr, 0)
-    plt.figure(plotInd)
-    plt.errorbar(times, meanNumEdgesArr, yerr=stdNumEdgesArr) 
-    plt.xlabel("time (days)")
-    plt.ylabel("number of edges")
-    plt.plot(times, idealRemovedGraphStats[:, graphStats.numEdgesIndex], "r")
-    plotInd += 1
-    
-    """
-    meanDists = numpy.array(distsArr).mean(0)
-    stdDists = numpy.array(distsArr).std(0)
-    plt.figure(plotInd)
-    plt.errorbar(times[1:], meanDists, yerr=stdDists) 
-    plt.xlabel("time (days)")
-    plt.ylabel("distances")
-    plotInd += 1
-    """
     
     plt.show()
