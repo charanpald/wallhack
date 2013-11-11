@@ -40,7 +40,7 @@ class HIVModelUtils(object):
         return theta, sigmaTheta, pertTheta
         
     @staticmethod 
-    def toySimulationParams(loadTarget=True): 
+    def toySimulationParams(loadTarget=True, test=False): 
         
         if loadTarget: 
             resultsDir = PathDefaults.getOutputDir() + "viroscopy/toy/" 
@@ -51,6 +51,10 @@ class HIVModelUtils(object):
         endDate = 1000.0
         recordStep = 50
         M = 5000
+        testPeriod = 250 
+        
+        if test:
+            endDate += testPeriod   
         
         if loadTarget: 
             return startDate, endDate, recordStep, M, targetGraph
@@ -58,10 +62,11 @@ class HIVModelUtils(object):
             return startDate, endDate, recordStep, M
         
     @staticmethod 
-    def realSimulationParams(): 
+    def realSimulationParams(test=False): 
         hivReader = HIVGraphReader()
         targetGraph = hivReader.readSimulationHIVGraph()
         
+        testPeriod = 0.1 
         numRecordSteps = 10 
         #Note that 5% of the population is bi 
         M = targetGraph.size * 5
@@ -71,7 +76,11 @@ class HIVModelUtils(object):
         endDates = [float(i) for i in startDates]
         #endDates = [CsvConverters.dateConv("01/01/1991"), CsvConverters.dateConv("01/01/1993")]
         endDates = [CsvConverters.dateConv("01/01/1989"), CsvConverters.dateConv("01/01/1991"), CsvConverters.dateConv("01/01/1993")]
-        endDates = [float(i) for i in endDates]
+        endDates = numpy.array([float(i) for i in endDates])
+        
+        if test:
+            numRecordSteps += numRecordSteps*testPeriod
+            endDates += endDates * testPeriod    
         
         return startDates, endDates, numRecordSteps, M, targetGraph
     
@@ -164,5 +173,5 @@ class HIVModelUtils(object):
         
         return vertexArray, infectedIndices, removedIndices, graphStatsList[0], graphStatsList[1]
     
-    toyTestPeriod = 250 
+    
     realTestPeriods = [365, 365, 365, 730]
