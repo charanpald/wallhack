@@ -1,5 +1,6 @@
 
 import numpy 
+import scipy.io
 from apgl.graph.VertexList import VertexList
 from apgl.util.Util import Util
 from apgl.util.Parameter import Parameter 
@@ -80,6 +81,23 @@ class HIVVertices(VertexList):
         vList.setVertices(self.getVertices(indices))
 
         return vList 
+
+    @staticmethod
+    def load(filename):
+        """
+        Load this object from filename.nvl.
+
+        :param filename: The name of the file to load.
+        :type filename: :class:`str`
+        """
+        file = open(filename + VertexList.ext, 'rb')
+        V = scipy.io.mmread(file)
+        file.close()
+
+        vList = HIVVertices(V.shape[0])
+        vList.V = V
+
+        return vList
 
     #Some static variables
     dobIndex = 0
