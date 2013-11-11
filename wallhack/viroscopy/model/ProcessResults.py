@@ -1,6 +1,8 @@
 import numpy
 import logging
 import sys 
+import matplotlib 
+matplotlib.use("GTK3Agg")
 import multiprocessing 
 import matplotlib.pyplot as plt 
 import os
@@ -19,29 +21,31 @@ assert False, "Must run with -O flag"
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.set_printoptions(suppress=True, precision=4, linewidth=150)
 
-processReal = False 
+#Set the index of the real epidemic 
+if len(sys.argv) > 1:
+    ind = int(sys.argv[1])
+else: 
+    ind = 0 
+
+processReal = True 
 saveResults = True 
 
 if processReal: 
-    ind = 2
     N, matchAlpha, breakScale, numEpsilons, epsilon, minEpsilon, matchAlg, abcMaxRuns, batchSize = HIVModelUtils.realABCParams(True)
     resultsDir = PathDefaults.getOutputDir() + "viroscopy/real/theta" + str(ind) + "/"
     outputDir = resultsDir + "stats/"
-    startDates, endDates, numRecordSteps, M, targetGraph = HIVModelUtils.realSimulationParams()
+    startDates, endDates, numRecordSteps, M, targetGraph = HIVModelUtils.realSimulationParams(test=True)
     startDate = startDates[ind]
     endDate = endDates[ind]
-    endDate += (endDate-startDate)/10.0
     recordStep = (endDate-startDate)/float(numRecordSteps)
-    
-    
     realTheta, sigmaTheta, pertTheta = HIVModelUtils.estimatedRealTheta(ind)
     prefix = "Real"
 else: 
     N, matchAlpha, breakScale, numEpsilons, epsilon, minEpsilon, matchAlg, abcMaxRuns, batchSize = HIVModelUtils.toyABCParams()
     resultsDir = PathDefaults.getOutputDir() + "viroscopy/toy/theta/"
     outputDir = resultsDir + "stats/"
-    startDate, endDate, recordStep, M, targetGraph = HIVModelUtils.toySimulationParams()
-    endDate += HIVModelUtils.toyTestPeriod
+    startDate, endDate, recordStep, M, targetGraph = HIVModelUtils.toySimulationParams(test=True)
+    
     realTheta, sigmaTheta, pertTheta = HIVModelUtils.toyTheta()
     prefix = "Toy"
 
@@ -52,7 +56,6 @@ except:
 
 graphStats = GraphStatistics()
 breakSize = targetGraph.subgraph(targetGraph.removedIndsAt(endDate)).size * breakScale
-print(breakSize)
 t = 0
 maxT = numEpsilons
 plotStyles = ['k-', 'kx-', 'k+-', 'k.-', 'k*-']
