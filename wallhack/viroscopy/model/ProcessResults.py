@@ -18,8 +18,8 @@ assert False, "Must run with -O flag"
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.set_printoptions(suppress=True, precision=4, linewidth=150)
 
-processReal = True 
-saveResults = True 
+processReal = False 
+saveResults = False 
 
 def loadParams(ind): 
     if processReal: 
@@ -44,7 +44,6 @@ def loadParams(ind):
     breakSize = targetGraph.subgraph(targetGraph.removedIndsAt(endDate)).size * breakScale        
         
     return N, resultsDir, outputDir, recordStep, startDate, endDate, prefix, targetGraph, breakSize, numEpsilons, M, matchAlpha, matchAlg, numInds
-
 
 def saveStats(args):    
     i, theta = args 
@@ -85,6 +84,8 @@ if saveResults:
         logging.debug("End date: " + str(endDate))
         logging.debug("End date - start date: " + str(endDate - startDate))
         
+        N, resultsDir, outputDir, recordStep, startDate, endDate, prefix, targetGraph, breakSize, numEpsilons, M, matchAlpha, matchAlg, numInds = loadParams(0)        
+        
         t = 0
         for i in range(numEpsilons): 
             thetaArray, distArray = loadThetaArray(N, resultsDir, i)
@@ -124,9 +125,15 @@ else:
     
     plotStyles = ['k-', 'kx-', 'k+-', 'k.-', 'k*-']
     
-    inds = range(3)
-    N, resultsDir, outputDir, recordStep, startDate, endDate, prefix, targetGraph, breakSize, numEpsilons, M, matchAlpha, matchAlg = loadParams(0) 
-    numRecordSteps = int((endDate-startDate)/recordStep)
+    N, resultsDir, outputDir, recordStep, startDate, endDate, prefix, targetGraph, breakSize, numEpsilons, M, matchAlpha, matchAlg, numInds = loadParams(0) 
+    inds = range(numInds)
+    numRecordSteps = int((endDate-startDate)/recordStep)+1
+    
+    t = 0
+    for i in range(numEpsilons): 
+        thetaArray, distArray = loadThetaArray(N, resultsDir, i)
+        if thetaArray.shape[0] == N: 
+            t = i   
     
     #We store: number of detections, CT detections, rand detections, infectives, max componnent size, num components, edges
     numMeasures = 7 
@@ -140,7 +147,7 @@ else:
     
     for ind in inds: 
         logging.debug("ind=" + str(ind))
-        N, resultsDir, outputDir, recordStep, startDate, endDate, prefix, targetGraph, breakSize, numEpsilons, M, matchAlpha, matchAlg = loadParams(ind)
+        N, resultsDir, outputDir, recordStep, startDate, endDate, prefix, targetGraph, breakSize, numEpsilons, M, matchAlpha, matchAlg, numInds = loadParams(ind)
         
         times = numpy.arange(startDate, endDate+1, recordStep) 
         realTheta, sigmaTheta, purtTheta = HIVModelUtils.toyTheta()
@@ -225,10 +232,10 @@ else:
         
         #Number of components 
         plt.figure(plotInd)
-        plt.errorbar(times, meanMeasures[ind, 3, :], yerr=stdMeasures[ind, 5, :]) 
+        plt.errorbar(times, meanMeasures[ind, 4, :], yerr=stdMeasures[ind, 5, :]) 
         plt.xlabel("time (days)")
         plt.ylabel("num components")
-        plt.plot(times, idealMeasures[ind, 3, :], "r")
+        plt.plot(times, idealMeasures[ind, 4, :], "r")
         plotInd += 1
         
         #Max component size 
