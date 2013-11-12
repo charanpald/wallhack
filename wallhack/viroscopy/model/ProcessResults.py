@@ -1,10 +1,7 @@
 import numpy
 import logging
 import sys 
-import matplotlib 
-matplotlib.use("GTK3Agg")
 import multiprocessing 
-import matplotlib.pyplot as plt 
 import os
 from apgl.graph.GraphStatistics import GraphStatistics 
 from apgl.util.PathDefaults import PathDefaults
@@ -121,6 +118,10 @@ if saveResults:
         resultsFileName = outputDir + "IdealStats.pkl"
         Util.savePickle(stats, resultsFileName)
 else:
+    import matplotlib 
+    matplotlib.use("GTK3Agg")
+    import matplotlib.pyplot as plt     
+    
     plotStyles = ['k-', 'kx-', 'k+-', 'k.-', 'k*-']
     
     inds = range(3)
