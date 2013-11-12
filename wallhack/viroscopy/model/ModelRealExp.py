@@ -53,7 +53,7 @@ logging.debug("Total time of simulation is " + str(endDate-startDate))
 breakSize = targetGraph.subgraph(targetGraph.removedIndsAt(endDate)).size * breakScale
 logging.debug("Largest acceptable graph is " + str(breakSize))
 
-def createModel(t):
+def createModel(t, matchAlg):
     """
     The parameter t is the particle index. 
     """
@@ -81,7 +81,13 @@ def createModel(t):
     model.setRecordStep(recordStep)
 
     return model
-    
+ 
+def createModelU(t): 
+    return createModel(t, "U")
+ 
+def createModelQCV(t): 
+    return createModel(t, "QCV")
+  
 meanTheta, stdTheta, pertTheta = HIVModelUtils.estimatedRealTheta(i)
 
 logging.debug("Using mean theta of " + str(meanTheta))
@@ -94,9 +100,19 @@ thetaDir = resultsDir + "theta" + str(i) + "/"
 if not os.path.exists(thetaDir): 
     os.mkdir(thetaDir)
 
-epsilonArray = numpy.ones(numEpsilons)*epsilon    
+#First get a quick estimate using Umeyama matching 
+numUEpsilons = 5
+epsilonArray = numpy.ones(numUEpsilons)*epsilon    
+abcSMC = ABCSMC(epsilonArray, createModelU, abcParams, thetaDir, True, minEpsilon=minEpsilon)
+abcSMC.setPosteriorSampleSize(N)
+abcSMC.setNumProcesses(numProcesses)
+abcSMC.batchSize = batchSize
+abcSMC.maxRuns = abcMaxRuns
+thetasArray = abcSMC.run()
 
-abcSMC = ABCSMC(epsilonArray, createModel, abcParams, thetaDir, True, minEpsilon=minEpsilon)
+#Now get something more precise 
+epsilonArray = numpy.ones(numEpsilons)*epsilon    
+abcSMC = ABCSMC(epsilonArray, createModelQCV, abcParams, thetaDir, True, minEpsilon=minEpsilon)
 abcSMC.setPosteriorSampleSize(N)
 abcSMC.setNumProcesses(numProcesses)
 abcSMC.batchSize = batchSize
