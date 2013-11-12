@@ -18,8 +18,8 @@ assert False, "Must run with -O flag"
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.set_printoptions(suppress=True, precision=4, linewidth=150)
 
-processReal = False 
-saveResults = False 
+processReal = True 
+saveResults = True 
 
 def loadParams(ind): 
     if processReal: 
@@ -84,7 +84,7 @@ if saveResults:
         logging.debug("End date: " + str(endDate))
         logging.debug("End date - start date: " + str(endDate - startDate))
         
-        N, resultsDir, outputDir, recordStep, startDate, endDate, prefix, targetGraph, breakSize, numEpsilons, M, matchAlpha, matchAlg, numInds = loadParams(0)        
+        N, resultsDir, outputDir, recordStep, startDate, endDate, prefix, targetGraph, breakSize, numEpsilons, M, matchAlpha, matchAlg, numInds = loadParams(ind)        
         
         t = 0
         for i in range(numEpsilons): 
