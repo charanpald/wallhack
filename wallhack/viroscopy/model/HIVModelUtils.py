@@ -66,7 +66,7 @@ class HIVModelUtils(object):
         hivReader = HIVGraphReader()
         targetGraph = hivReader.readSimulationHIVGraph()
         
-        testPeriod = 0.1 
+        testPeriod = 0.2 
         numRecordSteps = 10 
         #Note that 5% of the population is bi 
         M = targetGraph.size * 5
