@@ -10,6 +10,7 @@ from apgl.graph.GraphStatistics import GraphStatistics
 from apgl.util.PathDefaults import PathDefaults
 from apgl.util.Util import Util 
 from apgl.util.Latex import Latex 
+from apgl.util.FileLock import FileLock
 from sandbox.predictors.ABCSMC import loadThetaArray 
 from wallhack.viroscopy.model.HIVModelUtils import HIVModelUtils
 from wallhack.viroscopy.model.HIVVertices import HIVVertices
@@ -20,14 +21,8 @@ assert False, "Must run with -O flag"
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.set_printoptions(suppress=True, precision=4, linewidth=150)
 
-#Set the index of the real epidemic 
-if len(sys.argv) > 1:
-    ind = int(sys.argv[1])
-else: 
-    ind = 0 
-
 processReal = True 
-saveResults = False 
+saveResults = True 
 
 def loadParams(ind): 
     if processReal: 
@@ -38,6 +33,7 @@ def loadParams(ind):
         startDate, endDate, recordStep, M, targetGraph = HIVModelUtils.realSimulationParams(test=True, ind=ind)
         realTheta, sigmaTheta, pertTheta = HIVModelUtils.estimatedRealTheta(ind)
         prefix = "Real"
+        numInds = 3
     else: 
         resultsDir = PathDefaults.getOutputDir() + "viroscopy/toy/theta/"
         outputDir = resultsDir + "stats/"        
@@ -46,73 +42,84 @@ def loadParams(ind):
         startDate, endDate, recordStep, M, targetGraph = HIVModelUtils.toySimulationParams(test=True)
         realTheta, sigmaTheta, pertTheta = HIVModelUtils.toyTheta()
         prefix = "Toy"
+        numInds = 1
 
     breakSize = targetGraph.subgraph(targetGraph.removedIndsAt(endDate)).size * breakScale        
         
-    return N, resultsDir, outputDir, recordStep, startDate, endDate, prefix, targetGraph, breakSize, numEpsilons, M, matchAlpha, matchAlg
+    return N, resultsDir, outputDir, recordStep, startDate, endDate, prefix, targetGraph, breakSize, numEpsilons, M, matchAlpha, matchAlg, numInds
 
-N, resultsDir, outputDir, recordStep, startDate, endDate, prefix, targetGraph, breakSize, numEpsilons, M, matchAlpha, matchAlg = loadParams(ind)
-logging.debug("Record step: " + str(recordStep))
-logging.debug("Start date: " + str(startDate))
-logging.debug("End date: " + str(endDate))
-logging.debug("End date - start date: " + str(endDate - startDate))
 
-t = 0
-for i in range(numEpsilons): 
-    thetaArray, distArray = loadThetaArray(N, resultsDir, i)
-    if thetaArray.shape[0] == N: 
-        t = i   
-    
-logging.debug("Using population " + str(t))
- 
 def saveStats(args):    
     i, theta = args 
     
-    
-    featureInds= numpy.ones(targetGraph.vlist.getNumFeatures(), numpy.bool)
-    featureInds[HIVVertices.dobIndex] = False 
-    featureInds[HIVVertices.infectionTimeIndex] = False 
-    featureInds[HIVVertices.hiddenDegreeIndex] = False 
-    featureInds[HIVVertices.stateIndex] = False 
-    featureInds = numpy.arange(featureInds.shape[0])[featureInds]        
-    graph = targetGraph.subgraph(targetGraph.removedIndsAt(startDate)) 
-    graph.addVertices(M-graph.size)
-    logging.debug("Created graph: " + str(graph))    
-    
-    matcher = GraphMatch(matchAlg, alpha=matchAlpha, featureInds=featureInds, useWeightM=False)
-    graphMetrics = HIVGraphMetrics2(targetGraph, breakSize, matcher, float(endDate))     
-    times, infectedIndices, removedIndices, graph = HIVModelUtils.simulate(thetaArray[i], graph, startDate, endDate, recordStep, graphMetrics)
-    times = numpy.arange(startDate, endDate+1, recordStep)
-    vertexArray, infectedIndices, removedIndices, contactGraphStats, removedGraphStats = HIVModelUtils.generateStatistics(graph, times)
-    stats = times, vertexArray, infectedIndices, removedGraphStats, graphMetrics.objectives, graphMetrics.graphObjs, graphMetrics.labelObjs
     resultsFileName = outputDir + "SimStats" + str(i) + ".pkl"
-    Util.savePickle(stats, resultsFileName)
+    lock = FileLock(resultsFileName)
+    
+    if not lock.fileExists() and not lock.isLocked():    
+        lock.lock()
+        featureInds= numpy.ones(targetGraph.vlist.getNumFeatures(), numpy.bool)
+        featureInds[HIVVertices.dobIndex] = False 
+        featureInds[HIVVertices.infectionTimeIndex] = False 
+        featureInds[HIVVertices.hiddenDegreeIndex] = False 
+        featureInds[HIVVertices.stateIndex] = False 
+        featureInds = numpy.arange(featureInds.shape[0])[featureInds]        
+        graph = targetGraph.subgraph(targetGraph.removedIndsAt(startDate)) 
+        graph.addVertices(M-graph.size)
+        logging.debug("Created graph: " + str(graph))    
+        
+        matcher = GraphMatch(matchAlg, alpha=matchAlpha, featureInds=featureInds, useWeightM=False)
+        graphMetrics = HIVGraphMetrics2(targetGraph, breakSize, matcher, float(endDate))     
+        times, infectedIndices, removedIndices, graph = HIVModelUtils.simulate(thetaArray[i], graph, startDate, endDate, recordStep, graphMetrics)
+        times = numpy.arange(startDate, endDate+1, recordStep)
+        vertexArray, infectedIndices, removedIndices, contactGraphStats, removedGraphStats = HIVModelUtils.generateStatistics(graph, times)
+        stats = times, vertexArray, infectedIndices, removedGraphStats, graphMetrics.objectives, graphMetrics.graphObjs, graphMetrics.labelObjs
+        
+        Util.savePickle(stats, resultsFileName)
+        lock.unlock()
+    else: 
+        logging.debug("Results already computed: " + str(resultsFileName))
+
+N, resultsDir, outputDir, recordStep, startDate, endDate, prefix, targetGraph, breakSize, numEpsilons, M, matchAlpha, matchAlg, numInds = loadParams(0)
 
 if saveResults:
-    try: 
-        os.mkdir(outputDir)
-    except: 
-        logging.debug("Directory exists: " + outputDir)     
+    for ind in range(numInds):
+        logging.debug("Record step: " + str(recordStep))
+        logging.debug("Start date: " + str(startDate))
+        logging.debug("End date: " + str(endDate))
+        logging.debug("End date - start date: " + str(endDate - startDate))
+        
+        t = 0
+        for i in range(numEpsilons): 
+            thetaArray, distArray = loadThetaArray(N, resultsDir, i)
+            if thetaArray.shape[0] == N: 
+                t = i   
+            
+        logging.debug("Using population " + str(t))        
+        
+        try: 
+            os.mkdir(outputDir)
+        except: 
+            logging.debug("Directory exists: " + outputDir)     
+        
+        thetaArray = loadThetaArray(N, resultsDir, t)[0]
+        logging.debug(thetaArray)
+        
+        paramList = []
+        
+        for i in range(thetaArray.shape[0]): 
+            paramList.append((i, thetaArray[i, :]))
     
-    thetaArray = loadThetaArray(N, resultsDir, t)[0]
-    logging.debug(thetaArray)
+        pool = multiprocessing.Pool(multiprocessing.cpu_count())               
+        resultIterator = pool.map(saveStats, paramList)  
+        #resultIterator = map(saveStats, paramList)  
+        pool.terminate()
     
-    paramList = []
-    
-    for i in range(thetaArray.shape[0]): 
-        paramList.append((i, thetaArray[i, :]))
-
-    pool = multiprocessing.Pool(multiprocessing.cpu_count())               
-    resultIterator = pool.map(saveStats, paramList)  
-    #resultIterator = map(saveStats, paramList)  
-    pool.terminate()
-
-    #Now save the statistics on the target graph 
-    times = numpy.arange(startDate, endDate+1, recordStep)
-    vertexArray, infectedIndices, removedIndices, contactGraphStats, removedGraphStats = HIVModelUtils.generateStatistics(targetGraph, times)
-    stats = vertexArray, infectedIndices, removedIndices, contactGraphStats, removedGraphStats
-    resultsFileName = outputDir + "IdealStats.pkl"
-    Util.savePickle(stats, resultsFileName)
+        #Now save the statistics on the target graph 
+        times = numpy.arange(startDate, endDate+1, recordStep)
+        vertexArray, infectedIndices, removedIndices, contactGraphStats, removedGraphStats = HIVModelUtils.generateStatistics(targetGraph, times)
+        stats = vertexArray, infectedIndices, removedIndices, contactGraphStats, removedGraphStats
+        resultsFileName = outputDir + "IdealStats.pkl"
+        Util.savePickle(stats, resultsFileName)
 else:
     plotStyles = ['k-', 'kx-', 'k+-', 'k.-', 'k*-']
     
