@@ -1,5 +1,5 @@
 import numpy
-from exp.metabolomics.MetabolomicsUtils import MetabolomicsUtils
+from wallhack.metabolomics.MetabolomicsUtils import MetabolomicsUtils
 
 X, X2, df = MetabolomicsUtils.loadData()
 

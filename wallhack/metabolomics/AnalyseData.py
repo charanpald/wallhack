@@ -2,22 +2,18 @@
 import logging
 import numpy
 import sys
-import pywt
-from exp.metabolomics.MetabolomicsUtils import MetabolomicsUtils
+from wallhack.metabolomics.MetabolomicsUtils import MetabolomicsUtils
 from apgl.util.PathDefaults import PathDefaults
-from rpy2.robjects.packages import importr
 from socket import gethostname
 import matplotlib.pyplot as plt
-from apgl.data.Standardiser import Standardiser
+from sandbox.data.Standardiser import Standardiser
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 logging.debug("Running from machine " + str(gethostname()))
 numpy.random.seed(21)
 numpy.set_printoptions(linewidth=160, precision=3, suppress=True)
 
-treeRankLib = importr('TreeRank')
-baseLib = importr('base')
-baseLib.options(warn=1)
+
 
 dataDir = PathDefaults.getDataDir() +  "metabolomic/"
 X, X2, Xs, XOpls, YList, ages, df = MetabolomicsUtils.loadData()

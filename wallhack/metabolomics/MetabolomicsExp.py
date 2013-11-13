@@ -10,19 +10,18 @@ import datetime
 import gc 
 from apgl.util.PathDefaults import PathDefaults
 from apgl.util.Util import Util
-from sandbox.predictors.TreeRank import TreeRank
-from sandbox.predictors.TreeRankForest import TreeRankForest
+from sandbox.ranking.TreeRank import TreeRank
+from sandbox.ranking.TreeRankForest import TreeRankForest
 from wallhack.metabolomics.MetabolomicsUtils import MetabolomicsUtils
 from socket import gethostname
 from sandbox.data.Standardiser import Standardiser
-from sandbox.predictors.leafrank.SvcGS import SvcGS
-from sandbox.predictors.leafrank.DecisionTree import DecisionTree
-from sandbox.predictors.leafrank.LinearSvmFGs import LinearSvmFGs
-from sandbox.predictors.leafrank.LinearSvmPca import LinearSvmPca
-from sandbox.predictors.leafrank.SvcFGs import SvcFGs
-from sandbox.predictors.leafrank.DecisionTreeF import DecisionTreeF
-from sandbox.predictors.RankSVM import RankSVM
-from sandbox.predictors.RankBoost import RankBoost
+from sandbox.ranking.leafrank.DecisionTree import DecisionTree
+from sandbox.ranking.leafrank.LinearSvmFGs import LinearSvmFGs
+from sandbox.ranking.leafrank.LinearSvmPca import LinearSvmPca
+from sandbox.ranking.leafrank.SvcFGs import SvcFGs
+from sandbox.ranking.leafrank.DecisionTreeF import DecisionTreeF
+from sandbox.ranking.RankSVM import RankSVM
+from sandbox.ranking.RankBoost import RankBoost
 
 class MetabolomicsExpRunner(multiprocessing.Process):
     def __init__(self, YList, X, featuresName, ages, args):
@@ -45,12 +44,6 @@ class MetabolomicsExpRunner(multiprocessing.Process):
         self.leafRankGenerators.append((SvcGS.generate(), "RBF-SVM"))
         self.leafRankGenerators.append((DecisionTree.generate(), "CART"))
 
-        self.pcaLeafRankGenerators = [(LinearSvmPca.generate(), "LinearSVM-PCA")]
-
-        self.funcLeafRankGenerators = []
-        self.funcLeafRankGenerators.append((LinearSvmFGs.generate, "SVMF"))
-        self.funcLeafRankGenerators.append((SvcFGs.generate, "RBF-SVMF"))
-        self.funcLeafRankGenerators.append((DecisionTreeF.generate, "CARTF"))
 
         #Store all the label vectors and their missing values
         YIgf1Inds, YICortisolInds, YTestoInds = MetabolomicsUtils.createIndicatorLabels(YList)

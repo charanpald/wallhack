@@ -3,8 +3,8 @@ import pywt
 import numpy
 from apgl.util.PathDefaults import PathDefaults
 from sandbox.data.Standardiser import Standardiser
-#from rpy2.robjects.packages import importr
-#import rpy2.robjects as robjects
+from rpy2.robjects.packages import importr
+import rpy2.robjects as robjects
 
 class MetabolomicsUtils(object):
     def __init__(self):
