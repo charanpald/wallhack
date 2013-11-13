@@ -18,8 +18,8 @@ assert False, "Must run with -O flag"
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.set_printoptions(suppress=True, precision=4, linewidth=150)
 
-processReal = False 
-saveResults = True 
+processReal = True 
+saveResults = False 
 
 def loadParams(ind): 
     if processReal: 
@@ -129,12 +129,6 @@ else:
     inds = range(numInds)
     numRecordSteps = int((endDate-startDate)/recordStep)+1
     
-    t = 0
-    for i in range(numEpsilons): 
-        thetaArray, distArray = loadThetaArray(N, resultsDir, i)
-        if thetaArray.shape[0] == N: 
-            t = i   
-    
     #We store: number of detections, CT detections, rand detections, infectives, max componnent size, num components, edges
     numMeasures = 7 
     thetas = []
@@ -147,7 +141,16 @@ else:
     
     for ind in inds: 
         logging.debug("ind=" + str(ind))
+        
         N, resultsDir, outputDir, recordStep, startDate, endDate, prefix, targetGraph, breakSize, numEpsilons, M, matchAlpha, matchAlg, numInds = loadParams(ind)
+        
+        #Find the max number t for which we have a complete set of particles 
+        t = 0
+        for i in range(numEpsilons): 
+            thetaArray, distArray = loadThetaArray(N, resultsDir, i)
+            if thetaArray.shape[0] == N: 
+                t = i
+        logging.debug("Using particle number " + str(t))        
         
         times = numpy.arange(startDate, endDate+1, recordStep) 
         realTheta, sigmaTheta, purtTheta = HIVModelUtils.toyTheta()
@@ -288,7 +291,7 @@ else:
     tableMeanArray = numpy.vstack(tableMeanArray).T
     tableStdArray = numpy.vstack(tableStdArray).T
     
-    rowNames = ["$|\\mathcal{R}_T |$.", "CT", "Rand", "$|\\mathcal{I}_0 |$", "MC size", "Num comp.", "Edges"]
+    rowNames = ["$|\\mathcal{R}|$.", "CT", "Rand", "$|\\mathcal{I}|$", "MC size", "Num comp.", "Edges"]
     idealTable = Latex.array2DToRows(idealTable, precision=1)
     idealTable = Latex.addRowNames(rowNames, idealTable)
     print(idealTable)  
