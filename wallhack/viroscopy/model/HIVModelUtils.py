@@ -49,9 +49,9 @@ class HIVModelUtils(object):
         
         startDate = 0.0        
         endDate = 1000.0
-        recordStep = 50
+        recordStep = 100
         M = 5000
-        testPeriod = 250 
+        testPeriod = 300 
         
         if test:
             endDate += testPeriod   
