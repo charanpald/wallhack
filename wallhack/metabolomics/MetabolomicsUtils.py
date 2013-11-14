@@ -1,70 +1,84 @@
 
 import pywt
 import numpy
+import pandas 
 from apgl.util.PathDefaults import PathDefaults
 from sandbox.data.Standardiser import Standardiser
 
 class MetabolomicsUtils(object):
     def __init__(self):
-        self.labelNames = ["IGF1.val", "Cortisol.val", "Testosterone.val"]
-
+        self.labelNames = ["Cortisol.val", "Testosterone.val", "IGF1.val"]
+        self.dataDir = PathDefaults.getDataDir() +  "metabolomic/"
+        self.boundsList = []
+        self.boundsList.append(numpy.array([0, 89, 225, 573]))
+        self.boundsList.append(numpy.array([0, 3, 9, 13]))
+        self.boundsList.append(numpy.array([0, 200, 441, 782]))
+        
     def getLabelNames(self):
         return self.labelNames
 
-    @staticmethod
-    def getBounds():
+    def getBounds(self):
         """
         Return the bounds used to define the indicator variables
         """
-        boundsList = []
-        boundsList.append(numpy.array([0, 200, 441, 782]))
-        boundsList.append(numpy.array([0, 89, 225, 573]))
-        boundsList.append(numpy.array([0, 3, 9, 13]))
-
-        return boundsList 
+        return self.boundsList 
 
     def loadData(self):
         """
         Return the raw spectra and the MDS transformed data as well as the DataFrame
         for the MDS data. 
         """
-        dataDir = PathDefaults.getDataDir() +  "metabolomic/"
-        fileName = dataDir + "data.RMN.total.6.txt"
+        
+        fileName = self.dataDir + "data.RMN.total.6.txt"
+        data = pandas.read_csv(fileName, delimiter=",")        
+        
         maxNMRIndex = 951
-        X = numpy.loadtxt(fileName, skiprows=1, usecols=range(1, maxNMRIndex), delimiter=",")
+        X = data.iloc[:, 1:maxNMRIndex].values
+        X = Standardiser().standardiseArray(X)
 
-        #Load age and normalise (missing values are assinged the mean) 
-        ages = numpy.loadtxt(fileName, skiprows=1, usecols=(955,), delimiter=",")
-        meanAge = numpy.mean(ages[numpy.logical_not(numpy.isnan(ages))])
+        #Load age and normalise (missing values are assigned the mean) 
+        ages = numpy.array(data["Age"])
+        meanAge = numpy.mean(data["Age"])
         ages[numpy.isnan(ages)] = meanAge
         ages = Standardiser().standardiseArray(ages)
+        
+        #Load labels 
+        YList = []
 
-        standardiser = Standardiser()
-        X = standardiser.standardiseArray(X)
+        for labelName in self.labelNames:
+            Y = numpy.array(data[labelName])
+            #Finds non missing values and their indices 
+            inds = numpy.logical_not(numpy.isnan(Y))
+            Y = numpy.array(Y).ravel()
+            YList.append((Y, inds))
 
-        fileName = dataDir + "data.sportsmen.log.AP.1.txt"
+        fileName = self.dataDir + "data.sportsmen.log.AP.1.txt"
         maxNMRIndex = 419
-        X2 = numpy.loadtxt(fileName, skiprows=1, usecols=range(1, maxNMRIndex), delimiter=",")
+        data = pandas.read_csv(fileName, delimiter=",")  
+        X2 = data.iloc[:, 1:maxNMRIndex].values
+        X2 = Standardiser().standardiseArray(X2)
 
         #Load the OPLS corrected files
-        fileName = dataDir + "IGF1.log.OSC.1.txt"
+        fileName = self.dataDir + "IGF1.log.OSC.1.txt"
         minNMRIndex = 22
         maxNMRIndex = 441
-        Xopls1 = numpy.loadtxt(fileName, skiprows=1, usecols=range(minNMRIndex, maxNMRIndex), delimiter=",")
+        data = pandas.read_csv(fileName, delimiter=",")  
+        Xopls1 = data.iloc[:, minNMRIndex:maxNMRIndex].values
+        Xopls1 = Standardiser().standardiseArray(Xopls1)
 
-        fileName = dataDir + "cort.log.OSC.1.txt"
+        fileName = self.dataDir + "cort.log.OSC.1.txt"
         minNMRIndex = 20
         maxNMRIndex = 439
-        Xopls2 = numpy.loadtxt(fileName, skiprows=1, usecols=range(minNMRIndex, maxNMRIndex), delimiter=",")
+        data = pandas.read_csv(fileName, delimiter=",")  
+        Xopls2 = data.iloc[:, minNMRIndex:maxNMRIndex].values
+        Xopls2 = Standardiser().standardiseArray(Xopls2)
 
-        fileName = dataDir + "testo.log.OSC.1.txt"
+        fileName = self.dataDir + "testo.log.OSC.1.txt"
         minNMRIndex = 22
         maxNMRIndex = 441
-        Xopls3 = numpy.loadtxt(fileName, skiprows=1, usecols=range(minNMRIndex, maxNMRIndex), delimiter=",")
-
-        #Let's load all the label data here
-        labelNames = self.getLabelNames()
-        YList = MetabolomicsUtils.createLabelList(df, labelNames)
+        data = pandas.read_csv(fileName, delimiter=",")  
+        Xopls3 = data.iloc[:, minNMRIndex:maxNMRIndex].values
+        Xopls3 = Standardiser().standardiseArray(Xopls3)
         
         return X, X2, (Xopls1, Xopls2, Xopls3), YList, ages
 
@@ -93,54 +107,35 @@ class MetabolomicsUtils(object):
 
         return Xw
 
-    @staticmethod
-    def createLabelList(df, labelNames):
-        """
-        Given a dataFrame df and list of labelNames, create a list of the vectors
-        of labels (Y, inds) in which Y has missing valued removed and inds is a
-        boolean vector of non-missing values 
-        """
-        baseLib = importr('base')
-        YList = []
-
-        for labelName in labelNames:
-            Y = df.rx(labelName)
-            #Finds non missing values and their indices 
-            inds = numpy.logical_not(numpy.array(baseLib.is_na(Y), numpy.bool)).ravel()
-            Y = numpy.array(Y).ravel()[inds]
-            YList.append((Y, inds))
-
-        return YList
-
-    @staticmethod
-    def createIndicatorLabel(Y, bounds):
+    def createIndicatorLabel(self, Y, bounds):
         """
         Given a set of concentrations and bounds, create a set of indicator label
         """
         YInds = []
+        nonMissingInds = numpy.logical_not(numpy.isnan(Y))
 
         for i in range(bounds.shape[0]-1):
-            YInds.append(numpy.array(numpy.logical_and(bounds[i] <= Y, Y < bounds[i+1]), numpy.int ) )
+            YInd = numpy.zeros(Y.shape)
+            YInd[nonMissingInds] = numpy.array(numpy.logical_and(bounds[i] < Y[nonMissingInds], Y[nonMissingInds] <= bounds[i+1]), numpy.int) 
+            YInds.append(YInd) 
         
         return YInds
 
-    @staticmethod
-    def createIndicatorLabels(YList):
+    def createIndicatorLabels(self, YList):
         """
         Take a list of concentrations for the hormones and return a list of indicator
         variables. 
         """
-        boundsList = MetabolomicsUtils.getBounds()
-        YIgf1, inds = YList[0]
-        YIgf1Inds = MetabolomicsUtils.createIndicatorLabel(YIgf1, boundsList[0])
+        YCortisol, inds = YList[0]
+        YICortisolInds = self.createIndicatorLabel(YCortisol, self.boundsList[0])
 
-        YCortisol, inds = YList[1]
-        YICortisolInds = MetabolomicsUtils.createIndicatorLabel(YCortisol, boundsList[1])
+        YTesto, inds = YList[1]
+        YTestoInds = self.createIndicatorLabel(YTesto, self.boundsList[1])
+        
+        YIgf1, inds = YList[2]
+        YIgf1Inds = self.createIndicatorLabel(YIgf1, self.boundsList[2])
 
-        YTesto, inds = YList[2]
-        YTestoInds = MetabolomicsUtils.createIndicatorLabel(YTesto, boundsList[2])
-
-        return YIgf1Inds, YICortisolInds, YTestoInds
+        return YICortisolInds, YTestoInds, YIgf1Inds
 
     @staticmethod 
     def scoreLabels(Y, bounds):

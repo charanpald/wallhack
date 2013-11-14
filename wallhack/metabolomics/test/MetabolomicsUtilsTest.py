@@ -2,57 +2,81 @@ import numpy
 import unittest
 import logging
 import pywt
-from exp.metabolomics.MetabolomicsUtils import MetabolomicsUtils 
+import pandas 
+from apgl.util.PathDefaults import PathDefaults
+from wallhack.metabolomics.MetabolomicsUtils import MetabolomicsUtils 
+import numpy.testing as nptst 
 
 class  MetabolomicsUtilsTestCase(unittest.TestCase):
+    def setUp(self): 
+        numpy.set_printoptions(threshold=3000)    
+    
+    def testLoadData(self): 
+        metaUtils = MetabolomicsUtils() 
+        
+        X, X2, (Xopls1, Xopls2, Xopls3), YList, ages = metaUtils.loadData()
+        
+        #Looks okay 
+        #print(X.shape, X2.shape, Xopls1.shape, Xopls2.shape, Xopls3.shape)
+        #print(ages)
+        #print(YList)
+    
     def testCreateIndicatorLabels(self):
-        numpy.set_printoptions(threshold=3000)
-        X, X2, Xs, Xopls, YList, df = MetabolomicsUtils.loadData()
-
-        #YList = MetabolomicsUtils.createLabelList(df, MetabolomicsUtils.getLabelNames())
-
+        
+        metaUtils = MetabolomicsUtils()
+        X, X2, (Xopls1, Xopls2, Xopls3), YList, ages = metaUtils.loadData()
+        
         Y1, inds1 = YList[0]
         Y2, inds2 = YList[1]
         Y3, inds3 = YList[2]
 
-        YIgf1Inds, YICortisolInds, YTestoInds = MetabolomicsUtils.createIndicatorLabels(YList)
-
-        s = YIgf1Inds[0] + YIgf1Inds[1] + YIgf1Inds[2]
-        self.assertTrue((s == numpy.ones(s.shape[0])).all())
+        YICortisolInds, YTestoInds, YIgf1Inds = metaUtils.createIndicatorLabels(YList)
 
         s = YICortisolInds[0] + YICortisolInds[1] + YICortisolInds[2]
-        self.assertTrue((s == numpy.ones(s.shape[0])).all())
+        nptst.assert_array_equal(s[inds1], numpy.ones(inds1.sum()))
 
         s = YTestoInds[0] + YTestoInds[1] + YTestoInds[2]
-        self.assertTrue((s == numpy.ones(s.shape[0])).all())
+        nptst.assert_array_equal(s[inds2], numpy.ones(inds2.sum()))
+
+        s = YIgf1Inds[0] + YIgf1Inds[1] + YIgf1Inds[2]
+        nptst.assert_array_equal(s[inds3], numpy.ones(inds3.sum()))
 
         #Now compare to those labels in the file
-        labelNames = ["Ind.Testo.1", "Ind.Testo.2", "Ind.Testo.3"]
+        dataDir = PathDefaults.getDataDir() +  "metabolomic/"
+        fileName = dataDir + "data.RMN.total.6.txt"
+        data = pandas.read_csv(fileName, delimiter=",") 
+
+        labelNames = [] 
         labelNames.extend(["Ind.Cortisol.1", "Ind.Cortisol.2", "Ind.Cortisol.3"])
+        labelNames.extend(["Ind.Testo.1", "Ind.Testo.2", "Ind.Testo.3"])
         labelNames.extend(["Ind.IGF1.1", "Ind.IGF1.2", "Ind.IGF1.3"])
+        
+        Y = numpy.array(data[labelNames[0]])
+        YICortisolInds = numpy.array(YICortisolInds).T
+        print(YICortisolInds)
+        nptst.assert_almost_equal(YICortisolInds[0][inds1], Y[inds1])
+        
+        Y = numpy.array(data[labelNames[1]], numpy.int)
+        nptst.assert_almost_equal(YICortisolInds[1][inds1], Y[inds1])
 
-        Y = numpy.array(df.rx(labelNames[6])).ravel()[inds1]
-        logging.debug(numpy.sum(numpy.abs(YIgf1Inds[0] - Y)))
-        Y = numpy.array(df.rx(labelNames[7])).ravel()[inds1]
-        logging.debug(numpy.sum(numpy.abs(YIgf1Inds[1] - Y)))
-        Y = numpy.array(df.rx(labelNames[8])).ravel()[inds1]
-        logging.debug(numpy.sum(numpy.abs(YIgf1Inds[2] - Y)))
+        Y = numpy.array(data[labelNames[2]], numpy.int)
+        nptst.assert_almost_equal(YICortisolInds[2][inds1], Y[inds1])
 
-        Y = numpy.array(df.rx(labelNames[3])).ravel()[inds2]
-        logging.debug(numpy.sum(numpy.abs(YICortisolInds[0] - Y)))
-        Y = numpy.array(df.rx(labelNames[4])).ravel()[inds2]
-        logging.debug(numpy.sum(numpy.abs(YICortisolInds[1] - Y)))
-        Y = numpy.array(df.rx(labelNames[5])).ravel()[inds2]
-        logging.debug(numpy.sum(numpy.abs(YICortisolInds[2] - Y)))
+        Y = numpy.array(data[labelNames[0]], numpy.int)[inds1]
+        nptst.assert_almost_equal(YIgf1Inds[0][inds1], Y)
+        Y = numpy.array(data[labelNames[1]], numpy.int)[inds1]
+        nptst.assert_almost_equal(YIgf1Inds[1][inds1], Y)
+        Y = numpy.array(data[labelNames[2]], numpy.int)[inds1]
+        nptst.assert_almost_equal(YIgf1Inds[2][inds1], Y)
 
-        Y = numpy.array(df.rx(labelNames[0])).ravel()[inds3]
-        logging.debug(numpy.sum(numpy.abs(YTestoInds[0] - Y)))
-        Y = numpy.array(df.rx(labelNames[1])).ravel()[inds3]
-        logging.debug(numpy.sum(numpy.abs(YTestoInds[1] - Y)))
-        Y = numpy.array(df.rx(labelNames[2])).ravel()[inds3]
-        logging.debug(numpy.sum(numpy.abs(YTestoInds[2] - Y)))
-
-
+        Y = numpy.array(data[labelNames[0]], numpy.int)[inds1]
+        nptst.assert_almost_equal(YIgf1Inds[0][inds1], Y)
+        Y = numpy.array(data[labelNames[1]], numpy.int)[inds1]
+        nptst.assert_almost_equal(YIgf1Inds[1][inds1], Y)
+        Y = numpy.array(data[labelNames[2]], numpy.int)[inds1]
+        nptst.assert_almost_equal(YIgf1Inds[2][inds1], Y)
+        
+    @unittest.skip("")
     def testGetWaveletFeaturesTest(self):
         #See if we can reproduce the data from the wavelet 
 
@@ -98,7 +122,8 @@ class  MetabolomicsUtilsTestCase(unittest.TestCase):
         Xw = MetabolomicsUtils.getWaveletFeatures(X, waveletStr, level, mode)
         Xrecstr = reconstructSignal(X, Xw, waveletStr, level, mode, C)
         self.assertTrue(numpy.linalg.norm(X - Xrecstr) < tol)
-        
+    
+    @unittest.skip("")    
     def testScoreLabel(self):#
         numExamples = 10 
         Y = numpy.random.rand(numExamples)
@@ -124,6 +149,7 @@ class  MetabolomicsUtilsTestCase(unittest.TestCase):
 
         self.assertTrue((YScores == numpy.ones((Y.shape[0], 3))).all())
 
+    @unittest.skip("")
     def testReconstructSignal(self):
         numExamples = 100 
         numFeatures = 16 
@@ -140,6 +166,7 @@ class  MetabolomicsUtilsTestCase(unittest.TestCase):
         tol = 10**-6 
         self.assertTrue(numpy.linalg.norm(X - X2) < tol)
 
+    @unittest.skip("")
     def testFilterWavelet(self):
         numExamples = 100
         numFeatures = 16
@@ -161,11 +188,6 @@ class  MetabolomicsUtilsTestCase(unittest.TestCase):
 
         zeroInds = numpy.setdiff1d(numpy.arange(Xw.shape[1]), inds)
         self.assertTrue(numpy.linalg.norm(Xw2[:, zeroInds]) < tol)
-
-
-
-
-        
 
 if __name__ == '__main__':
     unittest.main()
