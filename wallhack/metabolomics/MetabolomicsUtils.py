@@ -3,16 +3,13 @@ import pywt
 import numpy
 from apgl.util.PathDefaults import PathDefaults
 from sandbox.data.Standardiser import Standardiser
-from rpy2.robjects.packages import importr
-import rpy2.robjects as robjects
 
 class MetabolomicsUtils(object):
     def __init__(self):
-        pass
+        self.labelNames = ["IGF1.val", "Cortisol.val", "Testosterone.val"]
 
-    @staticmethod
-    def getLabelNames():
-        return ["IGF1.val", "Cortisol.val", "Testosterone.val"]
+    def getLabelNames(self):
+        return self.labelNames
 
     @staticmethod
     def getBounds():
@@ -26,64 +23,50 @@ class MetabolomicsUtils(object):
 
         return boundsList 
 
-    @staticmethod
-    def loadData():
+    def loadData(self):
         """
         Return the raw spectra and the MDS transformed data as well as the DataFrame
         for the MDS data. 
         """
-        utilsLib = importr('utils')
-
         dataDir = PathDefaults.getDataDir() +  "metabolomic/"
         fileName = dataDir + "data.RMN.total.6.txt"
-        df = utilsLib.read_table(fileName, header=True, row_names=1, sep=",")
         maxNMRIndex = 951
-        X = df.rx(robjects.IntVector(range(1, maxNMRIndex)))
-        X = numpy.array(X).T
+        X = numpy.loadtxt(fileName, skiprows=1, usecols=range(1, maxNMRIndex), delimiter=",")
 
         #Load age and normalise (missing values are assinged the mean) 
-        ages = numpy.array(df.rx(robjects.StrVector(["Age"]))).ravel()
+        ages = numpy.loadtxt(fileName, skiprows=1, usecols=(955,), delimiter=",")
         meanAge = numpy.mean(ages[numpy.logical_not(numpy.isnan(ages))])
         ages[numpy.isnan(ages)] = meanAge
         ages = Standardiser().standardiseArray(ages)
 
-        Xs = X.copy()
         standardiser = Standardiser()
-        Xs = standardiser.standardiseArray(X)
+        X = standardiser.standardiseArray(X)
 
         fileName = dataDir + "data.sportsmen.log.AP.1.txt"
-        df = utilsLib.read_table(fileName, header=True, row_names=1, sep=",")
         maxNMRIndex = 419
-        X2 = df.rx(robjects.IntVector(range(1, maxNMRIndex)))
-        X2 = numpy.array(X2).T
+        X2 = numpy.loadtxt(fileName, skiprows=1, usecols=range(1, maxNMRIndex), delimiter=",")
 
         #Load the OPLS corrected files
         fileName = dataDir + "IGF1.log.OSC.1.txt"
-        df = utilsLib.read_table(fileName, header=True, row_names=1, sep=",")
         minNMRIndex = 22
         maxNMRIndex = 441
-        Xopls1 = df.rx(robjects.IntVector(range(minNMRIndex, maxNMRIndex)))
-        Xopls1 = numpy.array(Xopls1).T
+        Xopls1 = numpy.loadtxt(fileName, skiprows=1, usecols=range(minNMRIndex, maxNMRIndex), delimiter=",")
 
         fileName = dataDir + "cort.log.OSC.1.txt"
-        df = utilsLib.read_table(fileName, header=True, row_names=1, sep=",")
         minNMRIndex = 20
         maxNMRIndex = 439
-        Xopls2 = df.rx(robjects.IntVector(range(minNMRIndex, maxNMRIndex)))
-        Xopls2 = numpy.array(Xopls2).T
+        Xopls2 = numpy.loadtxt(fileName, skiprows=1, usecols=range(minNMRIndex, maxNMRIndex), delimiter=",")
 
         fileName = dataDir + "testo.log.OSC.1.txt"
-        df = utilsLib.read_table(fileName, header=True, row_names=1, sep=",")
         minNMRIndex = 22
         maxNMRIndex = 441
-        Xopls3 = df.rx(robjects.IntVector(range(minNMRIndex, maxNMRIndex)))
-        Xopls3 = numpy.array(Xopls3).T
+        Xopls3 = numpy.loadtxt(fileName, skiprows=1, usecols=range(minNMRIndex, maxNMRIndex), delimiter=",")
 
         #Let's load all the label data here
-        labelNames = MetabolomicsUtils.getLabelNames()
+        labelNames = self.getLabelNames()
         YList = MetabolomicsUtils.createLabelList(df, labelNames)
         
-        return X, X2, Xs, (Xopls1, Xopls2, Xopls3), YList, ages, df
+        return X, X2, (Xopls1, Xopls2, Xopls3), YList, ages
 
     @staticmethod 
     def getWaveletFeatures(X, waveletStr, level, mode):
@@ -122,7 +105,7 @@ class MetabolomicsUtils(object):
 
         for labelName in labelNames:
             Y = df.rx(labelName)
-
+            #Finds non missing values and their indices 
             inds = numpy.logical_not(numpy.array(baseLib.is_na(Y), numpy.bool)).ravel()
             Y = numpy.array(Y).ravel()[inds]
             YList.append((Y, inds))
