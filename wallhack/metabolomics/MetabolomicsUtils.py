@@ -9,10 +9,10 @@ class MetabolomicsUtils(object):
     def __init__(self):
         self.labelNames = ["Cortisol.val", "Testosterone.val", "IGF1.val"]
         self.dataDir = PathDefaults.getDataDir() +  "metabolomic/"
-        self.boundsList = []
-        self.boundsList.append(numpy.array([0, 89, 225, 573]))
-        self.boundsList.append(numpy.array([0, 3, 9, 13]))
-        self.boundsList.append(numpy.array([0, 200, 441, 782]))
+        self.boundsDict = {}
+        self.boundsDict["Cortisol"] = numpy.array([0, 89, 225, 573])
+        self.boundsDict["Testosterone"] = numpy.array([0, 3, 9, 13])
+        self.boundsDict["IGF1"] = numpy.array([0, 200, 441, 782])
         
     def getLabelNames(self):
         return self.labelNames
@@ -28,13 +28,12 @@ class MetabolomicsUtils(object):
         Return the raw spectra and the MDS transformed data as well as the DataFrame
         for the MDS data. 
         """
-        
         fileName = self.dataDir + "data.RMN.total.6.txt"
         data = pandas.read_csv(fileName, delimiter=",")        
         
         maxNMRIndex = 951
         X = data.iloc[:, 1:maxNMRIndex].values
-        X = Standardiser().standardiseArray(X)
+        XStd = Standardiser().standardiseArray(X)
 
         #Load age and normalise (missing values are assigned the mean) 
         ages = numpy.array(data["Age"])
@@ -43,14 +42,9 @@ class MetabolomicsUtils(object):
         ages = Standardiser().standardiseArray(ages)
         
         #Load labels 
-        YList = []
-
-        for labelName in self.labelNames:
-            Y = numpy.array(data[labelName])
-            #Finds non missing values and their indices 
-            inds = numpy.logical_not(numpy.isnan(Y))
-            Y = numpy.array(Y).ravel()
-            YList.append((Y, inds))
+        YCortisol = data["Cortisol.val"]
+        YTesto = data["Testosterone.val"]
+        YIgf1 = data["IGF1.val"]
 
         fileName = self.dataDir + "data.sportsmen.log.AP.1.txt"
         maxNMRIndex = 419
@@ -59,28 +53,28 @@ class MetabolomicsUtils(object):
         X2 = Standardiser().standardiseArray(X2)
 
         #Load the OPLS corrected files
-        fileName = self.dataDir + "IGF1.log.OSC.1.txt"
-        minNMRIndex = 22
-        maxNMRIndex = 441
-        data = pandas.read_csv(fileName, delimiter=",")  
-        Xopls1 = data.iloc[:, minNMRIndex:maxNMRIndex].values
-        Xopls1 = Standardiser().standardiseArray(Xopls1)
-
         fileName = self.dataDir + "cort.log.OSC.1.txt"
         minNMRIndex = 20
         maxNMRIndex = 439
         data = pandas.read_csv(fileName, delimiter=",")  
-        Xopls2 = data.iloc[:, minNMRIndex:maxNMRIndex].values
-        Xopls2 = Standardiser().standardiseArray(Xopls2)
+        XoplsCortisol = data.iloc[:, minNMRIndex:maxNMRIndex].values
+        XoplsCortisol = Standardiser().standardiseArray(XoplsCortisol)
 
         fileName = self.dataDir + "testo.log.OSC.1.txt"
         minNMRIndex = 22
         maxNMRIndex = 441
         data = pandas.read_csv(fileName, delimiter=",")  
-        Xopls3 = data.iloc[:, minNMRIndex:maxNMRIndex].values
-        Xopls3 = Standardiser().standardiseArray(Xopls3)
+        XoplsTesto = data.iloc[:, minNMRIndex:maxNMRIndex].values
+        XoplsTesto = Standardiser().standardiseArray(XoplsTesto)
         
-        return X, X2, (Xopls1, Xopls2, Xopls3), YList, ages
+        fileName = self.dataDir + "IGF1.log.OSC.1.txt"
+        minNMRIndex = 22
+        maxNMRIndex = 441
+        data = pandas.read_csv(fileName, delimiter=",")  
+        XoplsIgf1 = data.iloc[:, minNMRIndex:maxNMRIndex].values
+        XoplsIgf1 = Standardiser().standardiseArray(XoplsIgf1)
+        
+        return X, XStd, X2, (XoplsCortisol, XoplsTesto, XoplsIgf1), YCortisol, YTesto, YIgf1, ages
 
     @staticmethod 
     def getWaveletFeatures(X, waveletStr, level, mode):
@@ -119,23 +113,9 @@ class MetabolomicsUtils(object):
             YInd[nonMissingInds] = numpy.array(numpy.logical_and(bounds[i] < Y[nonMissingInds], Y[nonMissingInds] <= bounds[i+1]), numpy.int) 
             YInds.append(YInd) 
         
-        return YInds
-
-    def createIndicatorLabels(self, YList):
-        """
-        Take a list of concentrations for the hormones and return a list of indicator
-        variables. 
-        """
-        YCortisol, inds = YList[0]
-        YICortisolInds = self.createIndicatorLabel(YCortisol, self.boundsList[0])
-
-        YTesto, inds = YList[1]
-        YTestoInds = self.createIndicatorLabel(YTesto, self.boundsList[1])
+        YInds = numpy.array(YInds).T        
         
-        YIgf1, inds = YList[2]
-        YIgf1Inds = self.createIndicatorLabel(YIgf1, self.boundsList[2])
-
-        return YICortisolInds, YTestoInds, YIgf1Inds
+        return YInds
 
     @staticmethod 
     def scoreLabels(Y, bounds):
