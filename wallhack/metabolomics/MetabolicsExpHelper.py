@@ -6,6 +6,9 @@ import datetime
 import gc 
 from apgl.util.PathDefaults import PathDefaults
 from apgl.util.Util import Util
+from apgl.util.FileLock import FileLock 
+from apgl.util.Sampling import Sampling 
+from apgl.util.Evaluator import Evaluator 
 from sandbox.ranking.TreeRank import TreeRank
 from sandbox.ranking.TreeRankForest import TreeRankForest
 from wallhack.metabolomics.MetabolomicsUtils import MetabolomicsUtils
@@ -15,147 +18,113 @@ from sandbox.ranking.leafrank.DecisionTree import DecisionTree
 from sandbox.ranking.RankSVM import RankSVM
 from sandbox.ranking.RankBoost import RankBoost
 
-class MetabolomicsExpRunner(object):
-    def __init__(self, YList, X, featuresName, ages, args):
+class MetabolicsExpHelper(object):
+    def __init__(self, dataDict, YCortisol, YTesto, YIgf1, ages):
         """
-        Create a new object 
-        
-        :param YList: A list of labels 
-        
-        :param X: the features 
-        
-        :param featureName: The name of the feature 
-        
-        :param ages: The ages 
-        
-        :
+        Create a new object for run the metabolomics experiments
         """
-        super(MetabolomicsExpRunner, self).__init__(args=args)
-        self.X = X
-        self.YList = YList #The list of concentrations 
-        self.featuresName = featuresName
-        self.args = args
-        self.ages = ages 
+        self.dataDict = dataDict
+        self.runTreeRank = True 
+        self.runTreeRankForest = True 
+        self.runRankBoost = False 
+        self.runRankSVM = False 
+        self.YCortisol = YCortisol 
+        self.YTesto = YTesto 
+        self.YIgf1 = YIgf1 
+        self.ages = ages
 
         self.maxDepth = 10
         self.numTrees = 10
         self.sampleSize = 1.0
         self.sampleReplace = True
-        self.folds = 5
+        self.outerFolds = 3
+        self.innerFolds = 5
         self.resultsDir = PathDefaults.getOutputDir() + "metabolomics/"
 
-        self.leafRankGenerators = []
-        self.leafRankGenerators.append((SVMLeafRank.generate(), "SVM"))
-        self.leafRankGenerators.append((DecisionTree.generate(), "CART"))
-
+        self.rankBoost = RankBoost()
+        self.rankBoostParams = {} 
+        self.rankBoostParams["setIterations"] = numpy.array([10, 50, 100])
+        self.rankBoostParams["setLearners"] = numpy.array([10, 20])
+        
+        self.rankSVM = RankSVM()
+        self.rankSVM.setKernel("rbf")
+        self.rankSVMParams = {} 
+        self.rankSVMParams["setC"] = 2.0**numpy.arange(-5, -3, dtype=numpy.float)
+        self.rankSVMParams["setGamma"] =  2.0**numpy.arange(-5, -3, dtype=numpy.float)
 
         #Store all the label vectors and their missing values
-        YIgf1Inds, YICortisolInds, YTestoInds = MetabolomicsUtils.createIndicatorLabels(YList)
-        self.hormoneInds = [YIgf1Inds, YICortisolInds, YTestoInds]
-        self.hormoneNames = MetabolomicsUtils.getLabelNames()
+        self.hormoneDict = {"Cortisol": YCortisol, "Testosterone": YTesto, "IGF1": YIgf1}
 
-    def saveResult(self, X, Y, learner, fileName):
+    def saveResult(self, X, Y, learner, paramDict, fileName):
         """
         Save a single result to file, checking if the results have already been computed
         """
-        fileBaseName, sep, ext = fileName.rpartition(".")
-        lockFileName = fileBaseName + ".lock"
+        filelock = FileLock(fileName)
         gc.collect()
 
-        if not os.path.isfile(fileName) and not os.path.isfile(lockFileName):
-            try:
-                lockFile = open(lockFileName, 'w')
-                lockFile.close()
-                logging.debug("Created lock file " + lockFileName)
-
-                logging.debug("Computing file " + fileName)
-                logging.debug(learner)
-                (bestParams, allMetrics, bestMetaDicts) = learner.evaluateCvOuter(X, Y, self.folds)
-                cvResults = {"bestParams":bestParams, "allMetrics":allMetrics, "metaDicts":bestMetaDicts}
-                Util.savePickle(cvResults, fileName)
+        if not filelock.isLocked() and not filelock.fileExists(): 
+            filelock.lock()
+            logging.debug("Computing file " + fileName + " with learner " + str(learner))
+            
+            idxFull = Sampling.crossValidation(self.outerFolds, X.shape[0])
+            errors = numpy.zeros(self.outerFolds)
+            
+            for i, (trainInds, testInds) in enumerate(idxFull): 
+                logging.debug("Outer fold: " + str(i))
+                trainX, trainY = X[trainInds, :], Y[trainInds]
+                testX, testY = X[testInds, :], Y[testInds]
                 
-                os.remove(lockFileName)
-                logging.debug("Deleted lock file " + lockFileName)
-            except:
-                logging.debug("Caught an error in the code ... skipping")
-                raise
+                idx = Sampling.crossValidation(self.innerFolds, trainX.shape[0])
+                bestLearner, cvGrid = learner.parallelModelSelect(trainX, trainY, idx, paramDict)
+                
+                bestLearner = learner.getBestLearner(cvGrid, paramDict, trainX, trainY, idx, best="max")
+                logging.debug("Best learner is " + str(bestLearner))
+                bestLearner.learnModel(trainX, trainY)
+                predY = bestLearner.predict(testX)
+                errors[i] = Evaluator.auc(predY, testY)
+            
+            logging.debug("Mean auc: " + str(numpy.mean(errors)))
+            numpy.save(fileName, errors)
+            logging.debug("Saved results as : " + fileName)
+            filelock.unlock()
         else:
             logging.debug("File exists, or is locked: " + fileName)
 
-    def saveResults(self, leafRankGenerators, mode="std"):
+    def saveResults(self):
         """
         Compute the results and save them for a particular hormone. Does so for all
-        leafranks
+        learners. 
         """
-        for j in range(len(self.hormoneInds)):
-            nonNaInds = self.YList[j][1]
-            hormoneInd = self.hormoneInds[j]
+        metaUtils = MetabolomicsUtils()
+        
+        for hormoneName, hormoneConc in self.hormoneDict.items():
+            nonNaInds = numpy.logical_not(numpy.isnan(hormoneConc))
+            hormoneIndicators = metaUtils.createIndicatorLabel(hormoneConc, metaUtils.boundsDict[hormoneName])
 
-            for k in range(len(hormoneInd)):
-                if type(self.X) == numpy.ndarray:
-                    X = self.X[nonNaInds, :]
-                else:
-                    X = self.X[j][nonNaInds, :]
-                X = numpy.c_[X, self.ages[nonNaInds]]
-
-                if mode != "func":
+            for i in range(hormoneIndicators.shape[1]):
+                Y = numpy.array(hormoneIndicators[nonNaInds, i], numpy.int)    
+                
+                for dataName, dataFeatures in self.dataDict.items():
+                    X = dataFeatures[nonNaInds, :]
+                    X = numpy.c_[X, self.ages[nonNaInds]]
                     X = Standardiser().standardiseArray(X)
-                    
-                Y = hormoneInd[k]
-                waveletInds = numpy.arange(X.shape[1]-1)
 
-                logging.debug("Shape of examples: " + str(X.shape))
-                logging.debug("Distribution of labels: " + str(numpy.bincount(Y)))
+                    logging.debug("Shape of examples: " + str(X.shape))
+                    logging.debug("Distribution of labels: " + str(numpy.bincount(Y)))
 
-                #Go through all the leafRanks
-                for i in range(len(leafRankGenerators)):
-
-                    leafRankName = leafRankGenerators[i][1]
-                    if mode != "func":
-                        leafRankGenerator = leafRankGenerators[i][0]
-                    else:
-                        leafRankGenerator = leafRankGenerators[i][0](waveletInds)
-
-                    fileName = self.resultsDir + "TreeRank-" + self.hormoneNames[j] + "_" + str(k) + "-" +  leafRankName  + "-" + self.featuresName +  ".dat"
-                    treeRank = TreeRank(leafRankGenerator)
-                    treeRank.setMaxDepth(self.maxDepth)
-                    self.saveResult(X, Y, treeRank, fileName)
-
-                    fileName = self.resultsDir + "TreeRankForest-" + self.hormoneNames[j] + "_" + str(k) + "-" +  leafRankName  + "-" + self.featuresName +  ".dat"
-                    treeRankForest = TreeRankForest(leafRankGenerator)
-                    treeRankForest.setMaxDepth(self.maxDepth)
-                    treeRankForest.setNumTrees(self.numTrees)
-                    
-                    treeRankForest.setSampleReplace(self.sampleReplace)
-                    #Set the number of features to be the root of the total number if not functional
-                    if mode == "std":
-                        treeRankForest.setFeatureSize(numpy.round(numpy.sqrt(X.shape[1]))/float(X.shape[1]))
-                    else:
-                        treeRankForest.setFeatureSize(1.0)
+                    if self.runRankBoost: 
+                        fileName = self.resultsDir + "RankBoost-" + hormoneName + "-" + str(i) + "-" + dataName + ".npy"
+                        self.saveResult(X, Y, self.rankBoost, self.rankBoostParams, fileName)
                         
-                    
-                    self.saveResult(X, Y, treeRankForest, fileName)
-
-                if mode == "std":
-                    #Run RankSVM
-                    fileName = self.resultsDir + "RankSVM-" + self.hormoneNames[j] + "_" + str(k)  + "-" + self.featuresName +  ".dat"
-                    rankSVM = RankSVM()
-                    self.saveResult(X, Y, rankSVM, fileName)
-
-                    #fileName = self.resultsDir + "RBF-RankSVM-" + self.hormoneNames[j] + "_" + str(k)  + "-" + self.featuresName +  ".dat"
-                    #rankSVM = RankSVM()
-                    #rankSVM.setKernel("rbf")
-                    #self.saveResult(X, Y, rankSVM, fileName)
-
-                    #Run RankBoost
-                    fileName = self.resultsDir + "RankBoost-" + self.hormoneNames[j] + "_" + str(k)  + "-" + self.featuresName +  ".dat"
-                    rankBoost = RankBoost()
-                    self.saveResult(X, Y, rankBoost, fileName)
+                    if self.runRankSVM: 
+                        fileName = self.resultsDir + "RankSVM-" + hormoneName + "-" + str(i) + "-" + dataName + ".npy"
+                        self.saveResult(X, Y, self.rankSVM, self.rankSVMParams, fileName)
+                        
+        logging.debug("All done, see you around!")
                         
     def run(self):
         logging.debug('module name:' + __name__) 
         logging.debug('parent process:' +  str(os.getppid()))
         logging.debug('process id:' +  str(os.getpid()))
 
-        self.saveResults(self.leafRankGenerators, "std")
-
+        self.saveResults()

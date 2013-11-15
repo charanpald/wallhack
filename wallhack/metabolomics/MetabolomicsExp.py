@@ -1,26 +1,26 @@
 """
 Perform cross validation using TreeRank
 """
-import os
 import numpy
 import sys
 import logging
-import multiprocessing
+import os
 import datetime
-import gc 
 from apgl.util.PathDefaults import PathDefaults
-from apgl.util.Util import Util
-from sandbox.ranking.TreeRank import TreeRank
-from sandbox.ranking.TreeRankForest import TreeRankForest
+from wallhack.metabolomics.MetabolicsExpHelper import MetabolicsExpHelper
 from wallhack.metabolomics.MetabolomicsUtils import MetabolomicsUtils
 from socket import gethostname
+from sandbox.ranking.RankBoost import RankBoost
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 logging.debug("Running from machine " + str(gethostname()))
 numpy.random.seed(21)
 
+os.system('taskset -p 0xffffffff %d' % os.getpid())
+
 dataDir = PathDefaults.getDataDir() +  "metabolomic/"
-X, X2, Xs, XOpls, YList, ages, df = MetabolomicsUtils.loadData()
+metaUtils = MetabolomicsUtils() 
+X, XStd, X2, (XoplsCortisol, XoplsTesto, XoplsIgf1), YCortisol, YTesto, YIgf1, ages = metaUtils.loadData()
 
 mode = "cpd"
 level = 10
@@ -30,45 +30,28 @@ XwHaar = MetabolomicsUtils.getWaveletFeatures(X, 'haar', level, mode)
 
 #Filter the wavelets
 Ns = [10, 25, 50, 75, 100]
-dataList = []
+dataDict = {}
 
 for i in range(len(Ns)):
     N = Ns[i]
     XwDb4F, inds = MetabolomicsUtils.filterWavelet(XwDb4, N)
-    dataList.append((XwDb4F[:, inds], "Db4-" + str(N)))
+    dataDict["Db4-" + str(N)] = XwDb4F[:, inds]
 
     XwDb8F, inds = MetabolomicsUtils.filterWavelet(XwDb8, N)
-    dataList.append((XwDb8F[:, inds], "Db8-" + str(N)))
-
+    dataDict["Db8-" + str(N)] = XwDb8F[:, inds]
+    
     XwHaarF, inds = MetabolomicsUtils.filterWavelet(XwHaar, N)
-    dataList.append((XwHaarF[:, inds], "Haar-" + str(N)))
+    dataDict["Haar-" + str(N)] = XwHaarF[:, inds]
 
-dataList.extend([(Xs, "raw_std"), (XwDb4, "Db4"), (XwDb8, "Db8"), (XwHaar, "Haar"), (X2, "log"), (XOpls, "opls")])
-
-#Data for functional TreeRank
-dataListF = [(XwDb4, "Db4"), (XwDb8, "Db8"), (XwHaar, "Haar")]
-dataListPCA = ([(Xs, "raw_std"), (XwDb4, "Db4"), (XwDb8, "Db8"), (XwHaar, "Haar"), (X2, "log"), (XOpls, "opls")])
-
-lock = multiprocessing.Lock()
+dataDict["raw"] = X
+dataDict["Db4"] = XwDb4
+dataDict["Db8"] = XwDb8
+dataDict["Haar"] = XwHaar 
+dataDict["log"] = X2
 
 numpy.random.seed(datetime.datetime.now().microsecond)
-#numpy.random.seed(21)
-permInds = numpy.random.permutation(len(dataList))
-permIndsF = numpy.random.permutation(len(dataListF))
-permIndsPCA = numpy.random.permutation(len(dataListPCA))
-numpy.random.seed(21)
 
-try:
-    for ind in permInds:
-        MetabolomicsExpRunner(YList, dataList[ind][0], dataList[ind][1], ages, args=(lock,)).run()
-        
-    for ind in permIndsF:
-        MetabolomicsExpRunner(YList, dataListF[ind][0], dataListF[ind][1], ages, args=(lock,)).runF()
+helper = MetabolicsExpHelper(dataDict,YCortisol, YTesto, YIgf1, ages)
+helper.runRankSVM = True
+helper.run()
 
-    for ind in permIndsPCA:
-        MetabolomicsExpRunner(YList, dataListPCA[ind][0], dataListPCA[ind][1], ages, args=(lock,)).runPCA()
-
-    logging.info("All done - see you around!")
-except Exception as err:
-    print(err)
-    raise 
