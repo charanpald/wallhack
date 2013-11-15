@@ -24,8 +24,8 @@ class MetabolicsExpHelper(object):
         Create a new object for run the metabolomics experiments
         """
         self.dataDict = dataDict
-        self.runTreeRank = True 
-        self.runTreeRankForest = True 
+        self.runRbfSvmTreeRank = False 
+        self.runTreeRankForest = False 
         self.runRankBoost = False 
         self.runRankSVM = False 
         self.YCortisol = YCortisol 
@@ -37,15 +37,30 @@ class MetabolicsExpHelper(object):
         self.numTrees = 10
         self.sampleSize = 1.0
         self.sampleReplace = True
+        
         self.outerFolds = 3
         self.innerFolds = 5
         self.resultsDir = PathDefaults.getOutputDir() + "metabolomics/"
-
+        
+        #RBF SVM TreeRank 
+        leafRankFolds = 3 
+        leafRankParamDict = {} 
+        leafRankParamDict["setC"] = 2**numpy.arange(-5, 5, dtype=numpy.float)  
+        leafRankParamDict["setGamma"] =  2.0**numpy.arange(-5, 0, dtype=numpy.float)
+        leafRankLearner = SVMLeafRank(leafRankParamDict, leafRankFolds) 
+        leafRankLearner.setKernel("rbf")
+        self.rbfSvmTreeRank = TreeRank(leafRankLearner)
+        self.rbfSvmTreeRank.processes = 1
+        self.rbfSvmTreeRankParams = {}
+        self.rbfSvmTreeRankParams["setMaxDepth"] = numpy.array([2, 5, 10])
+        
+        #RankBoost 
         self.rankBoost = RankBoost()
         self.rankBoostParams = {} 
         self.rankBoostParams["setIterations"] = numpy.array([10, 50, 100])
         self.rankBoostParams["setLearners"] = numpy.array([10, 20])
         
+        #RankSVM
         self.rankSVM = RankSVM()
         self.rankSVM.setKernel("rbf")
         self.rankSVMParams = {} 
@@ -64,7 +79,7 @@ class MetabolicsExpHelper(object):
 
         if not filelock.isLocked() and not filelock.fileExists(): 
             filelock.lock()
-            logging.debug("Computing file " + fileName + " with learner " + str(learner))
+            logging.debug("Computing file " + fileName)
             
             idxFull = Sampling.crossValidation(self.outerFolds, X.shape[0])
             errors = numpy.zeros(self.outerFolds)
@@ -102,15 +117,19 @@ class MetabolicsExpHelper(object):
             hormoneIndicators = metaUtils.createIndicatorLabel(hormoneConc, metaUtils.boundsDict[hormoneName])
 
             for i in range(hormoneIndicators.shape[1]):
-                Y = numpy.array(hormoneIndicators[nonNaInds, i], numpy.int)    
+                #Make labels -1/+1
+                Y = numpy.array(hormoneIndicators[nonNaInds, i], numpy.int)*2-1    
                 
                 for dataName, dataFeatures in self.dataDict.items():
                     X = dataFeatures[nonNaInds, :]
                     X = numpy.c_[X, self.ages[nonNaInds]]
                     X = Standardiser().standardiseArray(X)
 
-                    logging.debug("Shape of examples: " + str(X.shape))
-                    logging.debug("Distribution of labels: " + str(numpy.bincount(Y)))
+                    logging.debug("Shape of examples: " + str(X.shape) + ", number of +1: " + str(numpy.sum(Y==1)) + ", -1: " + str(numpy.sum(Y==-1)))
+
+                    if self.runRbfSvmTreeRank: 
+                        fileName = self.resultsDir + "RbfSvmTreeRank-" + hormoneName + "-" + str(i) + "-" + dataName + ".npy"
+                        self.saveResult(X, Y, self.rbfSvmTreeRank, self.rbfSvmTreeRankParams, fileName)    
 
                     if self.runRankBoost: 
                         fileName = self.resultsDir + "RankBoost-" + hormoneName + "-" + str(i) + "-" + dataName + ".npy"

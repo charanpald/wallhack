@@ -10,7 +10,6 @@ from apgl.util.PathDefaults import PathDefaults
 from wallhack.metabolomics.MetabolicsExpHelper import MetabolicsExpHelper
 from wallhack.metabolomics.MetabolomicsUtils import MetabolomicsUtils
 from socket import gethostname
-from sandbox.ranking.RankBoost import RankBoost
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 logging.debug("Running from machine " + str(gethostname()))
@@ -52,6 +51,7 @@ dataDict["log"] = X2
 numpy.random.seed(datetime.datetime.now().microsecond)
 
 helper = MetabolicsExpHelper(dataDict,YCortisol, YTesto, YIgf1, ages)
-helper.runRankSVM = True
+helper.runRankSVM = False
+helper.runRbfSvmTreeRank = True
 helper.run()
 
