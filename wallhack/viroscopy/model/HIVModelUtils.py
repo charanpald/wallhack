@@ -72,10 +72,10 @@ class HIVModelUtils(object):
         M = targetGraph.size * 5
         #This needs to be from 1986 to 2004 
         #startDates = [CsvConverters.dateConv("01/01/1988"), CsvConverters.dateConv("01/01/1990")]
-        startDates = [CsvConverters.dateConv("01/01/1986"), CsvConverters.dateConv("01/01/1988"), CsvConverters.dateConv("01/01/1990")]
+        startDates = [CsvConverters.dateConv("01/01/1986"), CsvConverters.dateConv("01/01/1988"), CsvConverters.dateConv("01/01/1990"), CsvConverters.dateConv("01/01/1992")]
         endDates = [float(i) for i in startDates]
         #endDates = [CsvConverters.dateConv("01/01/1991"), CsvConverters.dateConv("01/01/1993")]
-        endDates = [CsvConverters.dateConv("01/01/1989"), CsvConverters.dateConv("01/01/1991"), CsvConverters.dateConv("01/01/1993")]
+        endDates = [CsvConverters.dateConv("01/01/1989"), CsvConverters.dateConv("01/01/1991"), CsvConverters.dateConv("01/01/1993"), CsvConverters.dateConv("01/01/1995")]
         endDates = numpy.array([float(i) for i in endDates])
         
         if test:
