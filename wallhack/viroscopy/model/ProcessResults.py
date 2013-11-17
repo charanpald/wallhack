@@ -137,7 +137,7 @@ else:
     idealMeasures = numpy.zeros((len(inds), numMeasures, numRecordSteps))
 
     plotInd = 0 
-    timeInds = [3, 6, 11]
+    timeInds = [2, 4, 6]
     
     for ind in inds: 
         logging.debug("ind=" + str(ind))
