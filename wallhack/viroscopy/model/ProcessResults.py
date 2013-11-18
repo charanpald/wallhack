@@ -19,7 +19,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.set_printoptions(suppress=True, precision=4, linewidth=150)
 
 processReal = True 
-saveResults = True 
+saveResults = False 
 
 def loadParams(ind): 
     if processReal: 
@@ -139,7 +139,7 @@ else:
     timings = numpy.zeros((len(inds), numTimes, N)) 
 
     plotInd = 0 
-    timeInds = [2, 4, 6]
+    timeInds = [4, 6]
     
     for ind in inds: 
         logging.debug("ind=" + str(ind))
