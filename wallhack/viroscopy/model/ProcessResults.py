@@ -30,7 +30,7 @@ def loadParams(ind):
         startDate, endDate, recordStep, M, targetGraph = HIVModelUtils.realSimulationParams(test=True, ind=ind)
         realTheta, sigmaTheta, pertTheta = HIVModelUtils.estimatedRealTheta(ind)
         prefix = "Real"
-        numInds = 3
+        numInds = 4
     else: 
         resultsDir = PathDefaults.getOutputDir() + "viroscopy/toy/theta/"
         outputDir = resultsDir + "stats/"        
