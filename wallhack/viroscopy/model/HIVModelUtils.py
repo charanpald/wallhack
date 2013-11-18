@@ -3,6 +3,7 @@
 """
 Keep some default parameters for the epidemic model. 
 """
+import time 
 import numpy 
 import logging 
 from apgl.util import Util 
@@ -125,8 +126,6 @@ class HIVModelUtils(object):
    
     @staticmethod     
     def simulate(theta, graph, startDate, endDate, recordStep, graphMetrics=None): 
-
-    
         alpha = 2
         zeroVal = 0.9
         p = Util.powerLawProbs(alpha, zeroVal)
@@ -139,7 +138,13 @@ class HIVModelUtils(object):
         
         logging.debug("Theta = " + str(theta))
         
-        return model.simulate(True)
+        startTime = time.time()
+        times, infectedIndices, removedIndices, graph =  model.simulate(True)
+        simulationTime = time.time() - startTime
+        
+        graphMatchTime = numpy.sum(graphMetrics.times)
+        
+        times, infectedIndices, removedIndices, graph, [simulationTime, graphMatchTime]
         
     @staticmethod 
     def generateStatistics(graph, times): 

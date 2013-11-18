@@ -19,7 +19,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.set_printoptions(suppress=True, precision=4, linewidth=150)
 
 processReal = True 
-saveResults = False 
+saveResults = True 
 
 def loadParams(ind): 
     if processReal: 
@@ -65,10 +65,10 @@ def saveStats(args):
         
         matcher = GraphMatch(matchAlg, alpha=matchAlpha, featureInds=featureInds, useWeightM=False)
         graphMetrics = HIVGraphMetrics2(targetGraph, breakSize, matcher, float(endDate))     
-        times, infectedIndices, removedIndices, graph = HIVModelUtils.simulate(thetaArray[i], graph, startDate, endDate, recordStep, graphMetrics)
+        times, infectedIndices, removedIndices, graph, compTimes = HIVModelUtils.simulate(thetaArray[i], graph, startDate, endDate, recordStep, graphMetrics)
         times = numpy.arange(startDate, endDate+1, recordStep)
         vertexArray, infectedIndices, removedIndices, contactGraphStats, removedGraphStats = HIVModelUtils.generateStatistics(graph, times)
-        stats = times, vertexArray, infectedIndices, removedGraphStats, graphMetrics.objectives, graphMetrics.graphObjs, graphMetrics.labelObjs
+        stats = times, vertexArray, infectedIndices, removedGraphStats, graphMetrics.objectives, graphMetrics.graphObjs, graphMetrics.labelObjs, compTimes
         
         Util.savePickle(stats, resultsFileName)
         lock.unlock()
@@ -131,10 +131,12 @@ else:
     
     #We store: number of detections, CT detections, rand detections, infectives, max componnent size, num components, edges
     numMeasures = 7 
+    numTimes = 2
     thetas = []
     measures = numpy.zeros((len(inds), numMeasures, N, numRecordSteps))
     objectives = numpy.zeros((len(inds), numRecordSteps, N)) 
     idealMeasures = numpy.zeros((len(inds), numMeasures, numRecordSteps))
+    timings = numpy.zeros((len(inds), numTimes, N)) 
 
     plotInd = 0 
     timeInds = [2, 4, 6]
@@ -175,7 +177,7 @@ else:
             resultsFileName = outputDir + "SimStats" + str(i) + ".pkl"
             stats = Util.loadPickle(resultsFileName)
             
-            times, vertexArray, infectedIndices, removedGraphStats, objs, graphDists, labelDists = stats 
+            times, vertexArray, infectedIndices, removedGraphStats, objs, graphDists, labelDists, compTimes = stats 
     
             measures[ind, 0, i, :] = vertexArray[:, 0]
             measures[ind, 1, i, :] = vertexArray[:, 5]
@@ -186,10 +188,13 @@ else:
             measures[ind, 6, i, :] = removedGraphStats[:, graphStats.numEdgesIndex]
             
             #objectives[inds, i, :] = objs 
+            timings[ind, :, i] = compTimes
 
     
         times = times - numpy.min(times)
         logging.debug("times="+str(times))
+        
+        logging.debug("computational times="+str(numpy.mean(timings, 2)))
         
         meanMeasures = numpy.mean(measures, 2)
         stdMeasures = numpy.std(measures, 2)
@@ -301,6 +306,10 @@ else:
     table = Latex.addRowNames(rowNames, table)
     print(table)
     
-
+    #Now print timings 
+    rowNames = range(numInds)
+    table = Latex.array2DToRows(numpy.mean(timings, 2), numpy.std(timings, 2), precision=1)
+    table = Latex.addRowNames(rowNames, table)
+    print(table)    
     
     plt.show()
