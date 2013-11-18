@@ -51,7 +51,7 @@ class HIVGraphMetrics2(object):
             permutation, distance, time = self.matcher.match(subgraph, subRealGraph)
             lastObj, lastGraphObj, lastLabelObj = self.matcher.distance(subgraph, subRealGraph, permutation, True, False, True) 
             
-            self.times.add(time)
+            self.times.append(time)
             self.objectives.append(lastObj)
             self.graphObjs.append(lastGraphObj)
             self.labelObjs.append(lastLabelObj)
