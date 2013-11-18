@@ -2,7 +2,8 @@ import apgl
 import numpy 
 import unittest
 import numpy.testing as nptst 
-
+import scipy.sparse 
+from apgl.generator import ErdosRenyiGenerator 
 from wallhack.viroscopy.model.HIVGraph import HIVGraph
 from wallhack.viroscopy.model.HIVVertices import HIVVertices
 from wallhack.viroscopy.model.HIVGraphMetrics2 import HIVGraphMetrics2
@@ -26,11 +27,11 @@ class  HIVGraphMetrics2Test(unittest.TestCase):
         self.graph.endEventTime = 3.0
 
     def testAddGraph(self): 
-        epsilon = 0.12
-        metrics = HIVGraphMetrics2(self.graph, epsilon)
+        maxSize = 100
+        metrics = HIVGraphMetrics2(self.graph, maxSize)
         
         metrics.addGraph(self.graph)
-  
+
         self.assertAlmostEquals(metrics.objectives[0], -0.834, 3)
         self.assertAlmostEquals(metrics.meanObjective(), -0.834, 3)
         
@@ -39,7 +40,7 @@ class  HIVGraphMetrics2Test(unittest.TestCase):
         matcher = GraphMatch("QCV")
         graph =  HIVGraph(self.graph.size)
         dists = [] 
-        metrics = HIVGraphMetrics2(self.graph, epsilon)
+        metrics = HIVGraphMetrics2(self.graph, maxSize)
         
         graph.vlist.setInfected(1, 0.0)
         graph.vlist.setDetected(1, 0.1, 0)
@@ -85,14 +86,14 @@ class  HIVGraphMetrics2Test(unittest.TestCase):
         graph2 = HIVGraph(10)
         
         graph1.vlist[:, HIVVertices.stateIndex] = HIVVertices.removed
-        metrics = HIVGraphMetrics2(graph2, epsilon)
+        metrics = HIVGraphMetrics2(graph2, maxSize)
         metrics.addGraph(graph1)
         
         #Problem is that distance is 1 when one graph is zero
         self.assertEquals(len(metrics.objectives), 0) 
 
     def testMeanObjective(self): 
-        metrics = HIVGraphMetrics2(self.graph, breakObj=0.7, matcher=None, T=1000)
+        metrics = HIVGraphMetrics2(self.graph, matcher=None, T=1000)
         metrics.objectives = [0.5, 0.5, 0.5]
         
         self.assertEquals(metrics.meanObjective(), 0.5)
@@ -104,8 +105,23 @@ class  HIVGraphMetrics2Test(unittest.TestCase):
         metrics.objectives = [1.0, 1.0, 0.5]
         self.assertEquals(metrics.meanObjective(), 3.0/4)
         
-        self.assertTrue(metrics.shouldBreak())
+        #self.assertTrue(metrics.shouldBreak())
         
+    def testTimings(self): 
+        numVertices = 100
+        graph = HIVGraph(numVertices)
+        graph = ErdosRenyiGenerator(0.1).generate(graph)        
+
+        graph.vList.V[:, HIVVertices.stateIndex] = HIVVertices.removed
+        graph.vList.V[:, HIVVertices.detectionTimeIndex] = 0
+        graph.endEventTime = 0
+        graph.W = scipy.sparse.csr_matrix(graph.W)
+        maxSize = 500
+        metrics = HIVGraphMetrics2(graph, maxSize)
+        
+        metrics.addGraph(graph)
+        #Looks right 
+        #print(metrics.computationalTimes)
 
 if __name__ == '__main__':
     unittest.main()
