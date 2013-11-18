@@ -142,7 +142,7 @@ class HIVModelUtils(object):
         times, infectedIndices, removedIndices, graph =  model.simulate(True)
         simulationTime = time.time() - startTime
         
-        graphMatchTime = numpy.sum(graphMetrics.times)
+        graphMatchTime = numpy.sum(graphMetrics.computationalTimes)
         
         return times, infectedIndices, removedIndices, graph, [simulationTime, graphMatchTime]
         

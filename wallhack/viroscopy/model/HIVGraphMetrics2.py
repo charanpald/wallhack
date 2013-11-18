@@ -1,6 +1,6 @@
 import numpy 
 import logging 
-import time 
+import time as timer
 from apgl.util.Parameter import Parameter
 from sandbox.misc.GraphMatch import GraphMatch 
 
@@ -29,7 +29,7 @@ class HIVGraphMetrics2(object):
         self.realGraph = realGraph
         self.maxSize = maxSize
         self.T = T 
-        self.times = []
+        self.computationalTimes = []
         
         if matcher == None: 
             self.matcher = GraphMatch("QCV")
@@ -50,8 +50,8 @@ class HIVGraphMetrics2(object):
         if subRealGraph.size != 0 and subgraph.size <= self.maxSize: 
             permutation, distance, time = self.matcher.match(subgraph, subRealGraph)
             lastObj, lastGraphObj, lastLabelObj = self.matcher.distance(subgraph, subRealGraph, permutation, True, False, True) 
-            
-            self.times.append(time)
+     
+            self.computationalTimes.append(time)
             self.objectives.append(lastObj)
             self.graphObjs.append(lastGraphObj)
             self.labelObjs.append(lastLabelObj)
