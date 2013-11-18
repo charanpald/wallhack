@@ -144,7 +144,7 @@ class HIVModelUtils(object):
         
         graphMatchTime = numpy.sum(graphMetrics.times)
         
-        times, infectedIndices, removedIndices, graph, [simulationTime, graphMatchTime]
+        return times, infectedIndices, removedIndices, graph, [simulationTime, graphMatchTime]
         
     @staticmethod 
     def generateStatistics(graph, times): 
