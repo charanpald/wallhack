@@ -5,7 +5,6 @@ import logging
 import datetime
 import gc 
 from apgl.util.PathDefaults import PathDefaults
-from apgl.util.Util import Util
 from apgl.util.FileLock import FileLock 
 from apgl.util.Sampling import Sampling 
 from apgl.util.Evaluator import Evaluator 
@@ -24,10 +23,14 @@ class MetabolicsExpHelper(object):
         Create a new object for run the metabolomics experiments
         """
         self.dataDict = dataDict
+        
+        self.runCartTreeRank = False 
         self.runRbfSvmTreeRank = False 
-        self.runTreeRankForest = False 
+        self.runCartTreeRankForest = False 
+        self.runRbfSvmTreeRankForest = False 
         self.runRankBoost = False 
         self.runRankSVM = False 
+        
         self.YCortisol = YCortisol 
         self.YTesto = YTesto 
         self.YIgf1 = YIgf1 
@@ -41,7 +44,18 @@ class MetabolicsExpHelper(object):
         self.outerFolds = 3
         self.innerFolds = 5
         self.resultsDir = PathDefaults.getOutputDir() + "metabolomics/"
-        
+     
+        #CART TreeRank 
+        leafRankFolds = 3 
+        leafRankParamDict = {} 
+        leafRankParamDict["setMaxDepth"] = numpy.arange(1, 8)
+        leafRankLearner = DecisionTree(leafRankParamDict, leafRankFolds)  
+     
+        self.cartTreeRank = TreeRank(leafRankLearner)
+        self.cartTreeRank.processes = 1
+        self.cartTreeRankParams = {}
+        self.cartTreeRankParams["setMaxDepth"] = numpy.array([2, 5, 10])     
+     
         #RBF SVM TreeRank 
         leafRankFolds = 3 
         leafRankParamDict = {} 
@@ -49,11 +63,38 @@ class MetabolicsExpHelper(object):
         leafRankParamDict["setGamma"] =  2.0**numpy.arange(-5, 0, dtype=numpy.float)
         leafRankLearner = SVMLeafRank(leafRankParamDict, leafRankFolds) 
         leafRankLearner.setKernel("rbf")
+        
         self.rbfSvmTreeRank = TreeRank(leafRankLearner)
         self.rbfSvmTreeRank.processes = 1
         self.rbfSvmTreeRankParams = {}
         self.rbfSvmTreeRankParams["setMaxDepth"] = numpy.array([2, 5, 10])
         
+        #CART TreeRankForest 
+        leafRankFolds = 3 
+        leafRankParamDict = {} 
+        leafRankParamDict["setMaxDepth"] = numpy.arange(1, 8)
+        leafRankLearner = DecisionTree(leafRankParamDict, leafRankFolds)  
+     
+        self.cartTreeRankForest = TreeRankForest(leafRankLearner)
+        self.cartTreeRankForest.processes = 1
+        self.cartTreeRankForest.setNumTrees(10)
+        self.cartTreeRankForestParams = {}
+        self.cartTreeRankForestParams["setMaxDepth"] = numpy.array([2, 5, 10])          
+    
+        #RBF SVM TreeRankForest 
+        leafRankFolds = 3 
+        leafRankParamDict = {} 
+        leafRankParamDict["setC"] = 2**numpy.arange(-5, 5, dtype=numpy.float)  
+        leafRankParamDict["setGamma"] =  2.0**numpy.arange(-5, 0, dtype=numpy.float)
+        leafRankLearner = SVMLeafRank(leafRankParamDict, leafRankFolds) 
+        leafRankLearner.setKernel("rbf")
+     
+        self.rbfSvmTreeRankForest = TreeRankForest(leafRankLearner)
+        self.rbfSvmTreeRankForest.processes = 1
+        self.rbfSvmTreeRankForest.setNumTrees(10)
+        self.rbfSvmTreeRankForestParams = {}
+        self.rbfSvmTreeRankForestParams["setMaxDepth"] = numpy.array([2, 5, 10])  
+    
         #RankBoost 
         self.rankBoost = RankBoost()
         self.rankBoostParams = {} 
@@ -86,11 +127,12 @@ class MetabolicsExpHelper(object):
             
             for i, (trainInds, testInds) in enumerate(idxFull): 
                 logging.debug("Outer fold: " + str(i))
+                
                 trainX, trainY = X[trainInds, :], Y[trainInds]
                 testX, testY = X[testInds, :], Y[testInds]
-                
                 idx = Sampling.crossValidation(self.innerFolds, trainX.shape[0])
                 bestLearner, cvGrid = learner.parallelModelSelect(trainX, trainY, idx, paramDict)
+
                 
                 bestLearner = learner.getBestLearner(cvGrid, paramDict, trainX, trainY, idx, best="max")
                 logging.debug("Best learner is " + str(bestLearner))
@@ -127,9 +169,21 @@ class MetabolicsExpHelper(object):
 
                     logging.debug("Shape of examples: " + str(X.shape) + ", number of +1: " + str(numpy.sum(Y==1)) + ", -1: " + str(numpy.sum(Y==-1)))
 
+                    if self.runCartTreeRank: 
+                        fileName = self.resultsDir + "CartTreeRank-" + hormoneName + "-" + str(i) + "-" + dataName + ".npy"
+                        self.saveResult(X, Y, self.cartTreeRank, self.cartTreeRankParams, fileName) 
+                        
                     if self.runRbfSvmTreeRank: 
                         fileName = self.resultsDir + "RbfSvmTreeRank-" + hormoneName + "-" + str(i) + "-" + dataName + ".npy"
                         self.saveResult(X, Y, self.rbfSvmTreeRank, self.rbfSvmTreeRankParams, fileName)    
+
+                    if self.runCartTreeRankForest: 
+                        fileName = self.resultsDir + "CartTreeRankForest-" + hormoneName + "-" + str(i) + "-" + dataName + ".npy"
+                        self.saveResult(X, Y, self.cartTreeRankForest, self.cartTreeRankForestParams, fileName) 
+                        
+                    if self.runRbfSvmTreeRankForest: 
+                        fileName = self.resultsDir + "RbfSvmTreeRankForest-" + hormoneName + "-" + str(i) + "-" + dataName + ".npy"
+                        self.saveResult(X, Y, self.rbfSvmTreeRankForest, self.rbfSvmTreeRankForestParams, fileName) 
 
                     if self.runRankBoost: 
                         fileName = self.resultsDir + "RankBoost-" + hormoneName + "-" + str(i) + "-" + dataName + ".npy"
@@ -139,7 +193,7 @@ class MetabolicsExpHelper(object):
                         fileName = self.resultsDir + "RankSVM-" + hormoneName + "-" + str(i) + "-" + dataName + ".npy"
                         self.saveResult(X, Y, self.rankSVM, self.rankSVMParams, fileName)
                         
-        logging.debug("All done, see you around!")
+        logging.debug("All done. See you around!")
                         
     def run(self):
         logging.debug('module name:' + __name__) 
