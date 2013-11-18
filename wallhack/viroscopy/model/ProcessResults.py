@@ -272,7 +272,7 @@ else:
         plotInd += 1
         """
         
-        print(meanMeasures[ind, :, timeInds])
+        #print(meanMeasures[ind, :, timeInds])
     
     #Print the table of thetas 
     thetas = numpy.array(thetas)
@@ -307,7 +307,7 @@ else:
     print(table)
     
     #Now print timings 
-    rowNames = range(numInds)
+    rowNames = [str(x) for x in range(numInds)]
     table = Latex.array2DToRows(numpy.mean(timings, 2), numpy.std(timings, 2), precision=1)
     table = Latex.addRowNames(rowNames, table)
     print(table)    
