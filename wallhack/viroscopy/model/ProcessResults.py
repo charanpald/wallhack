@@ -296,7 +296,7 @@ else:
     tableMeanArray = numpy.vstack(tableMeanArray).T
     tableStdArray = numpy.vstack(tableStdArray).T
     
-    rowNames = ["$|\\mathcal{R}|$.", "CT", "Rand", "$|\\mathcal{I}|$", "MC size", "Num comp.", "Edges"]
+    rowNames = ["$|\\mathcal{R}|$.", "CT", "Rand", "$|\\mathcal{I}|$", "LC size", "Num comp.", "Edges"]
     idealTable = Latex.array2DToRows(idealTable, precision=1)
     idealTable = Latex.addRowNames(rowNames, idealTable)
     print(idealTable)  
