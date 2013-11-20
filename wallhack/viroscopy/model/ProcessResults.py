@@ -18,7 +18,7 @@ assert False, "Must run with -O flag"
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.set_printoptions(suppress=True, precision=4, linewidth=150)
 
-processReal = True 
+processReal = False 
 saveResults = False 
 
 def loadParams(ind): 
@@ -126,6 +126,7 @@ else:
     plotStyles = ['k-', 'kx-', 'k+-', 'k.-', 'k*-']
     
     N, resultsDir, outputDir, recordStep, startDate, endDate, prefix, targetGraph, breakSize, numEpsilons, M, matchAlpha, matchAlg, numInds = loadParams(0) 
+
     inds = range(numInds)
     numRecordSteps = int((endDate-startDate)/recordStep)+1
     
@@ -278,7 +279,7 @@ else:
     thetas = numpy.array(thetas)
     meanThetas = numpy.mean(thetas, 1)
     stdThetas = numpy.std(thetas, 1)
-    table = Latex.array2DToRows(meanThetas.T, stdThetas.T, precision=3)
+    table = Latex.array2DToRows(meanThetas.T, stdThetas.T, precision=4)
     rowNames = ["$|\\mathcal{I}_0 |$", "$\\alpha$", "$\\gamma$", "$\\beta$", "$\\lambda$",  "$\\sigma$"]
     table = Latex.addRowNames(rowNames, table)
     print(table)    
@@ -296,7 +297,7 @@ else:
     tableMeanArray = numpy.vstack(tableMeanArray).T
     tableStdArray = numpy.vstack(tableStdArray).T
     
-    rowNames = ["$|\\mathcal{R}|$.", "CT", "Rand", "$|\\mathcal{I}|$", "LC size", "Num comp.", "Edges"]
+    rowNames = ["$|\\mathcal{R}|$.", "CT", "RD", "$|\\mathcal{I}|$", "LC", "NC", "$|E|$"]
     idealTable = Latex.array2DToRows(idealTable, precision=1)
     idealTable = Latex.addRowNames(rowNames, idealTable)
     print(idealTable)  
