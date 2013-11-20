@@ -5,7 +5,7 @@ from apgl.util.Parameter import Parameter
 from sandbox.misc.GraphMatch import GraphMatch 
 
 class HIVGraphMetrics2(object): 
-    def __init__(self, realGraph, maxSize=100, matcher=None, T=1000):
+    def __init__(self, realGraph, maxSize=100, matcher=None, startTime=None):
         """
         A class to model metrics about and between HIVGraphs such as summary 
         statistics and distances. In this case we perform graph matching 
@@ -17,7 +17,7 @@ class HIVGraphMetrics2(object):
         
         :param matcher: The graph matcher object to compute graph objective. 
         
-        :param T: The end time of the simulation. If the simulation quits before T, then objective = 1.
+        :param startTime: The start time of the simulation, used for cutting the initial graph.  
     
         """
         
@@ -26,9 +26,10 @@ class HIVGraphMetrics2(object):
         self.graphSizes = []
         self.labelObjs = []
         self.times = []
+        
         self.realGraph = realGraph
         self.maxSize = maxSize
-        self.T = T 
+        self.startTime = startTime 
         self.computationalTimes = []
         
         if matcher == None: 
@@ -46,10 +47,13 @@ class HIVGraphMetrics2(object):
         subRealGraph = self.realGraph.subgraph(self.realGraph.removedIndsAt(t))  
         self.graphSizes.append(subgraph.size)
         
+        #Remove the initial graph 
+        initialSubgraph = graph.subgraph(graph.removedIndsAt(self.startTime)) 
+        
         #Only add objective if the real graph has nonzero size
-        if subRealGraph.size != 0 and subgraph.size <= self.maxSize: 
+        if self.startTime == None and subRealGraph.size != 0 and subgraph.size <= self.maxSize: 
             permutation, distance, time = self.matcher.match(subgraph, subRealGraph)
-            lastObj, lastGraphObj, lastLabelObj = self.matcher.distance(subgraph, subRealGraph, permutation, True, False, True) 
+            lastObj, lastGraphObj, lastLabelObj = self.matcher.distance(subgraph, subRealGraph, permutation, True, False, True)
      
             self.computationalTimes.append(time)
             self.objectives.append(lastObj)
