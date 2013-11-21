@@ -74,7 +74,7 @@ def createModel(t, matchAlg):
     featureInds[HIVVertices.stateIndex] = False
     featureInds = numpy.arange(featureInds.shape[0])[featureInds]
     matcher = GraphMatch(matchAlg, alpha=matchAlpha, featureInds=featureInds, useWeightM=False)
-    graphMetrics = HIVGraphMetrics2(targetGraph, breakSize, matcher, float(endDate))
+    graphMetrics = HIVGraphMetrics2(targetGraph, breakSize, matcher, startDate)
     
     rates = HIVRates(graph, hiddenDegSeq)
     model = HIVEpidemicModel(graph, rates, T=float(endDate), T0=float(startDate), metrics=graphMetrics)

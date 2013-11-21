@@ -17,8 +17,7 @@ class HIVGraphMetrics2(object):
         
         :param matcher: The graph matcher object to compute graph objective. 
         
-        :param startTime: The start time of the simulation, used for cutting the initial graph.  
-    
+        :param startTime: A start time of the simulation 
         """
         
         self.objectives = [] 
@@ -37,23 +36,26 @@ class HIVGraphMetrics2(object):
         else: 
             self.matcher = matcher 
         
-    def addGraph(self, graph): 
+    def addGraph(self, simulatedGraph): 
         """
         Compute the objective between this graph and the realGraph at the time 
         of the last event of this one. 
         """
-        t = graph.endTime()
-        subgraph = graph.subgraph(graph.removedIndsAt(t))  
-        subRealGraph = self.realGraph.subgraph(self.realGraph.removedIndsAt(t))  
+        t = simulatedGraph.endTime()
+        #Only select vertices added after startTime and before t 
+        inds = numpy.setdiff1d(simulatedGraph.removedIndsAt(t), simulatedGraph.removedIndsAt(self.startTime))
+        subgraph = simulatedGraph.subgraph(inds)  
+        
+        inds = numpy.setdiff1d(self.realGraph.removedIndsAt(t), self.realGraph.removedIndsAt(self.startTime))
+        subTargetGraph = self.realGraph.subgraph(inds)  
+        
+        logging.debug("Simulated size " + str(subgraph.size) + " and real size " + str(subTargetGraph.size))
         self.graphSizes.append(subgraph.size)
-        
-        #Remove the initial graph 
-        initialSubgraph = graph.subgraph(graph.removedIndsAt(self.startTime)) 
-        
+            
         #Only add objective if the real graph has nonzero size
-        if self.startTime == None and subRealGraph.size != 0 and subgraph.size <= self.maxSize: 
-            permutation, distance, time = self.matcher.match(subgraph, subRealGraph)
-            lastObj, lastGraphObj, lastLabelObj = self.matcher.distance(subgraph, subRealGraph, permutation, True, False, True)
+        if subTargetGraph.size != 0 and subgraph.size <= self.maxSize: 
+            permutation, distance, time = self.matcher.match(subgraph, subTargetGraph)
+            lastObj, lastGraphObj, lastLabelObj = self.matcher.distance(subgraph, subTargetGraph, permutation, True, False, True)
      
             self.computationalTimes.append(time)
             self.objectives.append(lastObj)
@@ -61,7 +63,7 @@ class HIVGraphMetrics2(object):
             self.labelObjs.append(lastLabelObj)
             self.times.append(t) 
         else: 
-            logging.debug("Not adding objective at time " + str(t) + " with simulated size " + str(subgraph.size) + " and real size " + str(subRealGraph.size))
+            logging.debug("Not adding objective at time " + str(t) + " with simulated size " + str(subgraph.size) + " and real size " + str(subTargetGraph.size))
             
     def meanObjective(self):
         """
