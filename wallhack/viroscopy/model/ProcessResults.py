@@ -64,7 +64,7 @@ def saveStats(args):
         logging.debug("Created graph: " + str(graph))    
         
         matcher = GraphMatch(matchAlg, alpha=matchAlpha, featureInds=featureInds, useWeightM=False)
-        graphMetrics = HIVGraphMetrics2(targetGraph, breakSize, matcher, float(endDate))     
+        graphMetrics = HIVGraphMetrics2(targetGraph, breakSize, matcher, float(startDate))     
         times, infectedIndices, removedIndices, graph, compTimes = HIVModelUtils.simulate(thetaArray[i], graph, startDate, endDate, recordStep, graphMetrics)
         times = numpy.arange(startDate, endDate+1, recordStep)
         vertexArray, infectedIndices, removedIndices, contactGraphStats, removedGraphStats = HIVModelUtils.generateStatistics(graph, times)
