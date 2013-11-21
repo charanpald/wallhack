@@ -50,7 +50,7 @@ zeroVal = 0.9
 logging.debug("="*10 + "Starting new simulation batch with index " + str(i) + "="*10) 
 logging.debug("Total time of simulation is " + str(endDate-startDate))    
 
-breakSize = targetGraph.subgraph(targetGraph.removedIndsAt(endDate)).size * breakScale
+breakSize = (targetGraph.subgraph(targetGraph.removedIndsAt(endDate)).size - targetGraph.subgraph(targetGraph.removedIndsAt(startDate)).size)  * breakScale
 logging.debug("Largest acceptable graph is " + str(breakSize))
 
 def createModel(t, matchAlg):

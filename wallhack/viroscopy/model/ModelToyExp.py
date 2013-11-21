@@ -42,7 +42,7 @@ alpha = 2
 zeroVal = 0.9
 epsilonArray = numpy.ones(numEpsilons)*epsilon   
 
-breakSize = targetGraph.subgraph(targetGraph.removedIndsAt(endDate)).size * breakScale
+breakSize = (targetGraph.subgraph(targetGraph.removedIndsAt(endDate)).size - targetGraph.subgraph(targetGraph.removedIndsAt(startDate)).size)  * breakScale
 logging.debug("Largest acceptable graph is " + str(breakSize))
 
 def createModel(t):
