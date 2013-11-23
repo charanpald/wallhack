@@ -87,7 +87,7 @@ class HIVModelUtils(object):
         endDate = endDates[ind]
         recordStep = (endDate-startDate)/float(numRecordSteps)        
         
-        return startDate, endDate, recordStep, M, targetGraph
+        return startDate, endDate, recordStep, M, targetGraph, len(startDates)
     
     @staticmethod
     def realABCParams(i, test=False):

@@ -38,7 +38,7 @@ numpy.set_printoptions(suppress=True, precision=4, linewidth=150)
 numpy.seterr(invalid='raise')
 
 resultsDir = PathDefaults.getOutputDir() + "viroscopy/real/" 
-startDate, endDate, recordStep, M, targetGraph = HIVModelUtils.realSimulationParams(ind=i)
+startDate, endDate, recordStep, M, targetGraph, numInds = HIVModelUtils.realSimulationParams(ind=i)
 N, matchAlpha, breakScale, numEpsilons, epsilon, minEpsilon, matchAlg, abcMaxRuns, batchSize = HIVModelUtils.realABCParams(i)
 
 logging.debug("Posterior sample size " + str(N))

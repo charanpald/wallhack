@@ -18,7 +18,7 @@ assert False, "Must run with -O flag"
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.set_printoptions(suppress=True, precision=4, linewidth=150)
 
-processReal = False 
+processReal = True 
 saveResults = False 
 
 def loadParams(ind): 
@@ -27,10 +27,9 @@ def loadParams(ind):
         outputDir = resultsDir + "stats/"
         
         N, matchAlpha, breakScale, numEpsilons, epsilon, minEpsilon, matchAlg, abcMaxRuns, batchSize = HIVModelUtils.realABCParams(True)
-        startDate, endDate, recordStep, M, targetGraph = HIVModelUtils.realSimulationParams(test=True, ind=ind)
+        startDate, endDate, recordStep, M, targetGraph, numInds = HIVModelUtils.realSimulationParams(test=True, ind=ind)
         realTheta, sigmaTheta, pertTheta = HIVModelUtils.estimatedRealTheta(ind)
         prefix = "Real"
-        numInds = 4
     else: 
         resultsDir = PathDefaults.getOutputDir() + "viroscopy/toy/theta/"
         outputDir = resultsDir + "stats/"        
@@ -41,7 +40,7 @@ def loadParams(ind):
         prefix = "Toy"
         numInds = 1
 
-    breakSize = targetGraph.subgraph(targetGraph.removedIndsAt(endDate)).size * breakScale        
+    breakSize = (targetGraph.subgraph(targetGraph.removedIndsAt(endDate)).size - targetGraph.subgraph(targetGraph.removedIndsAt(startDate)).size)  * breakScale       
         
     return N, resultsDir, outputDir, recordStep, startDate, endDate, prefix, targetGraph, breakSize, numEpsilons, M, matchAlpha, matchAlg, numInds
 
