@@ -73,10 +73,10 @@ class HIVModelUtils(object):
         M = targetGraph.size * 5
         #This needs to be from 1986 to 2004 
         #startDates = [CsvConverters.dateConv("01/01/1988"), CsvConverters.dateConv("01/01/1990")]
-        startDates = [CsvConverters.dateConv("01/01/1986"), CsvConverters.dateConv("01/01/1988"), CsvConverters.dateConv("01/01/1990"), CsvConverters.dateConv("01/01/1992"), CsvConverters.dateConv("01/01/1994")]
+        startDates = [CsvConverters.dateConv("01/01/1986"), CsvConverters.dateConv("01/01/1988"), CsvConverters.dateConv("01/01/1990"), CsvConverters.dateConv("01/01/1992"), CsvConverters.dateConv("01/01/1994"), CsvConverters.dateConv("01/01/1996"), CsvConverters.dateConv("01/01/1998")]
         endDates = [float(i) for i in startDates]
         #endDates = [CsvConverters.dateConv("01/01/1991"), CsvConverters.dateConv("01/01/1993")]
-        endDates = [CsvConverters.dateConv("01/01/1989"), CsvConverters.dateConv("01/01/1991"), CsvConverters.dateConv("01/01/1993"), CsvConverters.dateConv("01/01/1995"), CsvConverters.dateConv("01/01/1997")]
+        endDates = [CsvConverters.dateConv("01/01/1989"), CsvConverters.dateConv("01/01/1991"), CsvConverters.dateConv("01/01/1993"), CsvConverters.dateConv("01/01/1995"), CsvConverters.dateConv("01/01/1997"), CsvConverters.dateConv("01/01/1999"), CsvConverters.dateConv("01/01/2001")]
         endDates = numpy.array([float(i) for i in endDates])
         
         if test:
@@ -99,7 +99,7 @@ class HIVModelUtils(object):
             breakScale = 1.5 
         numEpsilons = 15
         epsilon = 0.8
-        minEpsilon = 0.2
+        minEpsilon = 0.4
         #if i != 2: 
         #    matchAlg = "QCV"  
         #else: 
