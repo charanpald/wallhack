@@ -96,7 +96,7 @@ class HIVModelUtils(object):
         if test: 
             breakScale = 5.0 
         else: 
-            breakScale = 1.5 
+            breakScale = 1.2 
         numEpsilons = 15
         epsilon = 0.8
         minEpsilon = 0.4
