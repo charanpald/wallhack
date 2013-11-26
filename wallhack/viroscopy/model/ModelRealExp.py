@@ -101,6 +101,7 @@ if not os.path.exists(thetaDir):
     os.mkdir(thetaDir)
 
 #First get a quick estimate using Umeyama matching 
+"""
 numUEpsilons = 5
 epsilonArray = numpy.ones(numUEpsilons)*epsilon    
 abcSMC = ABCSMC(epsilonArray, createModelU, abcParams, thetaDir, True, minEpsilon=minEpsilon)
@@ -109,6 +110,7 @@ abcSMC.setNumProcesses(numProcesses)
 abcSMC.batchSize = batchSize
 abcSMC.maxRuns = abcMaxRuns
 thetasArray = abcSMC.run()
+"""
 
 #Now get something more precise 
 epsilonArray = numpy.ones(numEpsilons)*epsilon    
