@@ -112,7 +112,7 @@ thetasArray = abcSMC.run()
 
 #Now get something more precise 
 epsilonArray = numpy.ones(numEpsilons)*epsilon    
-abcSMC = ABCSMC(epsilonArray, createModelQCV, abcParams, thetaDir, True, minEpsilon=minEpsilon)
+abcSMC = ABCSMC(epsilonArray, createModelQCV, abcParams, thetaDir, True, minEpsilon=minEpsilon, thetaUniformChoice=True)
 abcSMC.setPosteriorSampleSize(N)
 abcSMC.setNumProcesses(numProcesses)
 abcSMC.batchSize = batchSize
