@@ -87,7 +87,7 @@ if saveResults:
         
         t = 0
         for i in range(numEpsilons): 
-            thetaArray, distArray = loadThetaArray(N, resultsDir, i)
+            thetaArray, objArray = loadThetaArray(N, resultsDir, i)
             if thetaArray.shape[0] == N: 
                 t = i   
             
@@ -129,8 +129,8 @@ else:
     inds = range(numInds)
     numRecordSteps = int((endDate-startDate)/recordStep)+1
     
-    #We store: number of detections, CT detections, rand detections, infectives, max componnent size, num components, edges
-    numMeasures = 7 
+    #We store: number of detections, CT detections, rand detections, infectives, max componnent size, num components, edges, distances
+    numMeasures = 8 
     numTimes = 2
     thetas = []
     measures = numpy.zeros((len(inds), numMeasures, N, numRecordSteps))
@@ -149,14 +149,14 @@ else:
         #Find the max number t for which we have a complete set of particles 
         t = 0
         for i in range(numEpsilons): 
-            thetaArray, distArray = loadThetaArray(N, resultsDir, i)
+            thetaArray, objArray = loadThetaArray(N, resultsDir, i)
             if thetaArray.shape[0] == N: 
                 t = i
         logging.debug("Using particle number " + str(t))        
         
         times = numpy.arange(startDate, endDate+1, recordStep) 
         realTheta, sigmaTheta, purtTheta = HIVModelUtils.toyTheta()
-        thetaArray, distArray = loadThetaArray(N, resultsDir, t)
+        thetaArray, objArray = loadThetaArray(N, resultsDir, t)
         thetas.append(thetaArray)
         print(thetaArray) 
         
@@ -186,6 +186,7 @@ else:
             measures[ind, 4, i, :] = removedGraphStats[:, graphStats.numComponentsIndex]
             measures[ind, 5, i, :] = removedGraphStats[:, graphStats.maxComponentSizeIndex]
             measures[ind, 6, i, :] = removedGraphStats[:, graphStats.numEdgesIndex]
+            measures[ind, 7, i, 1:] = objs
             
             #objectives[inds, i, :] = objs 
             timings[ind, :, i] = compTimes
@@ -262,15 +263,13 @@ else:
         plt.plot(times, idealMeasures[ind, 6, :], "r")
         plotInd += 1
         
-        """
-        meanDists = numpy.array(distsArr).mean(0)
-        stdDists = numpy.array(distsArr).std(0)
+        #Objectives 
         plt.figure(plotInd)
-        plt.errorbar(times[1:], meanDists, yerr=stdDists) 
+        plt.errorbar(times[1:], meanMeasures[ind, 7, 1:], yerr=stdMeasures[ind, 7, 1:]) 
         plt.xlabel("time (days)")
-        plt.ylabel("distances")
+        plt.ylabel("objectives")
         plotInd += 1
-        """
+        
         
         #print(meanMeasures[ind, :, timeInds])
     
@@ -296,7 +295,7 @@ else:
     tableMeanArray = numpy.vstack(tableMeanArray).T
     tableStdArray = numpy.vstack(tableStdArray).T
     
-    rowNames = ["$|\\mathcal{R}|$.", "CT", "RD", "$|\\mathcal{I}|$", "LC", "NC", "$|E|$"]
+    rowNames = ["$|\\mathcal{R}|$.", "CT", "RD", "$|\\mathcal{I}|$", "LC", "NC", "$|E|$", "objs"]
     idealTable = Latex.array2DToRows(idealTable, precision=1)
     idealTable = Latex.addRowNames(rowNames, idealTable)
     print(idealTable)  
