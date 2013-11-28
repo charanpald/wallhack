@@ -119,7 +119,7 @@ abcSMC.setPosteriorSampleSize(N)
 abcSMC.setNumProcesses(numProcesses)
 abcSMC.batchSize = batchSize
 abcSMC.maxRuns = abcMaxRuns
-abcSMC.pertScale = 2
+abcSMC.pertScale = 5
 thetasArray = abcSMC.run()
 
 meanTheta = numpy.mean(thetasArray, 0)
