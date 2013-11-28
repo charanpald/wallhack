@@ -91,7 +91,7 @@ class HIVModelUtils(object):
     
     @staticmethod
     def realABCParams(i, test=False):
-        N = 30 
+        N = 20 
         matchAlpha = 0.2 
         if test: 
             breakScale = 5.0 
