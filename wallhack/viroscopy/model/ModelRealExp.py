@@ -39,7 +39,7 @@ numpy.seterr(invalid='raise')
 
 resultsDir = PathDefaults.getOutputDir() + "viroscopy/real/" 
 startDate, endDate, recordStep, M, targetGraph, numInds = HIVModelUtils.realSimulationParams(ind=i)
-N, matchAlpha, breakScale, numEpsilons, epsilon, minEpsilon, matchAlg, abcMaxRuns, batchSize = HIVModelUtils.realABCParams(i)
+N, matchAlpha, breakScale, numEpsilons, epsilon, minEpsilon, matchAlg, abcMaxRuns, batchSize, pertScale = HIVModelUtils.realABCParams(i)
 
 logging.debug("Posterior sample size " + str(N))
 logging.debug("Matching algorithm " + str(matchAlg))
@@ -119,7 +119,7 @@ abcSMC.setPosteriorSampleSize(N)
 abcSMC.setNumProcesses(numProcesses)
 abcSMC.batchSize = batchSize
 abcSMC.maxRuns = abcMaxRuns
-abcSMC.pertScale = 5
+abcSMC.pertScale = pertScale
 thetasArray = abcSMC.run()
 
 meanTheta = numpy.mean(thetasArray, 0)

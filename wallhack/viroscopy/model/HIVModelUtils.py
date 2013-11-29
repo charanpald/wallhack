@@ -107,8 +107,9 @@ class HIVModelUtils(object):
         matchAlg = "QCV"
         abcMaxRuns = 1000
         batchSize = 50
+        pertScale = 5
         
-        return N, matchAlpha, breakScale, numEpsilons, epsilon, minEpsilon, matchAlg, abcMaxRuns, batchSize  
+        return N, matchAlpha, breakScale, numEpsilons, epsilon, minEpsilon, matchAlg, abcMaxRuns, batchSize, pertScale 
 
     @staticmethod
     def toyABCParams():
@@ -121,8 +122,9 @@ class HIVModelUtils(object):
         matchAlg = "QCV"   
         abcMaxRuns = 10000
         batchSize = 50
+        pertScale = 5
         
-        return N, matchAlpha, breakScale, numEpsilons, epsilon, minEpsilon, matchAlg, abcMaxRuns, batchSize  
+        return N, matchAlpha, breakScale, numEpsilons, epsilon, minEpsilon, matchAlg, abcMaxRuns, batchSize, pertScale
    
     @staticmethod     
     def simulate(theta, graph, startDate, endDate, recordStep, graphMetrics=None): 
