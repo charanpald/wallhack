@@ -75,7 +75,7 @@ class HIVGraphMetrics2(object):
         objectives = numpy.array(self.objectives)       
         
         if objectives.shape[0]!=0: 
-            weights = self.alpha * (1 - self.alpha)**numpy.arange(objectives.shape[0], 0, -1)-1
+            weights = self.alpha * (1 - self.alpha)**(numpy.arange(objectives.shape[0], 0, -1)-1)
             logging.debug("weights="+str(weights))
             return numpy.average(objectives, weights=weights)
         else: 
