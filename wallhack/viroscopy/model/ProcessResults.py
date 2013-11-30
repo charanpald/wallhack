@@ -18,7 +18,7 @@ assert False, "Must run with -O flag"
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.set_printoptions(suppress=True, precision=4, linewidth=150)
 
-processReal = False 
+processReal = True 
 saveResults = False 
 
 def loadParams(ind): 
@@ -29,7 +29,6 @@ def loadParams(ind):
         N, matchAlpha, breakScale, numEpsilons, epsilon, minEpsilon, matchAlg, abcMaxRuns, batchSize, pertScale = HIVModelUtils.realABCParams(True)
         startDate, endDate, recordStep, M, targetGraph, numInds = HIVModelUtils.realSimulationParams(test=True, ind=ind)
         realTheta, sigmaTheta, pertTheta = HIVModelUtils.estimatedRealTheta(ind)
-        numInds = 3
         prefix = "Real"
     else: 
         resultsDir = PathDefaults.getOutputDir() + "viroscopy/toy/theta/"
@@ -226,6 +225,7 @@ else:
         
         #Contact tracing rand random detections 
         plt.figure(plotInd)
+        
         plt.errorbar(times, meanMeasures[ind, 1, :], yerr=stdMeasures[ind, 1, :], label="est. CT detections") 
         plt.plot(times, idealMeasures[ind, 1, :], "r", label="CT detections")
     
@@ -297,12 +297,12 @@ else:
     tableStdArray = numpy.vstack(tableStdArray).T
     
     rowNames = ["$|\\mathcal{R}|$.", "CT", "RD", "$|\\mathcal{I}|$", "LC", "NC", "$|E|$", "objs"]
-    idealTable = Latex.array2DToRows(idealTable, precision=1)
+    idealTable = Latex.array2DToRows(idealTable, precision=0)
     idealTable = Latex.addRowNames(rowNames, idealTable)
     print(idealTable)  
     
     rowNames = [x + " est." for x in rowNames]
-    table = Latex.array2DToRows(tableMeanArray, tableStdArray, precision=1)
+    table = Latex.array2DToRows(tableMeanArray, tableStdArray, precision=0)
     table = Latex.addRowNames(rowNames, table)
     print(table)
     
