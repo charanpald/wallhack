@@ -100,10 +100,6 @@ class HIVModelUtils(object):
         numEpsilons = 15
         epsilon = 0.8
         minEpsilon = 0.4
-        #if i != 2: 
-        #    matchAlg = "QCV"  
-        #else: 
-        #    matchAlg = "U"
         matchAlg = "QCV"
         abcMaxRuns = 1000
         batchSize = 50
@@ -118,9 +114,9 @@ class HIVModelUtils(object):
         breakScale = 1.2 
         numEpsilons = 15
         epsilon = 0.8
-        minEpsilon = 0.2
+        minEpsilon = 0.25
         matchAlg = "QCV"   
-        abcMaxRuns = 10000
+        abcMaxRuns = 50000
         batchSize = 50
         pertScale = 5
         
