@@ -5,7 +5,7 @@ from apgl.util.Parameter import Parameter
 from sandbox.misc.GraphMatch import GraphMatch 
 
 class HIVGraphMetrics2(object): 
-    def __init__(self, realGraph, maxSize=100, matcher=None, startTime=None):
+    def __init__(self, realGraph, maxSize=100, matcher=None, startTime=None, alpha=0.5):
         """
         A class to model metrics about and between HIVGraphs such as summary 
         statistics and distances. In this case we perform graph matching 
@@ -18,6 +18,8 @@ class HIVGraphMetrics2(object):
         :param matcher: The graph matcher object to compute graph objective. 
         
         :param startTime: A start time of the simulation 
+        
+        :param alpha: This is the weight factor for the average. Weights decay faster with a larger alpha. 
         """
         
         self.objectives = [] 
@@ -30,6 +32,7 @@ class HIVGraphMetrics2(object):
         self.maxSize = maxSize
         self.startTime = startTime 
         self.computationalTimes = []
+        self.alpha = alpha         
         
         if matcher == None: 
             self.matcher = GraphMatch("QCV")
@@ -72,7 +75,8 @@ class HIVGraphMetrics2(object):
         objectives = numpy.array(self.objectives)       
         
         if objectives.shape[0]!=0: 
-            weights = numpy.arange(1, objectives.shape[0]+1)
+            weights = self.alpha * (1 - self.alpha)**numpy.arange(objectives.shape[0], 0, -1)-1
+            logging.debug("weights="+str(weights))
             return numpy.average(objectives, weights=weights)
         else: 
             return float("inf")
