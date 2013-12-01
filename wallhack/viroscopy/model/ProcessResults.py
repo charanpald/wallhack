@@ -139,7 +139,7 @@ else:
     timings = numpy.zeros((len(inds), numTimes, N)) 
 
     plotInd = 0 
-    timeInds = [4, 6]
+    timeInds = [5, 6]
     
     for ind in inds: 
         logging.debug("ind=" + str(ind))
