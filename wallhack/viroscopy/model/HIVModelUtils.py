@@ -99,7 +99,7 @@ class HIVModelUtils(object):
             breakScale = 1.2 
         numEpsilons = 15
         epsilon = 0.8
-        minEpsilon = 0.3
+        minEpsilon = 0.35
         matchAlg = "QCV"
         abcMaxRuns = 1000
         batchSize = 50
