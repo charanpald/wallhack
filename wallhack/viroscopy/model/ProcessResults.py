@@ -18,7 +18,7 @@ assert False, "Must run with -O flag"
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.set_printoptions(suppress=True, precision=4, linewidth=150)
 
-processReal = True 
+processReal = False 
 saveResults = False 
 
 def loadParams(ind): 
@@ -139,7 +139,10 @@ else:
     timings = numpy.zeros((len(inds), numTimes, N)) 
 
     plotInd = 0 
-    timeInds = [5, 6]
+    if processReal: 
+        timeInds = [5, 6]
+    else: 
+        timeInds = [10, 11, 12, 13]    
     
     for ind in inds: 
         logging.debug("ind=" + str(ind))
