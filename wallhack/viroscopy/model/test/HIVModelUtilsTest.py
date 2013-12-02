@@ -22,6 +22,7 @@ class HIVModelUtilsTest(unittest.TestCase):
         theta, sigmaTheta, pertTheta = HIVModelUtils.toyTheta() 
         
         model = HIVModelUtils.createModel(theta, targetGraph, startDate, endDate, recordStep, M, matchAlpha, breakSize, matchAlg)
+        model.setParams(theta)
         times, infectedIndices, removedIndices, graph, compTimes, graphMetrics = HIVModelUtils.simulate(model)
         
         numEdges = graph.getNumEdges()
@@ -29,6 +30,7 @@ class HIVModelUtilsTest(unittest.TestCase):
         
         #Simulate again 
         model = HIVModelUtils.createModel(theta, targetGraph, startDate, endDate, recordStep, M, matchAlpha, breakSize, matchAlg)
+        model.setParams(theta)
         times, infectedIndices, removedIndices, graph, compTimes, graphMetrics = HIVModelUtils.simulate(model)
         
         numEdges2 = graph.getNumEdges()
