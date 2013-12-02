@@ -162,7 +162,7 @@ class HIVModelUtils(object):
         graphMetrics = model.metrics 
         
         graphMatchTime = numpy.sum(graphMetrics.computationalTimes)
-        logging.debug("Weighted objective " + str(graphMetrics.meanObjective(numpy.array(graphMetrics.objectives[0:-1]))))
+        logging.debug("Weighted objective " + str(graphMetrics.meanObjective(numpy.array(graphMetrics.objectives[0:-2]))))
         
         return times, infectedIndices, removedIndices, graph, [simulationTime, graphMatchTime], graphMetrics
         
