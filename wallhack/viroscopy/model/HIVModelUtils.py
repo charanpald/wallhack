@@ -111,7 +111,7 @@ class HIVModelUtils(object):
 
     @staticmethod
     def toyABCParams():
-        N = 10 
+        N = 1 
         matchAlpha = 0.2 
         breakScale = 1.2 
         numEpsilons = 2
