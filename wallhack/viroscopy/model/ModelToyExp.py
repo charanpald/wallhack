@@ -51,6 +51,7 @@ def createModel(t):
     """
     undirected = True
     graph = HIVGraph(M, undirected)
+    numpy.random.seed(21)
     p = Util.powerLawProbs(alpha, zeroVal)
     hiddenDegSeq = Util.randomChoice(p, graph.getNumVertices())
     

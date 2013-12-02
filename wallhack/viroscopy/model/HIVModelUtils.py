@@ -97,7 +97,7 @@ class HIVModelUtils(object):
             breakScale = 5.0 
         else: 
             breakScale = 1.2 
-        numEpsilons = 15
+        numEpsilons = 10
         epsilon = 0.8
         minEpsilon = 0.35
         matchAlg = "QCV"
@@ -127,6 +127,7 @@ class HIVModelUtils(object):
         alpha = 2
         zeroVal = 0.9
         p = Util.powerLawProbs(alpha, zeroVal)
+        numpy.random.seed(21)
         hiddenDegSeq = Util.randomChoice(p, graph.getNumVertices())
     
         rates = HIVRates(graph, hiddenDegSeq)

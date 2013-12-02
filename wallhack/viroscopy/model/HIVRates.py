@@ -8,11 +8,12 @@ from random import choice
 Model the contact rate of an infected individual and other susceptibles.
 """
 class HIVRates():
-    def __init__(self, graph, hiddenDegSeq):
+    def __init__(self, graph, hiddenDegSeq, seed=21):
         """
         Graph is the initial HIV graph and hiddenDegSeq is the initial degree
         sequence. 
         """
+        numpy.random.seed(21)
         #Trade off between choosing new contact from known degrees and random is q-p for real degree 
         #against p for the hidden degree
         self.p = 1

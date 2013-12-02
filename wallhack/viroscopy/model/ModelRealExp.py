@@ -65,6 +65,7 @@ def createModel(t, matchAlg):
     graph.addVertices(M-graph.size)
     
     p = Util.powerLawProbs(alpha, zeroVal)
+    numpy.random.seed(21)
     hiddenDegSeq = Util.randomChoice(p, graph.getNumVertices())
     
     featureInds = numpy.ones(graph.vlist.getNumFeatures(), numpy.bool)

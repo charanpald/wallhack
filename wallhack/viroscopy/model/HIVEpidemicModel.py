@@ -1,3 +1,4 @@
+
 import logging
 import numpy
 from apgl.graph import *
@@ -72,7 +73,7 @@ class HIVEpidemicModel():
         self.rates.setContactRate(theta[4])
         self.rates.setInfectProb(theta[5])
         
-    def simulate(self, verboseOut=False):
+    def simulate(self, verboseOut=False, seed=21):
         """
         Simulate epidemic propogation until there are no more infectives or
         time T is reached. 
@@ -80,6 +81,7 @@ class HIVEpidemicModel():
         if self.graph.getNumEdges()!=0:
             logging.warn("Starting with a non-empty graph and " + str(self.graph.getNumEdges()) + " edges")
 
+        numpy.random.seed(seed)
         susceptibleSet = self.graph.getSusceptibleSet()
         infectedSet = self.graph.getInfectedSet()
         removedSet = self.graph.getRemovedSet()
