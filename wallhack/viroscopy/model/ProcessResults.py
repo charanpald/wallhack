@@ -18,8 +18,8 @@ assert False, "Must run with -O flag"
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.set_printoptions(suppress=True, precision=4, linewidth=150)
 
-processReal = False 
-saveResults = False 
+processReal = True 
+saveResults = True 
 
 def loadParams(ind): 
     if processReal: 
@@ -129,18 +129,33 @@ else:
     inds = range(numInds)
     numRecordSteps = int((endDate-startDate)/recordStep)+1
     
-    #We store: number of detections, CT detections, rand detections, infectives, max componnent size, num components, edges, distances
-    numMeasures = 8 
+    #We store: number of detections, CT detections, rand detections, infectives, max componnent size, num components, edges, objectives
+    numMeasures = 12
     numTimes = 2
     thetas = []
     measures = numpy.zeros((len(inds), numMeasures, N, numRecordSteps))
-    objectives = numpy.zeros((len(inds), numRecordSteps, N)) 
     idealMeasures = numpy.zeros((len(inds), numMeasures, numRecordSteps))
     timings = numpy.zeros((len(inds), numTimes, N)) 
+    
+    #Note all the inds 
+    numDetectsInd = 0 
+    maleInd = 1 
+    femaleInd = 2 
+    heteroInd = 3 
+    biInd = 4 
+    randDetectInd = 5 
+    contactDetectInd = 6 
+    infectedInd = 7
+    numCompsInd = 8 
+    maxCompSizeInd = 9 
+    numEdgesInd = 10
+    objsInd = 11
+    
+    
 
     plotInd = 0 
     if processReal: 
-        timeInds = [5, 6]
+        timeInds = [0, 5, 6]
     else: 
         timeInds = [10, 11, 12, 13]    
     
@@ -168,12 +183,16 @@ else:
         vertexArrayIdeal, idealInfectedIndices, idealRemovedIndices, idealContactGraphStats, idealRemovedGraphStats = stats 
        
         graphStats = GraphStatistics()
-        idealMeasures[ind, 0, :] = vertexArrayIdeal[:, 0]
-        idealMeasures[ind, 1, :] = vertexArrayIdeal[:, 5]
-        idealMeasures[ind, 2, :] = vertexArrayIdeal[:, 6]
-        idealMeasures[ind, 4, :] = idealRemovedGraphStats[:, graphStats.numComponentsIndex]
-        idealMeasures[ind, 5, :] = idealRemovedGraphStats[:, graphStats.maxComponentSizeIndex]
-        idealMeasures[ind, 6, :] = idealRemovedGraphStats[:, graphStats.numEdgesIndex]
+        idealMeasures[ind, numDetectsInd, :] = vertexArrayIdeal[:, numDetectsInd]
+        idealMeasures[ind, maleInd, :] = vertexArrayIdeal[:, maleInd]
+        idealMeasures[ind, femaleInd, :] = vertexArrayIdeal[:, femaleInd]
+        idealMeasures[ind, heteroInd, :] = vertexArrayIdeal[:, heteroInd]
+        idealMeasures[ind, biInd, :] = vertexArrayIdeal[:, biInd]
+        idealMeasures[ind, randDetectInd, :] = vertexArrayIdeal[:, randDetectInd]
+        idealMeasures[ind, contactDetectInd, :] = vertexArrayIdeal[:, contactDetectInd]
+        idealMeasures[ind, numCompsInd, :] = idealRemovedGraphStats[:, graphStats.numComponentsIndex]
+        idealMeasures[ind, maxCompSizeInd, :] = idealRemovedGraphStats[:, graphStats.maxComponentSizeIndex]
+        idealMeasures[ind, numEdgesInd, :] = idealRemovedGraphStats[:, graphStats.numEdgesIndex]
           
         
         for i in range(thetaArray.shape[0]): 
@@ -182,14 +201,18 @@ else:
             
             times, vertexArray, infectedIndices, removedGraphStats, objs, graphDists, labelDists, compTimes = stats 
     
-            measures[ind, 0, i, :] = vertexArray[:, 0]
-            measures[ind, 1, i, :] = vertexArray[:, 5]
-            measures[ind, 2, i, :] = vertexArray[:, 6]
-            measures[ind, 3, i, :] = numpy.array([len(x) for x in infectedIndices])
-            measures[ind, 4, i, :] = removedGraphStats[:, graphStats.numComponentsIndex]
-            measures[ind, 5, i, :] = removedGraphStats[:, graphStats.maxComponentSizeIndex]
-            measures[ind, 6, i, :] = removedGraphStats[:, graphStats.numEdgesIndex]
-            measures[ind, 7, i, 1:] = objs
+            measures[ind, numDetectsInd, i, :] = vertexArray[:, numDetectsInd]
+            measures[ind, maleInd, i, :] = vertexArray[:, maleInd]
+            measures[ind, femaleInd, i, :] = vertexArray[:, femaleInd]
+            measures[ind, heteroInd, i, :] = vertexArray[:, heteroInd]
+            measures[ind, biInd, i, :] = vertexArray[:, biInd]
+            measures[ind, randDetectInd, i, :] = vertexArray[:, randDetectInd]
+            measures[ind, contactDetectInd, i, :] = vertexArray[:, contactDetectInd]
+            measures[ind, infectedInd, i, :] = numpy.array([len(x) for x in infectedIndices])
+            measures[ind, numCompsInd, i, :] = removedGraphStats[:, graphStats.numComponentsIndex]
+            measures[ind, maxCompSizeInd, i, :] = removedGraphStats[:, graphStats.maxComponentSizeIndex]
+            measures[ind, numEdgesInd, i, :] = removedGraphStats[:, graphStats.numEdgesIndex]
+            measures[ind, objsInd, i, 1:] = objs
             
             #objectives[inds, i, :] = objs 
             timings[ind, :, i] = compTimes
@@ -207,12 +230,12 @@ else:
         plt.figure(plotInd)    
         if not processReal: 
             numInfects = [len(x) for x in idealInfectedIndices]
-            plt.errorbar(times, meanMeasures[ind, 3, :], yerr=stdMeasures[ind, 3, :], label="est. infectives") 
+            plt.errorbar(times, meanMeasures[ind, infectedInd, :], yerr=stdMeasures[ind, infectedInd, :], label="est. infectives") 
             plt.plot(times, numInfects, "r", label="infectives")
         
-        plt.errorbar(times, meanMeasures[ind, 0, :], yerr=stdMeasures[ind, 0, :], label="est. detections") 
+        plt.errorbar(times, meanMeasures[ind, numDetectsInd, :], yerr=stdMeasures[ind, numDetectsInd, :], label="est. detections") 
         plt.xlabel("time (days)")
-        plt.plot(times, idealMeasures[ind, 0, :], "k", label="detections")
+        plt.plot(times, idealMeasures[ind, numDetectsInd, :], "k", label="detections")
         if not processReal:
             plt.ylabel("infectives/detections")
             lims = plt.xlim()
@@ -225,17 +248,43 @@ else:
         plt.legend(loc="lower right")
         plt.savefig(filename)
         plotInd += 1           
-        
-        #Contact tracing rand random detections 
+      
+        #Gender 
         plt.figure(plotInd)
-        
-        plt.errorbar(times, meanMeasures[ind, 1, :], yerr=stdMeasures[ind, 1, :], label="est. CT detections") 
-        plt.plot(times, idealMeasures[ind, 1, :], "r", label="CT detections")
+        plt.errorbar(times, meanMeasures[ind, maleInd, :], yerr=stdMeasures[ind, maleInd, :], label="est. male") 
+        plt.plot(times, idealMeasures[ind, maleInd, :], "r", label="male")
     
-        plt.errorbar(times, meanMeasures[ind, 2, :], yerr=stdMeasures[ind, 2, :], label="est. rand detections") 
+        plt.errorbar(times, meanMeasures[ind, femaleInd, :], yerr=stdMeasures[ind, femaleInd, :], label="est. female") 
+        plt.plot(times, idealMeasures[ind, femaleInd, :], "k", label="female")
+    
         plt.xlabel("time (days)")
         plt.ylabel("detections")
-        plt.plot(times, idealMeasures[ind, 2, :], "k", label="rand detections")
+        plt.legend(loc="upper left")
+        plotInd += 1        
+      
+        #Orientation
+        plt.figure(plotInd)
+        plt.errorbar(times, meanMeasures[ind, heteroInd, :], yerr=stdMeasures[ind, heteroInd, :], label="est. hetero") 
+        plt.plot(times, idealMeasures[ind, heteroInd, :], "r", label="hetero")
+    
+        plt.errorbar(times, meanMeasures[ind, biInd, :], yerr=stdMeasures[ind, biInd, :], label="est. bi") 
+        plt.plot(times, idealMeasures[ind, biInd, :], "k", label="bi")
+    
+        plt.xlabel("time (days)")
+        plt.ylabel("detections")
+        plt.legend(loc="upper left")
+        plotInd += 1      
+      
+        #Contact tracing rand random detections
+        plt.figure(plotInd)
+        plt.errorbar(times, meanMeasures[ind, contactDetectInd, :], yerr=stdMeasures[ind, contactDetectInd, :], label="est. CT detections") 
+        plt.plot(times, idealMeasures[ind, contactDetectInd, :], "r", label="CT detections")
+    
+        plt.errorbar(times, meanMeasures[ind, randDetectInd, :], yerr=stdMeasures[ind, randDetectInd, :], label="est. rand detections") 
+        plt.plot(times, idealMeasures[ind, randDetectInd, :], "k", label="rand detections")
+        plt.xlabel("time (days)")
+        plt.ylabel("detections")
+        
         if not processReal: 
             lims = plt.xlim()
             plt.xlim([0, lims[1]]) 
@@ -245,31 +294,31 @@ else:
         
         #Number of components 
         plt.figure(plotInd)
-        plt.errorbar(times, meanMeasures[ind, 4, :], yerr=stdMeasures[ind, 5, :]) 
+        plt.errorbar(times, meanMeasures[ind, numCompsInd, :], yerr=stdMeasures[ind, numCompsInd, :]) 
         plt.xlabel("time (days)")
         plt.ylabel("num components")
-        plt.plot(times, idealMeasures[ind, 4, :], "r")
+        plt.plot(times, idealMeasures[ind, numCompsInd, :], "r")
         plotInd += 1
         
         #Max component size 
         plt.figure(plotInd)
-        plt.errorbar(times, meanMeasures[ind, 5, :], yerr=stdMeasures[ind, 4, :]) 
+        plt.errorbar(times, meanMeasures[ind, maxCompSizeInd, :], yerr=stdMeasures[ind, maxCompSizeInd, :]) 
         plt.xlabel("time (days)")
         plt.ylabel("max component size")
-        plt.plot(times, idealMeasures[ind, 5, :], "r")
+        plt.plot(times, idealMeasures[ind, maxCompSizeInd, :], "r")
         plotInd += 1
         
         #Num edges 
         plt.figure(plotInd)
-        plt.errorbar(times, meanMeasures[ind, 6, :], yerr=stdMeasures[ind, 6, :]) 
+        plt.errorbar(times, meanMeasures[ind, numEdgesInd, :], yerr=stdMeasures[ind, numEdgesInd, :]) 
         plt.xlabel("time (days)")
         plt.ylabel("number of edges")
-        plt.plot(times, idealMeasures[ind, 6, :], "r")
+        plt.plot(times, idealMeasures[ind, numEdgesInd, :], "r")
         plotInd += 1
         
         #Objectives 
         plt.figure(plotInd)
-        plt.errorbar(times[1:], meanMeasures[ind, 7, 1:], yerr=stdMeasures[ind, 7, 1:]) 
+        plt.errorbar(times[1:], meanMeasures[ind, objsInd, 1:], yerr=stdMeasures[ind, objsInd, 1:]) 
         plt.xlabel("time (days)")
         plt.ylabel("objectives")
         plotInd += 1
@@ -299,13 +348,13 @@ else:
     tableMeanArray = numpy.vstack(tableMeanArray).T
     tableStdArray = numpy.vstack(tableStdArray).T
     
-    rowNames = ["$|\\mathcal{R}|$.", "CT", "RD", "$|\\mathcal{I}|$", "LC", "NC", "$|E|$", "objs"]
+    rowNames = ["$|\\mathcal{R}|$.", "male", "female", "hetero", "bi", "RD", "CT", "$|\\mathcal{I}|$", "LC", "NC", "$|E|$", "objs"]
     idealTable = Latex.array2DToRows(idealTable, precision=0)
     idealTable = Latex.addRowNames(rowNames, idealTable)
     print(idealTable)  
     
     rowNames = [x + " est." for x in rowNames]
-    table = Latex.array2DToRows(tableMeanArray, tableStdArray, precision=0)
+    table = Latex.array2DToRows(tableMeanArray, tableStdArray, precision=2)
     table = Latex.addRowNames(rowNames, table)
     print(table)
     
