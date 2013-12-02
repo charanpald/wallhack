@@ -6,11 +6,11 @@ import sys
 import numpy
 import scipy.stats 
 
-from exp.viroscopy.model.HIVEpidemicModel import HIVEpidemicModel
-from exp.viroscopy.model.HIVRates import HIVRates
-from exp.viroscopy.model.HIVGraph import HIVGraph
-from exp.viroscopy.model.HIVVertices import HIVVertices
-from exp.viroscopy.model.HIVModelUtils import HIVModelUtils
+from wallhack.viroscopy.model.HIVEpidemicModel import HIVEpidemicModel
+from wallhack.viroscopy.model.HIVRates import HIVRates
+from wallhack.viroscopy.model.HIVGraph import HIVGraph
+from wallhack.viroscopy.model.HIVVertices import HIVVertices
+from wallhack.viroscopy.model.HIVModelUtils import HIVModelUtils
 from apgl.graph import * 
 from apgl.util import Util 
 
@@ -51,6 +51,7 @@ class  HIVEpidemicModelTest(unittest.TestCase):
         rates = HIVRates(self.graph, hiddenDegSeq)
         self.model = HIVEpidemicModel(self.graph, rates)
      
+    @unittest.skip("")
     def testSimulate(self):
         T = 1.0
 
@@ -202,76 +203,51 @@ class  HIVEpidemicModelTest(unittest.TestCase):
         self.assertTrue((numpy.diff(edges) > 0).all())
         
 
-    @unittest.skip("")
     def testSimulate2(self):    
-        startDate = 0.0 
-        endDate = 100.0 
-        M = 1000 
-        meanTheta, sigmaTheta = HIVModelUtils.estimatedRealTheta()
-        
-        undirected = True
-        graph = HIVGraph(M, undirected)
-        
         alpha = 2
         zeroVal = 0.9
+        startDate = 0.0 
+        endDate = 200.0
+        M = 1000 
+        undirected = True
+        
+        theta, sigmaTheta, pertTheta = HIVModelUtils.toyTheta()        
+                
+        
+        numpy.random.seed(21)
+        graph = HIVGraph(M, undirected)
         p = Util.powerLawProbs(alpha, zeroVal)
         hiddenDegSeq = Util.randomChoice(p, graph.getNumVertices())
-        
-        meanTheta[4] = 0.1        
-        
-        recordStep = 10 
+    
         rates = HIVRates(graph, hiddenDegSeq)
-        model = HIVEpidemicModel(graph, rates, endDate, startDate)
-        model.setRecordStep(recordStep)
-        model.setParams(meanTheta)
+        model = HIVEpidemicModel(graph, rates, endDate, startDate, metrics=None)
+        #model.setRecordStep(recordStep)
+        model.setParams(theta)
+        times, infectedIndices, removedIndices, graph =  model.simulate(True)
         
-        initialInfected = graph.getInfectedSet()
+        numVertices = graph.size
+        numEdges = graph.getNumEdges()
         
-        times, infectedIndices, removedIndices, graph = model.simulate(True)
+        #Try again 
+        numpy.random.seed(21)
+        graph = HIVGraph(M, undirected)
+        p = Util.powerLawProbs(alpha, zeroVal)
+        hiddenDegSeq = Util.randomChoice(p, graph.getNumVertices())
+    
+        rates = HIVRates(graph, hiddenDegSeq)
+        model = HIVEpidemicModel(graph, rates, endDate, startDate, metrics=None)
+        model.setParams(theta)
+        times, infectedIndices, removedIndices, graph =  model.simulate(True)
         
-        #Now test the final graph 
-        edges = graph.getAllEdges()
-        
-        for i, j in edges:
-            if graph.vlist.V[i, HIVVertices.genderIndex] == graph.vlist.V[j, HIVVertices.genderIndex] and (graph.vlist.V[i, HIVVertices.orientationIndex] != HIVVertices.bi or graph.vlist.V[j, HIVVertices.orientationIndex] != HIVVertices.bi): 
-                self.fail()
-                      
-        finalRemoved = graph.getRemovedSet()
-        
-        self.assertEquals(numpy.intersect1d(initialInfected, finalRemoved).shape[0], len(initialInfected))
-        
-        #Test case where there is no contact  
-        meanTheta = numpy.array([100, 0.95, 1, 1, 0, 0, 0, 0, 0, 0, 0], numpy.float)
-        
-        times, infectedIndices, removedIndices, graph, model = runModel(meanTheta)
+        numVertices2 = graph.size
+        numEdges2 = graph.getNumEdges()
 
-        self.assertEquals(len(graph.getInfectedSet()), 100)
-        self.assertEquals(len(graph.getRemovedSet()), 0)
-        self.assertEquals(graph.getNumEdges(), 0)
+        self.assertEquals(numVertices2, numVertices)
+        self.assertEquals(numEdges2, numEdges)
+
+
         
-        heteroContactRate = 0.1
-        meanTheta = numpy.array([100, 0.95, 1, 1, 0, 0, heteroContactRate, 0, 0, 0, 0], numpy.float)
-        times, infectedIndices, removedIndices, graph, model = runModel(meanTheta)
-        
-        self.assertEquals(len(graph.getInfectedSet()), 100)
-        self.assertEquals(len(graph.getRemovedSet()), 0)
-        
-        edges = graph.getAllEdges()
-        
-        for i, j in edges:
-            self.assertNotEqual(graph.vlist.V[i, HIVVertices.genderIndex], graph.vlist.V[j, HIVVertices.genderIndex]) 
-            
-        #Number of conacts = rate*people*time
-        infectedSet = graph.getInfectedSet()
-        numHetero = (graph.vlist.V[list(infectedSet), HIVVertices.orientationIndex] == HIVVertices.hetero).sum()
-        self.assertTrue(abs(numHetero*endDate*heteroContactRate- model.getNumContacts()) < 100)
-        
-        heteroContactRate = 0.01
-        meanTheta = numpy.array([100, 0.95, 1, 1, 0, 0, heteroContactRate, 0, 0, 0, 0], numpy.float)
-        times, infectedIndices, removedIndices, graph, model = runModel(meanTheta)
-        infectedSet = graph.getInfectedSet()
-        numHetero = (graph.vlist.V[list(infectedSet), HIVVertices.orientationIndex] == HIVVertices.hetero).sum()
-        self.assertAlmostEqual(numHetero*endDate*heteroContactRate/100, model.getNumContacts()/100.0, 0)      
+
         
   
 
@@ -371,8 +347,6 @@ class  HIVEpidemicModelTest(unittest.TestCase):
             if removedGraph.vlist.V[i, HIVVertices.detectionTypeIndex] == HIVVertices.contactTrace: 
                 self.assertTrue(removedGraph.vlist.V[i, HIVVertices.detectionTimeIndex] >= 180)
 
-        
-    
     @unittest.skip("")
     def testFindStandardResults(self):
         times = [3, 12, 22, 25, 40, 50]
