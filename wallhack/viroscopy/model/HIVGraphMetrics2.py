@@ -68,11 +68,12 @@ class HIVGraphMetrics2(object):
         else: 
             logging.debug("Not adding objective at time " + str(t) + " with simulated size " + str(subgraph.size) + " and real size " + str(subTargetGraph.size))
             
-    def meanObjective(self):
+    def meanObjective(self, objectives=None):
         """
         This is the moving average objective of the graph matches so far. 
         """
-        objectives = numpy.array(self.objectives)       
+        if objectives == None: 
+            objectives = numpy.array(self.objectives)       
         
         if objectives.shape[0]!=0: 
             weights = self.alpha * (1 - self.alpha)**(numpy.arange(objectives.shape[0], 0, -1)-1)
