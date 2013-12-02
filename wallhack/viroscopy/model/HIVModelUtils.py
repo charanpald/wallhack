@@ -13,6 +13,8 @@ from wallhack.viroscopy.model.HIVGraph import HIVGraph
 from wallhack.viroscopy.model.HIVEpidemicModel import HIVEpidemicModel
 from wallhack.viroscopy.model.HIVRates import HIVRates
 from wallhack.viroscopy.model.HIVVertices import HIVVertices
+from sandbox.misc.GraphMatch import GraphMatch
+from wallhack.viroscopy.model.HIVGraphMetrics2 import HIVGraphMetrics2
 from wallhack.viroscopy.HIVGraphReader import HIVGraphReader, CsvConverters
 
 class HIVModelUtils(object):
@@ -99,7 +101,7 @@ class HIVModelUtils(object):
             breakScale = 1.2 
         numEpsilons = 10
         epsilon = 0.8
-        minEpsilon = 0.35
+        minEpsilon = 0.4
         matchAlg = "QCV"
         abcMaxRuns = 1000
         batchSize = 50
@@ -109,7 +111,7 @@ class HIVModelUtils(object):
 
     @staticmethod
     def toyABCParams():
-        N = 50 
+        N = 30 
         matchAlpha = 0.2 
         breakScale = 1.2 
         numEpsilons = 15
@@ -123,27 +125,46 @@ class HIVModelUtils(object):
         return N, matchAlpha, breakScale, numEpsilons, epsilon, minEpsilon, matchAlg, abcMaxRuns, batchSize, pertScale
    
     @staticmethod     
-    def simulate(theta, graph, startDate, endDate, recordStep, graphMetrics=None): 
+    def createModel(theta, targetGraph, startDate, endDate, recordStep, M, matchAlpha, breakSize, matchAlg): 
         alpha = 2
         zeroVal = 0.9
-        p = Util.powerLawProbs(alpha, zeroVal)
+        
         numpy.random.seed(21)
+        graph = targetGraph.subgraph(targetGraph.removedIndsAt(startDate)) 
+        graph.addVertices(M-graph.size)
+        logging.debug("Created graph: " + str(graph))   
+        
+        p = Util.powerLawProbs(alpha, zeroVal)
         hiddenDegSeq = Util.randomChoice(p, graph.getNumVertices())
-    
+        
+        featureInds = numpy.ones(graph.vlist.getNumFeatures(), numpy.bool)
+        featureInds[HIVVertices.dobIndex] = False 
+        featureInds[HIVVertices.infectionTimeIndex] = False 
+        featureInds[HIVVertices.hiddenDegreeIndex] = False 
+        featureInds[HIVVertices.stateIndex] = False
+        featureInds = numpy.arange(featureInds.shape[0])[featureInds]
+        matcher = GraphMatch(matchAlg, alpha=matchAlpha, featureInds=featureInds, useWeightM=False)
+        graphMetrics = HIVGraphMetrics2(targetGraph, breakSize, matcher, startDate)
+        
         rates = HIVRates(graph, hiddenDegSeq)
-        model = HIVEpidemicModel(graph, rates, endDate, startDate, metrics=graphMetrics)
+        model = HIVEpidemicModel(graph, rates, T=float(endDate), T0=float(startDate), metrics=graphMetrics)
         model.setRecordStep(recordStep)
         model.setParams(theta)
-        
-        logging.debug("Theta = " + str(theta))
-        
+                
+        return model 
+    
+    @staticmethod     
+    def simulate(model): 
         startTime = time.time()
         times, infectedIndices, removedIndices, graph =  model.simulate(True)
         simulationTime = time.time() - startTime
         
-        graphMatchTime = numpy.sum(graphMetrics.computationalTimes)
+        graphMetrics = model.metrics 
         
-        return times, infectedIndices, removedIndices, graph, [simulationTime, graphMatchTime]
+        graphMatchTime = numpy.sum(graphMetrics.computationalTimes)
+        logging.debug("Weighted objective " + str(graphMetrics.meanObjective(numpy.array(graphMetrics.objectives[0:-1]))))
+        
+        return times, infectedIndices, removedIndices, graph, [simulationTime, graphMatchTime], graphMetrics
         
     @staticmethod 
     def generateStatistics(graph, times): 
