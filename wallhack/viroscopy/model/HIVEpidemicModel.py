@@ -55,7 +55,7 @@ class HIVEpidemicModel():
         self.recordStep = recordStep 
 
         
-    def setParams(self, theta): 
+    def setParams(self, theta, seed=21): 
         """
         This is used to set the parameters of the intial state of this model 
         in conjunction with ABC model selection. 
@@ -66,6 +66,7 @@ class HIVEpidemicModel():
         if theta.shape[0] != 6: 
             raise ValueError("Theta should be of length 6")
         
+        numpy.random.seed(seed)
         self.graph.setRandomInfected(int(theta[0]))
         self.rates.setAlpha(theta[1])
         self.rates.setRandDetectRate(theta[2])
