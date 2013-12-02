@@ -15,10 +15,11 @@ from sandbox.misc.GraphMatch import GraphMatch
 from wallhack.viroscopy.model.HIVGraphMetrics2 import HIVGraphMetrics2
 
 assert False, "Must run with -O flag"
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+FORMAT = "%(levelname)s:root:%(process)d:%(message)s"
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, format=FORMAT)
 numpy.set_printoptions(suppress=True, precision=4, linewidth=150)
 
-processReal = True 
+processReal = False 
 saveResults = True 
 
 def loadParams(ind): 
@@ -52,19 +53,9 @@ def saveStats(args):
     
     if not lock.fileExists() and not lock.isLocked():    
         lock.lock()
-        featureInds= numpy.ones(targetGraph.vlist.getNumFeatures(), numpy.bool)
-        featureInds[HIVVertices.dobIndex] = False 
-        featureInds[HIVVertices.infectionTimeIndex] = False 
-        featureInds[HIVVertices.hiddenDegreeIndex] = False 
-        featureInds[HIVVertices.stateIndex] = False 
-        featureInds = numpy.arange(featureInds.shape[0])[featureInds]        
-        graph = targetGraph.subgraph(targetGraph.removedIndsAt(startDate)) 
-        graph.addVertices(M-graph.size)
-        logging.debug("Created graph: " + str(graph))    
-        
-        matcher = GraphMatch(matchAlg, alpha=matchAlpha, featureInds=featureInds, useWeightM=False)
-        graphMetrics = HIVGraphMetrics2(targetGraph, breakSize, matcher, float(startDate))     
-        times, infectedIndices, removedIndices, graph, compTimes = HIVModelUtils.simulate(thetaArray[i], graph, startDate, endDate, recordStep, graphMetrics)
+         
+        model = HIVModelUtils.createModel(thetaArray[i], targetGraph, startDate, endDate, recordStep, M, matchAlpha, breakSize, matchAlg)
+        times, infectedIndices, removedIndices, graph, compTimes, graphMetrics = HIVModelUtils.simulate(model)
         times = numpy.arange(startDate, endDate+1, recordStep)
         vertexArray, infectedIndices, removedIndices, contactGraphStats, removedGraphStats = HIVModelUtils.generateStatistics(graph, times)
         stats = times, vertexArray, infectedIndices, removedGraphStats, graphMetrics.objectives, graphMetrics.graphObjs, graphMetrics.labelObjs, compTimes

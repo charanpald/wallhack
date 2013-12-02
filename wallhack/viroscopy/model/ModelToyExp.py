@@ -49,26 +49,7 @@ def createModel(t):
     """
     The parameter t is the particle index. 
     """
-    undirected = True
-    graph = HIVGraph(M, undirected)
-    numpy.random.seed(21)
-    p = Util.powerLawProbs(alpha, zeroVal)
-    hiddenDegSeq = Util.randomChoice(p, graph.getNumVertices())
-    
-    featureInds= numpy.ones(graph.vlist.getNumFeatures(), numpy.bool)
-    featureInds[HIVVertices.dobIndex] = False 
-    featureInds[HIVVertices.infectionTimeIndex] = False 
-    featureInds[HIVVertices.hiddenDegreeIndex] = False 
-    featureInds[HIVVertices.stateIndex] = False
-    featureInds = numpy.arange(featureInds.shape[0])[featureInds]
-    matcher = GraphMatch(matchAlg, alpha=matchAlpha, featureInds=featureInds, useWeightM=False)
-    graphMetrics = HIVGraphMetrics2(targetGraph, breakSize, matcher, float(startDate))
-
-    rates = HIVRates(graph, hiddenDegSeq)
-    model = HIVEpidemicModel(graph, rates, T=float(endDate), T0=float(startDate), metrics=graphMetrics)
-    model.setRecordStep(recordStep)
-
-    return model
+    return HIVModelUtils.createModel(meanTheta, targetGraph, startDate, endDate, recordStep, M, matchAlpha, breakSize, matchAlg)
 
 meanTheta, sigmaTheta, pertTheta = HIVModelUtils.toyTheta()
 abcParams = HIVABCParameters(meanTheta, sigmaTheta, pertTheta)
