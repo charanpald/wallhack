@@ -10,17 +10,14 @@ from apgl.util.Latex import Latex
 from apgl.util.FileLock import FileLock
 from sandbox.predictors.ABCSMC import loadThetaArray 
 from wallhack.viroscopy.model.HIVModelUtils import HIVModelUtils
-from wallhack.viroscopy.model.HIVVertices import HIVVertices
-from sandbox.misc.GraphMatch import GraphMatch
-from wallhack.viroscopy.model.HIVGraphMetrics2 import HIVGraphMetrics2
 
 assert False, "Must run with -O flag"
 FORMAT = "%(levelname)s:root:%(process)d:%(message)s"
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, format=FORMAT)
 numpy.set_printoptions(suppress=True, precision=4, linewidth=150)
 
-processReal = False 
-saveResults = True 
+processReal = True 
+saveResults = False 
 
 def loadParams(ind): 
     if processReal: 
