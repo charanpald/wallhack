@@ -2,15 +2,9 @@
 A script to estimate the HIV epidemic model parameters using ABC for the toy data.
 """
 
-from apgl.util import *
-from wallhack.viroscopy.model.HIVGraph import HIVGraph
-from wallhack.viroscopy.model.HIVABCParameters import HIVABCParameters
-from wallhack.viroscopy.model.HIVEpidemicModel import HIVEpidemicModel
-from wallhack.viroscopy.model.HIVRates import HIVRates
+from apgl.util.PathDefaults import PathDefaults
 from wallhack.viroscopy.model.HIVModelUtils import HIVModelUtils
-from wallhack.viroscopy.model.HIVGraphMetrics2 import HIVGraphMetrics2
-from wallhack.viroscopy.model.HIVVertices import HIVVertices
-from sandbox.misc.GraphMatch import GraphMatch
+from wallhack.viroscopy.model.HIVABCParameters import HIVABCParameters
 from sandbox.predictors.ABCSMC import ABCSMC
 import os
 import logging
@@ -38,10 +32,7 @@ N, matchAlpha, breakScale, numEpsilons, epsilon, minEpsilon, matchAlg, abcMaxRun
 logging.debug("Total time of simulation is " + str(endDate-startDate))
 logging.debug("Posterior sample size " + str(N))
 
-alpha = 2
-zeroVal = 0.9
 epsilonArray = numpy.ones(numEpsilons)*epsilon   
-
 breakSize = (targetGraph.subgraph(targetGraph.removedIndsAt(endDate)).size - targetGraph.subgraph(targetGraph.removedIndsAt(startDate)).size)  * breakScale
 logging.debug("Largest acceptable graph is " + str(breakSize))
 
@@ -49,7 +40,7 @@ def createModel(t):
     """
     The parameter t is the particle index. 
     """
-    return HIVModelUtils.createModel(meanTheta, targetGraph, startDate, endDate, recordStep, M, matchAlpha, breakSize, matchAlg)
+    return HIVModelUtils.createModel(targetGraph, startDate, endDate, recordStep, M, matchAlpha, breakSize, matchAlg)
 
 meanTheta, sigmaTheta, pertTheta = HIVModelUtils.toyTheta()
 abcParams = HIVABCParameters(meanTheta, sigmaTheta, pertTheta)
@@ -74,7 +65,6 @@ logging.debug(thetasArray)
 logging.debug("meanTheta=" + str(meanTheta))
 logging.debug("stdTheta=" + str(stdTheta))
 logging.debug("realTheta=" + str(HIVModelUtils.toyTheta()[0]))
-logging.debug("New epsilon array: " + str(abcSMC.epsilonArray))
+logging.debug("Final epsilon array: " + str(abcSMC.epsilonArray))
 logging.debug("Number of ABC runs: " + str(abcSMC.numRuns))
-
 logging.debug("All done!")
