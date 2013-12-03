@@ -52,7 +52,7 @@ class HIVGraphMetrics2(object):
         inds = numpy.setdiff1d(self.realGraph.removedIndsAt(t), self.realGraph.removedIndsAt(self.startTime))
         subTargetGraph = self.realGraph.subgraph(inds)  
         
-        logging.debug("Simulated size " + str(subgraph.size) + " and real size " + str(subTargetGraph.size))
+        #logging.debug("Simulated size " + str(subgraph.size) + " and real size " + str(subTargetGraph.size))
         self.graphSizes.append(subgraph.size)
             
         #Only add objective if the real graph has nonzero size
