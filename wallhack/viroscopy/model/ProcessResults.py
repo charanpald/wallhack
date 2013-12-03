@@ -54,7 +54,7 @@ def saveStats(args):
     if not lock.fileExists() and not lock.isLocked():    
         lock.lock()
          
-        model = HIVModelUtils.createModel(thetaArray[i], targetGraph, startDate, endDate, recordStep, M, matchAlpha, breakSize, matchAlg)
+        model = HIVModelUtils.createModel(targetGraph, startDate, endDate, recordStep, M, matchAlpha, breakSize, matchAlg, theta=thetaArray[i])
         times, infectedIndices, removedIndices, graph, compTimes, graphMetrics = HIVModelUtils.simulate(model)
         times = numpy.arange(startDate, endDate+1, recordStep)
         vertexArray, infectedIndices, removedIndices, contactGraphStats, removedGraphStats = HIVModelUtils.generateStatistics(graph, times)
