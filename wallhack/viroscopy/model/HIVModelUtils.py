@@ -54,7 +54,7 @@ class HIVModelUtils(object):
         endDate = 1000.0
         recordStep = 100
         M = 5000
-        testPeriod = 300 
+        testPeriod = 300
         
         if test:
             endDate += testPeriod   
@@ -111,10 +111,10 @@ class HIVModelUtils(object):
 
     @staticmethod
     def toyABCParams():
-        N = 2 
+        N = 50 
         matchAlpha = 0.2 
         breakScale = 1.2 
-        numEpsilons = 2
+        numEpsilons = 10
         epsilon = 0.8
         minEpsilon = 0.30
         matchAlg = "QCV"   
@@ -125,11 +125,11 @@ class HIVModelUtils(object):
         return N, matchAlpha, breakScale, numEpsilons, epsilon, minEpsilon, matchAlg, abcMaxRuns, batchSize, pertScale
    
     @staticmethod     
-    def createModel(theta, targetGraph, startDate, endDate, recordStep, M, matchAlpha, breakSize, matchAlg): 
+    def createModel(targetGraph, startDate, endDate, recordStep, M, matchAlpha, breakSize, matchAlg, theta=None): 
         alpha = 2
         zeroVal = 0.9
-        
         numpy.random.seed(21)
+        
         graph = targetGraph.subgraph(targetGraph.removedIndsAt(startDate)) 
         graph.addVertices(M-graph.size)
         logging.debug("Created graph: " + str(graph))   
@@ -149,7 +149,8 @@ class HIVModelUtils(object):
         rates = HIVRates(graph, hiddenDegSeq)
         model = HIVEpidemicModel(graph, rates, T=float(endDate), T0=float(startDate), metrics=graphMetrics)
         model.setRecordStep(recordStep)
-        model.setParams(theta)
+        if theta != None: 
+            model.setParams(theta)
                 
         return model 
     
@@ -162,7 +163,7 @@ class HIVModelUtils(object):
         graphMetrics = model.metrics 
         
         graphMatchTime = numpy.sum(graphMetrics.computationalTimes)
-        logging.debug("Weighted objective " + str(graphMetrics.meanObjective(numpy.array(graphMetrics.objectives[0:-2]))))
+        logging.debug("Weighted objective " + str(graphMetrics.meanObjective()))
         
         return times, infectedIndices, removedIndices, graph, [simulationTime, graphMatchTime], graphMetrics
         
