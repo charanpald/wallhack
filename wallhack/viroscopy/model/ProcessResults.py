@@ -139,8 +139,6 @@ else:
     numEdgesInd = 10
     objsInd = 11
     
-    
-
     plotInd = 0 
     if processReal: 
         timeInds = [0, 5, 6]
@@ -222,8 +220,9 @@ else:
             plt.plot(times, numInfects, "r", label="infectives")
         
         plt.errorbar(times, meanMeasures[ind, numDetectsInd, :], yerr=stdMeasures[ind, numDetectsInd, :], label="est. detections") 
-        plt.xlabel("time (days)")
         plt.plot(times, idealMeasures[ind, numDetectsInd, :], "k", label="detections")
+        plt.xlabel("time (days)")
+        
         if not processReal:
             plt.ylabel("infectives/detections")
             lims = plt.xlim()
@@ -263,13 +262,16 @@ else:
         plt.legend(loc="upper left")
         plotInd += 1      
       
-        #Contact tracing rand random detections
+        #Contact tracing rand random detections            
         plt.figure(plotInd)
-        plt.errorbar(times, meanMeasures[ind, contactDetectInd, :], yerr=stdMeasures[ind, contactDetectInd, :], label="est. CT detections") 
-        plt.plot(times, idealMeasures[ind, contactDetectInd, :], "r", label="CT detections")
+        plt.errorbar(times, meanMeasures[ind, numDetectsInd, :], color="k", yerr=stdMeasures[ind, numDetectsInd, :],  label="est. detections") 
+        plt.plot(times, idealMeasures[ind, numDetectsInd, :], "k--", label="detections")        
+        
+        plt.errorbar(times, meanMeasures[ind, contactDetectInd, :], color="r", yerr=stdMeasures[ind, contactDetectInd, :], label="est. CT detections") 
+        plt.plot(times, idealMeasures[ind, contactDetectInd, :], "r--", label="CT detections")
     
-        plt.errorbar(times, meanMeasures[ind, randDetectInd, :], yerr=stdMeasures[ind, randDetectInd, :], label="est. rand detections") 
-        plt.plot(times, idealMeasures[ind, randDetectInd, :], "k", label="rand detections")
+        plt.errorbar(times, meanMeasures[ind, randDetectInd, :], color="b", yerr=stdMeasures[ind, randDetectInd, :], label="est. rand detections") 
+        plt.plot(times, idealMeasures[ind, randDetectInd, :], "b--", label="rand detections")
         plt.xlabel("time (days)")
         plt.ylabel("detections")
         
@@ -277,7 +279,7 @@ else:
             lims = plt.xlim()
             plt.xlim([0, lims[1]]) 
         plt.legend(loc="upper left")
-        plt.savefig(outputDir + prefix + "CTRandDetects.eps")
+        plt.savefig(outputDir + prefix + "CTRandDetects" + str(ind) +  ".eps")
         plotInd += 1
         
         #Number of components 
@@ -335,14 +337,14 @@ else:
     idealTable = numpy.vstack(idealTable).T
     tableMeanArray = numpy.vstack(tableMeanArray).T
     tableStdArray = numpy.vstack(tableStdArray).T
-    
-    rowNames = ["$|\\mathcal{R}|$.", "male", "female", "hetero", "bi", "RD", "CT", "$|\\mathcal{I}|$", "LC", "NC", "$|E|$", "objs"]
+      
+    rowNames = ["$|\\mathcal{R}|$.", "male", "female", "hetero", "bi", "RD", "CT", "$|\\mathcal{I}|$", "NC", "LC", "$|E|$", "objs"]
     idealTable = Latex.array2DToRows(idealTable, precision=0)
     idealTable = Latex.addRowNames(rowNames, idealTable)
     print(idealTable)  
     
     rowNames = [x + " est." for x in rowNames]
-    table = Latex.array2DToRows(tableMeanArray, tableStdArray, precision=2)
+    table = Latex.array2DToRows(tableMeanArray, tableStdArray, precision=0)
     table = Latex.addRowNames(rowNames, table)
     print(table)
     
