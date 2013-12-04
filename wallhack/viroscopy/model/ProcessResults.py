@@ -16,7 +16,7 @@ FORMAT = "%(levelname)s:root:%(process)d:%(message)s"
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, format=FORMAT)
 numpy.set_printoptions(suppress=True, precision=4, linewidth=150)
 
-processReal = True 
+processReal = False 
 saveResults = False 
 
 def loadParams(ind): 
@@ -216,11 +216,11 @@ else:
         plt.figure(plotInd)    
         if not processReal: 
             numInfects = [len(x) for x in idealInfectedIndices]
-            plt.errorbar(times, meanMeasures[ind, infectedInd, :], yerr=stdMeasures[ind, infectedInd, :], label="est. infectives") 
-            plt.plot(times, numInfects, "r", label="infectives")
+            plt.errorbar(times, meanMeasures[ind, infectedInd, :], color="k", yerr=stdMeasures[ind, infectedInd, :], label="est. infectives") 
+            plt.plot(times, numInfects, "k--", label="infectives")
         
-        plt.errorbar(times, meanMeasures[ind, numDetectsInd, :], yerr=stdMeasures[ind, numDetectsInd, :], label="est. detections") 
-        plt.plot(times, idealMeasures[ind, numDetectsInd, :], "k", label="detections")
+        plt.errorbar(times, meanMeasures[ind, numDetectsInd, :], color="r", yerr=stdMeasures[ind, numDetectsInd, :], label="est. detections") 
+        plt.plot(times, idealMeasures[ind, numDetectsInd, :], "r--", label="detections")
         plt.xlabel("time (days)")
         
         if not processReal:
@@ -264,8 +264,9 @@ else:
       
         #Contact tracing rand random detections            
         plt.figure(plotInd)
-        plt.errorbar(times, meanMeasures[ind, numDetectsInd, :], color="k", yerr=stdMeasures[ind, numDetectsInd, :],  label="est. detections") 
-        plt.plot(times, idealMeasures[ind, numDetectsInd, :], "k--", label="detections")        
+        if processReal: 
+            plt.errorbar(times, meanMeasures[ind, numDetectsInd, :], color="k", yerr=stdMeasures[ind, numDetectsInd, :],  label="est. detections") 
+            plt.plot(times, idealMeasures[ind, numDetectsInd, :], "k--", label="detections")        
         
         plt.errorbar(times, meanMeasures[ind, contactDetectInd, :], color="r", yerr=stdMeasures[ind, contactDetectInd, :], label="est. CT detections") 
         plt.plot(times, idealMeasures[ind, contactDetectInd, :], "r--", label="CT detections")
