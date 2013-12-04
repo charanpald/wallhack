@@ -326,7 +326,7 @@ class HIVRates():
         """
         state = numpy.random.get_state()
         numpy.random.seed(seed)
-        detectionRates = numpy.ones(len(infectedList)) * self.randDetectRate*len(infectedList)/float(n)
+        detectionRates = numpy.ones(len(infectedList)) * self.randDetectRate
         numpy.random.set_state(state)
         return detectionRates
 
