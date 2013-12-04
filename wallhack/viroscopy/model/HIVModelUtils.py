@@ -30,8 +30,8 @@ class HIVModelUtils(object):
         #    theta = numpy.array([200, 0.8, 0.2, 0.1, 0.1, 0.1]) 
         #    sigmaTheta = numpy.array([100, 0.2, 0.2, 0.1, 0.1, 0.1])
          
-        theta = numpy.array([500, 0.5, 0.1, 0.1, 0.1, 0.1])
-        sigmaTheta = numpy.array([400, 0.5, 0.1, 0.1, 0.1, 0.1])
+        theta = numpy.array([500, 0.5, 0.01, 0.1, 0.1, 0.1])
+        sigmaTheta = numpy.array([400, 0.5, 0.01, 0.1, 0.1, 0.1])
         pertTheta = sigmaTheta/10
         return theta, sigmaTheta, pertTheta
   
