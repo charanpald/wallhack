@@ -37,8 +37,8 @@ class HIVModelUtils(object):
   
     @staticmethod
     def toyTheta(): 
-        theta = numpy.array([100, 0.9, 0.05, 0.001, 0.1, 0.005])
-        sigmaTheta = numpy.array([10, 0.09, 0.05, 0.001, 0.1, 0.005])
+        theta = numpy.array([100, 0.9, 0.001, 0.001, 0.1, 0.005])
+        sigmaTheta = numpy.array([10, 0.09, 0.001, 0.001, 0.1, 0.005])
         pertTheta = sigmaTheta/10
         return theta, sigmaTheta, pertTheta
         
