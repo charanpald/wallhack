@@ -186,6 +186,7 @@ class HIVModelUtils(object):
 
         V = graph.getVertexList().getVertices()
         graphStatsList = []
+        graphVectorStatsList = []
         
         for inds in [contactIndices, removedIndices]: 
             numVerticesArray  = numpy.array([len(x) for x in inds])
@@ -201,8 +202,11 @@ class HIVModelUtils(object):
             graphStats = GraphStatistics()
             graphStats = graphStats.sequenceScalarStats(graph, inds, slowStats=False)
             graphStatsList.append(graphStats)
+            
+            graphStats = graphStats.vectorStatistics(graph, inds[-1])
+            graphVectorStatsList.append(graphStats)
         
-        return vertexArray, infectedIndices, removedIndices, graphStatsList[0], graphStatsList[1]
+        return vertexArray, infectedIndices, removedIndices, graphStatsList[0], graphStatsList[1], graphVectorStatsList[0], graphVectorStatsList[1]
     
     
     realTestPeriods = [365, 365, 365, 730]
