@@ -16,8 +16,8 @@ FORMAT = "%(levelname)s:root:%(process)d:%(message)s"
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, format=FORMAT)
 numpy.set_printoptions(suppress=True, precision=4, linewidth=150)
 
-processReal = False 
-saveResults = False 
+processReal = True 
+saveResults = True 
 
 def loadParams(ind): 
     if processReal: 
@@ -54,8 +54,8 @@ def saveStats(args):
         model = HIVModelUtils.createModel(targetGraph, startDate, endDate, recordStep, M, matchAlpha, breakSize, matchAlg, theta=thetaArray[i])
         times, infectedIndices, removedIndices, graph, compTimes, graphMetrics = HIVModelUtils.simulate(model)
         times = numpy.arange(startDate, endDate+1, recordStep)
-        vertexArray, infectedIndices, removedIndices, contactGraphStats, removedGraphStats = HIVModelUtils.generateStatistics(graph, times)
-        stats = times, vertexArray, infectedIndices, removedGraphStats, graphMetrics.objectives, graphMetrics.graphObjs, graphMetrics.labelObjs, compTimes
+        vertexArray, infectedIndices, removedIndices, infectedGraphStats, removedGraphStats, infectedGraphVecStats, removedGraphVecStats = HIVModelUtils.generateStatistics(graph, times)
+        stats = times, vertexArray, infectedIndices, removedGraphStats, infectedGraphVecStats, removedGraphVecStats, graphMetrics.objectives, compTimes
         
         Util.savePickle(stats, resultsFileName)
         lock.unlock()
@@ -139,9 +139,10 @@ else:
     numEdgesInd = 10
     objsInd = 11
     
+    
     plotInd = 0 
     if processReal: 
-        timeInds = [0, 5, 6]
+        timeInds = [5, 6]
     else: 
         timeInds = [10, 11, 12, 13]    
     
@@ -185,7 +186,7 @@ else:
             resultsFileName = outputDir + "SimStats" + str(i) + ".pkl"
             stats = Util.loadPickle(resultsFileName)
             
-            times, vertexArray, infectedIndices, removedGraphStats, objs, graphDists, labelDists, compTimes = stats 
+            times, vertexArray, infectedIndices, removedGraphStats, infectedGraphVecStats, removedGraphVecStats, objs, compTimes = stats 
     
             measures[ind, numDetectsInd, i, :] = vertexArray[:, numDetectsInd]
             measures[ind, maleInd, i, :] = vertexArray[:, maleInd]
@@ -279,7 +280,7 @@ else:
         if not processReal: 
             lims = plt.xlim()
             plt.xlim([0, lims[1]]) 
-        plt.legend(loc="upper left")
+        #plt.legend(loc="upper left")
         plt.savefig(outputDir + prefix + "CTRandDetects" + str(ind) +  ".eps")
         plotInd += 1
         
@@ -314,9 +315,7 @@ else:
         plt.ylabel("objectives")
         plotInd += 1
         
-        
-        #print(meanMeasures[ind, :, timeInds])
-    
+
     #Print the table of thetas 
     thetas = numpy.array(thetas)
     meanThetas = numpy.mean(thetas, 1)
@@ -334,12 +333,13 @@ else:
         idealTable.append(idealMeasures[ind, :, timeInds])
         tableMeanArray.append(meanMeasures[ind, :, timeInds])
         tableStdArray.append(stdMeasures[ind, :, timeInds])
-        
+       
+       
     idealTable = numpy.vstack(idealTable).T
     tableMeanArray = numpy.vstack(tableMeanArray).T
     tableStdArray = numpy.vstack(tableStdArray).T
       
-    rowNames = ["$|\\mathcal{R}|$.", "male", "female", "hetero", "bi", "RD", "CT", "$|\\mathcal{I}|$", "NC", "LC", "$|E|$", "objs"]
+    rowNames = ["$|\\mathcal{R}_{t_0}|$.", "male", "female", "hetero", "bi", "RD", "CT", "$|\\mathcal{I}_{t_0}|$", "NC", "LC", "$|E|$", "objs", "$|\\mathcal{C}_{t_0}|$"]
     idealTable = Latex.array2DToRows(idealTable, precision=0)
     idealTable = Latex.addRowNames(rowNames, idealTable)
     print(idealTable)  
