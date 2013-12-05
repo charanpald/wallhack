@@ -54,8 +54,8 @@ def saveStats(args):
         model = HIVModelUtils.createModel(targetGraph, startDate, endDate, recordStep, M, matchAlpha, breakSize, matchAlg, theta=thetaArray[i])
         times, infectedIndices, removedIndices, graph, compTimes, graphMetrics = HIVModelUtils.simulate(model)
         times = numpy.arange(startDate, endDate+1, recordStep)
-        vertexArray, infectedIndices, removedIndices, infectedGraphStats, removedGraphStats, infectedGraphVecStats, removedGraphVecStats = HIVModelUtils.generateStatistics(graph, times)
-        stats = times, vertexArray, infectedIndices, removedGraphStats, infectedGraphVecStats, removedGraphVecStats, graphMetrics.objectives, compTimes
+        vertexArray, infectedIndices, removedIndices, infectedGraphStats, removedGraphStats, removedGraphVecStats = HIVModelUtils.generateStatistics(graph, times)
+        stats = times, vertexArray, infectedIndices, removedGraphStats, removedGraphVecStats, graphMetrics.objectives, compTimes
         
         Util.savePickle(stats, resultsFileName)
         lock.unlock()
@@ -186,7 +186,7 @@ else:
             resultsFileName = outputDir + "SimStats" + str(i) + ".pkl"
             stats = Util.loadPickle(resultsFileName)
             
-            times, vertexArray, infectedIndices, removedGraphStats, infectedGraphVecStats, removedGraphVecStats, objs, compTimes = stats 
+            times, vertexArray, infectedIndices, removedGraphStats, removedGraphVecStats, objs, compTimes = stats 
     
             measures[ind, numDetectsInd, i, :] = vertexArray[:, numDetectsInd]
             measures[ind, maleInd, i, :] = vertexArray[:, maleInd]
