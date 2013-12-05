@@ -199,11 +199,11 @@ class HIVModelUtils(object):
             
             vertexArray = numpy.c_[numVerticesArray, maleArray, femaleArray, heteroArray, biArray, randDetectArray, conDetectArray]
         
-            graphStats = GraphStatistics()
-            graphStats = graphStats.sequenceScalarStats(graph, inds, slowStats=False)
+            graphStatistics = GraphStatistics()
+            graphStats = graphStatistics.sequenceScalarStats(graph, inds, slowStats=False)
             graphStatsList.append(graphStats)
             
-            graphStats = graphStats.vectorStatistics(graph, inds[-1])
+            graphStats = graphStatistics.vectorStatistics(graph, inds[-1])
             graphVectorStatsList.append(graphStats)
         
         return vertexArray, infectedIndices, removedIndices, graphStatsList[0], graphStatsList[1], graphVectorStatsList[0], graphVectorStatsList[1]
