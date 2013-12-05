@@ -203,7 +203,7 @@ class HIVModelUtils(object):
             graphStats = graphStatistics.sequenceScalarStats(graph, inds, slowStats=False)
             graphStatsList.append(graphStats)
             
-            graphStats = graphStatistics.vectorStatistics(graph, inds[-1])
+            graphStats = graphStatistics.vectorStatistics(graph.subgraph(inds[-1])) 
             graphVectorStatsList.append(graphStats)
         
         return vertexArray, infectedIndices, removedIndices, graphStatsList[0], graphStatsList[1], graphVectorStatsList[0], graphVectorStatsList[1]
