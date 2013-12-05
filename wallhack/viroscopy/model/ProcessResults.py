@@ -27,6 +27,7 @@ def loadParams(ind):
         N, matchAlpha, breakScale, numEpsilons, epsilon, minEpsilon, matchAlg, abcMaxRuns, batchSize, pertScale = HIVModelUtils.realABCParams(True)
         startDate, endDate, recordStep, M, targetGraph, numInds = HIVModelUtils.realSimulationParams(test=True, ind=ind)
         realTheta, sigmaTheta, pertTheta = HIVModelUtils.estimatedRealTheta(ind)
+        numInds=2
         prefix = "Real"
     else: 
         resultsDir = PathDefaults.getOutputDir() + "viroscopy/toy/theta/"
@@ -102,7 +103,7 @@ if saveResults:
         #Now save the statistics on the target graph 
         times = numpy.arange(startDate, endDate+1, recordStep)
         vertexArray, infectedIndices, removedIndices, contactGraphStats, removedGraphStats, finalRemovedDegrees = HIVModelUtils.generateStatistics(targetGraph, times)
-        stats = vertexArray, infectedIndices, removedIndices, contactGraphStats, removedGraphStats
+        stats = vertexArray, infectedIndices, removedIndices, contactGraphStats, removedGraphStats, finalRemovedDegrees
         resultsFileName = outputDir + "IdealStats.pkl"
         Util.savePickle(stats, resultsFileName)
 else:
@@ -126,7 +127,7 @@ else:
     timings = numpy.zeros((len(inds), numTimings, N)) 
     
     numDegrees = 20
-    degreeDists = numpy.zeros((len(inds), numDegrees))
+    degreeDists = numpy.zeros((len(inds), numDegrees, N))
     idealDegreeDists = numpy.zeros((len(inds), numDegrees))
     
     #Note all the inds 
@@ -206,7 +207,7 @@ else:
             measures[ind, numEdgesInd, i, :] = removedGraphStats[:, graphStats.numEdgesIndex]
             measures[ind, objsInd, i, 1:] = objs
             
-            degreeDists[ind, :] = finalRemovedDegrees[0:numDegrees]
+            degreeDists[ind, :, i] = finalRemovedDegrees[0:numDegrees]
             
             #objectives[inds, i, :] = objs 
             timings[ind, :, i] = compTimes
@@ -320,6 +321,17 @@ else:
         plt.errorbar(times[1:], meanMeasures[ind, objsInd, 1:], yerr=stdMeasures[ind, objsInd, 1:]) 
         plt.xlabel("time (days)")
         plt.ylabel("objectives")
+        plotInd += 1
+        
+        #Degrees 
+        meanDegreeDists = numpy.mean(degreeDists, 2)
+        stdDegreeDists = numpy.std(degreeDists, 2)        
+        
+        plt.figure(plotInd)
+        plt.errorbar(numpy.arange(numDegrees), meanDegreeDists[ind, :], yerr=stdDegreeDists[ind, :], color="k") 
+        plt.plot(times, idealDegreeDists[ind,  :], "k--")
+        plt.xlabel("degree")
+        plt.ylabel("frequency")
         plotInd += 1
         
 
