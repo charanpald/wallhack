@@ -202,9 +202,10 @@ class HIVModelUtils(object):
             graphStats = graphStatistics.sequenceScalarStats(graph, inds, slowStats=False)
             graphStatsList.append(graphStats)
             
-        graphVectorStats = graphStatistics.vectorStatistics(graph.subgraph(removedIndices[-1]), treeStats=False, eigenStats=False) 
+        finalRemovedGraph = graph.subgraph(removedIndices[-1])
+        finalRemovedDegrees = finalRemovedGraph.degreeDistribution()
         
-        return vertexArray, infectedIndices, removedIndices, graphStatsList[0], graphStatsList[1], graphVectorStats
+        return vertexArray, infectedIndices, removedIndices, graphStatsList[0], graphStatsList[1], finalRemovedDegrees
     
     
     realTestPeriods = [365, 365, 365, 730]
