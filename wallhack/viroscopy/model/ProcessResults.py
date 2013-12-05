@@ -54,7 +54,7 @@ def saveStats(args):
         model = HIVModelUtils.createModel(targetGraph, startDate, endDate, recordStep, M, matchAlpha, breakSize, matchAlg, theta=thetaArray[i])
         times, infectedIndices, removedIndices, graph, compTimes, graphMetrics = HIVModelUtils.simulate(model)
         times = numpy.arange(startDate, endDate+1, recordStep)
-        vertexArray, infectedIndices, removedIndices, infectedGraphStats, removedGraphStats, finalRemovedDegrees = HIVModelUtils.generateStatistics(graph, times)
+        vertexArray, infectedIndices, removedIndices, contactGraphStats, removedGraphStats, finalRemovedDegrees = HIVModelUtils.generateStatistics(graph, times)
         stats = times, vertexArray, infectedIndices, removedGraphStats, finalRemovedDegrees, graphMetrics.objectives, compTimes
         
         Util.savePickle(stats, resultsFileName)
@@ -101,7 +101,7 @@ if saveResults:
     
         #Now save the statistics on the target graph 
         times = numpy.arange(startDate, endDate+1, recordStep)
-        vertexArray, infectedIndices, removedIndices, contactGraphStats, removedGraphStats = HIVModelUtils.generateStatistics(targetGraph, times)
+        vertexArray, infectedIndices, removedIndices, contactGraphStats, removedGraphStats, finalRemovedDegrees = HIVModelUtils.generateStatistics(targetGraph, times)
         stats = vertexArray, infectedIndices, removedIndices, contactGraphStats, removedGraphStats
         resultsFileName = outputDir + "IdealStats.pkl"
         Util.savePickle(stats, resultsFileName)
@@ -119,11 +119,15 @@ else:
     
     #We store: number of detections, CT detections, rand detections, infectives, max componnent size, num components, edges, objectives
     numMeasures = 12
-    numTimes = 2
+    numTimings = 2
     thetas = []
     measures = numpy.zeros((len(inds), numMeasures, N, numRecordSteps))
     idealMeasures = numpy.zeros((len(inds), numMeasures, numRecordSteps))
-    timings = numpy.zeros((len(inds), numTimes, N)) 
+    timings = numpy.zeros((len(inds), numTimings, N)) 
+    
+    numDegrees = 20
+    degreeDists = numpy.zeros((len(inds), numDegrees))
+    idealDegreeDists = numpy.zeros((len(inds), numDegrees))
     
     #Note all the inds 
     numDetectsInd = 0 
@@ -167,7 +171,7 @@ else:
         
         resultsFileName = outputDir + "IdealStats.pkl"
         stats = Util.loadPickle(resultsFileName)  
-        vertexArrayIdeal, idealInfectedIndices, idealRemovedIndices, idealContactGraphStats, idealRemovedGraphStats = stats 
+        vertexArrayIdeal, idealInfectedIndices, idealRemovedIndices, idealContactGraphStats, idealRemovedGraphStats, idealFinalRemovedDegrees = stats 
        
         graphStats = GraphStatistics()
         idealMeasures[ind, numDetectsInd, :] = vertexArrayIdeal[:, numDetectsInd]
@@ -180,7 +184,8 @@ else:
         idealMeasures[ind, numCompsInd, :] = idealRemovedGraphStats[:, graphStats.numComponentsIndex]
         idealMeasures[ind, maxCompSizeInd, :] = idealRemovedGraphStats[:, graphStats.maxComponentSizeIndex]
         idealMeasures[ind, numEdgesInd, :] = idealRemovedGraphStats[:, graphStats.numEdgesIndex]
-          
+        
+        idealDegreeDists[ind, :] = idealFinalRemovedDegrees[0:numDegrees]
         
         for i in range(thetaArray.shape[0]): 
             resultsFileName = outputDir + "SimStats" + str(i) + ".pkl"
@@ -200,6 +205,8 @@ else:
             measures[ind, maxCompSizeInd, i, :] = removedGraphStats[:, graphStats.maxComponentSizeIndex]
             measures[ind, numEdgesInd, i, :] = removedGraphStats[:, graphStats.numEdgesIndex]
             measures[ind, objsInd, i, 1:] = objs
+            
+            degreeDists[ind, :] = finalRemovedDegrees[0:numDegrees]
             
             #objectives[inds, i, :] = objs 
             timings[ind, :, i] = compTimes
