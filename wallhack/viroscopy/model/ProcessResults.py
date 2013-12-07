@@ -16,8 +16,8 @@ FORMAT = "%(levelname)s:root:%(process)d:%(message)s"
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, format=FORMAT)
 numpy.set_printoptions(suppress=True, precision=4, linewidth=150)
 
-processReal = True 
-saveResults = True 
+processReal = False 
+saveResults = False 
 
 def loadParams(ind): 
     if processReal: 
@@ -186,7 +186,8 @@ else:
         idealMeasures[ind, maxCompSizeInd, :] = idealRemovedGraphStats[:, graphStats.maxComponentSizeIndex]
         idealMeasures[ind, numEdgesInd, :] = idealRemovedGraphStats[:, graphStats.numEdgesIndex]
         
-        idealDegreeDists[ind, :] = idealFinalRemovedDegrees[0:numDegrees]
+        maxDegrees = min(idealFinalRemovedDegrees.shape[0], numDegrees)
+        idealDegreeDists[ind, 0:maxDegrees] = idealFinalRemovedDegrees[0:maxDegrees]
         
         for i in range(thetaArray.shape[0]): 
             resultsFileName = outputDir + "SimStats" + str(i) + ".pkl"
@@ -207,7 +208,8 @@ else:
             measures[ind, numEdgesInd, i, :] = removedGraphStats[:, graphStats.numEdgesIndex]
             measures[ind, objsInd, i, 1:] = objs
             
-            degreeDists[ind, :, i] = finalRemovedDegrees[0:numDegrees]
+            maxDegrees = min(finalRemovedDegrees.shape[0], numDegrees)
+            degreeDists[ind, 0:maxDegrees, i] = finalRemovedDegrees[0:maxDegrees]
             
             #objectives[inds, i, :] = objs 
             timings[ind, :, i] = compTimes
@@ -280,15 +282,15 @@ else:
         plt.errorbar(times, meanMeasures[ind, contactDetectInd, :], color="r", yerr=stdMeasures[ind, contactDetectInd, :], label="est. CT detections") 
         plt.plot(times, idealMeasures[ind, contactDetectInd, :], "r--", label="CT detections")
     
-        plt.errorbar(times, meanMeasures[ind, randDetectInd, :], color="b", yerr=stdMeasures[ind, randDetectInd, :], label="est. rand detections") 
-        plt.plot(times, idealMeasures[ind, randDetectInd, :], "b--", label="rand detections")
+        plt.errorbar(times, meanMeasures[ind, randDetectInd, :], color="b", yerr=stdMeasures[ind, randDetectInd, :], label="est. random detections") 
+        plt.plot(times, idealMeasures[ind, randDetectInd, :], "b--", label="random detections")
         plt.xlabel("time (days)")
         plt.ylabel("detections")
         
         if not processReal: 
             lims = plt.xlim()
             plt.xlim([0, lims[1]]) 
-        #plt.legend(loc="upper left")
+        plt.legend(loc="upper left")
         plt.savefig(outputDir + prefix + "CTRandDetects" + str(ind) +  ".eps")
         plotInd += 1
         
@@ -329,7 +331,7 @@ else:
         
         plt.figure(plotInd)
         plt.errorbar(numpy.arange(numDegrees), meanDegreeDists[ind, :], yerr=stdDegreeDists[ind, :], color="k") 
-        plt.plot(times, idealDegreeDists[ind,  :], "k--")
+        plt.plot(numpy.arange(numDegrees), idealDegreeDists[ind,  :], "k--")
         plt.xlabel("degree")
         plt.ylabel("frequency")
         plotInd += 1
@@ -358,7 +360,7 @@ else:
     tableMeanArray = numpy.vstack(tableMeanArray).T
     tableStdArray = numpy.vstack(tableStdArray).T
       
-    rowNames = ["$|\\mathcal{R}_{t_0}|$.", "male", "female", "hetero", "bi", "RD", "CT", "$|\\mathcal{I}_{t_0}|$", "NC", "LC", "$|E|$", "objs", "$|\\mathcal{C}_{t_0}|$"]
+    rowNames = ["$|\\mathcal{R}_{t_0}|$.", "male", "female", "hetero", "bi", "RD", "CT", "$|\\mathcal{I}_{t_0}|$", "NC", "LC", "$|E|$", "objs"]
     idealTable = Latex.array2DToRows(idealTable, precision=0)
     idealTable = Latex.addRowNames(rowNames, idealTable)
     print(idealTable)  
