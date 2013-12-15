@@ -51,9 +51,9 @@ dataDict["log"] = X2
 numpy.random.seed(datetime.datetime.now().microsecond)
 
 helper = MetabolicsExpHelper(dataDict, YCortisol, YTesto, YIgf1, ages)
-helper.runCartTreeRank = False
-helper.runRbfSvmTreeRank = False
-helper.runCartTreeRankForest = False
+helper.runCartTreeRank = True
+helper.runRbfSvmTreeRank = True
+helper.runCartTreeRankForest = True
 helper.runRbfSvmTreeRankForest = True
 helper.runRankSVM = False
 helper.run()
