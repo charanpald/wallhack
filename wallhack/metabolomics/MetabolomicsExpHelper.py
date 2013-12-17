@@ -1,8 +1,6 @@
 import os
 import numpy
-import sys
 import logging
-import datetime
 import gc 
 from apgl.util.PathDefaults import PathDefaults
 from apgl.util.FileLock import FileLock 
@@ -17,7 +15,7 @@ from sandbox.ranking.leafrank.DecisionTree import DecisionTree
 from sandbox.ranking.RankSVM import RankSVM
 from sandbox.ranking.RankBoost import RankBoost
 
-class MetabolicsExpHelper(object):
+class MetabolomicsExpHelper(object):
     def __init__(self, dataDict, YCortisol, YTesto, YIgf1, ages):
         """
         Create a new object for run the metabolomics experiments
