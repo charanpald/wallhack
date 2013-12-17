@@ -57,4 +57,5 @@ for i, dataName in enumerate(dataNames):
 
     algorithms = [x.ljust(20) for x in algorithms]
     table = Latex.array2DToRows(testAucsMean[:, i, :].T, testAucsStd[:, i, :].T)
+    print(Latex.listToRow(hormoneNameIndicators))
     print(Latex.addRowNames(algorithms, table))
