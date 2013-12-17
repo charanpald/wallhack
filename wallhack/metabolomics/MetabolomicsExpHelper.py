@@ -118,30 +118,32 @@ class MetabolomicsExpHelper(object):
 
         if not filelock.isLocked() and not filelock.fileExists(): 
             filelock.lock()
-            logging.debug("Computing file " + fileName)
-            
-            idxFull = Sampling.crossValidation(self.outerFolds, X.shape[0])
-            errors = numpy.zeros(self.outerFolds)
-            
-            for i, (trainInds, testInds) in enumerate(idxFull): 
-                logging.debug("Outer fold: " + str(i))
+            try: 
+                logging.debug("Computing file " + fileName)
                 
-                trainX, trainY = X[trainInds, :], Y[trainInds]
-                testX, testY = X[testInds, :], Y[testInds]
-                idx = Sampling.crossValidation(self.innerFolds, trainX.shape[0])
-                bestLearner, cvGrid = learner.parallelModelSelect(trainX, trainY, idx, paramDict)
-
+                idxFull = Sampling.crossValidation(self.outerFolds, X.shape[0])
+                errors = numpy.zeros(self.outerFolds)
                 
-                bestLearner = learner.getBestLearner(cvGrid, paramDict, trainX, trainY, idx, best="max")
-                logging.debug("Best learner is " + str(bestLearner))
-                bestLearner.learnModel(trainX, trainY)
-                predY = bestLearner.predict(testX)
-                errors[i] = Evaluator.auc(predY, testY)
-            
-            logging.debug("Mean auc: " + str(numpy.mean(errors)))
-            numpy.save(fileName, errors)
-            logging.debug("Saved results as : " + fileName)
-            filelock.unlock()
+                for i, (trainInds, testInds) in enumerate(idxFull): 
+                    logging.debug("Outer fold: " + str(i))
+                    
+                    trainX, trainY = X[trainInds, :], Y[trainInds]
+                    testX, testY = X[testInds, :], Y[testInds]
+                    idx = Sampling.crossValidation(self.innerFolds, trainX.shape[0])
+                    bestLearner, cvGrid = learner.parallelModelSelect(trainX, trainY, idx, paramDict)
+    
+                    
+                    bestLearner = learner.getBestLearner(cvGrid, paramDict, trainX, trainY, idx, best="max")
+                    logging.debug("Best learner is " + str(bestLearner))
+                    bestLearner.learnModel(trainX, trainY)
+                    predY = bestLearner.predict(testX)
+                    errors[i] = Evaluator.auc(predY, testY)
+                
+                logging.debug("Mean auc: " + str(numpy.mean(errors)))
+                numpy.save(fileName, errors)
+                logging.debug("Saved results as : " + fileName)
+            finally: 
+                filelock.unlock()
         else:
             logging.debug("File exists, or is locked: " + fileName)
 
