@@ -7,7 +7,7 @@ import logging
 import os
 import datetime
 from apgl.util.PathDefaults import PathDefaults
-from wallhack.metabolomics.MetabolicsExpHelper import MetabolicsExpHelper
+from wallhack.metabolomics.MetabolomicsExpHelper import MetabolomicsExpHelper
 from wallhack.metabolomics.MetabolomicsUtils import MetabolomicsUtils
 from socket import gethostname
 
@@ -50,7 +50,7 @@ dataDict["log"] = X2
 
 numpy.random.seed(datetime.datetime.now().microsecond)
 
-helper = MetabolicsExpHelper(dataDict, YCortisol, YTesto, YIgf1, ages)
+helper = MetabolomicsExpHelper(dataDict, YCortisol, YTesto, YIgf1, ages)
 helper.runCartTreeRank = True
 helper.runRbfSvmTreeRank = True
 helper.runCartTreeRankForest = True
