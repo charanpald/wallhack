@@ -1,6 +1,8 @@
 """
 Perform cross validation using TreeRank
 """
+
+import argparse
 import numpy
 import sys
 import logging
@@ -50,10 +52,21 @@ dataDict["log"] = X2
 
 numpy.random.seed(datetime.datetime.now().microsecond)
 
+
+parser = argparse.ArgumentParser(description='Run the metabolomics experiments')
+parser.add_argument("--runCartTreeRank", action="store_true", default=False)
+parser.add_argument("--runRbfSvmTreeRank", action="store_true", default=False)
+parser.add_argument("--runCartTreeRankForest", action="store_true", default=False)
+parser.add_argument("--runRbfSvmTreeRankForest", action="store_true", default=False)
+parser.add_argument("--runRankSVM", action="store_true", default=False)
+parser.add_argument("--runRankBoost", action="store_true", default=False)
+args = parser.parse_args()
+
 helper = MetabolomicsExpHelper(dataDict, YCortisol, YTesto, YIgf1, ages)
-helper.runCartTreeRank = True
-helper.runRbfSvmTreeRank = True
-helper.runCartTreeRankForest = True
-helper.runRbfSvmTreeRankForest = True
-helper.runRankSVM = False
+helper.runCartTreeRank = args.runCartTreeRank
+helper.runRbfSvmTreeRank = args.runRbfSvmTreeRank
+helper.runCartTreeRankForest = args.runCartTreeRankForest
+helper.runRbfSvmTreeRankForest = args.runRbfSvmTreeRankForest
+helper.runRankSVM = args.runRankSVM
+helper.runRankBoost = args.runRankBoost
 helper.run()
