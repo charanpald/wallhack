@@ -97,14 +97,14 @@ class MetabolomicsExpHelper(object):
         self.rankBoost = RankBoost()
         self.rankBoostParams = {} 
         self.rankBoostParams["setIterations"] = numpy.array([10, 50, 100])
-        self.rankBoostParams["setLearners"] = numpy.array([10, 20])
+        self.rankBoostParams["setLearners"] = numpy.array([5, 10, 20])
         
         #RankSVM
         self.rankSVM = RankSVM()
         self.rankSVM.setKernel("rbf")
         self.rankSVMParams = {} 
-        self.rankSVMParams["setC"] = 2.0**numpy.arange(-5, -3, dtype=numpy.float)
-        self.rankSVMParams["setGamma"] =  2.0**numpy.arange(-5, -3, dtype=numpy.float)
+        self.rankSVMParams["setC"] = 2.0**numpy.arange(-5, 5, dtype=numpy.float)
+        self.rankSVMParams["setGamma"] =  2.0**numpy.arange(-5, 0, dtype=numpy.float)
 
         #Store all the label vectors and their missing values
         self.hormoneDict = {"Cortisol": YCortisol, "Testosterone": YTesto, "IGF1": YIgf1}
