@@ -120,6 +120,7 @@ class MetabolomicsExpHelper(object):
             filelock.lock()
             try: 
                 logging.debug("Computing file " + fileName)
+                logging.debug("Shape of examples: " + str(X.shape) + ", number of +1: " + str(numpy.sum(Y==1)) + ", -1: " + str(numpy.sum(Y==-1)))
                 
                 idxFull = Sampling.crossValidation(self.outerFolds, X.shape[0])
                 errors = numpy.zeros(self.outerFolds)
@@ -167,7 +168,7 @@ class MetabolomicsExpHelper(object):
                     X = numpy.c_[X, self.ages[nonNaInds]]
                     X = Standardiser().standardiseArray(X)
 
-                    logging.debug("Shape of examples: " + str(X.shape) + ", number of +1: " + str(numpy.sum(Y==1)) + ", -1: " + str(numpy.sum(Y==-1)))
+                    
 
                     if self.runCartTreeRank: 
                         fileName = self.resultsDir + "CartTreeRank-" + hormoneName + "-" + str(i) + "-" + dataName + ".npy"
