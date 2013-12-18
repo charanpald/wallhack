@@ -1,7 +1,3 @@
-"""
-Perform cross validation using TreeRank
-"""
-
 import argparse
 import numpy
 import sys
@@ -12,6 +8,10 @@ from apgl.util.PathDefaults import PathDefaults
 from wallhack.metabolomics.MetabolomicsExpHelper import MetabolomicsExpHelper
 from wallhack.metabolomics.MetabolomicsUtils import MetabolomicsUtils
 from socket import gethostname
+
+"""
+Run a variety of bipartite ranking on the metabolomics data 
+"""
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 logging.debug("Running from machine " + str(gethostname()))
@@ -30,7 +30,7 @@ XwDb8 = MetabolomicsUtils.getWaveletFeatures(X, 'db8', level, mode)
 XwHaar = MetabolomicsUtils.getWaveletFeatures(X, 'haar', level, mode)
 
 #Filter the wavelets
-Ns = [10, 25, 50, 75, 100]
+Ns = [25, 50, 75]
 dataDict = {}
 
 for i in range(len(Ns)):
@@ -54,19 +54,19 @@ numpy.random.seed(datetime.datetime.now().microsecond)
 
 
 parser = argparse.ArgumentParser(description='Run the metabolomics experiments')
-parser.add_argument("--runCartTreeRank", action="store_true", default=False)
-parser.add_argument("--runRbfSvmTreeRank", action="store_true", default=False)
-parser.add_argument("--runCartTreeRankForest", action="store_true", default=False)
-parser.add_argument("--runRbfSvmTreeRankForest", action="store_true", default=False)
+parser.add_argument("--runCartTR", action="store_true", default=False)
+parser.add_argument("--runRbfSvmTR", action="store_true", default=False)
+parser.add_argument("--runCartTRF", action="store_true", default=False)
+parser.add_argument("--runRbfSvmTRF", action="store_true", default=False)
 parser.add_argument("--runRankSVM", action="store_true", default=False)
 parser.add_argument("--runRankBoost", action="store_true", default=False)
 args = parser.parse_args()
 
 helper = MetabolomicsExpHelper(dataDict, YCortisol, YTesto, YIgf1, ages)
-helper.runCartTreeRank = args.runCartTreeRank
-helper.runRbfSvmTreeRank = args.runRbfSvmTreeRank
-helper.runCartTreeRankForest = args.runCartTreeRankForest
-helper.runRbfSvmTreeRankForest = args.runRbfSvmTreeRankForest
+helper.runCartTreeRank = args.runCartTR
+helper.runRbfSvmTreeRank = args.runRbfSvmTR
+helper.runCartTreeRankForest = args.runCartTRF
+helper.runRbfSvmTreeRankForest = args.runRbfSvmTRF
 helper.runRankSVM = args.runRankSVM
 helper.runRankBoost = args.runRankBoost
 helper.run()
