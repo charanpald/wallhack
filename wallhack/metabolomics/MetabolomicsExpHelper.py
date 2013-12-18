@@ -34,11 +34,6 @@ class MetabolomicsExpHelper(object):
         self.YIgf1 = YIgf1 
         self.ages = ages
 
-        self.maxDepth = 10
-        self.numTrees = 10
-        self.sampleSize = 1.0
-        self.sampleReplace = True
-        
         self.outerFolds = 3
         self.innerFolds = 5
         self.resultsDir = PathDefaults.getOutputDir() + "metabolomics/"
@@ -82,7 +77,7 @@ class MetabolomicsExpHelper(object):
         #RBF SVM TreeRankForest 
         leafRankFolds = 3 
         leafRankParamDict = {} 
-        leafRankParamDict["setC"] = 2**numpy.arange(-5, 5, dtype=numpy.float)  
+        leafRankParamDict["setC"] = 2.0**numpy.arange(-5, 5, dtype=numpy.float)  
         leafRankParamDict["setGamma"] =  2.0**numpy.arange(-5, 0, dtype=numpy.float)
         leafRankLearner = SVMLeafRank(leafRankParamDict, leafRankFolds) 
         leafRankLearner.setKernel("rbf")
@@ -167,8 +162,6 @@ class MetabolomicsExpHelper(object):
                     X = dataFeatures[nonNaInds, :]
                     X = numpy.c_[X, self.ages[nonNaInds]]
                     X = Standardiser().standardiseArray(X)
-
-                    
 
                     if self.runCartTreeRank: 
                         fileName = self.resultsDir + "CartTreeRank-" + hormoneName + "-" + str(i) + "-" + dataName + ".npy"
