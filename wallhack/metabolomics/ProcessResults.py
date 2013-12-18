@@ -2,7 +2,6 @@ import sys
 import numpy 
 import logging
 import datetime 
-import matplotlib.pyplot as plt
 from apgl.util.PathDefaults import PathDefaults
 from apgl.util.Latex import Latex 
 from wallhack.metabolomics.MetabolomicsUtils import MetabolomicsUtils
@@ -15,7 +14,7 @@ figureDir = resultsDir + "Figures/"
 metaUtils = MetabolomicsUtils() 
 X, XStd, X2, (XoplsCortisol, XoplsTesto, XoplsIgf1), YCortisol, YTesto, YIgf1, ages = metaUtils.loadData()
 
-Ns = [10, 25, 50, 75, 100]
+Ns = [25, 50, 75]
 dataDict = {}
 numpy.random.seed(datetime.datetime.now().microsecond)
 helper = MetabolomicsExpHelper(dataDict, YCortisol, YTesto, YIgf1, ages)
@@ -47,7 +46,7 @@ for i, hormoneNameIndicator in enumerate(hormoneNameIndicators):
             try: 
                 errors = numpy.load(fileName)
                 testAucsMean[i, j, k] = numpy.mean(errors)
-                testAucsStd[i, j, k] = numpy.mean(errors)
+                testAucsStd[i, j, k] = numpy.std(errors)
                 print(fileName, numpy.mean(errors))
             except: 
                 logging.debug("File not found : " + str(fileName))
