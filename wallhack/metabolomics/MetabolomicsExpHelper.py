@@ -160,6 +160,7 @@ class MetabolomicsExpHelper(object):
                     trainX, trainY = X[trainInds, :], Y[trainInds]
                     testX, testY = X[testInds, :], Y[testInds]
                     idx = Sampling.crossValidation(self.innerFolds, trainX.shape[0])
+                    logging.debug("Initial learner is " + str(learner))
                     bestLearner, cvGrid = learner.parallelModelSelect(trainX, trainY, idx, paramDict)
     
                     
@@ -219,7 +220,7 @@ class MetabolomicsExpHelper(object):
                         
                     if self.runL1SvmTreeRankForest: 
                         fileName = self.resultsDir + "L1SvmTreeRankForest-" + hormoneName + "-" + str(i) + "-" + dataName + ".npy"
-                        self.saveResult(X, Y, self.l1SvmTreeRankForest, self.l1SvmTreeRankForest, fileName) 
+                        self.saveResult(X, Y, self.l1SvmTreeRankForest, self.l1SvmTreeRankForestParams, fileName) 
 
                     if self.runRankBoost: 
                         fileName = self.resultsDir + "RankBoost-" + hormoneName + "-" + str(i) + "-" + dataName + ".npy"
