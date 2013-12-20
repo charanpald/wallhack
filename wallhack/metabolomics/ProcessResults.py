@@ -7,7 +7,7 @@ from apgl.util.Latex import Latex
 from wallhack.metabolomics.MetabolomicsUtils import MetabolomicsUtils
 from wallhack.metabolomics.MetabolomicsExpHelper import MetabolomicsExpHelper
 
-logging.basicConfig(stream=sys.stdout, level=logging.WARN)
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 resultsDir = PathDefaults.getOutputDir() + "metabolomics/"
 figureDir = resultsDir + "Figures/"
 
@@ -20,11 +20,6 @@ numpy.random.seed(datetime.datetime.now().microsecond)
 helper = MetabolomicsExpHelper(dataDict, YCortisol, YTesto, YIgf1, ages)
 
 dataNames =[] 
-for i, N in enumerate(Ns):
-    dataNames.append("Db4-" + str(N))
-    dataNames.append("Db8-" + str(N))
-    dataNames.append("Haar-" + str(N))
-
 dataNames.extend(["raw", "Db4", "Db8", "Haar", "log"])
 algorithms = ["CartTreeRank", "CartTreeRankForest", "RbfSvmTreeRank", "RbfSvmTreeRankForest", "RankBoost", "RankSVM"]
 
@@ -47,7 +42,7 @@ for i, hormoneNameIndicator in enumerate(hormoneNameIndicators):
                 errors = numpy.load(fileName)
                 testAucsMean[i, j, k] = numpy.mean(errors)
                 testAucsStd[i, j, k] = numpy.std(errors)
-                print(fileName, numpy.mean(errors))
+                logging.debug("Read file: " + fileName)
             except: 
                 logging.debug("File not found : " + str(fileName))
     
