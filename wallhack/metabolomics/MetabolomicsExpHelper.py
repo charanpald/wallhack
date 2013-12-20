@@ -24,8 +24,10 @@ class MetabolomicsExpHelper(object):
         
         self.runCartTreeRank = False 
         self.runRbfSvmTreeRank = False 
+        self.runL1SvmTreeRank = False
         self.runCartTreeRankForest = False 
         self.runRbfSvmTreeRankForest = False 
+        self.runL1SvmTreeRankForest = False
         self.runRankBoost = False 
         self.runRankSVM = False 
         
@@ -38,6 +40,11 @@ class MetabolomicsExpHelper(object):
         self.innerFolds = 5
         self.resultsDir = PathDefaults.getOutputDir() + "metabolomics/"
      
+        #General params 
+        Cs = 2.0**numpy.arange(-5, 6, dtype=numpy.float)   
+        gammas = 2.0**numpy.arange(-5, 1, dtype=numpy.float)
+        depths = numpy.array([2, 5, 10]) 
+     
         #CART TreeRank 
         leafRankFolds = 3 
         leafRankParamDict = {} 
@@ -47,20 +54,33 @@ class MetabolomicsExpHelper(object):
         self.cartTreeRank = TreeRank(leafRankLearner)
         self.cartTreeRank.processes = 1
         self.cartTreeRankParams = {}
-        self.cartTreeRankParams["setMaxDepth"] = numpy.array([2, 5, 10])     
+        self.cartTreeRankParams["setMaxDepth"] = depths
      
         #RBF SVM TreeRank 
         leafRankFolds = 3 
         leafRankParamDict = {} 
-        leafRankParamDict["setC"] = 2**numpy.arange(-5, 5, dtype=numpy.float)  
-        leafRankParamDict["setGamma"] =  2.0**numpy.arange(-5, 0, dtype=numpy.float)
+        leafRankParamDict["setC"] = Cs  
+        leafRankParamDict["setGamma"] =  gammas
         leafRankLearner = SVMLeafRank(leafRankParamDict, leafRankFolds) 
         leafRankLearner.setKernel("rbf")
         
         self.rbfSvmTreeRank = TreeRank(leafRankLearner)
         self.rbfSvmTreeRank.processes = 1
         self.rbfSvmTreeRankParams = {}
-        self.rbfSvmTreeRankParams["setMaxDepth"] = numpy.array([2, 5, 10])
+        self.rbfSvmTreeRankParams["setMaxDepth"] = depths
+        
+        #Linear L1 SVM TreeRank 
+        leafRankFolds = 3 
+        leafRankParamDict = {} 
+        leafRankParamDict["setC"] = Cs 
+        leafRankLearner = SVMLeafRank(leafRankParamDict, leafRankFolds) 
+        leafRankLearner.setKernel("linear")
+        leafRankLearner.setPenalty("l1")
+        
+        self.l1SvmTreeRank = TreeRank(leafRankLearner)
+        self.l1SvmTreeRank.processes = 1
+        self.l1SvmTreeRankParams = {}
+        self.l1SvmTreeRankParams["setMaxDepth"] = depths       
         
         #CART TreeRankForest 
         leafRankFolds = 3 
@@ -72,13 +92,13 @@ class MetabolomicsExpHelper(object):
         self.cartTreeRankForest.processes = 1
         self.cartTreeRankForest.setNumTrees(10)
         self.cartTreeRankForestParams = {}
-        self.cartTreeRankForestParams["setMaxDepth"] = numpy.array([2, 5, 10])          
+        self.cartTreeRankForestParams["setMaxDepth"] = depths         
     
         #RBF SVM TreeRankForest 
         leafRankFolds = 3 
         leafRankParamDict = {} 
-        leafRankParamDict["setC"] = 2.0**numpy.arange(-5, 5, dtype=numpy.float)  
-        leafRankParamDict["setGamma"] =  2.0**numpy.arange(-5, 0, dtype=numpy.float)
+        leafRankParamDict["setC"] = Cs  
+        leafRankParamDict["setGamma"] =  gammas
         leafRankLearner = SVMLeafRank(leafRankParamDict, leafRankFolds) 
         leafRankLearner.setKernel("rbf")
      
@@ -86,7 +106,21 @@ class MetabolomicsExpHelper(object):
         self.rbfSvmTreeRankForest.processes = 1
         self.rbfSvmTreeRankForest.setNumTrees(10)
         self.rbfSvmTreeRankForestParams = {}
-        self.rbfSvmTreeRankForestParams["setMaxDepth"] = numpy.array([2, 5, 10])  
+        self.rbfSvmTreeRankForestParams["setMaxDepth"] = depths 
+    
+        #L1 SVM TreeRankForest 
+        leafRankFolds = 3 
+        leafRankParamDict = {} 
+        leafRankParamDict["setC"] = Cs 
+        leafRankLearner = SVMLeafRank(leafRankParamDict, leafRankFolds) 
+        leafRankLearner.setKernel("linear")
+        leafRankLearner.setPenalty("l1")  
+        
+        self.l1SvmTreeRankForest = TreeRankForest(leafRankLearner)
+        self.l1SvmTreeRankForest.processes = 1
+        self.l1SvmTreeRankForest.setNumTrees(10)
+        self.l1SvmTreeRankForestParams = {}
+        self.l1SvmTreeRankForestParams["setMaxDepth"] = depths 
     
         #RankBoost 
         self.rankBoost = RankBoost()
@@ -98,8 +132,8 @@ class MetabolomicsExpHelper(object):
         self.rankSVM = RankSVM()
         self.rankSVM.setKernel("rbf")
         self.rankSVMParams = {} 
-        self.rankSVMParams["setC"] = 2.0**numpy.arange(-5, 5, dtype=numpy.float)
-        self.rankSVMParams["setGamma"] =  2.0**numpy.arange(-5, 0, dtype=numpy.float)
+        self.rankSVMParams["setC"] = 2.0**numpy.arange(-3, 3, dtype=numpy.float)
+        self.rankSVMParams["setGamma"] =  2.0**numpy.arange(-3, 0, dtype=numpy.float)
 
         #Store all the label vectors and their missing values
         self.hormoneDict = {"Cortisol": YCortisol, "Testosterone": YTesto, "IGF1": YIgf1}
@@ -171,6 +205,10 @@ class MetabolomicsExpHelper(object):
                         fileName = self.resultsDir + "RbfSvmTreeRank-" + hormoneName + "-" + str(i) + "-" + dataName + ".npy"
                         self.saveResult(X, Y, self.rbfSvmTreeRank, self.rbfSvmTreeRankParams, fileName)    
 
+                    if self.runL1SvmTreeRank: 
+                        fileName = self.resultsDir + "L1SvmTreeRank-" + hormoneName + "-" + str(i) + "-" + dataName + ".npy"
+                        self.saveResult(X, Y, self.l1SvmTreeRank, self.l1SvmTreeRankParams, fileName)        
+
                     if self.runCartTreeRankForest: 
                         fileName = self.resultsDir + "CartTreeRankForest-" + hormoneName + "-" + str(i) + "-" + dataName + ".npy"
                         self.saveResult(X, Y, self.cartTreeRankForest, self.cartTreeRankForestParams, fileName) 
@@ -178,6 +216,10 @@ class MetabolomicsExpHelper(object):
                     if self.runRbfSvmTreeRankForest: 
                         fileName = self.resultsDir + "RbfSvmTreeRankForest-" + hormoneName + "-" + str(i) + "-" + dataName + ".npy"
                         self.saveResult(X, Y, self.rbfSvmTreeRankForest, self.rbfSvmTreeRankForestParams, fileName) 
+                        
+                    if self.runL1SvmTreeRankForest: 
+                        fileName = self.resultsDir + "L1SvmTreeRankForest-" + hormoneName + "-" + str(i) + "-" + dataName + ".npy"
+                        self.saveResult(X, Y, self.l1SvmTreeRankForest, self.l1SvmTreeRankForest, fileName) 
 
                     if self.runRankBoost: 
                         fileName = self.resultsDir + "RankBoost-" + hormoneName + "-" + str(i) + "-" + dataName + ".npy"
