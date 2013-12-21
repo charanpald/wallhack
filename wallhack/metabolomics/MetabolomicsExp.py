@@ -39,6 +39,7 @@ dataDict["log"] = X2
 numpy.random.seed(datetime.datetime.now().microsecond)
 
 parser = argparse.ArgumentParser(description='Run the metabolomics experiments')
+parser.add_argument("--runAll", action="store_true", default=False)
 parser.add_argument("--runCartTR", action="store_true", default=False)
 parser.add_argument("--runRbfSvmTR", action="store_true", default=False)
 parser.add_argument("--runL1SvmTR", action="store_true", default=False)
@@ -50,12 +51,24 @@ parser.add_argument("--runRankBoost", action="store_true", default=False)
 args = parser.parse_args()
 
 helper = MetabolomicsExpHelper(dataDict, YCortisol, YTesto, YIgf1, ages)
-helper.runCartTreeRank = args.runCartTR
-helper.runRbfSvmTreeRank = args.runRbfSvmTR
-helper.runL1SvmTreeRank = args.runL1SvmTR
-helper.runCartTreeRankForest = args.runCartTRF
-helper.runRbfSvmTreeRankForest = args.runRbfSvmTRF
-helper.runL1SvmTreeRankForest = args.runL1SvmTRF
-helper.runRankSVM = args.runRankSVM
-helper.runRankBoost = args.runRankBoost
+
+if args.runAll: 
+    helper.runCartTreeRank = True
+    helper.runRbfSvmTreeRank = True
+    helper.runL1SvmTreeRank = True
+    helper.runCartTreeRankForest = True
+    helper.runRbfSvmTreeRankForest = True
+    helper.runL1SvmTreeRankForest = True
+    #helper.runRankSVM = True
+    helper.runRankBoost = True
+else: 
+    helper.runCartTreeRank = args.runCartTR
+    helper.runRbfSvmTreeRank = args.runRbfSvmTR
+    helper.runL1SvmTreeRank = args.runL1SvmTR
+    helper.runCartTreeRankForest = args.runCartTRF
+    helper.runRbfSvmTreeRankForest = args.runRbfSvmTRF
+    helper.runL1SvmTreeRankForest = args.runL1SvmTRF
+    helper.runRankSVM = args.runRankSVM
+    helper.runRankBoost = args.runRankBoost
+    
 helper.run()
