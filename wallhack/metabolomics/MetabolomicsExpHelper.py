@@ -41,9 +41,9 @@ class MetabolomicsExpHelper(object):
         self.resultsDir = PathDefaults.getOutputDir() + "metabolomics/"
      
         #General params 
-        Cs = 2.0**numpy.arange(-5, 6, dtype=numpy.float)   
-        gammas = 2.0**numpy.arange(-5, 1, dtype=numpy.float)
-        depths = numpy.array([2, 5, 10]) 
+        Cs = 2.0**numpy.arange(-6, 7, dtype=numpy.float)   
+        gammas = 2.0**numpy.arange(-6, 2, dtype=numpy.float)
+        depths = numpy.array([2, 3, 5]) 
      
         #CART TreeRank 
         leafRankFolds = 3 
@@ -162,10 +162,10 @@ class MetabolomicsExpHelper(object):
                     idx = Sampling.crossValidation(self.innerFolds, trainX.shape[0])
                     logging.debug("Initial learner is " + str(learner))
                     bestLearner, cvGrid = learner.parallelModelSelect(trainX, trainY, idx, paramDict)
-    
-                    
+
                     bestLearner = learner.getBestLearner(cvGrid, paramDict, trainX, trainY, idx, best="max")
                     logging.debug("Best learner is " + str(bestLearner))
+                    
                     bestLearner.learnModel(trainX, trainY)
                     predY = bestLearner.predict(testX)
                     errors[i] = Evaluator.auc(predY, testY)
