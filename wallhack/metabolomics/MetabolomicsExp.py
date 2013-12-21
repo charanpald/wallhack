@@ -4,6 +4,7 @@ import sys
 import logging
 import os
 import datetime
+import multiprocessing 
 from apgl.util.PathDefaults import PathDefaults
 from wallhack.metabolomics.MetabolomicsExpHelper import MetabolomicsExpHelper
 from wallhack.metabolomics.MetabolomicsUtils import MetabolomicsUtils
@@ -39,6 +40,7 @@ dataDict["log"] = X2
 numpy.random.seed(datetime.datetime.now().microsecond)
 
 parser = argparse.ArgumentParser(description='Run the metabolomics experiments')
+parser.add_argument("--processes", type=int, default=multiprocessing.cpu_count())
 parser.add_argument("--runAll", action="store_true", default=False)
 parser.add_argument("--runCartTR", action="store_true", default=False)
 parser.add_argument("--runRbfSvmTR", action="store_true", default=False)
@@ -50,7 +52,7 @@ parser.add_argument("--runRankSVM", action="store_true", default=False)
 parser.add_argument("--runRankBoost", action="store_true", default=False)
 args = parser.parse_args()
 
-helper = MetabolomicsExpHelper(dataDict, YCortisol, YTesto, YIgf1, ages)
+helper = MetabolomicsExpHelper(dataDict, YCortisol, YTesto, YIgf1, ages, args.processes)
 
 if args.runAll: 
     helper.runCartTreeRank = True
