@@ -14,14 +14,13 @@ figureDir = resultsDir + "Figures/"
 metaUtils = MetabolomicsUtils() 
 X, XStd, X2, (XoplsCortisol, XoplsTesto, XoplsIgf1), YCortisol, YTesto, YIgf1, ages = metaUtils.loadData()
 
-Ns = [25, 50, 75]
 dataDict = {}
 numpy.random.seed(datetime.datetime.now().microsecond)
 helper = MetabolomicsExpHelper(dataDict, YCortisol, YTesto, YIgf1, ages)
 
 dataNames =[] 
 dataNames.extend(["raw", "Db4", "Db8", "Haar", "log"])
-algorithms = ["CartTreeRank", "CartTreeRankForest", "RbfSvmTreeRank", "RbfSvmTreeRankForest", "RankBoost", "RankSVM"]
+algorithms = ["CartTreeRank", "CartTreeRankForest", "L1SvmTreeRank", "L1SvmTreeRankForest", "RbfSvmTreeRank", "RbfSvmTreeRankForest", "RankBoost", "RankSVM"]
 
 hormoneNameIndicators = [] 
 for i, (hormoneName, hormoneConc) in enumerate(helper.hormoneDict.items()):
