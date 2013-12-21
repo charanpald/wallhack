@@ -16,7 +16,7 @@ from sandbox.ranking.RankSVM import RankSVM
 from sandbox.ranking.RankBoost import RankBoost
 
 class MetabolomicsExpHelper(object):
-    def __init__(self, dataDict, YCortisol, YTesto, YIgf1, ages):
+    def __init__(self, dataDict, YCortisol, YTesto, YIgf1, ages, numProcesses=1):
         """
         Create a new object for run the metabolomics experiments
         """
@@ -39,7 +39,8 @@ class MetabolomicsExpHelper(object):
         self.outerFolds = 3
         self.innerFolds = 5
         self.resultsDir = PathDefaults.getOutputDir() + "metabolomics/"
-     
+        self.numProcesses = numProcesses
+
         #General params 
         Cs = 2.0**numpy.arange(-6, 7, dtype=numpy.float)   
         gammas = 2.0**numpy.arange(-6, 2, dtype=numpy.float)
@@ -51,8 +52,7 @@ class MetabolomicsExpHelper(object):
         leafRankParamDict["setMaxDepth"] = numpy.arange(1, 8)
         leafRankLearner = DecisionTree(leafRankParamDict, leafRankFolds)  
      
-        self.cartTreeRank = TreeRank(leafRankLearner)
-        self.cartTreeRank.processes = 1
+        self.cartTreeRank = TreeRank(leafRankLearner, numProcesses=numProcesses)
         self.cartTreeRankParams = {}
         self.cartTreeRankParams["setMaxDepth"] = depths
      
@@ -63,9 +63,9 @@ class MetabolomicsExpHelper(object):
         leafRankParamDict["setGamma"] =  gammas
         leafRankLearner = SVMLeafRank(leafRankParamDict, leafRankFolds) 
         leafRankLearner.setKernel("rbf")
+        leafRankLearner.processes = 1
         
-        self.rbfSvmTreeRank = TreeRank(leafRankLearner)
-        self.rbfSvmTreeRank.processes = 1
+        self.rbfSvmTreeRank = TreeRank(leafRankLearner, numProcesses=numProcesses)
         self.rbfSvmTreeRankParams = {}
         self.rbfSvmTreeRankParams["setMaxDepth"] = depths
         
@@ -76,9 +76,9 @@ class MetabolomicsExpHelper(object):
         leafRankLearner = SVMLeafRank(leafRankParamDict, leafRankFolds) 
         leafRankLearner.setKernel("linear")
         leafRankLearner.setPenalty("l1")
+        leafRankLearner.processes = 1
         
-        self.l1SvmTreeRank = TreeRank(leafRankLearner)
-        self.l1SvmTreeRank.processes = 1
+        self.l1SvmTreeRank = TreeRank(leafRankLearner, numProcesses=numProcesses)
         self.l1SvmTreeRankParams = {}
         self.l1SvmTreeRankParams["setMaxDepth"] = depths       
         
@@ -87,9 +87,9 @@ class MetabolomicsExpHelper(object):
         leafRankParamDict = {} 
         leafRankParamDict["setMaxDepth"] = numpy.arange(1, 8)
         leafRankLearner = DecisionTree(leafRankParamDict, leafRankFolds)  
+        leafRankLearner.processes = 1
      
-        self.cartTreeRankForest = TreeRankForest(leafRankLearner)
-        self.cartTreeRankForest.processes = 1
+        self.cartTreeRankForest = TreeRankForest(leafRankLearner, numProcesses=numProcesses)
         self.cartTreeRankForest.setNumTrees(10)
         self.cartTreeRankForestParams = {}
         self.cartTreeRankForestParams["setMaxDepth"] = depths         
@@ -101,9 +101,9 @@ class MetabolomicsExpHelper(object):
         leafRankParamDict["setGamma"] =  gammas
         leafRankLearner = SVMLeafRank(leafRankParamDict, leafRankFolds) 
         leafRankLearner.setKernel("rbf")
+        leafRankLearner.processes = 1
      
-        self.rbfSvmTreeRankForest = TreeRankForest(leafRankLearner)
-        self.rbfSvmTreeRankForest.processes = 1
+        self.rbfSvmTreeRankForest = TreeRankForest(leafRankLearner, numProcesses=numProcesses)
         self.rbfSvmTreeRankForest.setNumTrees(10)
         self.rbfSvmTreeRankForestParams = {}
         self.rbfSvmTreeRankForestParams["setMaxDepth"] = depths 
@@ -115,21 +115,21 @@ class MetabolomicsExpHelper(object):
         leafRankLearner = SVMLeafRank(leafRankParamDict, leafRankFolds) 
         leafRankLearner.setKernel("linear")
         leafRankLearner.setPenalty("l1")  
+        leafRankLearner.processes = 1
         
-        self.l1SvmTreeRankForest = TreeRankForest(leafRankLearner)
-        self.l1SvmTreeRankForest.processes = 1
+        self.l1SvmTreeRankForest = TreeRankForest(leafRankLearner, numProcesses=numProcesses)
         self.l1SvmTreeRankForest.setNumTrees(10)
         self.l1SvmTreeRankForestParams = {}
         self.l1SvmTreeRankForestParams["setMaxDepth"] = depths 
     
         #RankBoost 
-        self.rankBoost = RankBoost()
+        self.rankBoost = RankBoost(numProcesses=numProcesses)
         self.rankBoostParams = {} 
         self.rankBoostParams["setIterations"] = numpy.array([10, 50, 100])
         self.rankBoostParams["setLearners"] = numpy.array([5, 10, 20])
         
         #RankSVM
-        self.rankSVM = RankSVM()
+        self.rankSVM = RankSVM(numProcesses=numProcesses)
         self.rankSVM.setKernel("rbf")
         self.rankSVMParams = {} 
         self.rankSVMParams["setC"] = 2.0**numpy.arange(-3, 3, dtype=numpy.float)
