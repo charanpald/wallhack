@@ -9,6 +9,7 @@ from apgl.util.PathDefaults import PathDefaults
 from wallhack.metabolomics.MetabolomicsExpHelper import MetabolomicsExpHelper
 from wallhack.metabolomics.MetabolomicsUtils import MetabolomicsUtils
 from socket import gethostname
+from sklearn.decomposition import PCA
 
 """
 Run a variety of bipartite ranking on the metabolomics data 
@@ -24,6 +25,10 @@ dataDir = PathDefaults.getDataDir() +  "metabolomic/"
 metaUtils = MetabolomicsUtils() 
 X, XStd, X2, (XoplsCortisol, XoplsTesto, XoplsIgf1), YCortisol, YTesto, YIgf1, ages = metaUtils.loadData()
 
+#We model 99.1% of the spectrum with 100 eigenvectors 
+pca = PCA(n_components=100)
+XPca = pca.fit_transform(X)
+
 mode = "cpd"
 level = 10
 XwDb4 = MetabolomicsUtils.getWaveletFeatures(X, 'db4', level, mode)
@@ -32,6 +37,7 @@ XwHaar = MetabolomicsUtils.getWaveletFeatures(X, 'haar', level, mode)
 
 dataDict = {}
 dataDict["raw"] = X
+dataDict["pca"] = XPca
 dataDict["Db4"] = XwDb4
 dataDict["Db8"] = XwDb8
 dataDict["Haar"] = XwHaar 
@@ -55,9 +61,9 @@ args = parser.parse_args()
 helper = MetabolomicsExpHelper(dataDict, YCortisol, YTesto, YIgf1, ages, args.processes)
 
 if args.runAll: 
-    helper.runCartTreeRank = True
-    helper.runRbfSvmTreeRank = True
-    helper.runL1SvmTreeRank = True
+    #helper.runCartTreeRank = True
+    #helper.runRbfSvmTreeRank = True
+    #helper.runL1SvmTreeRank = True
     helper.runCartTreeRankForest = True
     helper.runRbfSvmTreeRankForest = True
     helper.runL1SvmTreeRankForest = True
