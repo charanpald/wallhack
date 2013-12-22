@@ -42,9 +42,10 @@ class MetabolomicsExpHelper(object):
         self.numProcesses = numProcesses
 
         #General params 
-        Cs = 2.0**numpy.arange(-6, 7, dtype=numpy.float)   
-        gammas = 2.0**numpy.arange(-6, 2, dtype=numpy.float)
+        Cs = 2.0**numpy.arange(-7, 7, dtype=numpy.float)   
+        gammas = 2.0**numpy.arange(-7, 3, dtype=numpy.float)
         depths = numpy.array([2, 3, 5]) 
+        numTrees = numpy.array([5, 10, 15])
      
         #CART TreeRank 
         leafRankFolds = 3 
@@ -91,8 +92,9 @@ class MetabolomicsExpHelper(object):
      
         self.cartTreeRankForest = TreeRankForest(leafRankLearner, numProcesses=numProcesses)
         self.cartTreeRankForest.setNumTrees(10)
+        self.cartTreeRankForest.setMaxDepth(8)
         self.cartTreeRankForestParams = {}
-        self.cartTreeRankForestParams["setMaxDepth"] = depths         
+        self.cartTreeRankForestParams["setMaxDepth"] = depths   
     
         #RBF SVM TreeRankForest 
         leafRankFolds = 3 
@@ -105,6 +107,7 @@ class MetabolomicsExpHelper(object):
      
         self.rbfSvmTreeRankForest = TreeRankForest(leafRankLearner, numProcesses=numProcesses)
         self.rbfSvmTreeRankForest.setNumTrees(10)
+        self.rbfSvmTreeRankForest.setMaxDepth(8)
         self.rbfSvmTreeRankForestParams = {}
         self.rbfSvmTreeRankForestParams["setMaxDepth"] = depths 
     
@@ -119,6 +122,7 @@ class MetabolomicsExpHelper(object):
         
         self.l1SvmTreeRankForest = TreeRankForest(leafRankLearner, numProcesses=numProcesses)
         self.l1SvmTreeRankForest.setNumTrees(10)
+        self.l1SvmTreeRankForest.setMaxDepth(8)
         self.l1SvmTreeRankForestParams = {}
         self.l1SvmTreeRankForestParams["setMaxDepth"] = depths 
     
@@ -132,7 +136,7 @@ class MetabolomicsExpHelper(object):
         self.rankSVM = RankSVM(numProcesses=numProcesses)
         self.rankSVM.setKernel("rbf")
         self.rankSVMParams = {} 
-        self.rankSVMParams["setC"] = 2.0**numpy.arange(-3, 3, dtype=numpy.float)
+        self.rankSVMParams["setC"] = 2.0**numpy.arange(-2, 3, dtype=numpy.float)
         self.rankSVMParams["setGamma"] =  2.0**numpy.arange(-3, 0, dtype=numpy.float)
 
         #Store all the label vectors and their missing values
