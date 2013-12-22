@@ -20,7 +20,8 @@ helper = MetabolomicsExpHelper(dataDict, YCortisol, YTesto, YIgf1, ages)
 
 dataNames =[] 
 dataNames.extend(["raw", "Db4", "Db8", "Haar", "log"])
-algorithms = ["CartTreeRank", "CartTreeRankForest", "L1SvmTreeRank", "L1SvmTreeRankForest", "RbfSvmTreeRank", "RbfSvmTreeRankForest", "RankBoost", "RankSVM"]
+#algorithms = ["CartTreeRank", "CartTreeRankForest", "L1SvmTreeRank", "L1SvmTreeRankForest", "RbfSvmTreeRank", "RbfSvmTreeRankForest", "RankBoost", "RankSVM"]
+algorithms = ["CartTreeRankForest", "L1SvmTreeRankForest", "RbfSvmTreeRankForest", "RankBoost", "RankSVM"]
 
 hormoneNameIndicators = [] 
 for i, (hormoneName, hormoneConc) in enumerate(helper.hormoneDict.items()):
