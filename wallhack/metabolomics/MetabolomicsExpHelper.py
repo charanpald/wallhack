@@ -44,9 +44,9 @@ class MetabolomicsExpHelper(object):
         #General params 
         Cs = 2.0**numpy.arange(-7, 7, dtype=numpy.float)   
         gammas = 2.0**numpy.arange(-7, 3, dtype=numpy.float)
-        depths = numpy.array([2, 3, 5]) 
-        numTrees = numpy.array([5, 10, 15])
-     
+        depths = numpy.array([2, 4, 8]) 
+        numTrees = 15
+
         #CART TreeRank 
         leafRankFolds = 3 
         leafRankParamDict = {} 
@@ -91,8 +91,7 @@ class MetabolomicsExpHelper(object):
         leafRankLearner.processes = 1
      
         self.cartTreeRankForest = TreeRankForest(leafRankLearner, numProcesses=numProcesses)
-        self.cartTreeRankForest.setNumTrees(10)
-        self.cartTreeRankForest.setMaxDepth(8)
+        self.cartTreeRankForest.setNumTrees(numTrees)
         self.cartTreeRankForestParams = {}
         self.cartTreeRankForestParams["setMaxDepth"] = depths   
     
@@ -106,8 +105,7 @@ class MetabolomicsExpHelper(object):
         leafRankLearner.processes = 1
      
         self.rbfSvmTreeRankForest = TreeRankForest(leafRankLearner, numProcesses=numProcesses)
-        self.rbfSvmTreeRankForest.setNumTrees(10)
-        self.rbfSvmTreeRankForest.setMaxDepth(8)
+        self.rbfSvmTreeRankForest.setNumTrees(numTrees)
         self.rbfSvmTreeRankForestParams = {}
         self.rbfSvmTreeRankForestParams["setMaxDepth"] = depths 
     
@@ -121,8 +119,7 @@ class MetabolomicsExpHelper(object):
         leafRankLearner.processes = 1
         
         self.l1SvmTreeRankForest = TreeRankForest(leafRankLearner, numProcesses=numProcesses)
-        self.l1SvmTreeRankForest.setNumTrees(10)
-        self.l1SvmTreeRankForest.setMaxDepth(8)
+        self.l1SvmTreeRankForest.setNumTrees(numTrees)
         self.l1SvmTreeRankForestParams = {}
         self.l1SvmTreeRankForestParams["setMaxDepth"] = depths 
     
