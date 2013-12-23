@@ -16,7 +16,7 @@ from sandbox.ranking.RankSVM import RankSVM
 from sandbox.ranking.RankBoost import RankBoost
 
 class MetabolomicsExpHelper(object):
-    def __init__(self, dataDict, YCortisol, YTesto, YIgf1, ages, numProcesses=1):
+    def __init__(self, dataDict, YCortisol, YTesto, YIgf1, ages, numProcesses=1, runCortisol=True, runTestosterone=True, runIGF1=True):
         """
         Create a new object for run the metabolomics experiments
         """
@@ -30,6 +30,10 @@ class MetabolomicsExpHelper(object):
         self.runL1SvmTreeRankForest = False
         self.runRankBoost = False 
         self.runRankSVM = False 
+        
+        self.runCortisol = runCortisol 
+        self.runTestosterone = runTestosterone 
+        self.runIGF1 = runIGF1
         
         self.YCortisol = YCortisol 
         self.YTesto = YTesto 
@@ -141,7 +145,14 @@ class MetabolomicsExpHelper(object):
         self.rankSVMParams["setGamma"] =  2.0**numpy.arange(-3, 0, dtype=numpy.float)
 
         #Store all the label vectors and their missing values
-        self.hormoneDict = {"Cortisol": YCortisol, "Testosterone": YTesto, "IGF1": YIgf1}
+        self.hormoneDict = {}
+        if self.runCortisol: 
+            self.hormoneDict["Cortisol"] = YCortisol
+        if self.runTestosterone: 
+            self.hormoneDict["Testosterone"] = YTesto
+        if self.runIGF1: 
+            self.hormoneDict["IGF1"] = YIgf1
+        
 
     def saveResult(self, X, Y, learner, paramDict, fileName):
         """
@@ -189,6 +200,8 @@ class MetabolomicsExpHelper(object):
         learners. 
         """
         metaUtils = MetabolomicsUtils()
+        
+        logging.debug("Running on hormones: " + str(self.hormoneDict.keys()))
         
         for hormoneName, hormoneConc in self.hormoneDict.items():
             nonNaInds = numpy.logical_not(numpy.isnan(hormoneConc))

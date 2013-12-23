@@ -57,9 +57,30 @@ parser.add_argument("--runRbfSvmTRF", action="store_true", default=False)
 parser.add_argument("--runL1SvmTRF", action="store_true", default=False)
 parser.add_argument("--runRankSVM", action="store_true", default=False)
 parser.add_argument("--runRankBoost", action="store_true", default=False)
+
+parser.add_argument("--hormoneInd", type=int, default=3, help='Choose which hormone to work on: cortisol (0), testosterone (1), IGF1 (2), all(3)')
 args = parser.parse_args()
 
-helper = MetabolomicsExpHelper(dataDict, YCortisol, YTesto, YIgf1, ages, args.processes)
+if args.hormoneInd == 0: 
+    runCortisol = True 
+    runTestosterone = False 
+    runIGF1 = False 
+elif args.hormoneInd == 1:
+    runCortisol = False 
+    runTestosterone = True 
+    runIGF1 = False 
+elif args.hormoneInd == 2:
+    runCortisol = False 
+    runTestosterone = False 
+    runIGF1 = True 
+elif args.hormoneInd == 3:
+    runCortisol = True 
+    runTestosterone = True 
+    runIGF1 = True 
+else:
+    raise ValueError("Invalid hormone index: " + str(args.hormoneInd))
+
+helper = MetabolomicsExpHelper(dataDict, YCortisol, YTesto, YIgf1, ages, args.processes, runCortisol, runTestosterone, runIGF1)
 
 if args.runAll: 
     #helper.runCartTreeRank = True
@@ -79,5 +100,5 @@ else:
     helper.runL1SvmTreeRankForest = args.runL1SvmTRF
     helper.runRankSVM = args.runRankSVM
     helper.runRankBoost = args.runRankBoost
-    
+
 helper.run()
