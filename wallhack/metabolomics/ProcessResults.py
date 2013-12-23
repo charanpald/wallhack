@@ -19,7 +19,7 @@ numpy.random.seed(datetime.datetime.now().microsecond)
 helper = MetabolomicsExpHelper(dataDict, YCortisol, YTesto, YIgf1, ages)
 
 dataNames =[] 
-dataNames.extend(["raw", "Db4", "Db8", "Haar", "log"])
+dataNames.extend(["raw", "pca", "log", "Db4", "Db8", "Haar"])
 #algorithms = ["CartTreeRank", "CartTreeRankForest", "L1SvmTreeRank", "L1SvmTreeRankForest", "RbfSvmTreeRank", "RbfSvmTreeRankForest", "RankBoost", "RankSVM"]
 algorithms = ["CartTreeRankForest", "L1SvmTreeRankForest", "RbfSvmTreeRankForest", "RankBoost", "RankSVM"]
 
@@ -50,6 +50,6 @@ for i, dataName in enumerate(dataNames):
     print("-"*10 + dataName + "-"*10)
 
     algorithms = [x.ljust(20) for x in algorithms]
-    table = Latex.array2DToRows(testAucsMean[:, i, :].T, testAucsStd[:, i, :].T)
+    table = Latex.array2DToRows(testAucsMean[:, i, :].T, testAucsStd[:, i, :].T, precision=2)
     print(Latex.listToRow(hormoneNameIndicators))
     print(Latex.addRowNames(algorithms, table))

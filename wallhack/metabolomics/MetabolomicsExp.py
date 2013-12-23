@@ -38,10 +38,11 @@ XwHaar = MetabolomicsUtils.getWaveletFeatures(X, 'haar', level, mode)
 dataDict = {}
 dataDict["raw"] = X
 dataDict["pca"] = XPca
+dataDict["log"] = X2
 dataDict["Db4"] = XwDb4
 dataDict["Db8"] = XwDb8
 dataDict["Haar"] = XwHaar 
-dataDict["log"] = X2
+
 
 numpy.random.seed(datetime.datetime.now().microsecond)
 
