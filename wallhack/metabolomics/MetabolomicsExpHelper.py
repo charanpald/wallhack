@@ -45,7 +45,7 @@ class MetabolomicsExpHelper(object):
         Cs = 2.0**numpy.arange(-7, 7, dtype=numpy.float)   
         gammas = 2.0**numpy.arange(-7, 3, dtype=numpy.float)
         depths = numpy.array([2, 4, 8]) 
-        numTrees = 15
+        numTrees = 10
         sampleSize = 1.0
 
         #CART TreeRank 
