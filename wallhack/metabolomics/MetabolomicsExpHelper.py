@@ -52,7 +52,7 @@ class MetabolomicsExpHelper(object):
         numTrees = 10
         sampleSize = 1.0
         maxDepth = 10
-        featureSize = None 
+        featureSize = 0.5 
 
         #CART TreeRank 
         leafRankFolds = 3 
