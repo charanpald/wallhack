@@ -40,8 +40,8 @@ class MetabolomicsExpHelper(object):
         self.YIgf1 = YIgf1 
         self.ages = ages
 
-        self.outerFolds = 3
-        self.innerFolds = 5
+        self.outerFolds = 4
+        self.innerFolds = 4
         self.resultsDir = PathDefaults.getOutputDir() + "metabolomics/"
         self.numProcesses = numProcesses
 
@@ -103,6 +103,9 @@ class MetabolomicsExpHelper(object):
         self.cartTreeRankForest.setFeatureSize(featureSize)
         self.cartTreeRankForestParams = {}
         self.cartTreeRankForestParams["setMaxDepth"] = numpy.array([maxDepth])   
+        self.cartTreeRankForestParams["setNumTrees"] = numpy.array([10, 15, 20])
+        self.cartTreeRankForestParams["setSampleSize"] = numpy.array([0.5, 0.75, 1.0])
+        self.cartTreeRankForestParams["setFeatureSize"] = numpy.array([0.5, 0.75, 1.0])
     
         #RBF SVM TreeRankForest 
         leafRankFolds = 3 
@@ -119,6 +122,9 @@ class MetabolomicsExpHelper(object):
         self.rbfSvmTreeRankForest.setFeatureSize(featureSize)
         self.rbfSvmTreeRankForestParams = {}
         self.rbfSvmTreeRankForestParams["setMaxDepth"] = numpy.array([maxDepth]) 
+        self.rbfSvmTreeRankForestParams["setNumTrees"] = numpy.array([10, 15, 20])
+        self.rbfSvmTreeRankForestParams["setSampleSize"] = numpy.array([0.5, 0.75, 1.0])
+        self.rbfSvmTreeRankForestParams["setFeatureSize"] = numpy.array([0.5, 0.75, 1.0])
     
         #L1 SVM TreeRankForest 
         leafRankFolds = 3 
@@ -135,6 +141,9 @@ class MetabolomicsExpHelper(object):
         self.l1SvmTreeRankForest.setFeatureSize(featureSize)
         self.l1SvmTreeRankForestParams = {}
         self.l1SvmTreeRankForestParams["setMaxDepth"] = numpy.array([maxDepth]) 
+        self.l1SvmTreeRankForestParams["setNumTrees"] = numpy.array([10, 15, 20])
+        self.l1SvmTreeRankForestParams["setSampleSize"] = numpy.array([0.5, 0.75, 1.0])
+        self.l1SvmTreeRankForestParams["setFeatureSize"] = numpy.array([0.5, 0.75, 1.0])
     
         #RankBoost 
         self.rankBoost = RankBoost(numProcesses=numProcesses)
