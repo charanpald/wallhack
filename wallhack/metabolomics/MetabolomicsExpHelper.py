@@ -2,6 +2,7 @@ import os
 import numpy
 import logging
 import gc 
+from sklearn.cross_val import StratifiedKFold
 from apgl.util.PathDefaults import PathDefaults
 from apgl.util.FileLock import FileLock 
 from apgl.util.Sampling import Sampling 
@@ -181,7 +182,8 @@ class MetabolomicsExpHelper(object):
                 logging.debug("Computing file " + fileName)
                 logging.debug("Shape of examples: " + str(X.shape) + ", number of +1: " + str(numpy.sum(Y==1)) + ", -1: " + str(numpy.sum(Y==-1)))
                 
-                idxFull = Sampling.crossValidation(self.outerFolds, X.shape[0])
+                #idxFull = Sampling.crossValidation(self.outerFolds, X.shape[0])
+                idxFull = StratifiedKFold(Y, self.outerFolds)
                 errors = numpy.zeros(self.outerFolds)
                 
                 for i, (trainInds, testInds) in enumerate(idxFull): 
@@ -189,7 +191,8 @@ class MetabolomicsExpHelper(object):
                     
                     trainX, trainY = X[trainInds, :], Y[trainInds]
                     testX, testY = X[testInds, :], Y[testInds]
-                    idx = Sampling.crossValidation(self.innerFolds, trainX.shape[0])
+                    #idx = Sampling.crossValidation(self.innerFolds, trainX.shape[0])
+                    idx = StratifiedKFold(trainY, self.innerFolds)
                     logging.debug("Initial learner is " + str(learner))
                     bestLearner, cvGrid = learner.parallelModelSelect(trainX, trainY, idx, paramDict)
 
