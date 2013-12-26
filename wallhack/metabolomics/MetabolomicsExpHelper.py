@@ -10,7 +10,6 @@ except:
 
 from apgl.util.PathDefaults import PathDefaults
 from apgl.util.FileLock import FileLock 
-from apgl.util.Sampling import Sampling 
 from apgl.util.Evaluator import Evaluator 
 from sandbox.ranking.TreeRank import TreeRank
 from sandbox.ranking.TreeRankForest import TreeRankForest
@@ -161,7 +160,7 @@ class MetabolomicsExpHelper(object):
         self.rankSVM = RankSVM(numProcesses=numProcesses)
         self.rankSVM.setKernel("rbf")
         self.rankSVMParams = {} 
-        self.rankSVMParams["setC"] = 2.0**numpy.arange(-2, 3, dtype=numpy.float)
+        self.rankSVMParams["setC"] = 2.0**numpy.arange(0, 3, dtype=numpy.float)
         self.rankSVMParams["setGamma"] =  2.0**numpy.arange(-3, 0, dtype=numpy.float)
 
         #Store all the label vectors and their missing values
