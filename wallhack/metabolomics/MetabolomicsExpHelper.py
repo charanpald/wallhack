@@ -45,7 +45,7 @@ class MetabolomicsExpHelper(object):
         self.YIgf1 = YIgf1 
         self.ages = ages
 
-        self.outerFolds = 2
+        self.outerFolds = 3
         self.innerFolds = 5
         self.resultsDir = PathDefaults.getOutputDir() + "metabolomics/"
         self.numProcesses = numProcesses
