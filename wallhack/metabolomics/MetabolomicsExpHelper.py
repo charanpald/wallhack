@@ -51,8 +51,8 @@ class MetabolomicsExpHelper(object):
         self.numProcesses = numProcesses
 
         #General params 
-        Cs = 2.0**numpy.arange(-7, 7, dtype=numpy.float)   
-        gammas = 2.0**numpy.arange(-7, 3, dtype=numpy.float)
+        Cs = 2.0**numpy.arange(-5, 7, 2, dtype=numpy.float)   
+        gammas = 2.0**numpy.arange(-5, 3, 2, dtype=numpy.float)
         depths = numpy.array([2, 4, 8]) 
         numTrees = 20
         sampleSize = 1.0
@@ -62,7 +62,7 @@ class MetabolomicsExpHelper(object):
         #CART TreeRank 
         leafRankFolds = 3 
         leafRankParamDict = {} 
-        leafRankParamDict["setMaxDepth"] = numpy.arange(1, 8)
+        leafRankParamDict["setMaxDepth"] = depths
         leafRankLearner = DecisionTree(leafRankParamDict, leafRankFolds)  
      
         self.cartTreeRank = TreeRank(leafRankLearner, numProcesses=numProcesses)
