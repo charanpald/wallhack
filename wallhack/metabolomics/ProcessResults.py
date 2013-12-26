@@ -22,6 +22,7 @@ dataNames =[]
 dataNames.extend(["raw", "pca", "log", "Db4", "Db8", "Haar"])
 #algorithms = ["CartTreeRank", "CartTreeRankForest", "L1SvmTreeRank", "L1SvmTreeRankForest", "RbfSvmTreeRank", "RbfSvmTreeRankForest", "RankBoost", "RankSVM"]
 algorithms = ["CartTreeRankForest", "L1SvmTreeRankForest", "RbfSvmTreeRankForest", "RankBoost", "RankSVM"]
+algorithmsAbbr = ["Cart-TRF", "L1-TRF", "RBF-TRF", "RB", "RSVM"]
 
 hormoneNameIndicators = [] 
 for i, (hormoneName, hormoneConc) in enumerate(helper.hormoneDict.items()):
@@ -49,7 +50,7 @@ for i, hormoneNameIndicator in enumerate(hormoneNameIndicators):
 for i, dataName in enumerate(dataNames): 
     print("-"*10 + dataName + "-"*10)
 
-    algorithms = [x.ljust(20) for x in algorithms]
+    algorithms = [x.ljust(20) for x in algorithmsAbbr]
     table = Latex.array2DToRows(testAucsMean[:, i, :].T, testAucsStd[:, i, :].T, precision=2)
     print(Latex.listToRow(hormoneNameIndicators))
     print(Latex.addRowNames(algorithms, table))
