@@ -2,7 +2,12 @@ import os
 import numpy
 import logging
 import gc 
-from sklearn.cross_val import StratifiedKFold
+try: 
+    from sklearn.cross_val import StratifiedKFold
+except: 
+    #Version 0.12 fix 
+    from sklearn.cross_validation import StratifiedKFold
+
 from apgl.util.PathDefaults import PathDefaults
 from apgl.util.FileLock import FileLock 
 from apgl.util.Sampling import Sampling 
