@@ -54,7 +54,7 @@ class MetabolomicsExpHelper(object):
         Cs = 2.0**numpy.arange(-7, 7, dtype=numpy.float)   
         gammas = 2.0**numpy.arange(-7, 3, dtype=numpy.float)
         depths = numpy.array([2, 4, 8]) 
-        numTrees = 10
+        numTrees = 20
         sampleSize = 1.0
         maxDepth = 10
         featureSize = 0.5 
@@ -108,7 +108,6 @@ class MetabolomicsExpHelper(object):
         self.cartTreeRankForest.setFeatureSize(featureSize)
         self.cartTreeRankForestParams = {}
         self.cartTreeRankForestParams["setMaxDepth"] = numpy.array([maxDepth])   
-        self.cartTreeRankForestParams["setNumTrees"] = numpy.array([10, 15, 20])
         self.cartTreeRankForestParams["setSampleSize"] = numpy.array([0.5, 0.75, 1.0])
         self.cartTreeRankForestParams["setFeatureSize"] = numpy.array([0.5, 0.75, 1.0])
     
@@ -127,7 +126,6 @@ class MetabolomicsExpHelper(object):
         self.rbfSvmTreeRankForest.setFeatureSize(featureSize)
         self.rbfSvmTreeRankForestParams = {}
         self.rbfSvmTreeRankForestParams["setMaxDepth"] = numpy.array([maxDepth]) 
-        self.rbfSvmTreeRankForestParams["setNumTrees"] = numpy.array([10, 15, 20])
         self.rbfSvmTreeRankForestParams["setSampleSize"] = numpy.array([0.5, 0.75, 1.0])
         self.rbfSvmTreeRankForestParams["setFeatureSize"] = numpy.array([0.5, 0.75, 1.0])
     
@@ -146,7 +144,6 @@ class MetabolomicsExpHelper(object):
         self.l1SvmTreeRankForest.setFeatureSize(featureSize)
         self.l1SvmTreeRankForestParams = {}
         self.l1SvmTreeRankForestParams["setMaxDepth"] = numpy.array([maxDepth]) 
-        self.l1SvmTreeRankForestParams["setNumTrees"] = numpy.array([10, 15, 20])
         self.l1SvmTreeRankForestParams["setSampleSize"] = numpy.array([0.5, 0.75, 1.0])
         self.l1SvmTreeRankForestParams["setFeatureSize"] = numpy.array([0.5, 0.75, 1.0])
     
