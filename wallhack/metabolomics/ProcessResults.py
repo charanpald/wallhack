@@ -19,7 +19,7 @@ numpy.random.seed(datetime.datetime.now().microsecond)
 helper = MetabolomicsExpHelper(dataDict, YCortisol, YTesto, YIgf1, ages)
 
 dataNames =[] 
-dataNames.extend(["raw", "pca", "log", "Db4", "Db8", "Haar"])
+dataNames.extend(["raw", "pca", "Db4", "Db8", "Haar"])
 #algorithms = ["CartTreeRank", "CartTreeRankForest", "L1SvmTreeRank", "L1SvmTreeRankForest", "RbfSvmTreeRank", "RbfSvmTreeRankForest", "RankBoost", "RankSVM"]
 algorithms = ["CartTreeRankForest", "L1SvmTreeRankForest", "RbfSvmTreeRankForest", "RankBoost", "RankSVM"]
 algorithmsAbbr = ["Cart-TRF", "L1-TRF", "RBF-TRF", "RB", "RSVM"]
