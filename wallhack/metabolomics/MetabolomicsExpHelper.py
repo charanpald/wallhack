@@ -47,6 +47,7 @@ class MetabolomicsExpHelper(object):
 
         self.outerFolds = 3
         self.innerFolds = 5
+        self.leafRankFolds = 3
         self.resultsDir = PathDefaults.getOutputDir() + "metabolomics/"
         self.numProcesses = numProcesses
 
@@ -60,21 +61,19 @@ class MetabolomicsExpHelper(object):
         featureSize = 0.5 
 
         #CART TreeRank 
-        leafRankFolds = 3 
         leafRankParamDict = {} 
         leafRankParamDict["setMaxDepth"] = depths
-        leafRankLearner = DecisionTree(leafRankParamDict, leafRankFolds)  
+        leafRankLearner = DecisionTree(leafRankParamDict, self.leafRankFolds)  
      
         self.cartTreeRank = TreeRank(leafRankLearner, numProcesses=numProcesses)
         self.cartTreeRankParams = {}
         self.cartTreeRankParams["setMaxDepth"] = depths
      
         #RBF SVM TreeRank 
-        leafRankFolds = 3 
         leafRankParamDict = {} 
         leafRankParamDict["setC"] = Cs  
         leafRankParamDict["setGamma"] =  gammas
-        leafRankLearner = SVMLeafRank(leafRankParamDict, leafRankFolds) 
+        leafRankLearner = SVMLeafRank(leafRankParamDict, self.leafRankFolds) 
         leafRankLearner.setKernel("rbf")
         leafRankLearner.processes = 1
         
@@ -83,10 +82,9 @@ class MetabolomicsExpHelper(object):
         self.rbfSvmTreeRankParams["setMaxDepth"] = depths
         
         #Linear L1 SVM TreeRank 
-        leafRankFolds = 3 
         leafRankParamDict = {} 
         leafRankParamDict["setC"] = Cs 
-        leafRankLearner = SVMLeafRank(leafRankParamDict, leafRankFolds) 
+        leafRankLearner = SVMLeafRank(leafRankParamDict, self.leafRankFolds) 
         leafRankLearner.setKernel("linear")
         leafRankLearner.setPenalty("l1")
         leafRankLearner.processes = 1
@@ -96,10 +94,9 @@ class MetabolomicsExpHelper(object):
         self.l1SvmTreeRankParams["setMaxDepth"] = depths       
         
         #CART TreeRankForest 
-        leafRankFolds = 3 
         leafRankParamDict = {} 
-        leafRankParamDict["setMaxDepth"] = numpy.arange(1, 8)
-        leafRankLearner = DecisionTree(leafRankParamDict, leafRankFolds)  
+        leafRankParamDict["setMaxDepth"] = depths 
+        leafRankLearner = DecisionTree(leafRankParamDict, self.leafRankFolds)  
         leafRankLearner.processes = 1
      
         self.cartTreeRankForest = TreeRankForest(leafRankLearner, numProcesses=numProcesses)
@@ -112,11 +109,10 @@ class MetabolomicsExpHelper(object):
         self.cartTreeRankForestParams["setFeatureSize"] = numpy.array([0.5, 0.75, 1.0])
     
         #RBF SVM TreeRankForest 
-        leafRankFolds = 3 
         leafRankParamDict = {} 
         leafRankParamDict["setC"] = Cs  
         leafRankParamDict["setGamma"] =  gammas
-        leafRankLearner = SVMLeafRank(leafRankParamDict, leafRankFolds) 
+        leafRankLearner = SVMLeafRank(leafRankParamDict, self.leafRankFolds) 
         leafRankLearner.setKernel("rbf")
         leafRankLearner.processes = 1
      
@@ -130,10 +126,9 @@ class MetabolomicsExpHelper(object):
         self.rbfSvmTreeRankForestParams["setFeatureSize"] = numpy.array([0.5, 0.75, 1.0])
     
         #L1 SVM TreeRankForest 
-        leafRankFolds = 3 
         leafRankParamDict = {} 
         leafRankParamDict["setC"] = Cs 
-        leafRankLearner = SVMLeafRank(leafRankParamDict, leafRankFolds) 
+        leafRankLearner = SVMLeafRank(leafRankParamDict, self.leafRankFolds) 
         leafRankLearner.setKernel("linear")
         leafRankLearner.setPenalty("l1")  
         leafRankLearner.processes = 1
