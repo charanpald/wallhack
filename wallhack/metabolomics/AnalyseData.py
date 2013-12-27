@@ -5,7 +5,9 @@ import sys
 from wallhack.metabolomics.MetabolomicsUtils import MetabolomicsUtils
 from apgl.util.PathDefaults import PathDefaults
 from socket import gethostname
-import matplotlib.pyplot as plt
+import matplotlib 
+matplotlib.use("GTK3Agg")
+import matplotlib.pyplot as plt 
 from sandbox.data.Standardiser import Standardiser
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
@@ -13,12 +15,9 @@ logging.debug("Running from machine " + str(gethostname()))
 numpy.random.seed(21)
 numpy.set_printoptions(linewidth=160, precision=3, suppress=True)
 
-
-
 dataDir = PathDefaults.getDataDir() +  "metabolomic/"
-X, X2, Xs, XOpls, YList, ages, df = MetabolomicsUtils.loadData()
-
-YIgf1Inds, YICortisolInds, YTestoInds = MetabolomicsUtils.createIndicatorLabels(YList)
+metaUtils = MetabolomicsUtils() 
+X, XStd, X2, (XoplsCortisol, XoplsTesto, XoplsIgf1), YCortisol, YTesto, YIgf1, ages = metaUtils.loadData()
 
 mode = "cpd"
 level = 10
@@ -27,8 +26,8 @@ XwDb8 = MetabolomicsUtils.getWaveletFeatures(X, 'db8', level, mode)
 XwHaar = MetabolomicsUtils.getWaveletFeatures(X, 'haar', level, mode)
 
 #Plot the correlation of the raw spectrum above x percent
-Xr = numpy.random.rand(Xs.shape[0], Xs.shape[1])
-datasets = [(Xr, "random"), (Xs, "raw"), (XwHaar, "haar"), (XwDb4, "db4"), (XwDb8, "db8")]
+Xr = numpy.random.rand(XStd.shape[0], XStd.shape[1])
+datasets = [(Xr, "random"), (XStd, "raw"), (XwHaar, "Haar"), (XwDb4, "Db4"), (XwDb8, "Db8")]
 
 corLims = numpy.arange(0, 1.01, 0.01)
 
@@ -45,12 +44,10 @@ for dataset in datasets:
     for i in range(corLims.shape[0]):
         correlations[i] = numpy.sum(numpy.abs(upperC) >= corLims[i])/float(upperC.size)
 
-
     plt.plot(corLims, correlations, label=dataset[1])
 
-
-plt.xlabel("Absolute correlation lower bound")
-plt.ylabel("Proportion of pairs")
+plt.xlabel("correlation > x")
+plt.ylabel("probability")
 plt.legend()
 plt.show()
 
