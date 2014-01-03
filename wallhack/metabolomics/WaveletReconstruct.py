@@ -16,7 +16,6 @@ logging.debug("Running from machine " + str(gethostname()))
 numpy.random.seed(21)
 numpy.set_printoptions(linewidth=160, precision=3, suppress=True)
 
-
 dataDir = PathDefaults.getDataDir() +  "metabolomic/"
 metaUtils = MetabolomicsUtils() 
 X, XStd, X2, (XoplsCortisol, XoplsTesto, XoplsIgf1), YCortisol, YTesto, YIgf1, ages = metaUtils.loadData()
@@ -29,41 +28,22 @@ numFeatures = numpy.zeros(maxLevel)
 
 level = 10 
 waveletStrs = ["haar", "db4", "db8"]
+plt.figure(0)
 
-#The variances are very similar across different wavelets 
-for waveletStr in waveletStrs:
-    print(waveletStr)
-    Xw = MetabolomicsUtils.getWaveletFeatures(X, waveletStr, level, mode)
-    standardiser = Standardiser()
-    Xw = standardiser.centreArray(Xw)
-    w, V = numpy.linalg.eig(Xw.dot(Xw.T))
-    w = numpy.flipud(numpy.sort(w))
+C = XStd.T.dot(XStd)
+w, V = numpy.linalg.eigh(C)
+w = numpy.flipud(numpy.sort(w))
 
-    variances = []
-    variances.append(numpy.sum(w[0:1])/numpy.sum(w))
-    variances.append(numpy.sum(w[0:5])/numpy.sum(w))
-    variances.append(numpy.sum(w[0:10])/numpy.sum(w))
-    variances.append(numpy.sum(w[0:15])/numpy.sum(w))
-    variances.append(numpy.sum(w[0:20])/numpy.sum(w))
-    variances.append(numpy.sum(w[0:25])/numpy.sum(w))
-    variances.append(numpy.sum(w[0:50])/numpy.sum(w))
-    variances.append(numpy.sum(w[0:100])/numpy.sum(w))
-    variances.append(numpy.sum(w[0:150])/numpy.sum(w))
-    variances.append(numpy.sum(w[0:200])/numpy.sum(w))
-    #print(variances)
-
-
-#100 PCs models 0.9908% of variance
-plt.figure(2)
-plt.plot(range(100), w[0:100], "k")
-plt.xlabel("Eigenvalue rank")
-plt.ylabel("Eigenvalue")
-#plt.show()
-
+numEigs = 100
+plt.plot(numpy.arange(numEigs), w[0:numEigs], "k")
+plt.xlabel("eigenvalue rank")
+plt.ylabel("eigenvalue")
+print(numpy.sum(w[0:numEigs])/numpy.sum(w))
 
 #Now try some filtering and plot N versus reconstruction error
 Ns = range(0, 700, 50)
 waveletStrs = ['haar', 'db4', 'db8']
+waveletStrs2 = ['Haar', 'Db4', 'Db8']
 errors = numpy.zeros((len(waveletStrs), len(Ns)))
 mode = "cpd"
 
@@ -99,7 +79,7 @@ plt.ylabel("value")
 
 plt.figure(4)
 for i in range(errors.shape[0]):
-    plt.plot(Ns, errors[i, :], label=waveletStrs[i])
+    plt.plot(Ns, errors[i, :], label=waveletStrs2[i])
     plt.xlabel("N")
     plt.ylabel("error")
 
