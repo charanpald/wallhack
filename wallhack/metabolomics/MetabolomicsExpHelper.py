@@ -220,11 +220,13 @@ class MetabolomicsExpHelper(object):
                 logging.debug("Computing weights file " + fileName)
                 logging.debug("Shape of examples: " + str(X.shape) + ", number of +1: " + str(numpy.sum(Y==1)) + ", -1: " + str(numpy.sum(Y==-1)))
                                 
-                logging.debug("Initial learner is " + str(learner))
+                tempLearner = learner.copy()
+                logging.debug("Initial learner is " + str(tempLearner))
                 idx = StratifiedKFold(Y, self.innerFolds)
-                bestLearner, cvGrid = learner.parallelModelSelect(X, Y, idx, paramDict)
+                tempLearner.processes = self.numProcesses
+                bestLearner, cvGrid = tempLearner.parallelModelSelect(X, Y, idx, paramDict)
 
-                bestLearner = learner.getBestLearner(cvGrid, paramDict, X, Y, idx, best="max")
+                bestLearner = tempLearner.getBestLearner(cvGrid, paramDict, X, Y, idx, best="max")
                 logging.debug("Best learner is " + str(bestLearner))
                 
                 bestLearner.learnModel(X, Y)
