@@ -207,6 +207,35 @@ class MetabolomicsExpHelper(object):
         else:
             logging.debug("File exists, or is locked: " + fileName)
 
+    def saveWeightVectorResults(self, X, Y, learner, paramDict, fileName): 
+        """
+        Save the results of the variable importance 
+        """
+        filelock = FileLock(fileName)
+        gc.collect()
+
+        if not filelock.isLocked() and not filelock.fileExists(): 
+            filelock.lock()
+            try: 
+                logging.debug("Computing weights file " + fileName)
+                logging.debug("Shape of examples: " + str(X.shape) + ", number of +1: " + str(numpy.sum(Y==1)) + ", -1: " + str(numpy.sum(Y==-1)))
+                                
+                logging.debug("Initial learner is " + str(learner))
+                idx = StratifiedKFold(Y, self.innerFolds)
+                bestLearner, cvGrid = learner.parallelModelSelect(X, Y, idx, paramDict)
+
+                bestLearner = learner.getBestLearner(cvGrid, paramDict, X, Y, idx, best="max")
+                logging.debug("Best learner is " + str(bestLearner))
+                
+                bestLearner.learnModel(X, Y)
+                weightVector = bestLearner.variableImportance(X, Y)   
+                numpy.save(fileName, weightVector)
+                logging.debug("Saved results as : " + fileName)
+            finally: 
+                filelock.unlock()
+        else:
+            logging.debug("File exists, or is locked: " + fileName)
+
     def saveResults(self):
         """
         Compute the results and save them for a particular hormone. Does so for all
@@ -239,7 +268,11 @@ class MetabolomicsExpHelper(object):
 
                     if self.runL1SvmTreeRank: 
                         fileName = self.resultsDir + "L1SvmTreeRank-" + hormoneName + "-" + str(i) + "-" + dataName + ".npy"
-                        self.saveResult(X, Y, self.l1SvmTreeRank, self.l1SvmTreeRankParams, fileName)        
+                        self.saveResult(X, Y, self.l1SvmTreeRank, self.l1SvmTreeRankParams, fileName)   
+                        
+                        #For this SVM save the weight vector 
+                        weightsFileName = self.resultsDir + "WeightsL1SvmTreeRank-" + hormoneName + "-" + str(i) + "-" + dataName + ".npy"
+                        self.saveResult(X, Y, self.l1SvmTreeRank, self.l1SvmTreeRankParams, weightsFileName)    
 
                     if self.runCartTreeRankForest: 
                         fileName = self.resultsDir + "CartTreeRankForest-" + hormoneName + "-" + str(i) + "-" + dataName + ".npy"
@@ -252,6 +285,10 @@ class MetabolomicsExpHelper(object):
                     if self.runL1SvmTreeRankForest: 
                         fileName = self.resultsDir + "L1SvmTreeRankForest-" + hormoneName + "-" + str(i) + "-" + dataName + ".npy"
                         self.saveResult(X, Y, self.l1SvmTreeRankForest, self.l1SvmTreeRankForestParams, fileName) 
+                        
+                        #For this SVM save the weight vector 
+                        weightsFileName = self.resultsDir + "WeightsL1SvmTreeRankForest-" + hormoneName + "-" + str(i) + "-" + dataName + ".npy"
+                        self.saveResult(X, Y, self.l1SvmTreeRankForest, self.l1SvmTreeRankForestParams, weightsFileName)    
 
                     if self.runRankBoost: 
                         fileName = self.resultsDir + "RankBoost-" + hormoneName + "-" + str(i) + "-" + dataName + ".npy"
