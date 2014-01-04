@@ -274,7 +274,7 @@ class MetabolomicsExpHelper(object):
                         
                         #For this SVM save the weight vector 
                         weightsFileName = self.resultsDir + "WeightsL1SvmTreeRank-" + hormoneName + "-" + str(i) + "-" + dataName + ".npy"
-                        self.saveResult(X, Y, self.l1SvmTreeRank, self.l1SvmTreeRankParams, weightsFileName)    
+                        self.saveWeightVectorResults(X, Y, self.l1SvmTreeRank, self.l1SvmTreeRankParams, weightsFileName)    
 
                     if self.runCartTreeRankForest: 
                         fileName = self.resultsDir + "CartTreeRankForest-" + hormoneName + "-" + str(i) + "-" + dataName + ".npy"
@@ -290,7 +290,7 @@ class MetabolomicsExpHelper(object):
                         
                         #For this SVM save the weight vector 
                         weightsFileName = self.resultsDir + "WeightsL1SvmTreeRankForest-" + hormoneName + "-" + str(i) + "-" + dataName + ".npy"
-                        self.saveResult(X, Y, self.l1SvmTreeRankForest, self.l1SvmTreeRankForestParams, weightsFileName)    
+                        self.saveWeightVectorResults(X, Y, self.l1SvmTreeRankForest, self.l1SvmTreeRankForestParams, weightsFileName)    
 
                     if self.runRankBoost: 
                         fileName = self.resultsDir + "RankBoost-" + hormoneName + "-" + str(i) + "-" + dataName + ".npy"
