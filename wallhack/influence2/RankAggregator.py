@@ -2,8 +2,6 @@ import numpy
 import logging
 import scipy.sparse 
 import scipy.sparse.linalg
-import cvxopt 
-import cvxopt.solvers
 import array 
 from apgl.util.Util import Util 
 from apgl.util.Evaluator import Evaluator
@@ -214,6 +212,8 @@ class RankAggregator(object):
         A supervised version of MC2 of our own invention. The idea is to find a 
         linear combination of transition matrices to fit a given one. 
         """
+        import cvxopt
+        import cvxopt.solvers
         ell = len(lists)
         n = len(itemList)
         outputList, scores, PList = RankAggregator.MC2(lists, itemList, verbose=True)
@@ -265,6 +265,8 @@ class RankAggregator(object):
         linear combination of transition matrices to fit a given one. We just make
         sure it fits the stationary distribution. 
         """
+        import cvxopt
+        import cvxopt.solvers
         ell = len(lists)
         n = len(itemList)
         outputList, scores, PList = RankAggregator.MC2(lists, itemList, verbose=True)
