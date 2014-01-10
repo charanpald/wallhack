@@ -50,6 +50,8 @@ mode = "cpd"
 standardiser = Standardiser()
 #X = standardiser.centreArray(X)
 
+plotStyles = ['k-', 'k--', 'k-.', 'k:', 'k.']
+
 for i in range(len(waveletStrs)):
     print(i)
     waveletStr = waveletStrs[i]
@@ -72,14 +74,15 @@ Xw2, inds = MetabolomicsUtils.filterWavelet(Xw, N)
 X2 = MetabolomicsUtils.reconstructSignal(X, Xw2, waveletStr, mode, C)
 
 plt.figure(3)
-plt.plot(range(X.shape[1]), X[0, :])
-plt.plot(range(X.shape[1]), X2[0, :])
+plt.plot(range(X.shape[1]), X[0, :], "k", label="raw")
+plt.plot(range(X.shape[1]), X2[0, :], "r", label="filtered")
 plt.xlabel("feature no.")
 plt.ylabel("value")
+plt.legend()
 
 plt.figure(4)
 for i in range(errors.shape[0]):
-    plt.plot(Ns, errors[i, :], label=waveletStrs2[i])
+    plt.plot(Ns, errors[i, :], plotStyles[i], label=waveletStrs2[i])
     plt.xlabel("N")
     plt.ylabel("error")
 

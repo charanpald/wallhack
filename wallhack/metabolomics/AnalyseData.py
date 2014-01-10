@@ -25,13 +25,15 @@ XwDb4 = MetabolomicsUtils.getWaveletFeatures(X, 'db4', level, mode)
 XwDb8 = MetabolomicsUtils.getWaveletFeatures(X, 'db8', level, mode)
 XwHaar = MetabolomicsUtils.getWaveletFeatures(X, 'haar', level, mode)
 
+plotStyles = ['k-', 'k--', 'k-.', 'k:', 'k.']
+
 #Plot the correlation of the raw spectrum above x percent
 Xr = numpy.random.rand(XStd.shape[0], XStd.shape[1])
 datasets = [(Xr, "random"), (XStd, "raw"), (XwHaar, "Haar"), (XwDb4, "Db4"), (XwDb8, "Db8")]
 
 corLims = numpy.arange(0, 1.01, 0.01)
 
-for dataset in datasets:
+for j, dataset in enumerate(datasets):
     X = Standardiser().standardiseArray(dataset[0])
     C = X.T.dot(X)
 
@@ -44,7 +46,7 @@ for dataset in datasets:
     for i in range(corLims.shape[0]):
         correlations[i] = numpy.sum(numpy.abs(upperC) >= corLims[i])/float(upperC.size)
 
-    plt.plot(corLims, correlations, label=dataset[1])
+    plt.plot(corLims, correlations, plotStyles[j], label=dataset[1])
 
 plt.xlabel("correlation > x")
 plt.ylabel("probability")
