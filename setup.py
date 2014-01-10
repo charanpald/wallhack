@@ -1,4 +1,4 @@
-import os
+
 from setuptools import setup
 
 setup(
@@ -11,6 +11,7 @@ setup(
     keywords = "numpy",
     url = "http://packages.python.org/wallhack",
     packages=['wallhack.clusterexp', 'wallhack.egograph', 'wallhack.recommendexp'],
+    install_requires=['numpy>=1.5.0', 'scipy>=0.7.1', "scikit-learn>=0.13"],
     long_description="A collection of experiments with machine learning algorithms",
     classifiers=[
         "Development Status :: 3 - Alpha",
