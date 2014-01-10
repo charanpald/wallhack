@@ -1,8 +1,6 @@
 """
 Use the DBLP dataset to recommend experts. Find the optimal parameters. 
 """
-import gc 
-import os
 import numpy 
 import logging 
 import sys 
@@ -20,13 +18,15 @@ numpy.random.seed(21)
 
 parser = argparse.ArgumentParser(description='Run reputation evaluation experiments')
 parser.add_argument("-r", "--runLDA", action="store_true", help="Run Latent Dirchlet Allocation")
+parser.add_argument("-d", "--useDocs", action="store_true", help="Use document database to find relevant authors")
 args = parser.parse_args()
 
 averagePrecisionN = 20 
 ns = numpy.arange(5, 55, 5)
 runLSI = not args.runLDA
+knownAuthors = not args.useDocs
 
-dataset = ArnetMinerDataset(runLSI=runLSI) 
+dataset = ArnetMinerDataset(runLSI=runLSI, knownAuthors=knownAuthors) 
 #dataset.dataFilename = dataset.dataDir + "DBLP-citation-100000.txt"
 #dataset.dataFilename = dataset.dataDir + "DBLP-citation-1000000.txt"
 #dataset.dataFilename = dataset.dataDir + "DBLP-citation-5000000.txt"
@@ -39,16 +39,21 @@ dataset.overwriteGraph = True
 dataset.overwriteModel = True
 dataset.overwriteVectoriser = True 
 
-dataset.modelSelection()
+if not knownAuthors: 
+    dataset.modelSelection()
 
 for field in dataset.fields: 
     logging.debug("Field = " + field)
-    dataset.learnModel() 
+    if not knownAuthors: 
+        dataset.learnModel() 
     dataset.overwriteVectoriser = False
     dataset.overwriteModel = False    
     
-    relAuthorsDocSimilarity, relAuthorsDocCitations = dataset.findSimilarDocuments(field)
-    
+    if not knownAuthors: 
+        relAuthorsDocSimilarity, relAuthorsDocCitations = dataset.findSimilarDocuments(field)
+    else: 
+        relAuthorsDocSimilarity, relAuthorsDocCitations = dataset.readKnownAuthors(field)
+        
     relevantAuthors = set(relAuthorsDocSimilarity).union(set(relAuthorsDocCitations))
     logging.debug("Total number of relevant authors : " + str(len(relevantAuthors)))
     
@@ -67,7 +72,7 @@ for field in dataset.fields:
     
     if len(testExpertMatches) != 0: 
         #First compute graph properties 
-        computeInfluence = True
+        computeInfluence = False
         graphRanker = GraphRanker(k=100, numRuns=100, computeInfluence=computeInfluence, p=0.05, inputRanking=[relevantAuthorInds1, relevantAuthorInds2])
         outputLists = graphRanker.vertexRankings(graph, relevantAuthorsInds)
              

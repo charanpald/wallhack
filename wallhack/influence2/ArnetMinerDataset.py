@@ -2,6 +2,7 @@ import os
 import numpy 
 import logging 
 import difflib 
+import csv
 import re 
 import sklearn.feature_extraction.text as text 
 import gc
@@ -11,7 +12,6 @@ import array
 import itertools 
 import gensim.matutils
 import scipy.io
-import psutil 
 from gensim.models.ldamodel import LdaModel
 from gensim.models.lsimodel import LsiModel
 import gensim.similarities
@@ -27,10 +27,11 @@ class ArnetMinerDataset(object):
     abstract similarity. The output is two graphs - collaboration and 
     abstract similarity. 
     """    
-    def __init__(self, k=500, additionalFields=[], runLSI=True):
+    def __init__(self, k=500, additionalFields=[], runLSI=True, knownAuthors=False):
         numpy.random.seed(21)
         self.runLSI = runLSI 
         self.dataDir = PathDefaults.getDataDir() + "reputation/" 
+        self.outputDir = PathDefaults.getOutputDir() + "reputation/"
         
         self.fields = ["Boosting", "Computer Vision", "Cryptography", "Data Mining"]
         self.fields.extend(["Information Extraction", "Intelligent Agents", "Machine Learning"])
@@ -40,9 +41,10 @@ class ArnetMinerDataset(object):
         
         self.dataFilename = self.dataDir + "DBLP-citation-Feb21.txt" 
         #self.dataFilename = self.dataDir + "DBLP-citation-7000000.txt" 
-        #self.dataFilename = self.dataDir + "DBLP-citation-100000.txt"        
-        self.outputDir = PathDefaults.getOutputDir() + "reputation/"
-        self.dataDir = PathDefaults.getDataDir() + "reputation/"
+        #self.dataFilename = self.dataDir + "DBLP-citation-100000.txt"  
+        
+        #This option is true if we have a data file which lists authors within each field 
+        self.knownAuthors = knownAuthors
         
         for field in self.fields: 
             if not os.path.exists(self.getOutputFieldDir(field)): 
@@ -201,6 +203,67 @@ class ArnetMinerDataset(object):
         graph.es["invWeight"] = 1.0/(numpy.array(graph.es["weight"])) 
         
         return graph, authorIndexer
+
+    def coauthorsGraphFromAuthors2(self, relevantExperts, field): 
+        """
+        Take a set of relevant authors and return the graph. 
+        """
+        dataFileName = self.dataDir + "__" + field + ".csv" 
+        dataFile = open(dataFileName)
+        authorIndexer = IdIndexer()
+        author1Inds = array.array("i")
+        author2Inds = array.array("i")
+        
+        articleDict = {}
+        
+        for relevantExpert in relevantExperts: 
+            authorIndexer.append(relevantExpert)
+        
+        for i, line in enumerate(dataFile):
+            try: 
+                fields = [x.strip() for x in line.split(";")] 
+                author = fields[1] + " " + fields[2]
+                articleId = fields[4]
+                
+                if articleId not in articleDict.keys(): 
+                    articleDict[articleId] = [author]
+                else: 
+                    articleDict[articleId].append(author)
+            except IndexError:
+                #Ignore bad lines 
+                pass 
+                
+        dataFile.close()
+                            
+        for articleId in articleDict.keys(): 
+            authors = articleDict[articleId]            
+            
+            if len(authors) != 0: 
+                iterator = itertools.combinations(authors, 2)
+            
+                for author1, author2 in iterator: 
+                    if author1 in relevantExperts and author2 in relevantExperts: 
+                        author1Ind = authorIndexer.append(author1) 
+                        author2Ind = authorIndexer.append(author2)
+                            
+                        author1Inds.append(author1Ind)
+                        author2Inds.append(author2Ind)
+    
+        logging.debug("Found " + str(len(authorIndexer.getIdDict())) + " coauthors")
+                               
+        #Coauthor graph is undirected 
+        author1Inds = numpy.array(author1Inds, numpy.int)
+        author2Inds = numpy.array(author2Inds, numpy.int)
+        edges = numpy.c_[author1Inds, author2Inds]            
+        
+        graph = igraph.Graph()
+        graph.add_vertices(len(authorIndexer.getIdDict()))
+        graph.add_edges(edges)
+        graph.es["weight"] = numpy.ones(graph.ecount())
+        graph.simplify(combine_edges=sum)   
+        graph.es["invWeight"] = 1.0/(numpy.array(graph.es["weight"])) 
+        
+        return graph, authorIndexer
             
     def coauthorsGraph(self, field, relevantExperts): 
         """
@@ -208,7 +271,10 @@ class ArnetMinerDataset(object):
         """  
         if not os.path.exists(self.getCoauthorsFilename(field)) or self.overwriteGraph: 
             logging.debug("Finding coauthors of relevant experts")
-            graph, authorIndexer = self.coauthorsGraphFromAuthors(set(relevantExperts))
+            if self.knownAuthors: 
+                graph, authorIndexer = self.coauthorsGraphFromAuthors2(set(relevantExperts), field)
+            else: 
+                graph, authorIndexer = self.coauthorsGraphFromAuthors(set(relevantExperts))
             logging.debug(graph.summary())
             Util.savePickle([graph, authorIndexer], self.getCoauthorsFilename(field), debug=True)
         else: 
@@ -391,10 +457,32 @@ class ArnetMinerDataset(object):
             self.computeLDA()
             
     def findSimilarDocuments(self, field): 
-        if self.runLSI: 
-            return self.findSimilarDocumentsLSI(field)
+        if not self.knownAuthors: 
+            if self.runLSI: 
+                return self.findSimilarDocumentsLSI(field)
+            else: 
+                return self.findSimilarDocumentsLDA(field)    
         else: 
-            return self.findSimilarDocumentsLDA(field)        
+            return self.readKnownAuthors(field)
+             
+    def readKnownAuthors(self, field): 
+        """
+        Reads a file which stores authors who work in this field. 
+        """
+        fileName = self.dataDir + "__" + field + ".csv"
+        authorList = []
+        
+        with open(fileName, 'rb') as csvfile:
+            csvReader = csv.reader(csvfile, delimiter=';')
+            for row in csvReader:
+                try: 
+                    authorList.append(row[1] + " " + row[2])
+                except IndexError: 
+                    pass 
+                
+        authorList = list(set(authorList))
+                
+        return authorList, authorList
       
     def computeLDA(self):
         if not os.path.exists(self.modelFilename) or self.overwriteModel:
