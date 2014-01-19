@@ -25,13 +25,14 @@ X = X.tocsr()
 
 lmbda = 0.00001
 r = numpy.ones(X.shape[0])*0.0
-eps = 0.5
+eps = 0.1
 sigma = 200
 stochastic = True
 maxLocalAuc = MaxLocalAUC(lmbda, k, r, sigma=sigma, eps=eps, stochastic=stochastic)
-maxLocalAuc.maxIterations = 100
+maxLocalAuc.maxIterations = 200
 maxLocalAuc.numSamples = 100
-maxLocalAuc.approxDerivative = False
+maxLocalAuc.approxDerivative = True
+maxLocalAuc.initialAlg = "svd"
         
 omegaList = maxLocalAuc.getOmegaList(X)
 startTime = time.time()
