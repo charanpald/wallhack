@@ -14,10 +14,10 @@ numpy.random.seed(21)
 numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 
 #Create a low rank matrix  
-m = 500 
-n = 100 
-k = 5 
-numInds = 10000
+m = 1000 
+n = 500 
+k = 10 
+numInds = 50000
 X = SparseUtils.generateSparseLowRank((m, n), k, numInds)
 
 X = X/X
@@ -25,14 +25,16 @@ X = X.tocsr()
 
 lmbda = 0.00001
 r = numpy.ones(X.shape[0])*0.0
-eps = 0.1
+eps = 0.01
 sigma = 200
 stochastic = True
 maxLocalAuc = MaxLocalAUC(lmbda, k, r, sigma=sigma, eps=eps, stochastic=stochastic)
 maxLocalAuc.maxIterations = 200
-maxLocalAuc.numSamples = 100
+maxLocalAuc.numRowSamples = 100
+maxLocalAuc.numAucSamples = 200
 maxLocalAuc.approxDerivative = True
 maxLocalAuc.initialAlg = "svd"
+maxLocalAuc.recordStep = 20
         
 omegaList = maxLocalAuc.getOmegaList(X)
 startTime = time.time()
@@ -43,7 +45,7 @@ ProfileUtils.profile('U, V, objs, aucs, iterations = maxLocalAuc.learnModel(X, T
 totalTime = time.time() - startTime 
 
 logging.debug("||U||=" + str(numpy.linalg.norm(U)) + " ||V||=" + str(numpy.linalg.norm(V)))
-logging.debug("Final local AUC:" + str(maxLocalAuc.localAUC(X, U, V, omegaList)))
+logging.debug("Final local AUC:" + str(maxLocalAuc.localAUCApprox(X, U, V, omegaList)))
 logging.debug("Total time taken: " + str(totalTime))
 logging.debug("Number of iterations: " + str(iterations))
 
