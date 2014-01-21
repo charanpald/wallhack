@@ -35,7 +35,7 @@ stochastic = True
 lmbda = 0.1
 
 maxLocalAuc = MaxLocalAUC(lmbda, k, r, sigma=sigma, eps=eps, stochastic=stochastic)
-maxLocalAuc.maxIterations = 500
+maxLocalAuc.maxIterations = 1000
 maxLocalAuc.numRowSamples = 50
 maxLocalAuc.numAucSamples = 200
 maxLocalAuc.approxDerivative = True
@@ -48,19 +48,22 @@ omegaList = maxLocalAuc.getOmegaList(X)
 #Now let's vary learning rate sigma 
 maxLocalAuc.lmbda = 0.0001
 
-sigmas = numpy.array([10, 50, 100, 200, 400, 800]) 
+sigmas = numpy.array([50, 100, 200, 400, 800, 1600]) 
 aucs = numpy.zeros(sigmas.shape[0])
+times = numpy.zeros(sigmas.shape[0])
 
 for i, sigma in enumerate(sigmas): 
     maxLocalAuc.sigma = sigma
             
     logging.debug("Starting training")
-    U, V = maxLocalAuc.learnModel(X, False)
+    U, V, objs, localAucs, iterations, time = maxLocalAuc.learnModel(X, True)
     logging.debug("Done")
     
     aucs[i] = maxLocalAuc.localAUCApprox(X, U, V, omegaList)
+    times[i] = time
   
 logging.debug(aucs)
+logging.debug(times)
   
 plt.figure(plotInd)
 plt.plot(sigmas, aucs)
@@ -68,23 +71,34 @@ plt.xlabel("sigma")
 plt.ylabel("local AUC")
 plotInd += 1
 
+plt.figure(plotInd)
+plt.plot(sigmas, times)
+plt.xlabel("sigma")
+plt.ylabel("time")
+plotInd += 1
+
 #Now the number of row samples used for stochastic gradient descent
 numRowSamplesArr = numpy.array([5, 10, 20, 50, 100])
 aucs = numpy.zeros(numRowSamplesArr.shape[0])
+times = numpy.zeros(numRowSamplesArr.shape[0])
 
 maxLocalAuc.lmbda = 0.0001
-maxLocalAuc.sigma = 200
+maxLocalAuc.sigma = 800
+maxLocalAuc.numRowSamples = 50
+maxLocalAuc.numAucSamples = 200
 
 for i, numRowSamples in enumerate(numRowSamplesArr): 
     maxLocalAuc.numRowSamples = numRowSamples
             
     logging.debug("Starting training")
-    U, V = maxLocalAuc.learnModel(X, False)
+    U, V, objs, localAucs, iterations, time = maxLocalAuc.learnModel(X, True)
     logging.debug("Done")
     
     aucs[i] = maxLocalAuc.localAUCApprox(X, U, V, omegaList)
+    times[i] = time
    
 logging.debug(aucs)   
+logging.debug(times)
    
 plt.figure(plotInd)
 plt.plot(numRowSamplesArr, aucs)
@@ -92,28 +106,44 @@ plt.xlabel("numRowSamples")
 plt.ylabel("local AUC")
 plotInd += 1
 
+plt.figure(plotInd)
+plt.plot(numRowSamplesArr, times)
+plt.xlabel("numRowSamples")
+plt.ylabel("time")
+plotInd += 1
+
 #Now the number of samples used to approximate AUC
 numAucSamplesArr = numpy.array([20, 50, 100, 200])
 aucs = numpy.zeros(numAucSamplesArr.shape[0])
+times = numpy.zeros(numAucSamplesArr.shape[0])
 
 maxLocalAuc.lmbda = 0.0001
-maxLocalAuc.sigma = 200
+maxLocalAuc.sigma = 800
 maxLocalAuc.numRowSamples = 50
+maxLocalAuc.numAucSamples = 200
 
 for i, numAucSamples in enumerate(numAucSamplesArr): 
     maxLocalAuc.numAucSamples = numAucSamples
             
     logging.debug("Starting training")
-    U, V = maxLocalAuc.learnModel(X, False)
+    U, V, objs, localAucs, iterations, time = maxLocalAuc.learnModel(X, True)
     logging.debug("Done")
     
     aucs[i] = maxLocalAuc.localAUCApprox(X, U, V, omegaList)
+    times[i] = time
    
 logging.debug(aucs)   
+logging.debug(times)
    
 plt.figure(plotInd)
 plt.plot(numAucSamplesArr, aucs)
 plt.xlabel("numAucSamples")
 plt.ylabel("local AUC")
+plotInd += 1
+
+plt.figure(plotInd)
+plt.plot(numAucSamplesArr, times)
+plt.xlabel("numAucSamples")
+plt.ylabel("time")
 plotInd += 1
 plt.show()

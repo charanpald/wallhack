@@ -27,21 +27,22 @@ X = X.tocsr()
 
 lmbda = 0.00001
 r = numpy.ones(X.shape[0])*0.0
-eps = 0.0000001
-sigma = 200
+eps = 0.001
+sigma = 5000
 stochastic = True
 maxLocalAuc = MaxLocalAUC(lmbda, k, r, sigma=sigma, eps=eps, stochastic=stochastic)
-maxLocalAuc.maxIterations = 500
-maxLocalAuc.numRowSamples = 50
-maxLocalAuc.numAucSamples = 200
+maxLocalAuc.maxIterations = 2000
+maxLocalAuc.numRowSamples = 10
+maxLocalAuc.numAucSamples = 100
 maxLocalAuc.approxDerivative = True
 maxLocalAuc.initialAlg = "svd"
 maxLocalAuc.recordStep = 20
+maxLocalAuc.rate = "constant"
         
 omegaList = maxLocalAuc.getOmegaList(X)
 
 logging.debug("Starting training")
-ProfileUtils.profile('U, V, objs, aucs, iterations = maxLocalAuc.learnModel(X, True)', globals(), locals())
+ProfileUtils.profile('U, V, objs, aucs, iterations, time = maxLocalAuc.learnModel(X, True)', globals(), locals())
 #U, V, objs, aucs, iterations = maxLocalAuc.learnModel(X, True)
 
 logging.debug("||U||=" + str(numpy.linalg.norm(U)) + " ||V||=" + str(numpy.linalg.norm(V)))
