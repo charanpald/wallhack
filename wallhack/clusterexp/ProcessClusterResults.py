@@ -25,7 +25,7 @@ plotCitation = False
 BemolSubDir = "Bemol"
 BemolSubDir = "Bemol_nbU=10000_nbPurchPerIt=500_startIt=500_endIt=600_maxComponents=None"
 HIVSubDir = "HIV"
-CitationSubDir = "Citation_dayStep=30"
+CitationSubDir = "Citation_dayStep=5"
 
 # uncomment data files to read (corresponding curve will be recomputed)
 increasingClustFileName = resultsDir + "IncreasingContrastClustErrors_pmax0.01"
@@ -39,7 +39,21 @@ startingIteration = 0000    # for HIV, Bemol and Citation data, iteration number
 #==========================================================================
 #==========================================================================
 
-plotStyles1 = ['k-', 'k--', 'k-.', 'b-', 'b--', 'b-.', 'g-', 'g--', 'g-.', 'r-', 'r--', 'r-.']
+plotStyles1 = ["-"]*2
+plotStyles1.extend(["--"]*2)
+plotStyles1.extend(["-."]*2)
+plotStyles1.extend([":"]*2)
+colours = [(0,0,0), (0.7,0.7,0.7)]*4
+linewidths = [1, 1.5]*8
+
+"""
+#Use if there are only 5 lines or less 
+plotStyles1 = ["-", "--", "-.", ":", "-"]
+colours = [(0,0,0), (0,0,0), (0,0,0), (0,0,0), (0.7,0.7,0.7)]
+linewidths = [1,1,1,1,2]
+"""
+
+#plotStyles1 = ['k-', 'k--', 'k-.', 'b-', 'b--', 'b-.', 'g-', 'g--', 'g-.', 'r-', 'r--', 'r-.']
 plotStyles2 = ['k-', 'k--', 'k-.', 'r--', 'r-', 'g-', 'b-', 'b--', 'b-.', 'g--', 'g--', 'g-.', 'r-', 'r--', 'r-.']
 plotStyles3 = ['b.:', 'bx:', 'b+:', 'bo:', 'b*:', 'bs:']
 
@@ -72,6 +86,7 @@ class MyPlot:
     def plotOne(self, data, title, fileNameSuffix, numCol=None, minRow=0, maxRow=None, loc="lower right", xlogscale=False, ylogscale=False, samePlot=False):
         global plotInd
         plt.figure(plotInd)
+        j = 0
         for i in range(len(self.labelNames)):
             if len(data[i]) != 0:
                 # manage old time reporting
@@ -87,9 +102,11 @@ class MyPlot:
                 #             , list(itertools.islice(dataToPrint,0,None,data[i].size/maxPoints))
                 #             , plotStyles1[i])
                 if not samePlot: 
-                    plt.plot(self.iterations[i][minRow:maxRow], dataToPrint, self.plotStyles[i], linewidth=self.plotLineWidths[i], label=self.labelNames[i])
+                    plt.plot(self.iterations[i][minRow:maxRow], dataToPrint, plotStyles1[j], color=colours[j], linewidth=linewidths[j], label=self.labelNames[i])
                 else: 
-                    plt.plot(self.iterations[i][minRow:maxRow], dataToPrint, plotStyles1[0], linewidth=self.plotLineWidths[i], label=self.labelNames[i])
+                    plt.plot(self.iterations[i][minRow:maxRow], dataToPrint, plotStyles1[0], color=colours[j], linewidth=linewidths[j], label=self.labelNames[i])
+                    
+                j+= 1
         plt.xlabel("Graph no.")
         plt.ylabel(title)
         if not samePlot: 
@@ -228,7 +245,7 @@ if plotBemol:
 if plotCitation:
     T = 20
     k1 = 50
-    k2s = [50, 100, 200, 500]
+    k2s = [100, 200, 500]
     k3s = [2000, 5000] 
     k4s = [2000, 5000]      
     
@@ -280,11 +297,12 @@ if 'increasingClustFileName' in locals():
     # IASC
     k2s = [9, 72]
     for i, k2 in enumerate(k2s):
-        plt.plot(iterations, resIncreasing[k2][:, numLevel*1+printedLevel], colourPlotStyles[0] + linePlotStyles[i])
+        plt.plot(iterations, resIncreasing[k2][:, numLevel*1+printedLevel], plotStyles1[i], color=colours[i], linewidth=linewidths[i])
         legend.append("IASC " + str(k2))
     
     # Exact
-    plt.plot(iterations, resIncreasing[1][:, numLevel*0+printedLevel], colourPlotStyles[1] + linePlotStyles[0])
+    print(resIncreasing[1])
+    plt.plot(iterations, resIncreasing[1][:, numLevel*0+printedLevel], plotStyles1[i+1], color=colours[i+1], linewidth=linewidths[i+1])
     legend.append("Exact")
     
     # Ning
