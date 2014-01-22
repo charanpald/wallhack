@@ -14,10 +14,10 @@ from apgl.graph import *
 from apgl.util.PathDefaults import PathDefaults
 from apgl.graph.GraphUtils import GraphUtils
 from apgl.util.Util import Util 
-from exp.clusterexp.BoundGraphIterator import BoundGraphIterator 
-from exp.sandbox.Nystrom import Nystrom 
-from exp.sandbox.EigenUpdater import EigenUpdater 
-from exp.sandbox.RandomisedSVD import RandomisedSVD
+from wallhack.clusterexp.BoundGraphIterator import BoundGraphIterator 
+from sandbox.misc.Nystrom import Nystrom 
+from sandbox.misc.EigenUpdater import EigenUpdater 
+from sandbox.misc.RandomisedSVD import RandomisedSVD
 
 numpy.random.seed(21)
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
@@ -200,15 +200,22 @@ if saveResults:
 else: 
     errors = numpy.load(fileName)   
     print(errors)
-    plotStyles1 = ['k-', 'k--', 'k-.', 'b-', 'b--', 'b-.', 'y-', 'y--', 'y-.', 'r-', 'r--', 'r-.']    
+    plotStyles1 = ['k-', 'k--', 'k-.', 'b-', 'b--', 'b-.', 'y-', 'y--', 'y-.', 'r-', 'r--', 'r-.']   
+    plotStyles1 = ["-"]*2
+    plotStyles1.extend(["--"]*2)
+    plotStyles1.extend(["-."]*2)
+    plotStyles1.extend([":"]*2)
+    colours = [(0,0,0), (0.7,0.7,0.7)]*4
+    linewidths = [1, 1.5]*8    
+    
     
     plt.figure(0)
-    plt.plot(numpy.arange(errors.shape[0]), errors[:, 3], plotStyles1[0], label="Eigen-update 4") 
-    plt.plot(numpy.arange(errors.shape[0]), errors[:, 4], plotStyles1[1], label="Eigen-update 300") 
-    plt.plot(numpy.arange(errors.shape[0]), errors[:, 7], plotStyles1[9], label="Initial solution")
-    plt.plot(numpy.arange(errors.shape[0]), errors[:, 0], plotStyles1[3], label="Nyst 900")
-    plt.plot(numpy.arange(errors.shape[0]), errors[:, 1], plotStyles1[6], label="RSVD 100")
-    plt.plot(numpy.arange(errors.shape[0]), errors[:, 2], plotStyles1[7], label="RSVD 900")
+    plt.plot(numpy.arange(errors.shape[0]), errors[:, 3], plotStyles1[0], color=colours[0], linewidth=linewidths[0], label="Eigen-update 4") 
+    plt.plot(numpy.arange(errors.shape[0]), errors[:, 4], plotStyles1[1], color=colours[1], linewidth=linewidths[1], label="Eigen-update 300") 
+    plt.plot(numpy.arange(errors.shape[0]), errors[:, 7], plotStyles1[2], color=colours[2], linewidth=linewidths[2], label="Initial solution")
+    plt.plot(numpy.arange(errors.shape[0]), errors[:, 0], plotStyles1[3], color=colours[3], linewidth=linewidths[3], label="Nyst 900")
+    plt.plot(numpy.arange(errors.shape[0]), errors[:, 1], plotStyles1[4], color=colours[4], linewidth=linewidths[4], label="RSVD 100")
+    plt.plot(numpy.arange(errors.shape[0]), errors[:, 2], plotStyles1[5], color=colours[5], linewidth=linewidths[5], label="RSVD 900")
     # "online" and "from initial" version leads to same results (as the matrix is almost of rank k)
     #plt.plot(numpy.arange(errors.shape[0]), errors[:, 5], plotStyles1[7], label="Eigen-update from initial") 
     #plt.plot(numpy.arange(errors.shape[0]), errors[:, 6], plotStyles1[8], label="Eigen-update: online vs from initial")
