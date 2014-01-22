@@ -43,7 +43,7 @@ omegaList = maxLocalAuc.getOmegaList(X)
 
 logging.debug("Starting training")
 ProfileUtils.profile('U, V, objs, aucs, iterations, time = maxLocalAuc.learnModel(X, True)', globals(), locals())
-#U, V, objs, aucs, iterations = maxLocalAuc.learnModel(X, True)
+#U, V, objs, aucs, iterations, times = maxLocalAuc.learnModel(X, True)
 
 logging.debug("||U||=" + str(numpy.linalg.norm(U)) + " ||V||=" + str(numpy.linalg.norm(V)))
 logging.debug("Final local AUC:" + str(maxLocalAuc.localAUCApprox(X, U, V, omegaList)))
