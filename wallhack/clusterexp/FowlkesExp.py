@@ -8,7 +8,7 @@ import numpy
 import scipy.sparse 
 import matplotlib.pyplot as plt 
 from apgl.graph import SparseGraph, GeneralVertexList, GraphUtils  
-from exp.sandbox.Nystrom import Nystrom 
+from sandbox.misc.Nystrom import Nystrom 
 
 numpy.set_printoptions(suppress=True, linewidth=200, precision=3)
 

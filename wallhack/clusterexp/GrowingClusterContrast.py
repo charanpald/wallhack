@@ -11,9 +11,9 @@ from apgl.util.PathDefaults import PathDefaults
 from apgl.util.Util import Util
 from apgl.graph import *
 from apgl.generator import *
-from exp.sandbox.IterativeSpectralClustering import IterativeSpectralClustering
-from exp.sandbox.GraphIterators import toDenseGraphListIterator
-from exp.sandbox.NingSpectralClustering import NingSpectralClustering
+from sandbox.misc.IterativeSpectralClustering import IterativeSpectralClustering
+from sandbox.misc.GraphIterators import toDenseGraphListIterator
+from sandbox.misc.NingSpectralClustering import NingSpectralClustering
 import argparse
 
 #=========================================================================

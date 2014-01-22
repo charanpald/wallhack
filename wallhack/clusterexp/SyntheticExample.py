@@ -11,9 +11,9 @@ from apgl.util.PathDefaults import PathDefaults
 from apgl.util.Util import Util
 from apgl.graph import SparseGraph, GraphUtils, GeneralVertexList
 from apgl.generator import *
-from exp.sandbox.IterativeSpectralClustering import IterativeSpectralClustering
-from exp.sandbox.GraphIterators import IncreasingSubgraphListIterator, toDenseGraphListIterator
-from exp.sandbox.NingSpectralClustering import NingSpectralClustering
+from sandbox.misc.IterativeSpectralClustering import IterativeSpectralClustering
+from sandbox.misc.GraphIterators import IncreasingSubgraphListIterator, toDenseGraphListIterator
+from sandbox.misc.NingSpectralClustering import NingSpectralClustering
 
 numpy.random.seed(21)
 numpy.set_printoptions(suppress=True, precision=3, linewidth=200, threshold=40000)
@@ -74,7 +74,7 @@ class ThreeClustIterator(object):
 ps = numpy.arange(0.1, 0.21, 0.1)
 #ps = numpy.arange(0.05, 0.20, 0.1)  
 numGraphs = len(ThreeClustIterator().subgraphIndicesList) 
-saveResults = False 
+saveResults = True 
 
 resultsDir = PathDefaults.getOutputDir() + "cluster/"
 fileNameError = resultsDir + "ThreeClustErrors.npz"

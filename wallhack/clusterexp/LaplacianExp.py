@@ -11,12 +11,12 @@ import copy
 import matplotlib.pyplot as plt 
 from apgl.graph import *
 from apgl.util.PathDefaults import PathDefaults
-from exp.sandbox.IterativeSpectralClustering import IterativeSpectralClustering
+from sandbox.misc.IterativeSpectralClustering import IterativeSpectralClustering
 from apgl.graph.GraphUtils import GraphUtils
 from apgl.generator.SmallWorldGenerator import SmallWorldGenerator
 from apgl.generator.ErdosRenyiGenerator import ErdosRenyiGenerator
 from apgl.util.Util import Util 
-from exp.clusterexp.BoundGraphIterator import BoundGraphIterator 
+from wallhack.clusterexp.BoundGraphIterator import BoundGraphIterator 
 
 numpy.random.seed(21)
 #numpy.seterr("raise")

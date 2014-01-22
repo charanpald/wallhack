@@ -15,11 +15,11 @@ from apgl.graph import *
 from apgl.util.PathDefaults import PathDefaults
 from apgl.graph.GraphUtils import GraphUtils
 from apgl.util.Util import Util 
-from exp.clusterexp.BoundGraphIterator import BoundGraphIterator 
-from exp.sandbox.Nystrom import Nystrom 
-from exp.sandbox.EigenUpdater import EigenUpdater 
+from wallhack.clusterexp.BoundGraphIterator import BoundGraphIterator 
+from sandbox.misc.Nystrom import Nystrom 
+from sandbox.misc.EigenUpdater import EigenUpdater 
 from apgl.graph import SparseGraph 
-from exp.clusterexp.FowlkesExp import createDataset 
+from wallhack.clusterexp.FowlkesExp import createDataset 
 
 numpy.random.seed(22)
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
