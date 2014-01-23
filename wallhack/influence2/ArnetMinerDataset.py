@@ -37,6 +37,7 @@ class ArnetMinerDataset(object):
         self.fields.extend(["Information Extraction", "Intelligent Agents", "Machine Learning"])
         self.fields.extend(["Natural Language Processing", "Neural Networks", "Ontology Alignment"])
         self.fields.extend(["Planning", "Semantic Web", "Support Vector Machine"])    
+        #self.fields.extend(["Planning", "Semantic Web"])  
         self.fields.extend(additionalFields)      
         
         self.dataFilename = self.dataDir + "DBLP-citation-Feb21.txt" 
@@ -208,7 +209,7 @@ class ArnetMinerDataset(object):
         """
         Take a set of relevant authors and return the graph. 
         """
-        dataFileName = self.dataDir + "__" + field + ".csv" 
+        dataFileName = self.dataDir + "__" + field.replace(' ', '') + ".csv" 
         dataFile = open(dataFileName)
         authorIndexer = IdIndexer()
         author1Inds = array.array("i")
@@ -469,7 +470,7 @@ class ArnetMinerDataset(object):
         """
         Reads a file which stores authors who work in this field. 
         """
-        fileName = self.dataDir + "__" + field + ".csv"
+        fileName = self.dataDir + "__" + field.replace(' ', '') + ".csv"
         authorList = []
         
         with open(fileName, 'rb') as csvfile:
