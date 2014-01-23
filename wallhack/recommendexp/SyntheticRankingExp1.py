@@ -28,14 +28,14 @@ X = X.tocsr()
 lmbda = 0.00001
 r = numpy.ones(X.shape[0])*0.0
 eps = 0.001
-sigma = 5000
+sigma = 1000
 stochastic = True
 maxLocalAuc = MaxLocalAUC(lmbda, k, r, sigma=sigma, eps=eps, stochastic=stochastic)
-maxLocalAuc.maxIterations = 2000
-maxLocalAuc.numRowSamples = 10
+maxLocalAuc.maxIterations = 10000
+maxLocalAuc.numRowSamples = 20
 maxLocalAuc.numAucSamples = 100
 maxLocalAuc.approxDerivative = True
-maxLocalAuc.initialAlg = "svd"
+maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.recordStep = 20
 maxLocalAuc.rate = "constant"
         
@@ -49,6 +49,8 @@ logging.debug("||U||=" + str(numpy.linalg.norm(U)) + " ||V||=" + str(numpy.linal
 logging.debug("Final local AUC:" + str(maxLocalAuc.localAUCApprox(X, U, V, omegaList)))
 
 logging.debug("Number of iterations: " + str(iterations))
+print(numpy.flipud(numpy.argsort(U[1, :].dot(V.T))))
+
 
 plt.figure(0)
 plt.plot(objs)
