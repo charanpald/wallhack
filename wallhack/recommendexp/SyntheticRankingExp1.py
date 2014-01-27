@@ -27,8 +27,8 @@ X = X.tocsr()
 
 lmbda = 0.00001
 r = numpy.ones(X.shape[0])*0.0
-eps = 0.001
-sigma = 1000
+eps = 0.0001
+sigma = 0.5
 stochastic = True
 maxLocalAuc = MaxLocalAUC(lmbda, k, r, sigma=sigma, eps=eps, stochastic=stochastic)
 maxLocalAuc.maxIterations = 10000
