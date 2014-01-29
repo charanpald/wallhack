@@ -15,28 +15,29 @@ numpy.random.seed(21)
 numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 
 #Create a low rank matrix  
-m = 1000 
-n = 2000 
+m = 100 
+n = 100 
 k = 10 
-numInds = 50000
+numInds = int(m*n*0.1)
 X = SparseUtils.generateSparseLowRank((m, n), k, numInds)
 
 X = X/X
 X = X.tocsr()
 
 
-lmbda = 0.00001
+lmbda = 0.000
 r = numpy.ones(X.shape[0])*0.0
 eps = 0.0001
-sigma = 0.5
+sigma = 2000
 stochastic = True
 maxLocalAuc = MaxLocalAUC(lmbda, k, r, sigma=sigma, eps=eps, stochastic=stochastic)
 maxLocalAuc.maxIterations = 10000
-maxLocalAuc.numRowSamples = 20
-maxLocalAuc.numAucSamples = 100
+maxLocalAuc.numRowSamples = 1
+maxLocalAuc.numAucSamples = 1000
+maxLocalAuc.iterationsPerUpdate = 1
 maxLocalAuc.approxDerivative = True
 maxLocalAuc.initialAlg = "rand"
-maxLocalAuc.recordStep = 20
+maxLocalAuc.recordStep = 1
 maxLocalAuc.rate = "constant"
         
 omegaList = maxLocalAuc.getOmegaList(X)
