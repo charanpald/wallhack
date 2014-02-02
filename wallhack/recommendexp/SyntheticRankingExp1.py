@@ -20,20 +20,22 @@ k = 10
 numInds = int(m*n*density)
 X = SparseUtils.generateSparseLowRank((m, n), k, numInds)
 
-X = X/X
+X.data[X.data >= numpy.mean(X.data)] = 1
+X.data[X.data < numpy.mean(X.data)] = 0
+
 X = X.tocsr()
 
 
 lmbda = 0.000
 u = 0.3
 eps = 0.001
-sigma = 0.1
+sigma = 0.2
 stochastic = True
 maxLocalAuc = MaxLocalAUC(lmbda, k, u, sigma=sigma, eps=eps, stochastic=stochastic)
 maxLocalAuc.maxIterations = m*2
 maxLocalAuc.numRowSamples = 50
-maxLocalAuc.numColSamples = 20
-maxLocalAuc.numAucSamples = 30
+maxLocalAuc.numColSamples = 50
+maxLocalAuc.numAucSamples = 50
 maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.recordStep = 5
 maxLocalAuc.rate = "optimal"
