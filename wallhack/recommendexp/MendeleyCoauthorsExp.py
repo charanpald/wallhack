@@ -41,18 +41,16 @@ def writeAuthorDocMatrix():
     
 def writeAuthorAuthorMatrix(): 
     matrixFileName = PathDefaults.getDataDir() + "reference/authorDocumentMatrix.mtx"
-    Y = scipy.io.mmread(matrixFileName)
+    Y = sppy.io.mmread(matrixFileName, storagetype="row")
     print("Read file: " + matrixFileName)
-    Y = Y.tocsr()
+
     
-    Y = sppy.csarray(Y)
-    Y = Y[0:53, :]
+    Y = sppy.csarray(Y, dtype=numpy.float, storagetype="row")
+    Y = Y[0:1000, :]
     
     invNorms = 1/(Y.power(2).sum(1))
-    Z = sppy.diag(invNorms)
+    Z = sppy.diag(invNorms, storagetype="row")
     Y = Z.dot(Y)
-    
-    print(Y.shape)
     
     sigma = 0.5
     blocksize = 10
@@ -65,15 +63,11 @@ def writeAuthorAuthorMatrix():
         print(i)
         endInd = min(Y.shape[0], (i+1)*blocksize)
         tempC = Y[i*blocksize:endInd, :].dot(Y.T)
-        print("here")
         tempC.clip(sigma, 1.0)
-        print("here2")
-        
+
         rowInds, colInds = tempC.nonzero()
-        print("here3")
         rowInds += i*blocksize
-        print("here4")
-        
+
         C.put(tempC.values(), rowInds, colInds)
     
     outFileName = PathDefaults.getDataDir() + "reference/authorAuthorMatrix.mtx" 
