@@ -4,7 +4,9 @@ import scipy.sparse
 import scipy.io
 from apgl.util.PathDefaults import PathDefaults 
 from sandbox.util.IdIndexer import IdIndexer
-
+from math import ceil 
+import sppy 
+import sppy.io
 
 def writeAuthorDocMatrix(): 
     fileName = PathDefaults.getDataDir() + "reference/author_document_count"
@@ -43,22 +45,41 @@ def writeAuthorAuthorMatrix():
     print("Read file: " + matrixFileName)
     Y = Y.tocsr()
     
-    sigma = 0.5
-    C = scipy.sparse.lil_matrix(Y.shape)
+    Y = sppy.csarray(Y)
+    Y = Y[0:53, :]
     
-    for i in range(C.shape[0]): 
-        if i % 10000 == 0: 
-            print(i)
-        for j in range(i, C.shape[0]): 
-            if Y[i, :].dot(Y[j, :].T)[0,0] > sigma: 
-                C[i, j] = 1
-                C[j, i] = 1
-
+    invNorms = 1/(Y.power(2).sum(1))
+    Z = sppy.diag(invNorms)
+    Y = Z.dot(Y)
+    
+    print(Y.shape)
+    
+    sigma = 0.5
+    blocksize = 10
+    
+    C = sppy.csarray((Y.shape[0], Y.shape[0]), storagetype="row")
+    numBlocks = int(ceil(C.shape[0]/blocksize))
+    print(numBlocks)
+    
+    for i in range(numBlocks): 
+        print(i)
+        endInd = min(Y.shape[0], (i+1)*blocksize)
+        tempC = Y[i*blocksize:endInd, :].dot(Y.T)
+        print("here")
+        tempC.clip(sigma, 1.0)
+        print("here2")
+        
+        rowInds, colInds = tempC.nonzero()
+        print("here3")
+        rowInds += i*blocksize
+        print("here4")
+        
+        C.put(tempC.values(), rowInds, colInds)
     
     outFileName = PathDefaults.getDataDir() + "reference/authorAuthorMatrix.mtx" 
-    scipy.io.mmwrite(outFileName, C)
+    sppy.io.mmwrite(outFileName, C)
     print("Saved matrix to " + outFileName)
     
-        
+#writeAuthorDocMatrix()
 writeAuthorAuthorMatrix()        
         
