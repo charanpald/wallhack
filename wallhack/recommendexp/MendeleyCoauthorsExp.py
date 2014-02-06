@@ -10,6 +10,10 @@ from math import ceil
 import sppy 
 import sppy.io
 from apgl.util.ProfileUtils import ProfileUtils 
+from math import sqrt
+import matplotlib
+matplotlib.use("GTK3Agg")
+import matplotlib.pyplot as plt 
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
@@ -30,16 +34,16 @@ def writeAuthorDocMatrix():
         
         authorIndex.append(vals[1])
         docIndex.append(vals[0])
-        scores.append(int(vals[2]))
+        
+        score = int(vals[2])
+        scores.append(int(sqrt(score)))
     
     
     rowInds = numpy.array(authorIndex.getArray())
     colInds = numpy.array(docIndex.getArray())
     
     Y = scipy.sparse.csr_matrix((scores, (rowInds, colInds)))
-    
-    logging.debug(Y.shape, Y.nnz)
-    
+        
     outFileName = PathDefaults.getDataDir() + "reference/authorDocumentMatrix.mtx" 
     scipy.io.mmwrite(outFileName, Y)
     logging.debug("Saved matrix to " + outFileName)
@@ -51,13 +55,13 @@ def writeAuthorAuthorMatrix():
     logging.debug("Size of input :" + str(Y.shape))
 
     Y = sppy.csarray(Y, dtype=numpy.float, storagetype="row")
-    #Y = Y[0:2000, :]
+    #Y = Y[0:3000, :]
     
     invNorms = 1/numpy.sqrt((Y.power(2).sum(1)))
     Z = sppy.diag(invNorms, storagetype="row")
     Y = Z.dot(Y)
     
-    sigma = 0.1
+    sigma = 0.05
     blocksize = 500
     
     C = sppy.csarray((Y.shape[0], Y.shape[0]), storagetype="row")
@@ -77,22 +81,16 @@ def writeAuthorAuthorMatrix():
 
         C.put(tempC.values(), rowInds, colInds, init=True)
     
+    #vals = C.values()
+    #plt.hist(vals, bins=100, log=True)    
+    #plt.show()
+    
     outFileName = PathDefaults.getDataDir() + "reference/authorAuthorMatrix.mtx" 
     sppy.io.mmwrite(outFileName, C)
     logging.debug("Saved matrix to " + outFileName)
     logging.debug("Final size of C " + str(C.shape) + " with " + str(C.nnz) + " nonzeros")
     
-    """
-    #Now save full matrix again without blocking 
-    C = Y.dot(Y.T)
-    C.clip(sigma, 1.0)
-    
-    outFileName = PathDefaults.getDataDir() + "reference/authorAuthorMatrix2.mtx" 
-    sppy.io.mmwrite(outFileName, C)
-    logging.debug("Saved matrix to " + outFileName)
-    """
-    
 #writeAuthorDocMatrix()
-#writeAuthorAuthorMatrix()   
-ProfileUtils.profile("writeAuthorAuthorMatrix()", globals(), locals())     
+writeAuthorAuthorMatrix()   
+#ProfileUtils.profile("writeAuthorAuthorMatrix()", globals(), locals())     
         
