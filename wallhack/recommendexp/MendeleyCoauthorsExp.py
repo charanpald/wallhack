@@ -1,96 +1,70 @@
-import array
 import numpy
-import scipy.sparse
-import scipy.io
 import logging
-import sys 
+import sys
+from sandbox.recommendation.MaxLocalAUC import MaxLocalAUC
 from apgl.util.PathDefaults import PathDefaults 
-from sandbox.util.IdIndexer import IdIndexer
-from math import ceil 
-import sppy 
-import sppy.io
-from apgl.util.ProfileUtils import ProfileUtils 
-from math import sqrt
-import matplotlib
+import matplotlib 
 matplotlib.use("GTK3Agg")
 import matplotlib.pyplot as plt 
+from apgl.util.ProfileUtils import ProfileUtils
+import sppy 
+import sppy.io
+
+#import matplotlib
+#matplotlib.use("GTK3Agg")
+#import matplotlib.pyplot as plt 
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
-def writeAuthorDocMatrix(): 
-    fileName = PathDefaults.getDataDir() + "reference/author_document_count"
-    
-    fileObj = open(fileName)
-    
-    authorIndex = IdIndexer()
-    docIndex = IdIndexer()
-    scores = array.array("i")
-    
-    for i, line in enumerate(fileObj):
-        if i % 500000 == 0: 
-            logging.debug(i)
-        vals = line.split()
-        #logging.debug(vals[0], vals[1], vals[2])
-        
-        authorIndex.append(vals[1])
-        docIndex.append(vals[0])
-        
-        score = int(vals[2])
-        scores.append(int(sqrt(score)))
-    
-    
-    rowInds = numpy.array(authorIndex.getArray())
-    colInds = numpy.array(docIndex.getArray())
-    
-    Y = scipy.sparse.csr_matrix((scores, (rowInds, colInds)))
-        
-    outFileName = PathDefaults.getDataDir() + "reference/authorDocumentMatrix.mtx" 
-    scipy.io.mmwrite(outFileName, Y)
-    logging.debug("Saved matrix to " + outFileName)
-    
-def writeAuthorAuthorMatrix(): 
-    matrixFileName = PathDefaults.getDataDir() + "reference/authorDocumentMatrix.mtx"
-    Y = sppy.io.mmread(matrixFileName, storagetype="row")
-    logging.debug("Read file: " + matrixFileName)
-    logging.debug("Size of input :" + str(Y.shape))
+authorAuthorFileName = PathDefaults.getDataDir() + "reference/authorAuthorMatrix.mtx" 
+X = sppy.io.mmread(authorAuthorFileName)
+logging.debug("Read file: " + authorAuthorFileName)
 
-    Y = sppy.csarray(Y, dtype=numpy.float, storagetype="row")
-    #Y = Y[0:3000, :]
-    
-    invNorms = 1/numpy.sqrt((Y.power(2).sum(1)))
-    Z = sppy.diag(invNorms, storagetype="row")
-    Y = Z.dot(Y)
-    
-    sigma = 0.05
-    blocksize = 500
-    
-    C = sppy.csarray((Y.shape[0], Y.shape[0]), storagetype="row")
-    numBlocks = int(ceil(C.shape[0]/float(blocksize)))
-    logging.debug("Num blocks " + str(numBlocks))
-    
-    for i in range(numBlocks): 
-        logging.debug("Iteration: " + str(i))
-        
-        endInd = min(Y.shape[0], (i+1)*blocksize)
-                
-        tempC = Y[i*blocksize:endInd, :].dot(Y.T)
-        tempC.clip(sigma, 1.0)
+X = X[0:500, :]
 
-        rowInds, colInds = tempC.nonzero()
-        rowInds += i*blocksize
+(m, n) = X.shape
+keepInds = numpy.arange(m)[X.power(2).sum(1) != numpy.zeros(m)]
+X = X[keepInds, :]
 
-        C.put(tempC.values(), rowInds, colInds, init=True)
-    
-    #vals = C.values()
-    #plt.hist(vals, bins=100, log=True)    
-    #plt.show()
-    
-    outFileName = PathDefaults.getDataDir() + "reference/authorAuthorMatrix.mtx" 
-    sppy.io.mmwrite(outFileName, C)
-    logging.debug("Saved matrix to " + outFileName)
-    logging.debug("Final size of C " + str(C.shape) + " with " + str(C.nnz) + " nonzeros")
-    
-#writeAuthorDocMatrix()
-writeAuthorAuthorMatrix()   
-#ProfileUtils.profile("writeAuthorAuthorMatrix()", globals(), locals())     
-        
+logging.debug("Size of X: " + str(X.shape))
+(m, n) = X.shape
+k = 10 
+
+lmbda = 0.000
+u = 0.3
+eps = 0.001
+sigma = 0.2
+stochastic = True
+maxLocalAuc = MaxLocalAUC(lmbda, k, u, sigma=sigma, eps=eps, stochastic=stochastic)
+maxLocalAuc.maxIterations = m*2
+maxLocalAuc.numRowSamples = 50
+maxLocalAuc.numColSamples = 50
+maxLocalAuc.numAucSamples = 100
+maxLocalAuc.initialAlg = "rand"
+maxLocalAuc.recordStep = 5
+maxLocalAuc.rate = "optimal"
+maxLocalAuc.alpha = 0.1    
+maxLocalAuc.t0 = 0.1   
+logging.debug("About to get nonzeros") 
+omegaList = maxLocalAuc.getOmegaList(X)
+
+logging.debug("Starting training")
+#ProfileUtils.profile('U, V, objs, aucs, iterations, time = maxLocalAuc.learnModel(X, True)', globals(), locals())
+U, V, objs, aucs, iterations, times = maxLocalAuc.learnModel(X, True)
+
+r = maxLocalAuc.computeR(U, V)
+logging.debug("||U||=" + str(numpy.linalg.norm(U)) + " ||V||=" + str(numpy.linalg.norm(V)))
+logging.debug("Final local AUC:" + str(maxLocalAuc.localAUCApprox(X, U, V, omegaList, r)))
+
+logging.debug("Number of iterations: " + str(iterations))
+
+plt.figure(0)
+plt.plot(objs)
+plt.xlabel("iteration")
+plt.ylabel("objective")
+
+plt.figure(1)
+plt.plot(aucs)
+plt.xlabel("iteration")
+plt.ylabel("local AUC")
+plt.show()
