@@ -53,7 +53,7 @@ def writeAuthorAuthorMatrix():
     
     Y = sppy.io.mmread(authorDocFileName, storagetype="row")
     logging.debug("Read file: " + authorDocFileName)
-    logging.debug("Size of input :" + str(Y.shape))
+    logging.debug("Size of input: " + str(Y.shape))
 
     Y = sppy.csarray(Y, dtype=numpy.float, storagetype="row")
     #Y = Y[0:10000, :]
@@ -69,21 +69,28 @@ def writeAuthorAuthorMatrix():
     numBlocks = int(ceil(C.shape[0]/float(blocksize)))
     logging.debug("Number of blocks " + str(numBlocks))
     
+    allRowInds = numpy.array([], numpy.int32)
+    allColInds = numpy.array([], numpy.int32)
+    allValues = numpy.array([], numpy.float)
+    
     for i in range(numBlocks): 
         logging.debug("Iteration: " + str(i))
         
         endInd = min(Y.shape[0], (i+1)*blocksize)
                 
-        #tempY = Y.submatrix(i*blocksize, 0, endInd-i*blocksize, Y.shape[1])
-        #tempC = tempY.dot(Y.T)
-        tempC = Y[i*blocksize:endInd, :].dot(Y.T)
-        tempC.clip(sigma, 1.0)
+        tempY = Y.submatrix(i*blocksize, 0, endInd-i*blocksize, Y.shape[1])
+        tempC = tempY.dot(Y.T)
+        tempC = tempC.clip(sigma, 1.0)
 
         rowInds, colInds = tempC.nonzero()
         rowInds += i*blocksize
+        values = tempC.values()
+        
+        allRowInds = numpy.r_[allRowInds, rowInds]
+        allColInds = numpy.r_[allColInds, colInds]
+        allValues = numpy.r_[allValues, values]
 
-        C.put(tempC.values(), rowInds, colInds)
-    
+    C.put(allValues, allRowInds, allColInds, init=True)
     C[numpy.arange(Y.shape[0]), numpy.arange(Y.shape[0])] = 0 
     C.prune()    
     
@@ -92,5 +99,15 @@ def writeAuthorAuthorMatrix():
     logging.debug("Saved matrix to " + authorAuthorFileName)
     logging.debug("Final size of C " + str(C.shape) + " with " + str(C.nnz) + " nonzeros")
     
+    """
+    C = Y.dot(Y.T)
+    C.clip(sigma, 1.0)
+    C[numpy.arange(Y.shape[0]), numpy.arange(Y.shape[0])] = 0 
+    C.prune()
+    print(C.nnz)
+    """
+    
+    
 #writeAuthorDocMatrix()
-writeAuthorAuthorMatrix()   
+writeAuthorAuthorMatrix()
+#ProfileUtils.profile("writeAuthorAuthorMatrix()", globals(), locals())   
