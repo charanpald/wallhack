@@ -56,17 +56,16 @@ def writeAuthorAuthorMatrix():
     logging.debug("Size of input: " + str(Y.shape))
 
     Y = sppy.csarray(Y, dtype=numpy.float, storagetype="row")
-    #Y = Y[0:10000, :]
+    #Y = Y[0:1000, :]
     
     invNorms = 1/numpy.sqrt((Y.power(2).sum(1)))
     Z = sppy.diag(invNorms, storagetype="row")
     Y = Z.dot(Y)
     
-    sigma = 0.05
+    sigma = 0.1
     blocksize = 500
     
-    C = sppy.csarray((Y.shape[0], Y.shape[0]), storagetype="row")
-    numBlocks = int(ceil(C.shape[0]/float(blocksize)))
+    numBlocks = int(ceil(Y.shape[0]/float(blocksize)))
     logging.debug("Number of blocks " + str(numBlocks))
     
     allRowInds = numpy.array([], numpy.int32)
@@ -90,14 +89,16 @@ def writeAuthorAuthorMatrix():
         allColInds = numpy.r_[allColInds, colInds]
         allValues = numpy.r_[allValues, values]
 
-    C.put(allValues, allRowInds, allColInds, init=True)
-    C[numpy.arange(Y.shape[0]), numpy.arange(Y.shape[0])] = 0 
-    C.prune()    
+
+    coords = numpy.c_[allRowInds+1, allColInds+1, allValues] 
+    comment = "%%MatrixMarket matrix coordinate real general\n"
+    comment += "%\n"
+    comment += str(Y.shape[0]) + " " + str(Y.shape[0]) + " " + str(allRowInds.shape[0])
     
     authorAuthorFileName = PathDefaults.getDataDir() + "reference/authorAuthorMatrix.mtx" 
-    sppy.io.mmwrite(authorAuthorFileName, C)
+    numpy.savetxt(authorAuthorFileName, coords, delimiter=" ", header=comment, comments="", fmt="%d %d %f")
     logging.debug("Saved matrix to " + authorAuthorFileName)
-    logging.debug("Final size of C " + str(C.shape) + " with " + str(C.nnz) + " nonzeros")
+    logging.debug("Final size of C " + str(Y.shape[0]) + " with " + str(allRowInds.shape[0]) + " nonzeros")
     
     """
     C = Y.dot(Y.T)
