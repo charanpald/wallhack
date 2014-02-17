@@ -41,14 +41,8 @@ maxLocalAuc.t0 = 0.1
 maxLocalAuc.maxIterations = m*10
 
 logging.debug("Splitting into train and test sets")
-numTrainInds = int(X.nnz*trainSplit)
-trainInds = numpy.random.permutation(numTrainInds)[0:numTrainInds]
-trainInds = numpy.sort(trainInds)
-trainX = SparseUtils.submatrix(X, trainInds)
+trainX, testX = SparseUtils.splitNnz(X, trainSplit)
 trainOmegaList = maxLocalAuc.getOmegaList(trainX)
-
-testInds = numpy.setdiff1d(numpy.arange(X.nnz, dtype=numpy.int), trainInds)
-testX = SparseUtils.submatrix(X, testInds)
 testOmegaList = maxLocalAuc.getOmegaList(testX)
 
 logging.debug("Selecting learning rate")
@@ -63,7 +57,6 @@ U, V, objs, aucs, iterations, times = maxLocalAuc.learnModel(trainX, True)
 r = maxLocalAuc.computeR(U, V)
 logging.debug("||U||=" + str(numpy.linalg.norm(U)) + " ||V||=" + str(numpy.linalg.norm(V)))
 logging.debug("Train local AUC:" + str(maxLocalAuc.localAUCApprox(trainX, U, V, trainOmegaList, r)))
-logging.debug("Number of iterations: " + str(iterations))
 
 logging.debug("Train Precision@5=" + str(MCEvaluator.precisionAtK(trainX, U, V, 5)))
 logging.debug("Train Precision@10=" + str(MCEvaluator.precisionAtK(trainX, U, V, 10)))
