@@ -13,17 +13,11 @@ numpy.random.seed(21)
 numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 
 #Create a low rank matrix  
-density = 0.05
-m = 1000 
+m = 500 
 n = 1000 
 k = 10 
-numInds = int(m*n*density)
-X = SparseUtils.generateSparseLowRank((m, n), k, numInds)
-
-X.data[X.data >= numpy.mean(X.data)] = 1
-X.data[X.data < numpy.mean(X.data)] = 0
-
-X = X.tocsr()
+X = SparseUtils.generateSparseBinaryMatrix((m,n), k)
+logging.debug("Number of non zero elements: " + str(X.nnz))
 
 
 lmbda = 0.000
