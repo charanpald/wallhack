@@ -10,30 +10,30 @@ numpy.random.seed(21)
 numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 
 #Create a low rank matrix  
-m = 500
-n = 1000 
+m = 200
+n = 700 
 k = 10 
 X = SparseUtils.generateSparseBinaryMatrix((m,n), k, csarray=True)
 logging.debug("Number of non zero elements: " + str(X.nnz))
 
 trainSplit = 2.0/3
 
-rho = 0.0001
-u = 0.3
-eps = 0.01
+rho = 0.01
+u = 0.2
+eps = 0.005
 sigma = 0.2
 stochastic = True
 maxLocalAuc = MaxLocalAUC(rho, k, u, sigma=sigma, eps=eps, stochastic=stochastic)
 
-maxLocalAuc.numRowSamples = 50
-maxLocalAuc.numColSamples = 50
+maxLocalAuc.numRowSamples = 100
+maxLocalAuc.numColSamples = 100
 maxLocalAuc.numAucSamples = 100
-maxLocalAuc.initialAlg = "rand"
+maxLocalAuc.initialAlg = "svd"
 maxLocalAuc.recordStep = 10
 maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 0.1    
+maxLocalAuc.alpha = 0.5    
 maxLocalAuc.t0 = 0.1   
-maxLocalAuc.maxIterations = m
+maxLocalAuc.maxIterations = m*10
 
 logging.debug("Splitting into train and test sets")
 #trainX, testX = X, X
@@ -53,7 +53,6 @@ U, V, objs, aucs, iterations, times = maxLocalAuc.learnModel(trainX, True)
 r = maxLocalAuc.computeR(U, V)
 logging.debug("||U||=" + str(numpy.linalg.norm(U)) + " ||V||=" + str(numpy.linalg.norm(V)))
 logging.debug("Train local AUC:" + str(maxLocalAuc.localAUCApprox(trainX, U, V, trainOmegaList, r)))
-logging.debug("Number of iterations: " + str(iterations))
 
 logging.debug("Train Precision@5=" + str(MCEvaluator.precisionAtK(trainX, U, V, 5)))
 logging.debug("Train Precision@10=" + str(MCEvaluator.precisionAtK(trainX, U, V, 10)))
