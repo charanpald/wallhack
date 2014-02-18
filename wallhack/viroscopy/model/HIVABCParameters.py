@@ -4,7 +4,7 @@ This is just a class which represents a set of parameters for ABC model selectio
 import numpy
 import logging
 import scipy.stats as stats
-from apgl.util.Parameter import Parameter
+from sandbox.util.Parameter import Parameter
 
 class HIVABCParameters(object):
     def __init__(self, meanTheta, sigmaTheta, pertTheta, upperInfected=1500):

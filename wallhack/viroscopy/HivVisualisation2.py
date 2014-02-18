@@ -9,8 +9,8 @@ import numpy
 import wx
 import math
 from apgl.viroscopy.HIVGraphReader import HIVGraphReader
-from apgl.util.GraphLayoutEngine import GraphLayoutEngine
-from apgl.util.DateUtils import DateUtils
+from sandbox.util.GraphLayoutEngine import GraphLayoutEngine
+from sandbox.util.DateUtils import DateUtils
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 

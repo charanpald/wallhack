@@ -13,7 +13,7 @@ import time
 import numpy
 from apgl.io import *
 from apgl.influence.GreedyInfluence import GreedyInfluence
-from apgl.util import *
+from sandbox.util import *
 from apgl.graph import *
 from apgl.generator import *
 

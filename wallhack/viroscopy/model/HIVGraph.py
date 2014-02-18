@@ -5,8 +5,8 @@ import logging
 from apgl.graph.CsArrayGraph import CsArrayGraph
 from wallhack.viroscopy.model.HIVVertices import HIVVertices
 from apgl.graph.VertexList import VertexList
-from apgl.util.Parameter import Parameter
-from apgl.util.Util import Util 
+from sandbox.util.Parameter import Parameter
+from sandbox.util.Util import Util 
 
 """
 A HIVGraph is a Graph except that its vertices are HIVIndividuals and

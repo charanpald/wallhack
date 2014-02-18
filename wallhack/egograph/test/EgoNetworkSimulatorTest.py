@@ -6,7 +6,7 @@ import logging
 import sys
 import numpy
 from exp.egograph.EgoNetworkSimulator import EgoNetworkSimulator
-from apgl.util import * 
+from sandbox.util import * 
 from apgl.graph import *
 from apgl.generator import *
 from apgl.predictors import *

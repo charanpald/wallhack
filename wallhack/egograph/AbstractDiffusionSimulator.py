@@ -1,6 +1,6 @@
 
 import numpy 
-from apgl.util import *
+from sandbox.util import *
 from apgl.graph import * 
 from exp.egograph.EgoGenerator import EgoGenerator 
 from apgl.io import * 

@@ -5,8 +5,8 @@ import datetime
 import matplotlib 
 matplotlib.use("GTK3Agg")
 import matplotlib.pyplot as plt  
-from apgl.util.PathDefaults import PathDefaults
-from apgl.util.Latex import Latex 
+from sandbox.util.PathDefaults import PathDefaults
+from sandbox.util.Latex import Latex 
 from wallhack.metabolomics.MetabolomicsUtils import MetabolomicsUtils
 from wallhack.metabolomics.MetabolomicsExpHelper import MetabolomicsExpHelper
 

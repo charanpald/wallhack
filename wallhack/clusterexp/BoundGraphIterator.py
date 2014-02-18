@@ -3,7 +3,7 @@ import numpy
 import logging
 from apgl.graph import *
 from apgl.generator.ErdosRenyiGenerator import ErdosRenyiGenerator
-from apgl.util.Util import Util 
+from sandbox.util.Util import Util 
 
 class BoundGraphIterator(object): 
     """

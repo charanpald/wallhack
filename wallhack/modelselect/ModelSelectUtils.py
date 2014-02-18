@@ -1,8 +1,8 @@
 import numpy
 import multiprocessing 
 
-from apgl.util.Parameter import Parameter
-from apgl.util.Evaluator import Evaluator
+from sandbox.util.Parameter import Parameter
+from sandbox.util.Evaluator import Evaluator
 from apgl.predictors.LibSVM import LibSVM
 
 def computeIdealPenalty(args):

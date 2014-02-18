@@ -5,7 +5,7 @@ network predictor.
 """
 
 from apgl.graph import *
-from apgl.util import *
+from sandbox.util import *
 from apgl.data import *
 from apgl.predictors import *
 from apgl.kernel import * 

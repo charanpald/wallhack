@@ -5,8 +5,8 @@ import unittest
 import numpy
 import sys
 from apgl.graph.DictGraph import DictGraph
-from apgl.util.Util import Util
-from apgl.util.PathDefaults import PathDefaults
+from sandbox.util.Util import Util
+from sandbox.util.PathDefaults import PathDefaults
 from exp.clusterexp.CitationIterGenerator import CitationIterGenerator
 
 class  CitationIterGeneratorTest(unittest.TestCase):

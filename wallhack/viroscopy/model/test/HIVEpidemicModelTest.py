@@ -12,7 +12,7 @@ from wallhack.viroscopy.model.HIVGraph import HIVGraph
 from wallhack.viroscopy.model.HIVVertices import HIVVertices
 from wallhack.viroscopy.model.HIVModelUtils import HIVModelUtils
 from apgl.graph import * 
-from apgl.util import Util 
+from sandbox.util import Util 
 
 def runModel(theta, endDate=100.0, M=1000): 
     numpy.random.seed(21)

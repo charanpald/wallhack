@@ -2,7 +2,7 @@
 Process the data from mendeley into a series of matrices. 
 """
 from apgl.graph import DictGraph  
-from apgl.util.PathDefaults import PathDefaults 
+from sandbox.util.PathDefaults import PathDefaults 
 from exp.sandbox.igraph.GraphStatistics import GraphStatistics
 import logging 
 import sys 

@@ -13,7 +13,7 @@ from apgl.egograph.EgoUtils import EgoUtils
 from apgl.generator.SmallWorldGenerator import SmallWorldGenerator
 from apgl.graph.SparseGraph import SparseGraph
 from apgl.graph.VertexList import VertexList
-from apgl.util import * 
+from sandbox.util import * 
 import numpy
 import numpy.random as rand
 import unittest

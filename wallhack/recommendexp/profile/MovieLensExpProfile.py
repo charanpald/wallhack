@@ -6,7 +6,7 @@ import argparse
 import time
 import errno
 from datetime import datetime
-from apgl.util.ProfileUtils import ProfileUtils
+from sandbox.util.ProfileUtils import ProfileUtils
 from exp.recommendexp.MovieLensDataset import MovieLensDataset
 from exp.recommendexp.RecommendExpHelper import RecommendExpHelper
 

@@ -1,6 +1,6 @@
 import numpy
 from wallhack.viroscopy.model.HIVVertices import HIVVertices
-from apgl.util.Util import *
+from sandbox.util.Util import *
 import numpy.testing as nptst
 from random import choice 
 

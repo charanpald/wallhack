@@ -7,7 +7,7 @@ import unittest
 import numpy 
 from apgl.egograph.EgoUtils import EgoUtils
 from apgl.data.ExamplesList import ExamplesList
-from apgl.util.PathDefaults import PathDefaults
+from sandbox.util.PathDefaults import PathDefaults
 
 
 class EgoUtilsTest(unittest.TestCase):

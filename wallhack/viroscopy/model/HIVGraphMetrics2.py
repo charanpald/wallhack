@@ -1,7 +1,7 @@
 import numpy 
 import logging 
 import time as timer
-from apgl.util.Parameter import Parameter
+from sandbox.util.Parameter import Parameter
 from sandbox.misc.GraphMatch import GraphMatch 
 
 class HIVGraphMetrics2(object): 

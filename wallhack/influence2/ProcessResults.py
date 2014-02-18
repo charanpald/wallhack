@@ -5,9 +5,9 @@ from sandbox.util.IdIndexer import IdIndexer
 from wallhack.influence2.ArnetMinerDataset import ArnetMinerDataset
 from wallhack.influence2.GraphRanker import GraphRanker
 from wallhack.influence2.RankAggregator import RankAggregator
-from apgl.util.Latex import Latex 
-from apgl.util.Util import Util 
-from apgl.util.Evaluator import Evaluator 
+from sandbox.util.Latex import Latex 
+from sandbox.util.Util import Util 
+from sandbox.util.Evaluator import Evaluator 
 
 #logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 

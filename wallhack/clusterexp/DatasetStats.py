@@ -11,7 +11,7 @@ from exp.clusterexp.CitationIterGenerator import CitationIterGenerator
 from exp.clusterexp.HIVIterGenerator import HIVIterGenerator 
 from apgl.graph import GraphStatistics 
 from apgl.graph import SparseGraph, GraphUtils  
-from apgl.util.PathDefaults import PathDefaults
+from sandbox.util.PathDefaults import PathDefaults
 from exp.clusterexp.BemolData import BemolData
 import matplotlib.pyplot as plt 
 import scipy.sparse.linalg 

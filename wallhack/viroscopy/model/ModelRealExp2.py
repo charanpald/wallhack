@@ -2,8 +2,8 @@
 A script to estimate the HIV epidemic model parameters using 
 Simulated Annealing. 
 """
-from apgl.util.PathDefaults import PathDefaults
-from apgl.util.Util import Util
+from sandbox.util.PathDefaults import PathDefaults
+from sandbox.util.Util import Util
 from wallhack.viroscopy.model.HIVGraph import HIVGraph
 from wallhack.viroscopy.model.HIVABCParameters import HIVABCParameters
 from wallhack.viroscopy.model.HIVEpidemicModel import HIVEpidemicModel

@@ -10,7 +10,7 @@ from exp.viroscopy.model.HIVGraph import HIVGraph
 from exp.viroscopy.model.HIVVertices import HIVVertices
 from exp.viroscopy.model.HIVGraphMetrics import HIVGraphMetrics2
 from apgl.graph import *
-from apgl.util import *
+from sandbox.util import *
 from apgl.generator import ErdosRenyiGenerator 
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)

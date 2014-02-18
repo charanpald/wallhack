@@ -2,7 +2,7 @@
 import logging
 import numpy
 from apgl.graph import *
-from apgl.util import *
+from sandbox.util import *
 from wallhack.viroscopy.model.HIVGraph import HIVGraph
 from wallhack.viroscopy.model.HIVVertices import HIVVertices
 

@@ -3,7 +3,7 @@ import logging
 import numpy
 from apgl.graph import *
 from exp.viroscopy.HIVGraphReader import HIVGraphReader
-from apgl.util.DateUtils import DateUtils
+from sandbox.util.DateUtils import DateUtils
 from exp.sandbox.GraphIterators import IncreasingSubgraphListIterator
 
 

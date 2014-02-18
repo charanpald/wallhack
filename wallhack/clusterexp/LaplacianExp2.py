@@ -11,9 +11,9 @@ import itertools
 import copy
 import matplotlib.pyplot as plt 
 from apgl.graph import *
-from apgl.util.PathDefaults import PathDefaults
+from sandbox.util.PathDefaults import PathDefaults
 from apgl.graph.GraphUtils import GraphUtils
-from apgl.util.Util import Util 
+from sandbox.util.Util import Util 
 from wallhack.clusterexp.BoundGraphIterator import BoundGraphIterator 
 from sandbox.misc.Nystrom import Nystrom 
 from sandbox.misc.EigenUpdater import EigenUpdater 

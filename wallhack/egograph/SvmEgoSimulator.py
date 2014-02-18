@@ -6,7 +6,7 @@ from apgl.data.Standardiser import Standardiser
 from exp.egograph import *
 from apgl.graph import * 
 from exp.io.EgoCsvReader import EgoCsvReader
-from apgl.util import * 
+from sandbox.util import * 
 import numpy
  
 class SvmEgoSimulator(AbstractDiffusionSimulator):

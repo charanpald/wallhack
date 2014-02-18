@@ -4,7 +4,7 @@ import sys
 import numpy
 import multiprocessing 
 from apgl.graph import *
-from apgl.util import *
+from sandbox.util import *
 from exp.viroscopy.model.HIVGraph import HIVGraph
 from exp.viroscopy.model.HIVEpidemicModel import HIVEpidemicModel
 from exp.viroscopy.model.HIVRates import HIVRates

@@ -1,7 +1,7 @@
 
 from apgl.viroscopy.HIVGraphReader import HIVGraphReader
 from apgl.io.PajekWriter import PajekWriter
-from apgl.util import * 
+from sandbox.util import * 
 import logging
 import sys
 import math 

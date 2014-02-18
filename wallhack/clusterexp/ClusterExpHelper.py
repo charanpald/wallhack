@@ -5,14 +5,14 @@ import logging
 import numpy
 from copy import copy
 from apgl.graph.GraphUtils import GraphUtils 
-from apgl.util.PathDefaults import PathDefaults
+from sandbox.util.PathDefaults import PathDefaults
 from exp.sandbox.IterativeSpectralClustering import IterativeSpectralClustering
 from exp.sandbox.NingSpectralClustering import NingSpectralClustering
 from exp.sandbox.IterativeModularityClustering import IterativeModularityClustering
 from exp.sandbox.GraphIterators import toDenseGraphListIterator
 import networkx
 import argparse
-from apgl.util import Util
+from sandbox.util import Util
 
 class ClusterExpHelper(object):
     # priority for default args

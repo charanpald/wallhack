@@ -3,8 +3,8 @@ import logging
 import scipy.sparse 
 import scipy.sparse.linalg
 import array 
-from apgl.util.Util import Util 
-from apgl.util.Evaluator import Evaluator
+from sandbox.util.Util import Util 
+from sandbox.util.Evaluator import Evaluator
 
 class RankAggregator(object): 
     def __init__(self): 

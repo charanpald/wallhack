@@ -18,7 +18,7 @@ logging.debug("Number of non zero elements: " + str(X.nnz))
 
 trainSplit = 2.0/3
 
-rho = 0.01
+rho = 0.00
 u = 0.2
 eps = 0.05
 sigma = 0.2

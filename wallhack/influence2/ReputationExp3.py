@@ -8,9 +8,9 @@ import argparse
 from wallhack.influence2.GraphRanker import GraphRanker 
 from wallhack.influence2.RankAggregator import RankAggregator
 from wallhack.influence2.ArnetMinerDataset import ArnetMinerDataset
-from apgl.util.Latex import Latex 
-from apgl.util.Evaluator import Evaluator
-from apgl.util.Util import Util
+from sandbox.util.Latex import Latex 
+from sandbox.util.Evaluator import Evaluator
+from sandbox.util.Util import Util
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.set_printoptions(suppress=True, precision=3, linewidth=160)

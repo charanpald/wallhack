@@ -1,7 +1,7 @@
 
 import numpy
 import scipy.linalg
-from apgl.util import *
+from sandbox.util import *
 from apgl.kernel import * 
 from apgl.features.PrimalDualCCA import PrimalDualCCA
 from apgl.predictors import *

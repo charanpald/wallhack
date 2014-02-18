@@ -3,7 +3,7 @@ import unittest
 import logging
 import sys 
 from exp.influence2.ArnetMinerDataset import ArnetMinerDataset 
-from apgl.util.Util import Util 
+from sandbox.util.Util import Util 
 
 class  ArnetMinerDatasetTest(unittest.TestCase):
     def setUp(self): 

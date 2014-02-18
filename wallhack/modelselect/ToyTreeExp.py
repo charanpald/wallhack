@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import numpy 
 from exp.sandbox.predictors.DecisionTreeLearner import DecisionTreeLearner
-from apgl.util.Evaluator import Evaluator 
+from sandbox.util.Evaluator import Evaluator 
 
 numExamples = 5000 
 numFeatures = 2 

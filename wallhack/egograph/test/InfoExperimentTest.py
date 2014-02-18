@@ -2,7 +2,7 @@
 
 from apgl.egograph import * 
 from apgl.graph import * 
-from apgl.util import *
+from sandbox.util import *
 import unittest
 import logging
 import sys 

@@ -1,5 +1,5 @@
 from apgl.io.MultiGraphCsvReader import MultiGraphCsvReader
-from apgl.util.PathDefaults import PathDefaults
+from sandbox.util.PathDefaults import PathDefaults
 from sandbox.data.FeatureGenerator import FeatureGenerator
 from wallhack.viroscopy.model.HIVGraph import HIVGraph 
 from wallhack.viroscopy.model.HIVVertices import HIVVertices

@@ -7,8 +7,8 @@ import logging
 import sys
 import itertools
 import matplotlib.pyplot as plt
-from apgl.util.PathDefaults import PathDefaults
-from apgl.util.Util import Util
+from sandbox.util.PathDefaults import PathDefaults
+from sandbox.util.Util import Util
 from apgl.graph import SparseGraph, GraphUtils, GeneralVertexList
 from apgl.generator import *
 from sandbox.misc.IterativeSpectralClustering import IterativeSpectralClustering

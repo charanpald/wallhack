@@ -1,7 +1,7 @@
 
 from exp.sandbox.data.ExamplesList import ExamplesList
 from apgl.graph import * 
-from apgl.util.Parameter import Parameter
+from sandbox.util.Parameter import Parameter
 import numpy
 
 class EgoSimulator2:

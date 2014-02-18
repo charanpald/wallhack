@@ -2,7 +2,7 @@ import numpy
 import logging
 import sys
 from sandbox.recommendation.MaxLocalAUC import MaxLocalAUC
-from apgl.util.PathDefaults import PathDefaults 
+from sandbox.util.PathDefaults import PathDefaults 
 from sandbox.util.SparseUtils import SparseUtils
 from sandbox.util.MCEvaluator import MCEvaluator
 import sppy 

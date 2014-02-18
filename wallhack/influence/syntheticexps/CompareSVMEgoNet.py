@@ -4,7 +4,7 @@ Let's compare the SVM with the ego network predictor.
 """
 
 from apgl.graph import *
-from apgl.util import *
+from sandbox.util import *
 from apgl.data import *
 from apgl.predictors import *
 from apgl.predictors.edge import *

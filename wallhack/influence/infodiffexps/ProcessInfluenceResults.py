@@ -1,7 +1,7 @@
 import numpy
 import matplotlib
 import matplotlib.pyplot as plt
-from apgl.util import *
+from sandbox.util import *
 
 outputDirectory = PathDefaults.getOutputDir()
 outputDir = outputDirectory + "influence/"

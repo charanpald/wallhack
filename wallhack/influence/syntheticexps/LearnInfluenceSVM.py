@@ -5,7 +5,7 @@ This is part of the synthetic experiments, where we predict decays using the SVM
 
 
 from apgl.graph import *
-from apgl.util import *
+from sandbox.util import *
 from apgl.data import *
 from apgl.predictors import *
 from apgl.influence.GreedyInfluence import GreedyInfluence

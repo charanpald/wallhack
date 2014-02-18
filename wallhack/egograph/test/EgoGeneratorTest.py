@@ -6,7 +6,7 @@ Created on 6 Jul 2009
 import sys
 from apgl.io.EgoCsvReader import EgoCsvReader
 from exp.egograph.EgoGenerator import EgoGenerator
-from apgl.util.Util import Util
+from sandbox.util.Util import Util
 import numpy
 import unittest
 import logging

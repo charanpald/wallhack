@@ -6,7 +6,7 @@ We have a graph of vertices of percolations with known decay.
 """
 
 from apgl.graph import *
-from apgl.util import *
+from sandbox.util import *
 from apgl.data import * 
 import numpy
 import logging

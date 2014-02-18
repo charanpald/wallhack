@@ -11,7 +11,7 @@ import numpy
 
 from apgl.egograph import * 
 from apgl.io import *
-from apgl.util import *
+from sandbox.util import *
 from apgl.graph import *
 from apgl.kernel import *
 from apgl.data.Standardiser import Standardiser 

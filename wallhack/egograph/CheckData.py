@@ -6,7 +6,7 @@ from apgl.egograph.EgoUtils import EgoUtils
 from apgl.data.ExamplesList import ExamplesList
 import logging
 from apgl.io.EgoCsvReader import EgoCsvReader
-from apgl.util.Util import Util
+from sandbox.util.Util import Util
 import sys
 import numpy
 

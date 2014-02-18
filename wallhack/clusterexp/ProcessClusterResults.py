@@ -9,7 +9,7 @@ import numpy
 import itertools
 import matplotlib.pyplot as plt
 from apgl.graph import *
-from apgl.util.PathDefaults import PathDefaults
+from sandbox.util.PathDefaults import PathDefaults
 
 numpy.random.seed(21)
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)

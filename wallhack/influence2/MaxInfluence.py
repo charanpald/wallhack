@@ -9,7 +9,7 @@ try:
 except: 
     pass 
 import igraph 
-from apgl.util.Util import Util 
+from sandbox.util.Util import Util 
 
 
 def simulateAllCascades(args): 

@@ -13,7 +13,7 @@ from apgl.egograph.EgoUtils import EgoUtils
 from apgl.egograph.InfoExperiment import InfoExperiment
 from apgl.egograph.SvmEgoSimulator import SvmEgoSimulator
 from apgl.io import *
-from apgl.util import *
+from sandbox.util import *
 import numpy
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)

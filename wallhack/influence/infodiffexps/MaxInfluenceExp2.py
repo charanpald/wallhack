@@ -11,7 +11,7 @@ import numpy
 
 from apgl.graph import * 
 from apgl.influence.GreedyInfluence import GreedyInfluence
-from apgl.util import *
+from sandbox.util import *
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 

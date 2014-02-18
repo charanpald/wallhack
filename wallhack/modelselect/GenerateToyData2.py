@@ -7,7 +7,7 @@ import logging
 import sys 
 import scipy.stats
 import matplotlib.pyplot as plt
-from apgl.util.PathDefaults import PathDefaults
+from sandbox.util.PathDefaults import PathDefaults
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.random.seed(21)

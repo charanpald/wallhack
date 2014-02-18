@@ -6,7 +6,7 @@ Created on 5 Jul 2009
 Take the full set of egos by reading from a file and fit each feature to a normal
 probability distribution. 
 '''
-from apgl.util.Util import Util
+from sandbox.util.Util import Util
 
 from apgl.graph.VertexList import VertexList
 import numpy

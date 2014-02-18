@@ -6,8 +6,8 @@ import logging
 import numpy
 from apgl.graph import *
 from apgl.viroscopy.HIVGraphReader import HIVGraphReader
-from apgl.util.PathDefaults import PathDefaults
-from apgl.util.DateUtils import DateUtils
+from sandbox.util.PathDefaults import PathDefaults
+from sandbox.util.DateUtils import DateUtils
 from exp.clustering.SpectralClusterer import SpectralClusterer
 
 numpy.random.seed(21)

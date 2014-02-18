@@ -3,7 +3,7 @@ import unittest
 import logging 
 import sys 
 from exp.recommendexp.Static2IdValDataset import Static2IdValDataset 
-from apgl.util.PathDefaults import PathDefaults
+from sandbox.util.PathDefaults import PathDefaults
 
 
 class Static2IdValDatasetTest(unittest.TestCase):

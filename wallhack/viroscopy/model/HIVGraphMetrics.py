@@ -1,7 +1,7 @@
 import numpy 
 import logging 
 
-from apgl.util.Parameter import Parameter
+from sandbox.util.Parameter import Parameter
 from exp.viroscopy.model.HIVGraph import HIVGraph 
 
 class HIVGraphMetrics(object): 

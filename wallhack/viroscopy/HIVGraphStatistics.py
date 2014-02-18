@@ -5,8 +5,8 @@ for the HIV data.
 
 import numpy
 import logging
-from apgl.util.Util import Util
-from apgl.util.Parameter import Parameter
+from sandbox.util.Util import Util
+from sandbox.util.Parameter import Parameter
 from apgl.graph.GraphUtils import GraphUtils
 from apgl.graph.AbstractMatrixGraph import AbstractMatrixGraph
 from exp.viroscopy.HIVGraphReader import CsvConverters

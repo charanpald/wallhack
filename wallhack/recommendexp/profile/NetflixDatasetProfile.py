@@ -1,7 +1,7 @@
 import numpy
 import logging
 import sys
-from apgl.util.ProfileUtils import ProfileUtils
+from sandbox.util.ProfileUtils import ProfileUtils
 from exp.recommendexp.NetflixDataset import NetflixDataset
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)

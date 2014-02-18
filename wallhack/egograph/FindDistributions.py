@@ -7,7 +7,7 @@ import numpy.random
 from apgl.egograph.SvmInfoExperiment import SvmInfoExperiment
 from apgl.egograph.SvmEgoSimulator import SvmEgoSimulator
 from apgl.io.EgoCsvReader import EgoCsvReader
-from apgl.util.Latex import Latex
+from sandbox.util.Latex import Latex
 from apgl.generator import * 
 
 def getVertexFeatureDistribution(index, vertexIndices):

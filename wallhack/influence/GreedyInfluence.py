@@ -3,8 +3,8 @@ A class to maximise influence in a network in a greedy manner.
 """
 import numpy
 import logging
-from apgl.util.Parameter import Parameter
-from apgl.util.Util import Util
+from sandbox.util.Parameter import Parameter
+from sandbox.util.Util import Util
 
 class GreedyInfluence(object):
     def __init__(self):

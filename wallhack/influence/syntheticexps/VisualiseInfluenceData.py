@@ -7,7 +7,7 @@ import matplotlib
 import matplotlib.pyplot 
 import networkx
 from apgl.graph import *
-from apgl.util import *
+from sandbox.util import *
 from apgl.influence.GreedyInfluence import GreedyInfluence
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)

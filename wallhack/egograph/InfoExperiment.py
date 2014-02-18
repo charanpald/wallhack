@@ -4,7 +4,7 @@ import time
 import numpy 
  
 from exp.egograph.EgoNetworkSimulator import EgoNetworkSimulator
-from apgl.util import * 
+from sandbox.util import * 
 from apgl.io import *
 from apgl.graph import * 
 from exp.sandbox.predictors.edge import *

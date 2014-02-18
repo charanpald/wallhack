@@ -7,7 +7,7 @@ import numpy
 from apgl.io import *
 from apgl.influence.GreedyInfluence import GreedyInfluence
 from apgl.influence.BABInfluence import BABInfluence
-from apgl.util import *
+from sandbox.util import *
 
 sys.setrecursionlimit(1000)
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)

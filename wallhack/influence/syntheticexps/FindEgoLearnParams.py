@@ -3,7 +3,7 @@ Find SVM parameters using cross validation and then evaluate the error, and
 save the results.
 """
 from apgl.data import *
-from apgl.util import *
+from sandbox.util import *
 from apgl.predictors import *
 from apgl.predictors.edge import *
 from apgl.graph import *

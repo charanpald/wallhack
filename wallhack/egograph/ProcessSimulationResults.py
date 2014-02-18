@@ -2,7 +2,7 @@
 import scipy.io
 import numpy 
 from apgl.egograph.InfoExperiment import InfoExperiment
-from apgl.util.Latex import Latex
+from sandbox.util.Latex import Latex
 import matplotlib.pyplot as pyplot
 
 outputDir = SvmInfoExperiment.getOutputDirectoryName()

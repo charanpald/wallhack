@@ -9,7 +9,7 @@ import itertools
 import logging
 import numpy
 from apgl.graph import *
-from apgl.util.PathDefaults import PathDefaults
+from sandbox.util.PathDefaults import PathDefaults
 from exp.clusterexp.ClusterExpHelper import ClusterExpHelper
 from exp.clusterexp.BemolData import BemolData
 from exp.sandbox.GraphIterators import MaxComponentsIterator

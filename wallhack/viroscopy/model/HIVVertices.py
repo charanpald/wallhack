@@ -2,8 +2,8 @@
 import numpy 
 import scipy.io
 from apgl.graph.VertexList import VertexList
-from apgl.util.Util import Util
-from apgl.util.Parameter import Parameter 
+from sandbox.util.Util import Util
+from sandbox.util.Parameter import Parameter 
 
 class HIVVertices(VertexList):
     def __init__(self, numVertices):

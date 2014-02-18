@@ -2,8 +2,8 @@ import numpy
 import logging
 import sys 
 import scipy.stats 
-from apgl.util.Latex import Latex
-from apgl.util.PathDefaults import PathDefaults
+from sandbox.util.Latex import Latex
+from sandbox.util.PathDefaults import PathDefaults
 from exp.modelselect.ModelSelectUtils import ModelSelectUtils
 import matplotlib
 matplotlib.use("GTK3Agg")

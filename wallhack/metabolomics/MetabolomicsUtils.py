@@ -2,7 +2,7 @@
 import pywt
 import numpy
 import pandas 
-from apgl.util.PathDefaults import PathDefaults
+from sandbox.util.PathDefaults import PathDefaults
 from sandbox.data.Standardiser import Standardiser
 
 class MetabolomicsUtils(object):

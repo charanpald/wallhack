@@ -4,7 +4,7 @@ import scipy.sparse.linalg
 import matplotlib 
 matplotlib.use("GTK3Agg")
 import matplotlib.pyplot as plt  
-from apgl.util.PathDefaults import PathDefaults 
+from sandbox.util.PathDefaults import PathDefaults 
 
 """
 Let's look at the eigenvalues of the laplacians and their k-cores 

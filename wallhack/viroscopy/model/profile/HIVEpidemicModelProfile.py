@@ -4,7 +4,7 @@ import numpy
 import scipy.stats
 
 from apgl.graph import *
-from apgl.util import *
+from sandbox.util import *
 from wallhack.viroscopy.model.HIVEpidemicModel import HIVEpidemicModel
 from wallhack.viroscopy.model.HIVGraph import HIVGraph
 from wallhack.viroscopy.model.HIVRates import HIVRates

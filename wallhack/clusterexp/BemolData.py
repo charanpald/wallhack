@@ -7,7 +7,7 @@ Main function creates files storing a sub-part of the data
     -D, --debug :        print debug message 
 """
 
-from apgl.util.Util import Util
+from sandbox.util.Util import Util
 import math
 import numpy
 import logging
@@ -21,7 +21,7 @@ import getopt
 from exp.sandbox.IterativeSpectralClustering import IterativeSpectralClustering
 from exp.sandbox.GraphIterators import DatedPurchasesGraphListIterator
 from exp.sandbox.GraphIterators import MyDictionary
-from apgl.util.PathDefaults import PathDefaults
+from sandbox.util.PathDefaults import PathDefaults
 
 numpy.random.seed(21)
 numpy.set_printoptions(suppress=True, precision=3, linewidth=200, threshold=40000)

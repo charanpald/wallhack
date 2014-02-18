@@ -3,7 +3,7 @@ import logging
 from apgl.data.Standardiser import Standardiser
 from exp.egograph import *
 from apgl.graph import  *
-from apgl.util import * 
+from sandbox.util import * 
 import numpy
 
 class EgoNetworkSimulator(AbstractDiffusionSimulator):

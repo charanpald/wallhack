@@ -7,8 +7,8 @@ Take the data about Egos and Alters1 and generate transmissions. Save as a Matla
 '''
 
 from apgl.io import *
-from apgl.util.Util import Util
-from apgl.util.PathDefaults import PathDefaults
+from sandbox.util.Util import Util
+from sandbox.util.PathDefaults import PathDefaults
 import logging
 import sys
 import random

@@ -15,8 +15,8 @@ import scipy.io
 from gensim.models.ldamodel import LdaModel
 from gensim.models.lsimodel import LsiModel
 import gensim.similarities
-from apgl.util.Util import Util 
-from apgl.util.PathDefaults import PathDefaults 
+from sandbox.util.Util import Util 
+from sandbox.util.PathDefaults import PathDefaults 
 from sandbox.util.IdIndexer import IdIndexer
 from collections import Counter, OrderedDict 
 from sandbox.util.PorterTokeniser import PorterTokeniser

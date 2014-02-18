@@ -4,7 +4,7 @@ import logging
 import sys
 import igraph
 import random  
-from apgl.util.ProfileUtils import ProfileUtils
+from sandbox.util.ProfileUtils import ProfileUtils
 from exp.influence2.MaxInfluence import MaxInfluence 
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)

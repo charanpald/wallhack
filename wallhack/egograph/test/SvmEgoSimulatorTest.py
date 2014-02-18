@@ -1,5 +1,5 @@
 
-from apgl.util.PathDefaults import PathDefaults
+from sandbox.util.PathDefaults import PathDefaults
 
 import unittest
 import logging

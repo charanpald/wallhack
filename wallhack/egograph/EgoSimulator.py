@@ -6,7 +6,7 @@ Created on 23 Jul 2009
 from exp.sandbox.data.ExamplesList import ExamplesList
 from apgl.graph.DictGraph import DictGraph
 from apgl.graph.SparseGraph import SparseGraph
-from apgl.util.Parameter import Parameter
+from sandbox.util.Parameter import Parameter
 import numpy
 
 class EgoSimulator:

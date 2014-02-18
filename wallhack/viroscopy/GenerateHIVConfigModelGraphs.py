@@ -7,8 +7,8 @@ import sys
 import numpy
 from apgl.graph import *
 from apgl.viroscopy.HIVGraphReader import HIVGraphReader
-from apgl.util.DateUtils import DateUtils
-from apgl.util.PathDefaults import PathDefaults 
+from sandbox.util.DateUtils import DateUtils
+from sandbox.util.PathDefaults import PathDefaults 
 from apgl.generator.ConfigModelGenerator import ConfigModelGenerator
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)

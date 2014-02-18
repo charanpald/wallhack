@@ -8,9 +8,9 @@ except:
     #Version 0.12 fix 
     from sklearn.cross_validation import StratifiedKFold
 
-from apgl.util.PathDefaults import PathDefaults
-from apgl.util.FileLock import FileLock 
-from apgl.util.Evaluator import Evaluator 
+from sandbox.util.PathDefaults import PathDefaults
+from sandbox.util.FileLock import FileLock 
+from sandbox.util.Evaluator import Evaluator 
 from sandbox.ranking.TreeRank import TreeRank
 from sandbox.ranking.TreeRankForest import TreeRankForest
 from wallhack.metabolomics.MetabolomicsUtils import MetabolomicsUtils

@@ -4,10 +4,10 @@ import sys
 import multiprocessing 
 import os
 from apgl.graph.GraphStatistics import GraphStatistics 
-from apgl.util.PathDefaults import PathDefaults
-from apgl.util.Util import Util 
-from apgl.util.Latex import Latex 
-from apgl.util.FileLock import FileLock
+from sandbox.util.PathDefaults import PathDefaults
+from sandbox.util.Util import Util 
+from sandbox.util.Latex import Latex 
+from sandbox.util.FileLock import FileLock
 from sandbox.predictors.ABCSMC import loadThetaArray 
 from wallhack.viroscopy.model.HIVModelUtils import HIVModelUtils
 

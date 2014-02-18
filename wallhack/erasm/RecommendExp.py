@@ -2,9 +2,9 @@
 Test some recommendation with the Mendeley coauthor data 
 """
 
-from apgl.util.PathDefaults import PathDefaults 
-from apgl.util.Sampling import Sampling 
-from apgl.util.SparseUtils import SparseUtils 
+from sandbox.util.PathDefaults import PathDefaults 
+from sandbox.util.Sampling import Sampling 
+from sandbox.util.SparseUtils import SparseUtils 
 from exp.sandbox.recommendation.AbstractMatrixCompleter import computeTestError
 from exp.sandbox.recommendation.NimfaFactorise import NimfaFactorise 
 from exp.sandbox.recommendation.SoftImpute import SoftImpute 

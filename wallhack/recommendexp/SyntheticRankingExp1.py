@@ -6,7 +6,7 @@ from sandbox.util.SparseUtils import SparseUtils
 import matplotlib 
 matplotlib.use("GTK3Agg")
 import matplotlib.pyplot as plt 
-from apgl.util.ProfileUtils import ProfileUtils
+from sandbox.util.ProfileUtils import ProfileUtils
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.random.seed(21)        

@@ -2,7 +2,7 @@
 A script to estimate the HIV epidemic model parameters using ABC for the toy data.
 """
 
-from apgl.util.PathDefaults import PathDefaults
+from sandbox.util.PathDefaults import PathDefaults
 from wallhack.viroscopy.model.HIVModelUtils import HIVModelUtils
 from wallhack.viroscopy.model.HIVABCParameters import HIVABCParameters
 from sandbox.predictors.ABCSMC import ABCSMC

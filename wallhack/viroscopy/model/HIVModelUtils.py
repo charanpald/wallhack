@@ -6,8 +6,8 @@ Keep some default parameters for the epidemic model.
 import time 
 import numpy 
 import logging 
-from apgl.util import Util 
-from apgl.util import PathDefaults 
+from sandbox.util import Util 
+from sandbox.util import PathDefaults 
 from apgl.graph.GraphStatistics import GraphStatistics
 from wallhack.viroscopy.model.HIVGraph import HIVGraph
 from wallhack.viroscopy.model.HIVEpidemicModel import HIVEpidemicModel

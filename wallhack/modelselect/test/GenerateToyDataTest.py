@@ -1,6 +1,6 @@
 import numpy
 import unittest
-from apgl.util.PathDefaults import PathDefaults
+from sandbox.util.PathDefaults import PathDefaults
 
 class  GenerateToyDataTest(unittest.TestCase):
 

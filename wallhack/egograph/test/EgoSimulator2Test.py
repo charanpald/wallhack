@@ -6,7 +6,7 @@ from apgl.egograph.EgoSimulator2 import EgoSimulator2
 from apgl.egograph.EgoUtils import EgoUtils
 from apgl.graph import *
 from apgl.generator import *
-from apgl.util import *
+from sandbox.util import *
 import numpy
 import numpy.random as rand
 import unittest

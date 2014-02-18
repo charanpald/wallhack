@@ -7,7 +7,7 @@ from exp.viroscopy.model.HIVGraph import HIVGraph
 from exp.viroscopy.model.HIVRates import HIVRates
 from exp.viroscopy.model.HIVVertices import HIVVertices
 from apgl.graph import *
-from apgl.util import *
+from sandbox.util import *
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 numpy.random.seed(21)

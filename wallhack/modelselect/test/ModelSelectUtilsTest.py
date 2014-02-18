@@ -6,8 +6,8 @@ import logging
 import numpy 
 from apgl.modelselect.ModelSelectUtils import ModelSelectUtils, computeIdealPenalty
 from apgl.predictors.LibSVM import LibSVM, computeIdealPenalty as computeIdealPenalty2
-from apgl.util.PathDefaults import PathDefaults
-from apgl.util.Evaluator import Evaluator
+from sandbox.util.PathDefaults import PathDefaults
+from sandbox.util.Evaluator import Evaluator
 import matplotlib.pyplot as plt 
 
 class  MetabolomicsUtilsTestCase(unittest.TestCase):
