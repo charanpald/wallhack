@@ -53,6 +53,7 @@ U, V, objs, aucs, iterations, times = maxLocalAuc.learnModel(trainX, True)
 r = maxLocalAuc.computeR(U, V)
 logging.debug("||U||=" + str(numpy.linalg.norm(U)) + " ||V||=" + str(numpy.linalg.norm(V)))
 logging.debug("Train local AUC:" + str(maxLocalAuc.localAUCApprox(trainX, U, V, trainOmegaList, r)))
+logging.debug("Test local AUC:" + str(maxLocalAuc.localAUCApprox(testX, U, V, testOmegaList, r)))
 
 logging.debug("Train Precision@5=" + str(MCEvaluator.precisionAtK(trainX, U, V, 5)))
 logging.debug("Train Precision@10=" + str(MCEvaluator.precisionAtK(trainX, U, V, 10)))
