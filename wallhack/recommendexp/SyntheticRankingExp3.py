@@ -12,7 +12,7 @@ numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 #Create a low rank matrix  
 m = 200
 n = 700 
-k = 100 
+k = 20 
 X = SparseUtils.generateSparseBinaryMatrix((m,n), k, csarray=True)
 logging.debug("Number of non zero elements: " + str(X.nnz))
 
