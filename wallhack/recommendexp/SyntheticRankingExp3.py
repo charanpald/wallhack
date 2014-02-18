@@ -45,7 +45,7 @@ logging.debug("Selecting learning rate")
 #maxLocalAuc.learningRateSelect(trainX)
 
 logging.debug("Starting model selection")
-#maxLocalAuc.modelSelect(trainX)
+maxLocalAuc.modelSelect(trainX)
 
 logging.debug("Starting training")
 U, V, objs, aucs, iterations, times = maxLocalAuc.learnModel(trainX, True)
