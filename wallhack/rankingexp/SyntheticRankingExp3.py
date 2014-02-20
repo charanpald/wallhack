@@ -1,9 +1,12 @@
 import numpy
 import logging
 import sys
-from sandbox.recommendation.MaxLocalAUC import MaxLocalAUC
+import argparse 
+import os
+import errno
+import sppy 
+from wallhack.rankingexp.RankingExpHelper import RankingExpHelper
 from sandbox.util.SparseUtils import SparseUtils
-from sandbox.util.MCEvaluator import MCEvaluator
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.random.seed(21)        
@@ -15,52 +18,47 @@ n = 700
 k = 20 
 X = SparseUtils.generateSparseBinaryMatrix((m,n), k, csarray=True)
 logging.debug("Number of non zero elements: " + str(X.nnz))
+(m, n) = X.shape
+logging.debug("Size of X: " + str(X.shape))
+logging.debug("Number of non zeros: " + str(X.nnz))
 
-trainSplit = 2.0/3
+# Arguments related to the dataset
+dataArgs = argparse.Namespace()
 
-rho = 0.00
-u = 0.2
-eps = 0.05
-sigma = 0.2
-stochastic = True
-maxLocalAuc = MaxLocalAUC(rho, k, u, sigma=sigma, eps=eps, stochastic=stochastic)
+# Arguments related to the algorithm
+defaultAlgoArgs = argparse.Namespace()
+defaultAlgoArgs.ks = numpy.array(2**numpy.arange(2.5, 5.5, 0.5), numpy.int) 
+defaultAlgoArgs.rhos = numpy.linspace(0.3, 0.1, 3) 
+defaultAlgoArgs.folds = 4
 
-maxLocalAuc.numRowSamples = 50
-maxLocalAuc.numColSamples = 50
-maxLocalAuc.numAucSamples = 100
-maxLocalAuc.initialAlg = "rand"
-maxLocalAuc.recordStep = 10
-maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 0.5    
-maxLocalAuc.t0 = 0.1   
-maxLocalAuc.maxIterations = m*10
+# data args parser #
+dataParser = argparse.ArgumentParser(description="", add_help=False)
+dataParser.add_argument("-h", "--help", action="store_true", help="show this help message and exit")
+devNull, remainingArgs = dataParser.parse_known_args(namespace=dataArgs)
+if dataArgs.help:
+    helpParser  = argparse.ArgumentParser(description="", add_help=False, parents=[dataParser, RankingExpHelper.newAlgoParser(defaultAlgoArgs)])
+    helpParser.print_help()
+    exit()
 
-logging.debug("Splitting into train and test sets")
-#trainX, testX = X, X
-trainX, testX = SparseUtils.splitNnz(X, trainSplit)
-trainOmegaList = maxLocalAuc.getOmegaList(trainX)
-testOmegaList = maxLocalAuc.getOmegaList(testX)
+dataArgs.extendedDirName = ""
+dataArgs.extendedDirName += "SyntheticDataset1"
 
-logging.debug("Selecting learning rate")
-#maxLocalAuc.learningRateSelect(trainX)
+# print args #
+logging.info("Running on SyntheticDataset1")
+logging.info("Data params:")
+keys = list(vars(dataArgs).keys())
+keys.sort()
+for key in keys:
+    logging.info("    " + str(key) + ": " + str(dataArgs.__getattribute__(key)))
 
-logging.debug("Starting model selection")
-maxLocalAuc.modelSelect(trainX)
+logging.info("Creating the exp-runner")
+recommendExpHelper = RankingExpHelper(remainingArgs, defaultAlgoArgs, dataArgs.extendedDirName)
+recommendExpHelper.printAlgoArgs()
+#    os.makedirs(resultsDir, exist_ok=True) # for python 3.2
+try:
+    os.makedirs(recommendExpHelper.resultsDir)
+except OSError as err:
+    if err.errno != errno.EEXIST:
+        raise
 
-logging.debug("Starting training")
-U, V, objs, aucs, iterations, times = maxLocalAuc.learnModel(trainX, True)
-
-r = maxLocalAuc.computeR(U, V)
-logging.debug("||U||=" + str(numpy.linalg.norm(U)) + " ||V||=" + str(numpy.linalg.norm(V)))
-logging.debug("Train local AUC:" + str(maxLocalAuc.localAUCApprox(trainX, U, V, trainOmegaList, r)))
-logging.debug("Test local AUC:" + str(maxLocalAuc.localAUCApprox(testX, U, V, testOmegaList, r)))
-
-logging.debug("Train Precision@5=" + str(MCEvaluator.precisionAtK(trainX, U, V, 5)))
-logging.debug("Train Precision@10=" + str(MCEvaluator.precisionAtK(trainX, U, V, 10)))
-logging.debug("Train Precision@20=" + str(MCEvaluator.precisionAtK(trainX, U, V, 20)))
-logging.debug("Train Precision@50=" + str(MCEvaluator.precisionAtK(trainX, U, V, 50)))
-
-logging.debug("Test Precision@5=" + str(MCEvaluator.precisionAtK(testX, U, V, 5)))
-logging.debug("Test Precision@10=" + str(MCEvaluator.precisionAtK(testX, U, V, 10)))
-logging.debug("Test Precision@20=" + str(MCEvaluator.precisionAtK(testX, U, V, 20)))
-logging.debug("Test Precision@50=" + str(MCEvaluator.precisionAtK(testX, U, V, 50)))
+recommendExpHelper.runExperiment(X)
