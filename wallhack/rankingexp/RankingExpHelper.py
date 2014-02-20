@@ -139,13 +139,14 @@ class RankingExpHelper(object):
         numpy.savez(fileName, trainMeasures, testMeasures, metaData)
         logging.debug("Saved file as " + fileName)
 
-
     def runExperiment(self, X):
         """
         Run the selected ranking experiments and save results
         """
         logging.debug("Splitting into train and test sets")
-        trainX, testX = SparseUtils.splitNnz(X, self.algoArgs.trainSplit)         
+        trainX, testX = SparseUtils.splitNnz(X, self.algoArgs.trainSplit)
+        logging.debug("Train X shape and nnz: " + str(trainX.shape) + " " + str(trainX.nnz))    
+        logging.debug("Test X shape and nnz: " + str(testX.shape) + " " + str(testX.nnz))
         
         if self.algoArgs.runSoftImpute:
             logging.debug("Running soft impute")
