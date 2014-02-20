@@ -6,13 +6,12 @@ import gc
 import logging
 import numpy
 import argparse
-import scipy.sparse
 import time 
 from copy import copy
 from sandbox.util.PathDefaults import PathDefaults
-from sandbox.util import Util
 from sandbox.util.MCEvaluator import MCEvaluator 
 from sandbox.recommendation.MaxLocalAUC import MaxLocalAUC
+from sandbox.recommendation.SoftImpute import SoftImpute
 from sandbox.util.SparseUtils import SparseUtils 
 from sandbox.util.Sampling import Sampling 
 from sandbox.util.FileLock import FileLock 
@@ -30,7 +29,6 @@ class RankingExpHelper(object):
     defaultAlgoArgs.modelSelect = False
     defaultAlgoArgs.postProcess = False 
     defaultAlgoArgs.trainError = False 
-    defaultAlgoArgs.weighted = False 
     defaultAlgoArgs.verbose = False
     
     def __init__(self, cmdLine=None, defaultAlgoArgs = None, dirName=""):
@@ -83,7 +81,6 @@ class RankingExpHelper(object):
         algoParser.add_argument("--modelSelect", action="store_true", help="Whether to do model selection on the 1st iteration (default: %(default)s)", default=defaultAlgoArgs.modelSelect)
         algoParser.add_argument("--postProcess", action="store_true", help="Whether to do post processing for soft impute (default: %(default)s)", default=defaultAlgoArgs.postProcess)
         algoParser.add_argument("--trainError", action="store_true", help="Whether to compute the error on the training matrices (default: %(default)s)", default=defaultAlgoArgs.trainError)
-        algoParser.add_argument("--weighted", action="store_true", help="Whether to use weighted soft impute (default: %(default)s)", default=defaultAlgoArgs.weighted)
         algoParser.add_argument("--verbose", action="store_true", help="Whether to generate verbose algorithmic details(default: %(default)s)", default=defaultAlgoArgs.verbose)
         return(algoParser)
     
@@ -115,7 +112,11 @@ class RankingExpHelper(object):
         
 
         start = time.time()
-        U, V = learner.learnModel(trainX)
+        if type(learner) == SoftImpute:
+            ZList = learner.learnModel(trainX)    
+            U, s, V = ZList[0]
+        else: 
+            U, V = learner.learnModel(trainX)
         learnTime = time.time()-start 
         metaData.append(learnTime)
 
@@ -141,78 +142,30 @@ class RankingExpHelper(object):
 
     def runExperiment(self, X):
         """
-        Run the selected clustering experiments and save results
+        Run the selected ranking experiments and save results
         """
         logging.debug("Splitting into train and test sets")
         trainX, testX = SparseUtils.splitNnz(X, self.algoArgs.trainSplit)         
         
         if self.algoArgs.runSoftImpute:
             logging.debug("Running soft impute")
-            resultsFileName = self.resultsDir + "ResultsSoftImpute_alg=" + svdAlg  + "_updateAlg=" + self.algoArgs.updateAlg + ".npz"
+            resultsFileName = self.resultsDir + "ResultsSoftImpute.npz"
                 
             fileLock = FileLock(resultsFileName)  
             
             if not fileLock.isLocked() and not fileLock.fileExists(): 
                 fileLock.lock()
                 
+                trainX = trainX.toScipyCsc()
+                testX = testX.toScipyCsc()
+                
                 try: 
-                    learner = SoftImpute(self.rhos, eps=self.eps, k=self.k)
+                    rhos = numpy.array([self.algoArgs.rhos[0]])
+                    learner = SoftImpute(rhos, eps=self.algoArgs.eps, k=self.algoArgs.ks[0])
                     
                     if self.algoArgs.modelSelect: 
                         logging.debug("Performing model selection, taking subsample of entries of size " + str(self.sampleSize))
-                        modelSelectX = SparseUtils.submatrix(X, self.sampleSize)
-                        
-                        meanErrors, stdErrors = learner.modelSelect(modelSelectX)
-                        
-                        logging.debug("Mean errors = " + str(meanErrors))
-                        logging.debug("Std errors = " + str(stdErrors))
-                        
-                        modelSelectFileName = resultsFileName.replace("Results", "ModelSelect") 
-                        numpy.savez(modelSelectFileName, meanErrors, stdErrors)
-                        logging.debug("Saved model selection grid as " + modelSelectFileName)                            
-                        
-                        rho = self.algoArgs.rhos[numpy.unravel_index(numpy.argmin(meanErrors), meanErrors.shape)[0]]
-                        k = self.algoArgs.ks[numpy.unravel_index(numpy.argmin(meanErrors), meanErrors.shape)[1]]
-                    else: 
-                        rho = self.algoArgs.rhos[0]
-                        k = self.algoArgs.ks[0]
-                        
-                    learner.setK(k)  
-                    learner.setRho(rho)   
-                    logging.debug(learner)                
-
-                    self.recordResults(X, learner, resultsFileName)
-                finally: 
-                    fileLock.unlock()
-            else: 
-                logging.debug("File is locked or already computed: " + resultsFileName)
-                
-        if self.algoArgs.runMaxLocalAuc:
-            logging.debug("Running max local AUC")
-            resultsFileName = self.resultsDir + "ResultsMaxLocalAUC.npz"
-                
-            fileLock = FileLock(resultsFileName)  
-            
-            if not fileLock.isLocked() and not fileLock.fileExists(): 
-                fileLock.lock()
-                
-                try: 
-                    
-                    learner = MaxLocalAUC(self.algoArgs.rhos[0], self.algoArgs.ks[0], self.algoArgs.u, sigma=self.algoArgs.sigma, eps=self.algoArgs.eps, stochastic=True)
-                    
-                    learner.numRowSamples = 50
-                    learner.numColSamples = 50
-                    learner.numAucSamples = 100
-                    learner.initialAlg = "rand"
-                    learner.recordStep = 10
-                    learner.rate = "optimal"
-                    learner.alpha = 0.1    
-                    learner.t0 = 0.1   
-                    learner.maxIterations = X.shape[0]*10                          
-                    
-                    if self.algoArgs.modelSelect: 
-                        logging.debug("Performing model selection, taking subsample of entries of size " + str(self.sampleSize))
-                        modelSelectX = SparseUtils.submatrix(X, self.sampleSize)
+                        modelSelectX = SparseUtils.submatrix(trainX, self.sampleSize)
                         
                         meanErrors, stdErrors = learner.modelSelect(modelSelectX)
                         
@@ -235,7 +188,49 @@ class RankingExpHelper(object):
                 finally: 
                     fileLock.unlock()
             else: 
+                logging.debug("File is locked or already computed: " + resultsFileName)
+                
+        if self.algoArgs.runMaxLocalAuc:
+            logging.debug("Running max local AUC")
+            resultsFileName = self.resultsDir + "ResultsMaxLocalAUC.npz"
+                
+            fileLock = FileLock(resultsFileName)  
+            
+            if not fileLock.isLocked() and not fileLock.fileExists(): 
+                fileLock.lock()
+                
+                try: 
+                    learner = MaxLocalAUC(self.algoArgs.rhos[0], self.algoArgs.ks[0], self.algoArgs.u, sigma=self.algoArgs.sigma, eps=self.algoArgs.eps, stochastic=True)
+                    
+                    learner.numRowSamples = 50
+                    learner.numColSamples = 50
+                    learner.numAucSamples = 100
+                    learner.initialAlg = "rand"
+                    learner.recordStep = 10
+                    learner.rate = "optimal"
+                    learner.alpha = 0.1    
+                    learner.t0 = 0.1   
+                    learner.maxIterations = X.shape[0]*10                          
+                    
+                    if self.algoArgs.modelSelect: 
+                        logging.debug("Performing model selection, taking subsample of entries of size " + str(self.sampleSize))
+                        modelSelectX = SparseUtils.submatrix(trainX, self.sampleSize)
+                        
+                        meanAucs, stdAucs = learner.modelSelect(modelSelectX)
+                        
+                        logging.debug("Mean local AUCs = " + str(meanAucs))
+                        logging.debug("Std local AUCs = " + str(stdAucs))
+                        
+                        modelSelectFileName = resultsFileName.replace("Results", "ModelSelect") 
+                        numpy.savez(modelSelectFileName, meanAucs, stdAucs)
+                        logging.debug("Saved model selection grid as " + modelSelectFileName)                            
+                    
+                    logging.debug(learner)                
+
+                    self.recordResults(trainX, testX, learner, resultsFileName)
+                finally: 
+                    fileLock.unlock()
+            else: 
                 logging.debug("File is locked or already computed: " + resultsFileName)                
          
-            
         logging.info("All done: see you around!")
