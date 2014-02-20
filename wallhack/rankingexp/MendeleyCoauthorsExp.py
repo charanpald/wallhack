@@ -26,7 +26,7 @@ dataArgs = argparse.Namespace()
 
 # Arguments related to the algorithm
 defaultAlgoArgs = argparse.Namespace()
-defaultAlgoArgs.ks = numpy.array(2**numpy.arange(2.5, 5.5, 0.5), numpy.int) 
+defaultAlgoArgs.ks = numpy.array(2**numpy.arange(2.5, 6.5, 0.5), numpy.int) 
 defaultAlgoArgs.rhos = numpy.linspace(0.3, 0.1, 3) 
 defaultAlgoArgs.folds = 4
 
