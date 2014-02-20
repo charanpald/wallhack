@@ -43,7 +43,7 @@ dataArgs.extendedDirName = ""
 dataArgs.extendedDirName += "MendeleyCoauthors"
 
 # print args #
-logging.info("Running on EpinionsDataset")
+logging.info("Running on MendeleyCoauthors")
 logging.info("Data params:")
 keys = list(vars(dataArgs).keys())
 keys.sort()

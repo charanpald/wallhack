@@ -197,7 +197,7 @@ class RecommendExpHelper(object):
 
     def runExperiment(self):
         """
-        Run the selected clustering experiments and save results
+        Run the selected recommendation experiments and save results
         """
         if self.algoArgs.runSoftImpute:
             logging.debug("Running soft impute")
