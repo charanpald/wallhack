@@ -7,6 +7,8 @@ import matplotlib
 matplotlib.use("GTK3Agg")
 import matplotlib.pyplot as plt 
 from sandbox.util.ProfileUtils import ProfileUtils
+from sandbox.util.MCEvaluator import MCEvaluator
+from sandbox.util.Util import Util
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.random.seed(21)        
@@ -26,24 +28,23 @@ eps = 0.001
 sigma = 0.2
 stochastic = True
 maxLocalAuc = MaxLocalAUC(lmbda, k, u, sigma=sigma, eps=eps, stochastic=stochastic)
-maxLocalAuc.maxIterations = m*2
+maxLocalAuc.maxIterations = m
 maxLocalAuc.numRowSamples = 50
 maxLocalAuc.numColSamples = 50
 maxLocalAuc.numAucSamples = 50
 maxLocalAuc.initialAlg = "rand"
-maxLocalAuc.recordStep = 5
+maxLocalAuc.recordStep = 10
 maxLocalAuc.rate = "optimal"
 maxLocalAuc.alpha = 0.1    
 maxLocalAuc.t0 = 0.1    
-omegaList = maxLocalAuc.getOmegaList(X)
+omegaList = SparseUtils.getOmegaList(X)
 
 logging.debug("Starting training")
 ProfileUtils.profile('U, V, objs, aucs, iterations, time = maxLocalAuc.learnModel(X, True)', globals(), locals())
 #U, V, objs, aucs, iterations, times = maxLocalAuc.learnModel(X, True)
 
-r = maxLocalAuc.computeR(U, V)
 logging.debug("||U||=" + str(numpy.linalg.norm(U)) + " ||V||=" + str(numpy.linalg.norm(V)))
-logging.debug("Final local AUC:" + str(maxLocalAuc.localAUCApprox(X, U, V, omegaList, r)))
+logging.debug("Final local AUC:" + str(MCEvaluator.localAUCApprox(X, U, V, u)))
 
 logging.debug("Number of iterations: " + str(iterations))
 
