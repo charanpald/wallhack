@@ -27,7 +27,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.sigma = 0.2
     defaultAlgoArgs.numRowSamples = 50
     defaultAlgoArgs.numColSamples = 50
-    defaultAlgoArgs.numAucSamples = 100
+    defaultAlgoArgs.numAucSamples = 50
     defaultAlgoArgs.trainSplit = 2.0/3
     defaultAlgoArgs.modelSelect = False
     defaultAlgoArgs.postProcess = False 
@@ -55,6 +55,9 @@ class RankingExpHelper(object):
 
         # update algoParams from command line
         self.readAlgoParams(cmdLine)
+        
+        #Sometimes there are problems with multiprocessing, so this fixes the issues         
+        os.system('taskset -p 0xffffffff %d' % os.getpid())
 
     @staticmethod
     # update parameters with those from the user
@@ -212,7 +215,7 @@ class RankingExpHelper(object):
                     learner.numColSamples = self.algoArgs.numColSamples
                     learner.numAucSamples = self.algoArgs.numAucSamples
                     learner.initialAlg = "rand"
-                    learner.recordStep = 10
+                    learner.recordStep = 50
                     learner.rate = "optimal"
                     learner.alpha = 0.1    
                     learner.t0 = 0.1   
