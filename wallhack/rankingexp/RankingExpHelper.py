@@ -25,6 +25,9 @@ class RankingExpHelper(object):
     defaultAlgoArgs.u = 0.2
     defaultAlgoArgs.eps = 0.01
     defaultAlgoArgs.sigma = 0.2
+    defaultAlgoArgs.numRowSamples = 50
+    defaultAlgoArgs.numColSamples = 50
+    defaultAlgoArgs.numAucSamples = 100
     defaultAlgoArgs.trainSplit = 2.0/3
     defaultAlgoArgs.modelSelect = False
     defaultAlgoArgs.postProcess = False 
@@ -120,22 +123,24 @@ class RankingExpHelper(object):
         learnTime = time.time()-start 
         metaData.append(learnTime)
 
-        trainPrecisions = []
-        trainPrecisions.append(MCEvaluator.precisionAtK(trainX, U, V, 5))
-        trainPrecisions.append(MCEvaluator.precisionAtK(trainX, U, V, 10))
-        trainPrecisions.append(MCEvaluator.precisionAtK(trainX, U, V, 20))
+        trainMeasures = []
+        trainMeasures.append(MCEvaluator.precisionAtK(trainX, U, V, 5))
+        trainMeasures.append(MCEvaluator.precisionAtK(trainX, U, V, 10))
+        trainMeasures.append(MCEvaluator.precisionAtK(trainX, U, V, 20))
+        trainMeasures.append(MCEvaluator.localAUCApprox(trainX, U, V, self.algoArgs.u, self.algoArgs.numAucSamples))
 
-        testPrecisions = []
-        testPrecisions.append(MCEvaluator.precisionAtK(testX, U, V, 5))
-        testPrecisions.append(MCEvaluator.precisionAtK(testX, U, V, 10))
-        testPrecisions.append(MCEvaluator.precisionAtK(testX, U, V, 20))
+        testMeasures = []
+        testMeasures.append(MCEvaluator.precisionAtK(testX, U, V, 5))
+        testMeasures.append(MCEvaluator.precisionAtK(testX, U, V, 10))
+        testMeasures.append(MCEvaluator.precisionAtK(testX, U, V, 20))
+        testMeasures.append(MCEvaluator.localAUCApprox(testX, U, V, self.algoArgs.u, self.algoArgs.numAucSamples))
 
-        trainMeasures = numpy.array(trainPrecisions)
-        testMeasures = numpy.array(testPrecisions)
+        trainMeasures = numpy.array(trainMeasures)
+        testMeasures = numpy.array(testMeasures)
         metaData = numpy.array(metaData)
         
-        logging.debug("Train precisions: " + str(trainMeasures))
-        logging.debug("Test precisions: " + str(testMeasures))
+        logging.debug("Train measures: " + str(trainMeasures))
+        logging.debug("Test measures: " + str(testMeasures))
         numpy.savez(fileName, trainMeasures, testMeasures, metaData)
         logging.debug("Saved file as " + fileName)
 
@@ -203,15 +208,17 @@ class RankingExpHelper(object):
                 try: 
                     learner = MaxLocalAUC(self.algoArgs.rhos[0], self.algoArgs.ks[0], self.algoArgs.u, sigma=self.algoArgs.sigma, eps=self.algoArgs.eps, stochastic=True)
                     
-                    learner.numRowSamples = 50
-                    learner.numColSamples = 50
-                    learner.numAucSamples = 100
+                    learner.numRowSamples = self.algoArgs.numRowSamples
+                    learner.numColSamples = self.algoArgs.numColSamples
+                    learner.numAucSamples = self.algoArgs.numAucSamples
                     learner.initialAlg = "rand"
                     learner.recordStep = 10
                     learner.rate = "optimal"
                     learner.alpha = 0.1    
                     learner.t0 = 0.1   
-                    learner.maxIterations = X.shape[0]*10                          
+                    learner.maxIterations = X.shape[0]*10   
+                    learner.ks = self.algoArgs.ks
+                    learner.rhos = self.algoArgs.rhos                        
                     
                     if self.algoArgs.modelSelect: 
                         logging.debug("Performing model selection, taking subsample of entries of size " + str(self.sampleSize))
