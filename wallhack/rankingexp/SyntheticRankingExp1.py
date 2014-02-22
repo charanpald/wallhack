@@ -22,12 +22,12 @@ X = SparseUtils.generateSparseBinaryMatrix((m,n), k)
 logging.debug("Number of non zero elements: " + str(X.nnz))
 
 
-lmbda = 0.000
+rho = 0.000
 u = 0.3
 eps = 0.001
 sigma = 0.2
 stochastic = True
-maxLocalAuc = MaxLocalAUC(lmbda, k, u, sigma=sigma, eps=eps, stochastic=stochastic)
+maxLocalAuc = MaxLocalAUC(rho, k, u, sigma=sigma, eps=eps, stochastic=stochastic)
 maxLocalAuc.maxIterations = m
 maxLocalAuc.numRowSamples = 50
 maxLocalAuc.numColSamples = 50

@@ -3,6 +3,7 @@ import logging
 import sys
 from sandbox.recommendation.MaxLocalAUC import MaxLocalAUC
 from sandbox.util.SparseUtils import SparseUtils
+from sandbox.util.MCEvaluator import MCEvaluator
 import matplotlib 
 matplotlib.use("GTK3Agg")
 import matplotlib.pyplot as plt 
@@ -25,17 +26,16 @@ X = SparseUtils.generateSparseLowRank((m, n), k, numInds)
 X = X/X
 X = X.tocsr()
 
-lmbdas = numpy.array([10**-7, 10**-6, 10**-5, 10**-4]) 
-aucs = numpy.zeros(lmbdas.shape[0])
 
-r = numpy.ones(X.shape[0])*0.0
+
+u = 0.2
 eps = 0.000001
 sigma = 200
 stochastic = True
-lmbda = 0.1
+rho = 0.1
 
-maxLocalAuc = MaxLocalAUC(lmbda, k, r, sigma=sigma, eps=eps, stochastic=stochastic)
-maxLocalAuc.maxIterations = 1000
+maxLocalAuc = MaxLocalAUC(rho, k, u, sigma=sigma, eps=eps, stochastic=stochastic)
+maxLocalAuc.maxIterations = 100
 maxLocalAuc.numRowSamples = 50
 maxLocalAuc.numAucSamples = 200
 maxLocalAuc.approxDerivative = True
@@ -43,7 +43,7 @@ maxLocalAuc.initialAlg = "svd"
 maxLocalAuc.recordStep = 50
 
 plotInd = 0
-omegaList = maxLocalAuc.getOmegaList(X)
+omegaList = SparseUtils.getOmegaList(X)
 
 #Now let's vary learning rate sigma 
 maxLocalAuc.lmbda = 0.0001
@@ -59,7 +59,7 @@ for i, sigma in enumerate(sigmas):
     U, V, objs, localAucs, iterations, time = maxLocalAuc.learnModel(X, True)
     logging.debug("Done")
     
-    aucs[i] = maxLocalAuc.localAUCApprox(X, U, V, omegaList)
+    aucs[i] = MCEvaluator.localAUCApprox(X, U, V, u)
     times[i] = time
   
 logging.debug(aucs)
@@ -94,7 +94,7 @@ for i, numRowSamples in enumerate(numRowSamplesArr):
     U, V, objs, localAucs, iterations, time = maxLocalAuc.learnModel(X, True)
     logging.debug("Done")
     
-    aucs[i] = maxLocalAuc.localAUCApprox(X, U, V, omegaList)
+    aucs[i] = MCEvaluator.localAUCApprox(X, U, V, u)
     times[i] = time
    
 logging.debug(aucs)   
@@ -129,7 +129,7 @@ for i, numAucSamples in enumerate(numAucSamplesArr):
     U, V, objs, localAucs, iterations, time = maxLocalAuc.learnModel(X, True)
     logging.debug("Done")
     
-    aucs[i] = maxLocalAuc.localAUCApprox(X, U, V, omegaList)
+    aucs[i] = MCEvaluator.localAUCApprox(X, U, V, u)
     times[i] = time
    
 logging.debug(aucs)   
