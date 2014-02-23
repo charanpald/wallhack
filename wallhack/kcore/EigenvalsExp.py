@@ -17,6 +17,7 @@ k = 50
 
 for i in range(1, 6): 
     L = matDict["L_core0" + str(i)]
+    print(L.shape)
     
     u, V = scipy.sparse.linalg.eigs(L, k=k, which="SM")
     
@@ -26,5 +27,3 @@ for i in range(1, 6):
     
 plt.legend()
 plt.show()
-
-#Look at eigenvalues of delta L to see if the 
