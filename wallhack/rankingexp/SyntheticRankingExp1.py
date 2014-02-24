@@ -40,8 +40,8 @@ maxLocalAuc.t0 = 0.1
 omegaList = SparseUtils.getOmegaList(X)
 
 logging.debug("Starting training")
-ProfileUtils.profile('U, V, objs, aucs, iterations, time = maxLocalAuc.learnModel(X, True)', globals(), locals())
-#U, V, objs, aucs, iterations, times = maxLocalAuc.learnModel(X, True)
+ProfileUtils.profile('U, V, objs, trainAucs, testAucs, iterations, time = maxLocalAuc.learnModel(X, True)', globals(), locals())
+#U, V, objs, trainAucs, testAucs, iterations, times = maxLocalAuc.learnModel(X, True)
 
 logging.debug("||U||=" + str(numpy.linalg.norm(U)) + " ||V||=" + str(numpy.linalg.norm(V)))
 logging.debug("Final local AUC:" + str(MCEvaluator.localAUCApprox(X, U, V, u)))
@@ -54,7 +54,7 @@ plt.xlabel("iteration")
 plt.ylabel("objective")
 
 plt.figure(1)
-plt.plot(aucs)
+plt.plot(trainAucs)
 plt.xlabel("iteration")
 plt.ylabel("local AUC")
 plt.show()
