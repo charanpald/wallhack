@@ -23,7 +23,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.runSoftImpute = False
     defaultAlgoArgs.rhos = numpy.linspace(0.5, 0.0, 6)     
     defaultAlgoArgs.folds = 4
-    defaultAlgoArgs.u = 0.2
+    defaultAlgoArgs.u = 0.3
     defaultAlgoArgs.eps = 0.01
     defaultAlgoArgs.sigma = 0.2
     defaultAlgoArgs.numRowSamples = 50
