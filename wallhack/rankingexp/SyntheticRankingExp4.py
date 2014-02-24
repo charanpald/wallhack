@@ -15,7 +15,7 @@ numpy.random.seed(21)
 numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 
 #Create a low rank matrix  
-m = 10 
+m = 5 
 n = 200 
 k = 3 
 u = 0.3
@@ -35,7 +35,7 @@ logging.debug("Test local AUC:" + str(MCEvaluator.localAUC(testX, U, V, u)))
 
 u = 0.3
 rho = 0.01
-k2 = 3
+k2 = 5
 eps = 0.000
 sigma = 0.05
 stochastic = True
