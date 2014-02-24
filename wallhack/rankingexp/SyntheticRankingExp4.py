@@ -4,14 +4,14 @@ import sys
 from sandbox.recommendation.MaxLocalAUC import MaxLocalAUC
 from sandbox.util.SparseUtils import SparseUtils
 from sandbox.util.MCEvaluator import MCEvaluator
-
+from sandbox.util.Sampling import Sampling
 
 """
 Let's figure out when the local AUC on the training set is so different on the full dataset 
 """
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
-numpy.random.seed(21)        
+numpy.random.seed(22)        
 numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 
 #Create a low rank matrix  
@@ -24,23 +24,31 @@ logging.debug("Number of non-zero elements: " + str(X.nnz))
 
 U = U*s
 
-#u = 1.0
+u = 1.0
+
 trainSplit = 2.0/3
 trainX, testX = SparseUtils.splitNnz(X, trainSplit)
+cvInds = Sampling.randCrossValidation(3, X.nnz)
+#trainInds, testInds = cvInds[0]
+#trainX = SparseUtils.submatrix(X, trainInds)
+#testX = SparseUtils.submatrix(X, testInds)
+
 logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))
+
+
 
 logging.debug("Total local AUC:" + str(MCEvaluator.localAUC(X, U, V, u)))
 logging.debug("Train local AUC:" + str(MCEvaluator.localAUC(trainX, U, V, u)))
 logging.debug("Test local AUC:" + str(MCEvaluator.localAUC(testX, U, V, u)))
 
-u = 0.3
-rho = 0.01
-k2 = 5
+u = 0.2
+rho = 0.05
+k2 = 3
 eps = 0.000
 sigma = 0.05
 stochastic = True
 maxLocalAuc = MaxLocalAUC(rho, k2, u, sigma=sigma, eps=eps, stochastic=stochastic)
-maxLocalAuc.maxIterations = m*40
+maxLocalAuc.maxIterations = m*20
 maxLocalAuc.numRowSamples = 50
 maxLocalAuc.numColSamples = 50
 maxLocalAuc.numAucSamples = 50
@@ -49,7 +57,6 @@ maxLocalAuc.recordStep = 1
 maxLocalAuc.rate = "optimal"
 maxLocalAuc.alpha = 0.1    
 maxLocalAuc.t0 = 0.1
-omegaList = SparseUtils.getOmegaList(X)
 
 
 """
@@ -88,6 +95,8 @@ print(aucs)
 print(testAucs)
 
 """
+
+print(maxLocalAuc)
 
 U, V, objs, aucs, testAucs, iterations, times = maxLocalAuc.learnModel(trainX, True, testX=testX)
 
