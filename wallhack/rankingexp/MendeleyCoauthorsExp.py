@@ -15,7 +15,7 @@ authorAuthorFileName = PathDefaults.getDataDir() + "reference/authorAuthorMatrix
 X = sppy.io.mmread(authorAuthorFileName, storagetype="row")
 logging.debug("Read file: " + authorAuthorFileName)
 
-X = X[0:10000, :]
+X = X[0:20000, :]
 
 (m, n) = X.shape
 logging.debug("Size of X: " + str(X.shape))
@@ -26,7 +26,7 @@ dataArgs = argparse.Namespace()
 
 # Arguments related to the algorithm
 defaultAlgoArgs = argparse.Namespace()
-defaultAlgoArgs.ks = numpy.array([10, 20, 50, 100])
+defaultAlgoArgs.ks = numpy.array([10, 20, 50, 100, 200])
 defaultAlgoArgs.rhos = numpy.flipud(numpy.logspace(-4, -1, 5)) 
 defaultAlgoArgs.folds = 4
 
