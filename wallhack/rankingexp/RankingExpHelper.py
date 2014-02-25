@@ -220,7 +220,7 @@ class RankingExpHelper(object):
                     learner.rate = "optimal"
                     learner.alpha = 0.1    
                     learner.t0 = 0.1   
-                    learner.maxIterations = X.shape[0]*10   
+                    learner.maxIterations = X.shape[0]*5   
                     learner.ks = self.algoArgs.ks
                     learner.rhos = self.algoArgs.rhos                        
                     
