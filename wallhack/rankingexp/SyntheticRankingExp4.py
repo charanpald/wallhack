@@ -6,9 +6,7 @@ from sandbox.util.SparseUtils import SparseUtils
 from sandbox.util.MCEvaluator import MCEvaluator
 from sandbox.util.Sampling import Sampling
 
-"""
-Let's figure out when the local AUC on the training set is so different on the full dataset 
-"""
+
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.random.seed(22)        
