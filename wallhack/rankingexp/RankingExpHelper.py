@@ -12,16 +12,22 @@ from copy import copy
 from sandbox.util.PathDefaults import PathDefaults
 from sandbox.util.MCEvaluator import MCEvaluator 
 from sandbox.recommendation.MaxLocalAUC import MaxLocalAUC
+from sandbox.recommendation.WeightedMf import WeightedMf
 from sandbox.recommendation.SoftImpute import SoftImpute
 from sandbox.util.SparseUtils import SparseUtils 
 from sandbox.util.Sampling import Sampling 
 from sandbox.util.FileLock import FileLock 
+from mrec.mf.warp import WARPMFRecommender
+
 
 class RankingExpHelper(object):
     defaultAlgoArgs = argparse.Namespace()
     defaultAlgoArgs.runMaxLocalAuc = False
     defaultAlgoArgs.runSoftImpute = False
-    defaultAlgoArgs.rhos = numpy.linspace(0.5, 0.0, 6)     
+    defaultAlgoArgs.runWarpMf = False
+    defaultAlgoArgs.runWrMf = False
+    defaultAlgoArgs.rhos = numpy.linspace(0.5, 0.0, 6) 
+    defaultAlgoArgs.lmbdas = numpy.linspace(0.5, 0.0, 6)     
     defaultAlgoArgs.folds = 4
     defaultAlgoArgs.u = 0.3
     defaultAlgoArgs.eps = 0.01
@@ -81,7 +87,7 @@ class RankingExpHelper(object):
         
         # define parser
         algoParser = argparse.ArgumentParser(description="", add_help=add_help)
-        for method in ["runSoftImpute", "runMaxLocalAuc"]:
+        for method in ["runSoftImpute", "runMaxLocalAuc", "runWarpMf", "runWrMf"]:
             algoParser.add_argument("--" + method, action="store_true", default=defaultAlgoArgs.__getattribute__(method))
         algoParser.add_argument("--rhos", type=float, nargs="+", help="Regularisation parameter (default: %(default)s)", default=defaultAlgoArgs.rhos)
         algoParser.add_argument("--ks", type=int, nargs="+", help="Max number of singular values/vectors (default: %(default)s)", default=defaultAlgoArgs.ks)
@@ -132,12 +138,14 @@ class RankingExpHelper(object):
         trainMeasures.append(MCEvaluator.precisionAtK(trainX, U, V, 10))
         trainMeasures.append(MCEvaluator.precisionAtK(trainX, U, V, 20))
         trainMeasures.append(MCEvaluator.localAUCApprox(trainX, U, V, self.algoArgs.u, self.algoArgs.numAucSamples))
+        trainMeasures.append(MCEvaluator.localAUCApprox(trainX, U, V, 1.0, self.algoArgs.numAucSamples))
 
         testMeasures = []
         testMeasures.append(MCEvaluator.precisionAtK(testX, U, V, 5))
         testMeasures.append(MCEvaluator.precisionAtK(testX, U, V, 10))
         testMeasures.append(MCEvaluator.precisionAtK(testX, U, V, 20))
         testMeasures.append(MCEvaluator.localAUCApprox(testX, U, V, self.algoArgs.u, self.algoArgs.numAucSamples))
+        testMeasures.append(MCEvaluator.localAUCApprox(testX, U, V, 1.0, self.algoArgs.numAucSamples))
 
         trainMeasures = numpy.array(trainMeasures)
         testMeasures = numpy.array(testMeasures)
@@ -244,5 +252,62 @@ class RankingExpHelper(object):
                     fileLock.unlock()
             else: 
                 logging.debug("File is locked or already computed: " + resultsFileName)                
-         
+        
+        if self.algoArgs.runWarpMf: 
+            logging.debug("Running WARP loss MF")
+            resultsFileName = self.resultsDir + "ResultsWarpMf.npz"
+                
+            fileLock = FileLock(resultsFileName)     
+            
+            if not fileLock.isLocked() and not fileLock.fileExists(): 
+                fileLock.lock()
+                
+                try: 
+                    d = 20
+                    gamma = 0.1
+                    learner = WARPMFRecommender(d, gamma, u=self.algoArgs.u)
+                    
+                    self.recordResults(trainX, testX, learner, resultsFileName)
+                finally: 
+                    fileLock.unlock()
+            else: 
+                logging.debug("File is locked or already computed: " + resultsFileName)         
+
+        if self.algoArgs.runWrMf: 
+            logging.debug("Running Weighted Regularize Matrix Factorization")
+            resultsFileName = self.resultsDir + "ResultsWrMf.npz"
+                
+            fileLock = FileLock(resultsFileName)     
+            
+            if not fileLock.isLocked() and not fileLock.fileExists(): 
+                fileLock.lock()
+                
+                try: 
+                    trainX = trainX.toScipyCsr()
+                    testX = testX.toScipyCsr()
+
+                    learner = WeightedMf(self.algoArgs.ks[0], self.algoArgs.lmbdas[0], u=self.algoArgs.u)
+                    learner.ks = self.algoArgs.ks
+                    
+                    if self.algoArgs.modelSelect: 
+                        logging.debug("Performing model selection, taking subsample of entries of size " + str(self.sampleSize))
+                        modelSelectX = SparseUtils.submatrix(trainX, self.sampleSize)
+                        
+                        meanAucs, stdAucs = learner.modelSelect(modelSelectX)
+                        
+                        logging.debug("Mean local AUCs = " + str(meanAucs))
+                        logging.debug("Std local AUCs = " + str(stdAucs))
+                        
+                        modelSelectFileName = resultsFileName.replace("Results", "ModelSelect") 
+                        numpy.savez(modelSelectFileName, meanAucs, stdAucs)
+                        logging.debug("Saved model selection grid as " + modelSelectFileName)                            
+                    
+                    logging.debug(learner)   
+                    
+                    self.recordResults(trainX, testX, learner, resultsFileName)
+                finally: 
+                    fileLock.unlock()
+            else: 
+                logging.debug("File is locked or already computed: " + resultsFileName)  
+        
         logging.info("All done: see you around!")
