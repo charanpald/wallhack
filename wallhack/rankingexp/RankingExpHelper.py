@@ -35,6 +35,9 @@ class RankingExpHelper(object):
     defaultAlgoArgs.numRowSamples = 50
     defaultAlgoArgs.numColSamples = 50
     defaultAlgoArgs.numAucSamples = 50
+    defaultAlgoArgs.nu = 20
+    defaultAlgoArgs.nuBar = 5
+    defaultAlgoArgs.maxIterations = 1000
     defaultAlgoArgs.trainSplit = 2.0/3
     defaultAlgoArgs.modelSelect = False
     defaultAlgoArgs.postProcess = False 
@@ -93,8 +96,12 @@ class RankingExpHelper(object):
         algoParser.add_argument("--ks", type=int, nargs="+", help="Max number of singular values/vectors (default: %(default)s)", default=defaultAlgoArgs.ks)
         algoParser.add_argument("--modelSelect", action="store_true", help="Whether to do model selection on the 1st iteration (default: %(default)s)", default=defaultAlgoArgs.modelSelect)
         algoParser.add_argument("--postProcess", action="store_true", help="Whether to do post processing for soft impute (default: %(default)s)", default=defaultAlgoArgs.postProcess)
-        algoParser.add_argument("--trainError", action="store_true", help="Whether to compute the error on the training matrices (default: %(default)s)", default=defaultAlgoArgs.trainError)
         algoParser.add_argument("--verbose", action="store_true", help="Whether to generate verbose algorithmic details(default: %(default)s)", default=defaultAlgoArgs.verbose)
+        algoParser.add_argument("--numRowSamples", type=int, help="Number of row samples for max local AUC (default: %(default)s)", default=defaultAlgoArgs.numRowSamples)
+        algoParser.add_argument("--numColSamples", type=int, help="Number of col samples for max local AUC (default: %(default)s)", default=defaultAlgoArgs.numColSamples)
+        algoParser.add_argument("--numAucSamples", type=int, help="Number of AUC samples for max local AUC (default: %(default)s)", default=defaultAlgoArgs.numAucSamples)
+        algoParser.add_argument("--nu", type=int, help="Weight of discordance for max local AUC (default: %(default)s)", default=defaultAlgoArgs.nu)
+        algoParser.add_argument("--nuBar", type=int, help="Weight of score threshold max local AUC (default: %(default)s)", default=defaultAlgoArgs.nuBar)
         return(algoParser)
     
     # update current algoArgs with values from user and then from command line
@@ -210,7 +217,8 @@ class RankingExpHelper(object):
                 
         if self.algoArgs.runMaxLocalAuc:
             logging.debug("Running max local AUC")
-            resultsFileName = self.resultsDir + "ResultsMaxLocalAUC.npz"
+            resultsFileName = self.resultsDir + "ResultsMaxLocalAUC_nrs="+str(self.algoArgs.numRowSamples)+"_ncs="+str(self.algoArgs.numColSamples)+"_nas="+str(self.algoArgs.numAucSamples)
+            resultsFileName += "_nu=" +str(self.algoArgs.nu)+"_nuBar="+str(self.algoArgs.nuBar)+".npz"
                 
             fileLock = FileLock(resultsFileName)  
             
@@ -223,12 +231,14 @@ class RankingExpHelper(object):
                     learner.numRowSamples = self.algoArgs.numRowSamples
                     learner.numColSamples = self.algoArgs.numColSamples
                     learner.numAucSamples = self.algoArgs.numAucSamples
+                    learner.nu = self.algoArgs.nu
+                    learner.nuBar = self.algoArgs.nuBar
                     learner.initialAlg = "rand"
                     learner.recordStep = 50
                     learner.rate = "optimal"
                     learner.alpha = 0.1    
                     learner.t0 = 0.1   
-                    learner.maxIterations = X.shape[0]*10   
+                    learner.maxIterations = self.algoArgs.maxIterations  
                     learner.ks = self.algoArgs.ks
                     learner.rhos = self.algoArgs.rhos                        
                     
