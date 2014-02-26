@@ -28,7 +28,7 @@ dataArgs = argparse.Namespace()
 # Arguments related to the algorithm
 defaultAlgoArgs = argparse.Namespace()
 defaultAlgoArgs.ks = numpy.array([10, 20, 50, 100])
-defaultAlgoArgs.rhos = numpy.flipud(numpy.logspace(-4, -1, 5)) 
+defaultAlgoArgs.rhos = numpy.flipud(numpy.logspace(-4, -2, 5)) 
 defaultAlgoArgs.folds = 4
 defaultAlgoArgs.u = 0.1
 
