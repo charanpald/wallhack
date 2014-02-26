@@ -13,11 +13,11 @@ from sandbox.util.PathDefaults import PathDefaults
 from sandbox.util.MCEvaluator import MCEvaluator 
 from sandbox.recommendation.MaxLocalAUC import MaxLocalAUC
 from sandbox.recommendation.WeightedMf import WeightedMf
+from sandbox.recommendation.WarpMf import WarpMf
 from sandbox.recommendation.SoftImpute import SoftImpute
 from sandbox.util.SparseUtils import SparseUtils 
 from sandbox.util.Sampling import Sampling 
 from sandbox.util.FileLock import FileLock 
-from mrec.mf.warp import WARPMFRecommender
 
 
 class RankingExpHelper(object):
@@ -263,9 +263,26 @@ class RankingExpHelper(object):
                 fileLock.lock()
                 
                 try: 
-                    d = 20
-                    gamma = 0.1
-                    learner = WARPMFRecommender(d, gamma, u=self.algoArgs.u)
+                    trainX = trainX.toScipyCsr()
+                    testX = testX.toScipyCsr()
+
+                    learner = WarpMf(self.algoArgs.ks[0], self.algoArgs.lmbdas[0], u=self.algoArgs.u)
+                    learner.ks = self.algoArgs.ks
+                    
+                    if self.algoArgs.modelSelect: 
+                        logging.debug("Performing model selection, taking subsample of entries of size " + str(self.sampleSize))
+                        modelSelectX = SparseUtils.submatrix(trainX, self.sampleSize)
+                        
+                        meanAucs, stdAucs = learner.modelSelect(modelSelectX)
+                        
+                        logging.debug("Mean local AUCs = " + str(meanAucs))
+                        logging.debug("Std local AUCs = " + str(stdAucs))
+                        
+                        modelSelectFileName = resultsFileName.replace("Results", "ModelSelect") 
+                        numpy.savez(modelSelectFileName, meanAucs, stdAucs)
+                        logging.debug("Saved model selection grid as " + modelSelectFileName)                            
+                    
+                    logging.debug(learner)   
                     
                     self.recordResults(trainX, testX, learner, resultsFileName)
                 finally: 
@@ -274,7 +291,7 @@ class RankingExpHelper(object):
                 logging.debug("File is locked or already computed: " + resultsFileName)         
 
         if self.algoArgs.runWrMf: 
-            logging.debug("Running Weighted Regularize Matrix Factorization")
+            logging.debug("Running Weighted Regularized Matrix Factorization")
             resultsFileName = self.resultsDir + "ResultsWrMf.npz"
                 
             fileLock = FileLock(resultsFileName)     
