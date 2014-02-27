@@ -32,11 +32,11 @@ class RankingExpHelper(object):
     defaultAlgoArgs.u = 0.3
     defaultAlgoArgs.eps = 0.01
     defaultAlgoArgs.sigma = 0.2
-    defaultAlgoArgs.numRowSamples = 50
-    defaultAlgoArgs.numColSamples = 50
-    defaultAlgoArgs.numAucSamples = 50
+    defaultAlgoArgs.numRowSamples = 100
+    defaultAlgoArgs.numColSamples = 100
+    defaultAlgoArgs.numAucSamples = 20
     defaultAlgoArgs.nu = 20
-    defaultAlgoArgs.nuBar = 5
+    defaultAlgoArgs.nuBar = 1
     defaultAlgoArgs.maxIterations = 1000
     defaultAlgoArgs.trainSplit = 2.0/3
     defaultAlgoArgs.modelSelect = False
@@ -240,7 +240,8 @@ class RankingExpHelper(object):
                     learner.t0 = 0.1   
                     learner.maxIterations = self.algoArgs.maxIterations  
                     learner.ks = self.algoArgs.ks
-                    learner.rhos = self.algoArgs.rhos                        
+                    learner.rhos = self.algoArgs.rhos   
+                    learner.folds = self.algoArgs.folds                     
                     
                     if self.algoArgs.modelSelect: 
                         logging.debug("Performing model selection, taking subsample of entries of size " + str(self.sampleSize))
@@ -288,9 +289,9 @@ class RankingExpHelper(object):
                         logging.debug("Mean local AUCs = " + str(meanAucs))
                         logging.debug("Std local AUCs = " + str(stdAucs))
                         
-                        modelSelectFileName = resultsFileName.replace("Results", "ModelSelect") 
+                        modelSelectFileName = resultsFileName.replace("Results", "ModelSelect")
                         numpy.savez(modelSelectFileName, meanAucs, stdAucs)
-                        logging.debug("Saved model selection grid as " + modelSelectFileName)                            
+                        logging.debug("Saved model selection grid as " + modelSelectFileName)                        
                     
                     logging.debug(learner)   
                     
