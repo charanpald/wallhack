@@ -14,7 +14,7 @@ from sandbox.util.MCEvaluator import MCEvaluator
 from sandbox.recommendation.MaxLocalAUC import MaxLocalAUC
 from sandbox.recommendation.WeightedMf import WeightedMf
 from sandbox.recommendation.WarpMf import WarpMf
-from sandbox.recommendation.SoftImpute import SoftImpute
+from sandbox.recommendation.IterativeSoftImpute import IterativeSoftImpute
 from sandbox.util.SparseUtils import SparseUtils 
 from sandbox.util.Sampling import Sampling 
 from sandbox.util.FileLock import FileLock 
@@ -43,6 +43,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.postProcess = False 
     defaultAlgoArgs.trainError = False 
     defaultAlgoArgs.verbose = False
+    defaultAlgoArgs.processes = 8
     
     def __init__(self, cmdLine=None, defaultAlgoArgs = None, dirName=""):
         """ priority for default args
@@ -102,6 +103,7 @@ class RankingExpHelper(object):
         algoParser.add_argument("--numAucSamples", type=int, help="Number of AUC samples for max local AUC (default: %(default)s)", default=defaultAlgoArgs.numAucSamples)
         algoParser.add_argument("--nu", type=int, help="Weight of discordance for max local AUC (default: %(default)s)", default=defaultAlgoArgs.nu)
         algoParser.add_argument("--nuBar", type=int, help="Weight of score threshold max local AUC (default: %(default)s)", default=defaultAlgoArgs.nuBar)
+        algoParser.add_argument("--processes", type=int, help="Number of CPU cores to use (default: %(default)s)", default=defaultAlgoArgs.processes)
         return(algoParser)
     
     # update current algoArgs with values from user and then from command line
@@ -132,9 +134,13 @@ class RankingExpHelper(object):
         
 
         start = time.time()
-        if type(learner) == SoftImpute:
-            ZList = learner.learnModel(trainX)    
-            U, s, V = ZList[0]
+        if type(learner) == IterativeSoftImpute:
+            print(type(trainX))
+            print("Abvout to learn model")
+            trainIterator = iter([trainX])
+            ZList = learner.learnModel(trainIterator)    
+            U, s, V = ZList.next()
+            U = U*s
         else: 
             U, V = learner.learnModel(trainX)
         learnTime = time.time()-start 
@@ -181,18 +187,20 @@ class RankingExpHelper(object):
             if not fileLock.isLocked() and not fileLock.fileExists(): 
                 fileLock.lock()
                 
-                trainX = trainX.toScipyCsc()
-                testX = testX.toScipyCsc()
-                
+                #print(trainX.storagetype)
+                trainX = trainX.toScipyCsr().tocsc()
+                testX = testX.toScipyCsr().tocsc()
+                                
                 try: 
-                    rhos = numpy.array([self.algoArgs.rhos[0]])
-                    learner = SoftImpute(rhos, eps=self.algoArgs.eps, k=self.algoArgs.ks[0])
+                    learner = IterativeSoftImpute(self.algoArgs.rhos[0], eps=self.algoArgs.eps, k=self.algoArgs.ks[0])
+                    learner.numProcesses = self.algoArgs.processes
                     
                     if self.algoArgs.modelSelect: 
                         logging.debug("Performing model selection, taking subsample of entries of size " + str(self.sampleSize))
                         modelSelectX = SparseUtils.submatrix(trainX, self.sampleSize)
                         
-                        meanErrors, stdErrors = learner.modelSelect(modelSelectX)
+                        cvInds = Sampling.randCrossValidation(self.algoArgs.folds, modelSelectX.nnz)
+                        meanErrors, stdErrors = learner.modelSelect(modelSelectX, self.algoArgs.rhos, self.algoArgs.ks, cvInds)
                         
                         logging.debug("Mean errors = " + str(meanErrors))
                         logging.debug("Std errors = " + str(stdErrors))
@@ -200,12 +208,6 @@ class RankingExpHelper(object):
                         modelSelectFileName = resultsFileName.replace("Results", "ModelSelect") 
                         numpy.savez(modelSelectFileName, meanErrors, stdErrors)
                         logging.debug("Saved model selection grid as " + modelSelectFileName)                            
-                        
-                        rho = self.algoArgs.rhos[numpy.unravel_index(numpy.argmin(meanErrors), meanErrors.shape)[0]]
-                        k = self.algoArgs.ks[numpy.unravel_index(numpy.argmin(meanErrors), meanErrors.shape)[1]]
-                    else: 
-                        rho = self.algoArgs.rhos[0]
-                        k = self.algoArgs.ks[0]
                         
                     logging.debug(learner)                
 
@@ -241,7 +243,8 @@ class RankingExpHelper(object):
                     learner.maxIterations = self.algoArgs.maxIterations  
                     learner.ks = self.algoArgs.ks
                     learner.rhos = self.algoArgs.rhos   
-                    learner.folds = self.algoArgs.folds                     
+                    learner.folds = self.algoArgs.folds  
+                    learner.numProcesses = self.algoArgs.processes 
                     
                     if self.algoArgs.modelSelect: 
                         logging.debug("Performing model selection, taking subsample of entries of size " + str(self.sampleSize))
@@ -279,6 +282,7 @@ class RankingExpHelper(object):
 
                     learner = WarpMf(self.algoArgs.ks[0], self.algoArgs.lmbdas[0], u=self.algoArgs.u)
                     learner.ks = self.algoArgs.ks
+                    learner.numProcesses = self.algoArgs.processes
                     
                     if self.algoArgs.modelSelect: 
                         logging.debug("Performing model selection, taking subsample of entries of size " + str(self.sampleSize))
@@ -316,6 +320,7 @@ class RankingExpHelper(object):
 
                     learner = WeightedMf(self.algoArgs.ks[0], self.algoArgs.lmbdas[0], u=self.algoArgs.u)
                     learner.ks = self.algoArgs.ks
+                    learner.numProcesses = self.algoArgs.processes
                     
                     if self.algoArgs.modelSelect: 
                         logging.debug("Performing model selection, taking subsample of entries of size " + str(self.sampleSize))
