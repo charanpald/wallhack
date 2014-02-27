@@ -44,6 +44,9 @@ class RankingExpHelper(object):
     defaultAlgoArgs.trainError = False 
     defaultAlgoArgs.verbose = False
     defaultAlgoArgs.processes = 8
+    defaultAlgoArgs.fullGradient = False
+    defaultAlgoArgs.rate = "optimal"
+    defaultAlgoArgs.recordStep = 50 
     
     def __init__(self, cmdLine=None, defaultAlgoArgs = None, dirName=""):
         """ priority for default args
@@ -103,7 +106,11 @@ class RankingExpHelper(object):
         algoParser.add_argument("--numAucSamples", type=int, help="Number of AUC samples for max local AUC (default: %(default)s)", default=defaultAlgoArgs.numAucSamples)
         algoParser.add_argument("--nu", type=int, help="Weight of discordance for max local AUC (default: %(default)s)", default=defaultAlgoArgs.nu)
         algoParser.add_argument("--nuBar", type=int, help="Weight of score threshold max local AUC (default: %(default)s)", default=defaultAlgoArgs.nuBar)
+        algoParser.add_argument("--sigma", type=int, help="Learning rate for (stochastic) gradient descent (default: %(default)s)", default=defaultAlgoArgs.sigma)
+        algoParser.add_argument("--recordStep", type=int, help="Number of iterations after which we display some partial results (default: %(default)s)", default=defaultAlgoArgs.recordStep)
         algoParser.add_argument("--processes", type=int, help="Number of CPU cores to use (default: %(default)s)", default=defaultAlgoArgs.processes)
+        algoParser.add_argument("--rate", type=str, help="Learning rate type: either constant or optimal (default: %(default)s)", default=defaultAlgoArgs.rate)
+        algoParser.add_argument("--fullGradient", action="store_true", help="Whether to compute the full gradient at each iteration (default: %(default)s)", default=defaultAlgoArgs.fullGradient)
         return(algoParser)
     
     # update current algoArgs with values from user and then from command line
@@ -228,7 +235,7 @@ class RankingExpHelper(object):
                 fileLock.lock()
                 
                 try: 
-                    learner = MaxLocalAUC(self.algoArgs.rhos[0], self.algoArgs.ks[0], self.algoArgs.u, sigma=self.algoArgs.sigma, eps=self.algoArgs.eps, stochastic=True)
+                    learner = MaxLocalAUC(self.algoArgs.rhos[0], self.algoArgs.ks[0], self.algoArgs.u, sigma=self.algoArgs.sigma, eps=self.algoArgs.eps, stochastic=not self.algoArgs.fullGradient)
                     
                     learner.numRowSamples = self.algoArgs.numRowSamples
                     learner.numColSamples = self.algoArgs.numColSamples
@@ -236,8 +243,8 @@ class RankingExpHelper(object):
                     learner.nu = self.algoArgs.nu
                     learner.nuBar = self.algoArgs.nuBar
                     learner.initialAlg = "rand"
-                    learner.recordStep = 50
-                    learner.rate = "optimal"
+                    learner.recordStep = self.algoArgs.recordStep
+                    learner.rate = self.algoArgs.rate
                     learner.alpha = 0.1    
                     learner.t0 = 0.1   
                     learner.maxIterations = self.algoArgs.maxIterations  
