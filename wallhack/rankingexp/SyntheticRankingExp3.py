@@ -31,7 +31,7 @@ defaultAlgoArgs.ks = numpy.array([10, 20, 50, 100])
 defaultAlgoArgs.rhos = numpy.flipud(numpy.logspace(-4, -2, 5)) 
 defaultAlgoArgs.folds = 4
 defaultAlgoArgs.u = 0.1
-defaultAlgoArgs.maxIterations = 10*m
+defaultAlgoArgs.maxIterations = 5*m
 
 # data args parser #
 dataParser = argparse.ArgumentParser(description="", add_help=False)
