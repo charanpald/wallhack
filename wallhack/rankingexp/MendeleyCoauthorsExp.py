@@ -26,10 +26,11 @@ dataArgs = argparse.Namespace()
 
 # Arguments related to the algorithm
 defaultAlgoArgs = argparse.Namespace()
-defaultAlgoArgs.ks = numpy.array([10, 20, 50, 100, 200])
+defaultAlgoArgs.ks = 2**numpy.arange(3, 8)
 defaultAlgoArgs.rhos = numpy.flipud(numpy.logspace(-4, -2, 5)) 
 defaultAlgoArgs.folds = 4
-defaultAlgoArgs.maxIterations = 10*m
+defaultAlgoArgs.u = 0.1
+defaultAlgoArgs.maxIterations = 5*m
 
 # data args parser #
 dataParser = argparse.ArgumentParser(description="", add_help=False)
@@ -52,13 +53,13 @@ for key in keys:
     logging.info("    " + str(key) + ": " + str(dataArgs.__getattribute__(key)))
 
 logging.info("Creating the exp-runner")
-recommendExpHelper = RankingExpHelper(remainingArgs, defaultAlgoArgs, dataArgs.extendedDirName)
-recommendExpHelper.printAlgoArgs()
+rankingExpHelper = RankingExpHelper(remainingArgs, defaultAlgoArgs, dataArgs.extendedDirName)
+rankingExpHelper.printAlgoArgs()
 #    os.makedirs(resultsDir, exist_ok=True) # for python 3.2
 try:
-    os.makedirs(recommendExpHelper.resultsDir)
+    os.makedirs(rankingExpHelper.resultsDir)
 except OSError as err:
     if err.errno != errno.EEXIST:
         raise
 
-recommendExpHelper.runExperiment(X)
+rankingExpHelper.runExperiment(X)
