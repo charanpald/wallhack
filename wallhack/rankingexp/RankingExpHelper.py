@@ -29,12 +29,12 @@ class RankingExpHelper(object):
     defaultAlgoArgs.rhos = numpy.linspace(0.5, 0.0, 6) 
     defaultAlgoArgs.lmbdas = numpy.linspace(0.5, 0.0, 6)     
     defaultAlgoArgs.folds = 4
-    defaultAlgoArgs.u = 0.3
+    defaultAlgoArgs.u = 0.1
     defaultAlgoArgs.eps = 0.01
     defaultAlgoArgs.sigma = 0.2
-    defaultAlgoArgs.numRowSamples = 100
-    defaultAlgoArgs.numColSamples = 100
-    defaultAlgoArgs.numAucSamples = 20
+    defaultAlgoArgs.numRowSamples = 50
+    defaultAlgoArgs.numColSamples = 50
+    defaultAlgoArgs.numAucSamples = 100
     defaultAlgoArgs.nu = 20
     defaultAlgoArgs.nuBar = 1
     defaultAlgoArgs.maxIterations = 1000
@@ -48,6 +48,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.fullGradient = False
     defaultAlgoArgs.rate = "optimal"
     defaultAlgoArgs.recordStep = 50 
+    defaultAlgoArgs.initialAlg = "rand"
     
     def __init__(self, cmdLine=None, defaultAlgoArgs = None, dirName=""):
         """ priority for default args
@@ -110,6 +111,7 @@ class RankingExpHelper(object):
         algoParser.add_argument("--sigma", type=int, help="Learning rate for (stochastic) gradient descent (default: %(default)s)", default=defaultAlgoArgs.sigma)
         algoParser.add_argument("--recordStep", type=int, help="Number of iterations after which we display some partial results (default: %(default)s)", default=defaultAlgoArgs.recordStep)
         algoParser.add_argument("--processes", type=int, help="Number of CPU cores to use (default: %(default)s)", default=defaultAlgoArgs.processes)
+        algoParser.add_argument("--maxIterations", type=int, help="Maximal number of iterations (default: %(default)s)", default=defaultAlgoArgs.maxIterations)
         algoParser.add_argument("--rate", type=str, help="Learning rate type: either constant or optimal (default: %(default)s)", default=defaultAlgoArgs.rate)
         algoParser.add_argument("--fullGradient", action="store_true", help="Whether to compute the full gradient at each iteration (default: %(default)s)", default=defaultAlgoArgs.fullGradient)
         algoParser.add_argument("--learningRateSelect", action="store_true", help="Whether to do learning rate selection (default: %(default)s)", default=defaultAlgoArgs.learningRateSelect)
@@ -245,11 +247,11 @@ class RankingExpHelper(object):
                     learner.numAucSamples = self.algoArgs.numAucSamples
                     learner.nu = self.algoArgs.nu
                     learner.nuBar = self.algoArgs.nuBar
-                    learner.initialAlg = "rand"
+                    learner.initialAlg = self.algoArgs.initialAlg
                     learner.recordStep = self.algoArgs.recordStep
                     learner.rate = self.algoArgs.rate
-                    learner.alpha = 0.1    
-                    learner.t0 = 0.1   
+                    learner.alpha = 100    
+                    learner.t0 = 0.001   
                     learner.maxIterations = self.algoArgs.maxIterations  
                     learner.ks = self.algoArgs.ks
                     learner.rhos = self.algoArgs.rhos   
