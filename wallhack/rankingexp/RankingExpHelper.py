@@ -40,6 +40,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.maxIterations = 1000
     defaultAlgoArgs.trainSplit = 2.0/3
     defaultAlgoArgs.modelSelect = False
+    defaultAlgoArgs.learningRateSelect = False
     defaultAlgoArgs.postProcess = False 
     defaultAlgoArgs.trainError = False 
     defaultAlgoArgs.verbose = False
@@ -98,7 +99,7 @@ class RankingExpHelper(object):
             algoParser.add_argument("--" + method, action="store_true", default=defaultAlgoArgs.__getattribute__(method))
         algoParser.add_argument("--rhos", type=float, nargs="+", help="Regularisation parameter (default: %(default)s)", default=defaultAlgoArgs.rhos)
         algoParser.add_argument("--ks", type=int, nargs="+", help="Max number of singular values/vectors (default: %(default)s)", default=defaultAlgoArgs.ks)
-        algoParser.add_argument("--modelSelect", action="store_true", help="Whether to do model selection on the 1st iteration (default: %(default)s)", default=defaultAlgoArgs.modelSelect)
+        algoParser.add_argument("--modelSelect", action="store_true", help="Whether to do model selection(default: %(default)s)", default=defaultAlgoArgs.modelSelect)
         algoParser.add_argument("--postProcess", action="store_true", help="Whether to do post processing for soft impute (default: %(default)s)", default=defaultAlgoArgs.postProcess)
         algoParser.add_argument("--verbose", action="store_true", help="Whether to generate verbose algorithmic details(default: %(default)s)", default=defaultAlgoArgs.verbose)
         algoParser.add_argument("--numRowSamples", type=int, help="Number of row samples for max local AUC (default: %(default)s)", default=defaultAlgoArgs.numRowSamples)
@@ -111,6 +112,8 @@ class RankingExpHelper(object):
         algoParser.add_argument("--processes", type=int, help="Number of CPU cores to use (default: %(default)s)", default=defaultAlgoArgs.processes)
         algoParser.add_argument("--rate", type=str, help="Learning rate type: either constant or optimal (default: %(default)s)", default=defaultAlgoArgs.rate)
         algoParser.add_argument("--fullGradient", action="store_true", help="Whether to compute the full gradient at each iteration (default: %(default)s)", default=defaultAlgoArgs.fullGradient)
+        algoParser.add_argument("--learningRateSelect", action="store_true", help="Whether to do learning rate selection (default: %(default)s)", default=defaultAlgoArgs.learningRateSelect)
+                
         return(algoParser)
     
     # update current algoArgs with values from user and then from command line
@@ -252,6 +255,17 @@ class RankingExpHelper(object):
                     learner.rhos = self.algoArgs.rhos   
                     learner.folds = self.algoArgs.folds  
                     learner.numProcesses = self.algoArgs.processes 
+
+                    if self.algoArgs.learningRateSelect:
+                        logging.debug("Performing learning rate selection, taking subsample of entries of size " + str(self.sampleSize))
+                        modelSelectX = SparseUtils.submatrix(trainX, self.sampleSize)
+                        objectives = learner.learningRateSelect(modelSelectX)        
+                        
+                        logging.debug("Objectives = " + str(objectives))
+                        
+                        rateSelectFileName = resultsFileName.replace("Results", "LearningRateSelect")
+                        numpy.savez(rateSelectFileName, objectives)
+                        logging.debug("Saved learning rate selection grid as " + rateSelectFileName) 
                     
                     if self.algoArgs.modelSelect: 
                         logging.debug("Performing model selection, taking subsample of entries of size " + str(self.sampleSize))
@@ -290,7 +304,7 @@ class RankingExpHelper(object):
                     learner = WarpMf(self.algoArgs.ks[0], self.algoArgs.lmbdas[0], u=self.algoArgs.u)
                     learner.ks = self.algoArgs.ks
                     learner.numProcesses = self.algoArgs.processes
-                    
+                                        
                     if self.algoArgs.modelSelect: 
                         logging.debug("Performing model selection, taking subsample of entries of size " + str(self.sampleSize))
                         modelSelectX = SparseUtils.submatrix(trainX, self.sampleSize)
