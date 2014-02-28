@@ -39,18 +39,18 @@ eps = 0.001
 sigma = 0.05
 maxLocalAuc = MaxLocalAUC(rho, k2, u, sigma=sigma, eps=eps, stochastic=True)
 maxLocalAuc.maxIterations = m*2
-maxLocalAuc.numRowSamples = 50
-maxLocalAuc.numColSamples = 50
-maxLocalAuc.numAucSamples = 50
-maxLocalAuc.initialAlg = "rand"
+maxLocalAuc.numRowSamples = 10
+maxLocalAuc.numColSamples = 10
+maxLocalAuc.numAucSamples = 100
+maxLocalAuc.initialAlg = "svd"
 maxLocalAuc.recordStep = 10
 maxLocalAuc.rate = "optimal"
 maxLocalAuc.alpha = 50    
 maxLocalAuc.t0 = 0.01
 
 
-#maxLocalAuc.learningRateSelect(X)
-#maxLocalAuc.learnModel(X)
+maxLocalAuc.learningRateSelect(X)
+maxLocalAuc.learnModel(X)
 
 sigma = 50
 maxLocalAuc2 = MaxLocalAUC(rho, k2, u, sigma=sigma, eps=eps, stochastic=False)
