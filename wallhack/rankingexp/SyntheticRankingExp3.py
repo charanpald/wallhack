@@ -13,8 +13,8 @@ numpy.random.seed(21)
 numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 
 #Create a low rank matrix  
-m = 200
-n = 400 
+m = 100
+n = 200 
 k = 20 
 X = SparseUtils.generateSparseBinaryMatrix((m,n), k, csarray=True)
 logging.debug("Number of non zero elements: " + str(X.nnz))
@@ -31,7 +31,7 @@ defaultAlgoArgs.ks = 2**numpy.arange(3, 8)
 defaultAlgoArgs.rhos = numpy.flipud(numpy.logspace(-4, -2, 5)) 
 defaultAlgoArgs.folds = 4
 defaultAlgoArgs.u = 0.1
-defaultAlgoArgs.maxIterations = 5*m
+defaultAlgoArgs.maxIterations = 2*m
 
 # data args parser #
 dataParser = argparse.ArgumentParser(description="", add_help=False)
