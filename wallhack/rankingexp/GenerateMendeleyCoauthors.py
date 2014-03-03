@@ -12,6 +12,7 @@ import sppy.io
 from sandbox.util.ProfileUtils import ProfileUtils 
 from math import sqrt
 import os.path
+import pickle
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
@@ -19,7 +20,7 @@ authorDocFileName = PathDefaults.getDataDir() + "reference/authorDocumentMatrix.
 
 def writeAuthorDocMatrix(): 
     fileName = PathDefaults.getDataDir() + "reference/author_document_count"
-    
+    authorIndexerFilename = PathDefaults.getDataDir() + "reference/authorIndexer.pkl"
     
     if not os.path.isfile(authorDocFileName): 
         fileObj = open(fileName)
@@ -46,6 +47,9 @@ def writeAuthorDocMatrix():
         
         Y = scipy.sparse.csr_matrix((scores, (rowInds, colInds)))
             
+        authorIndexerFile = open(authorIndexerFilename, "w")
+        pickle.dump(authorIndex, authorIndexerFile)
+        authorIndexerFile.close()
         scipy.io.mmwrite(authorDocFileName, Y)
         logging.debug("Saved matrix to " + authorDocFileName)
     else: 
