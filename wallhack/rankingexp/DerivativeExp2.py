@@ -40,24 +40,26 @@ r = SparseUtilsCython.computeR(U, V, 1-u, numAucSamples)
 
 numPoints = 50
 sampleSize = 10 
-numAucSamplesList = numpy.linspace(1, 50, numPoints)
+numAucSamplesList = numpy.linspace(1, 500, numPoints)
 norms = numpy.zeros(numPoints)
 originalV = V.copy()
 
 for s in range(sampleSize): 
     print(s)
-    i = numpy.random.randint(m)
-    rowInds = numpy.array([i], numpy.uint)
+    i = numpy.random.randint(n)
+    colInds = numpy.array([i], numpy.uint)
     vec1 = derivativeVi(X, U, V, omegaList, i, k, lmbda, r)
     vec1 = vec1/numpy.linalg.norm(vec1)   
     
-    colInds = numpy.array(numpy.random.permutation(n)[0:100], numpy.uint)
+    rowInds = numpy.unique(numpy.array(numpy.random.permutation(m)[0:50], numpy.uint))
+    #rowInds = numpy.arange(m, dtype=numpy.uint)
     
     for j, numAucSamples in enumerate(numAucSamplesList): 
         V = originalV.copy()
         updateVApprox(X, U, V, omegaList, rowInds, colInds, numAucSamples, sigma, lmbda, r, nu, nuBar, project)
         
         vec2 = V[i, :] - originalV[i, :]
+        #print(vec2)
         
         norms[j] += numpy.abs(numpy.inner(vec1, vec2))
 
