@@ -32,8 +32,8 @@ defaultAlgoArgs.rhos = numpy.flipud(numpy.logspace(-4, -2, 5))
 defaultAlgoArgs.folds = 4
 defaultAlgoArgs.u = 20.0/n
 defaultAlgoArgs.maxIterations = 2*m
-defaultAlgoArgs.numRowSamples = 10
-defaultAlgoArgs.numColSamples = 50
+defaultAlgoArgs.numRowSamples = 50
+defaultAlgoArgs.numColSamples = 10
 defaultAlgoArgs.numAucSamples = 100
 
 # data args parser #
