@@ -47,7 +47,7 @@ def writeAuthorDocMatrix():
         
         Y = scipy.sparse.csr_matrix((scores, (rowInds, colInds)))
             
-        authorIndexerFile = open(authorIndexerFilename, "w")
+        authorIndexerFile = open(authorIndexerFilename, "wb")
         pickle.dump(authorIndex, authorIndexerFile)
         authorIndexerFile.close()
         scipy.io.mmwrite(authorDocFileName, Y)
