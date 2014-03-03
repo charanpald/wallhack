@@ -8,6 +8,7 @@ import logging
 import numpy
 import argparse
 import time 
+import sppy
 from copy import copy
 from sandbox.util.PathDefaults import PathDefaults
 from sandbox.util.MCEvaluator import MCEvaluator 
@@ -147,30 +148,38 @@ class RankingExpHelper(object):
 
         start = time.time()
         if type(learner) == IterativeSoftImpute:
-            print(type(trainX))
-            print("Abvout to learn model")
             trainIterator = iter([trainX])
             ZList = learner.learnModel(trainIterator)    
             U, s, V = ZList.next()
             U = U*s
+            
+            trainX = sppy.csarray(trainX)
+            testX = sppy.csarray(testX)
         else: 
             U, V = learner.learnModel(trainX)
         learnTime = time.time()-start 
         metaData.append(learnTime)
 
+        logging.debug("Getting train omega")
+        trainOmegaList = SparseUtils.getOmegaList(trainX)
+        logging.debug("Getting test omega")
+        testOmegaList = SparseUtils.getOmegaList(testX)
+        logging.debug("Getting recommendations")
+        scoreInds = MCEvaluator.recommendAtk(U, V, 20)
+
         trainMeasures = []
-        trainMeasures.append(MCEvaluator.precisionAtK(trainX, U, V, 5))
-        trainMeasures.append(MCEvaluator.precisionAtK(trainX, U, V, 10))
-        trainMeasures.append(MCEvaluator.precisionAtK(trainX, U, V, 20))
-        trainMeasures.append(MCEvaluator.localAUCApprox(trainX, U, V, self.algoArgs.u, self.algoArgs.numAucSamples))
-        trainMeasures.append(MCEvaluator.localAUCApprox(trainX, U, V, 1.0, self.algoArgs.numAucSamples))
+        trainMeasures.append(MCEvaluator.precisionAtK(trainX, U, V, 5, scoreInds=scoreInds, omegaList=trainOmegaList))
+        trainMeasures.append(MCEvaluator.precisionAtK(trainX, U, V, 10, scoreInds=scoreInds, omegaList=trainOmegaList))
+        trainMeasures.append(MCEvaluator.precisionAtK(trainX, U, V, 20, scoreInds=scoreInds, omegaList=trainOmegaList))
+        trainMeasures.append(MCEvaluator.localAUCApprox(trainX, U, V, self.algoArgs.u, self.algoArgs.numAucSamples, omegaList=trainOmegaList))
+        trainMeasures.append(MCEvaluator.localAUCApprox(trainX, U, V, 1.0, self.algoArgs.numAucSamples, omegaList=trainOmegaList))
 
         testMeasures = []
-        testMeasures.append(MCEvaluator.precisionAtK(testX, U, V, 5))
-        testMeasures.append(MCEvaluator.precisionAtK(testX, U, V, 10))
-        testMeasures.append(MCEvaluator.precisionAtK(testX, U, V, 20))
-        testMeasures.append(MCEvaluator.localAUCApprox(testX, U, V, self.algoArgs.u, self.algoArgs.numAucSamples))
-        testMeasures.append(MCEvaluator.localAUCApprox(testX, U, V, 1.0, self.algoArgs.numAucSamples))
+        testMeasures.append(MCEvaluator.precisionAtK(testX, U, V, 5, scoreInds=scoreInds, omegaList=testOmegaList))
+        testMeasures.append(MCEvaluator.precisionAtK(testX, U, V, 10, scoreInds=scoreInds, omegaList=testOmegaList))
+        testMeasures.append(MCEvaluator.precisionAtK(testX, U, V, 20, scoreInds=scoreInds, omegaList=testOmegaList))
+        testMeasures.append(MCEvaluator.localAUCApprox(testX, U, V, self.algoArgs.u, self.algoArgs.numAucSamples, omegaList=testOmegaList))
+        testMeasures.append(MCEvaluator.localAUCApprox(testX, U, V, 1.0, self.algoArgs.numAucSamples, omegaList=testOmegaList))
 
         trainMeasures = numpy.array(trainMeasures)
         testMeasures = numpy.array(testMeasures)
@@ -178,7 +187,7 @@ class RankingExpHelper(object):
         
         logging.debug("Train measures: " + str(trainMeasures))
         logging.debug("Test measures: " + str(testMeasures))
-        numpy.savez(fileName, trainMeasures, testMeasures, metaData)
+        numpy.savez(fileName, trainMeasures, testMeasures, metaData, scoreInds)
         logging.debug("Saved file as " + fileName)
 
     def runExperiment(self, X):
@@ -204,7 +213,7 @@ class RankingExpHelper(object):
                 testX = testX.toScipyCsr().tocsc()
                                 
                 try: 
-                    learner = IterativeSoftImpute(self.algoArgs.rhos[0], eps=self.algoArgs.eps, k=self.algoArgs.ks[0])
+                    learner = IterativeSoftImpute(self.algoArgs.rhos[0], eps=self.algoArgs.eps, k=self.algoArgs.ks[0], svdAlg="rsvd")
                     learner.numProcesses = self.algoArgs.processes
                     
                     if self.algoArgs.modelSelect: 
