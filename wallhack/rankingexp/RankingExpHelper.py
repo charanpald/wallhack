@@ -34,7 +34,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.eps = 0.01
     defaultAlgoArgs.sigma = 0.2
     defaultAlgoArgs.numRowSamples = 50
-    defaultAlgoArgs.numColSamples = 50
+    defaultAlgoArgs.numStepIterations = 50
     defaultAlgoArgs.numAucSamples = 100
     defaultAlgoArgs.nu = 20
     defaultAlgoArgs.nuBar = 1
@@ -105,7 +105,7 @@ class RankingExpHelper(object):
         algoParser.add_argument("--postProcess", action="store_true", help="Whether to do post processing for soft impute (default: %(default)s)", default=defaultAlgoArgs.postProcess)
         algoParser.add_argument("--verbose", action="store_true", help="Whether to generate verbose algorithmic details(default: %(default)s)", default=defaultAlgoArgs.verbose)
         algoParser.add_argument("--numRowSamples", type=int, help="Number of row samples for max local AUC (default: %(default)s)", default=defaultAlgoArgs.numRowSamples)
-        algoParser.add_argument("--numColSamples", type=int, help="Number of col samples for max local AUC (default: %(default)s)", default=defaultAlgoArgs.numColSamples)
+        algoParser.add_argument("--numStepIterations", type=int, help="Number of col samples for max local AUC (default: %(default)s)", default=defaultAlgoArgs.numStepIterations)
         algoParser.add_argument("--numAucSamples", type=int, help="Number of AUC samples for max local AUC (default: %(default)s)", default=defaultAlgoArgs.numAucSamples)
         algoParser.add_argument("--nu", type=int, help="Weight of discordance for max local AUC (default: %(default)s)", default=defaultAlgoArgs.nu)
         algoParser.add_argument("--nuBar", type=int, help="Weight of score threshold max local AUC (default: %(default)s)", default=defaultAlgoArgs.nuBar)
@@ -240,7 +240,7 @@ class RankingExpHelper(object):
                 
         if self.algoArgs.runMaxLocalAuc:
             logging.debug("Running max local AUC")
-            resultsFileName = self.resultsDir + "ResultsMaxLocalAUC_nrs="+str(self.algoArgs.numRowSamples)+"_ncs="+str(self.algoArgs.numColSamples)+"_nas="+str(self.algoArgs.numAucSamples)
+            resultsFileName = self.resultsDir + "ResultsMaxLocalAUC_nrs="+str(self.algoArgs.numRowSamples)+"_ncs="+str(self.algoArgs.numStepIterations)+"_nas="+str(self.algoArgs.numAucSamples)
             resultsFileName += "_nu=" +str(self.algoArgs.nu)+"_nuBar="+str(self.algoArgs.nuBar)+".npz"
                 
             fileLock = FileLock(resultsFileName)  
@@ -252,7 +252,7 @@ class RankingExpHelper(object):
                     learner = MaxLocalAUC(self.algoArgs.rhos[0], self.algoArgs.ks[0], self.algoArgs.u, sigma=self.algoArgs.sigma, eps=self.algoArgs.eps, stochastic=not self.algoArgs.fullGradient)
                     
                     learner.numRowSamples = self.algoArgs.numRowSamples
-                    learner.numColSamples = self.algoArgs.numColSamples
+                    learner.numStepIterations = self.algoArgs.numStepIterations
                     learner.numAucSamples = self.algoArgs.numAucSamples
                     learner.nu = self.algoArgs.nu
                     learner.nuBar = self.algoArgs.nuBar
