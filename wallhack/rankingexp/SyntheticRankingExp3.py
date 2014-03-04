@@ -31,10 +31,10 @@ defaultAlgoArgs.ks = 2**numpy.arange(3, 7)
 defaultAlgoArgs.rhos = numpy.flipud(numpy.logspace(-4, -2, 5)) 
 defaultAlgoArgs.folds = 4
 defaultAlgoArgs.u = 20.0/n
-defaultAlgoArgs.maxIterations = 2*m
+defaultAlgoArgs.maxIterations = 30*m
 defaultAlgoArgs.numRowSamples = 50
-defaultAlgoArgs.numColSamples = 10
-defaultAlgoArgs.numAucSamples = 100
+defaultAlgoArgs.numStepIterations = 10
+defaultAlgoArgs.numAucSamples = 50
 
 # data args parser #
 dataParser = argparse.ArgumentParser(description="", add_help=False)
