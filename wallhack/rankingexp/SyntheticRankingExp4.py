@@ -13,16 +13,16 @@ numpy.random.seed(22)
 numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 
 #Create a low rank matrix  
-m = 100 
-n = 50 
-k = 3 
-u = 0.3
+m = 100
+n = 200 
+k = 16 
+u = 0.1
 X, U, s, V = SparseUtils.generateSparseBinaryMatrix((m,n), k, 1-u, csarray=True, verbose=True, indsPerRow=200)
 logging.debug("Number of non-zero elements: " + str(X.nnz))
 
 U = U*s
 
-u = 0.5
+u = 0.1
 trainSplit = 2.0/3
 trainX, testX = SparseUtils.splitNnz(X, trainSplit)
 cvInds = Sampling.randCrossValidation(3, X.nnz)
@@ -38,10 +38,10 @@ k2 = 3
 eps = 0.001
 sigma = 0.05
 maxLocalAuc = MaxLocalAUC(rho, k2, u, sigma=sigma, eps=eps, stochastic=True)
-maxLocalAuc.maxIterations = m*5
-maxLocalAuc.numRowSamples = 50
-maxLocalAuc.numStepIterations = 10
-maxLocalAuc.numAucSamples = 20
+maxLocalAuc.maxIterations = m*20
+maxLocalAuc.numRowSamples = 100
+maxLocalAuc.numStepIterations = 1
+maxLocalAuc.numAucSamples = 50
 maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.recordStep = 50
 maxLocalAuc.rate = "optimal"
