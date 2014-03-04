@@ -6,10 +6,9 @@ We want to see how accurate the derivative of V is as we increase the number of 
 import numpy
 import logging
 import sys
-from sandbox.recommendation.MaxLocalAUCCython import derivativeUi, derivativeVi, updateVApprox
+from sandbox.recommendation.MaxLocalAUCCython import derivativeVi, derivativeViApprox
 from sandbox.util.SparseUtils import SparseUtils
 from sandbox.util.SparseUtilsCython import SparseUtilsCython
-from sandbox.util.Util import Util
 import matplotlib 
 matplotlib.use("GTK3Agg")
 import matplotlib.pyplot as plt 
@@ -38,31 +37,27 @@ U = numpy.random.rand(m, k)
 V = numpy.random.rand(n, k)
 r = SparseUtilsCython.computeR(U, V, 1-u, numAucSamples)
 
-numPoints = 50
+numPoints = 20
 sampleSize = 10 
-numAucSamplesList = numpy.linspace(1, 500, numPoints)
+numRowSamplesList = numpy.linspace(1, 1000, numPoints)
 norms = numpy.zeros(numPoints)
 originalV = V.copy()
+
 
 for s in range(sampleSize): 
     print(s)
     i = numpy.random.randint(n)
-    colInds = numpy.array([i], numpy.uint)
-    vec1 = derivativeVi(X, U, V, omegaList, i, k, lmbda, r)
+    vec1 = derivativeVi(X, U, V, omegaList, i, lmbda, r)
     vec1 = vec1/numpy.linalg.norm(vec1)   
     
-    rowInds = numpy.unique(numpy.array(numpy.random.permutation(m)[0:50], numpy.uint))
-    #rowInds = numpy.arange(m, dtype=numpy.uint)
     
-    for j, numAucSamples in enumerate(numAucSamplesList): 
-        V = originalV.copy()
-        updateVApprox(X, U, V, omegaList, rowInds, colInds, numAucSamples, sigma, lmbda, r, nu, nuBar, project)
-        
-        vec2 = V[i, :] - originalV[i, :]
-        #print(vec2)
+    for j, numRowSamples in enumerate(numRowSamplesList): 
+        vec2 = derivativeViApprox(X, U, V, omegaList, i, numRowSamples, numAucSamples, lmbda, r, nu)
+        vec2 = vec2/numpy.linalg.norm(vec2)   
         
         norms[j] += numpy.abs(numpy.inner(vec1, vec2))
 
+
 norms /= sampleSize
-plt.plot(numAucSamplesList, norms)
+plt.plot(numRowSamplesList, norms)
 plt.show()

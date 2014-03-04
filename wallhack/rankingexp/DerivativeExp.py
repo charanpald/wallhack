@@ -6,10 +6,9 @@ We want to see how accurate the derivatives are as we increase the number of sam
 import numpy
 import logging
 import sys
-from sandbox.recommendation.MaxLocalAUCCython import derivativeUi, derivativeVi, updateUApprox
+from sandbox.recommendation.MaxLocalAUCCython import derivativeUi, derivativeUiApprox
 from sandbox.util.SparseUtils import SparseUtils
 from sandbox.util.SparseUtilsCython import SparseUtilsCython
-from sandbox.util.Util import Util
 import matplotlib 
 matplotlib.use("GTK3Agg")
 import matplotlib.pyplot as plt 
@@ -49,14 +48,13 @@ for s in range(sampleSize):
     print(s)
     i = numpy.random.randint(m)
     rowInds = numpy.array([i], numpy.uint)
-    vec1 = derivativeUi(X, U, V, omegaList, i, k, lmbda, r)
+    vec1 = derivativeUi(X, U, V, omegaList, i, lmbda, r)
     vec1 = vec1/numpy.linalg.norm(vec1)    
     
     for j, numAucSamples in enumerate(numAucSamplesList): 
         U = originalU.copy()
-        updateUApprox(X, U, V, omegaList, rowInds, numAucSamples, sigma, lmbda, r, nu, nuBar, project)
+        vec2 = derivativeUiApprox(X, U, V, omegaList, i, numAucSamples, lmbda, r, nu)
         
-        vec2 = U[i, :] - originalU[i, :]
         
         norms[j] += numpy.abs(numpy.inner(vec1, vec2))
 
