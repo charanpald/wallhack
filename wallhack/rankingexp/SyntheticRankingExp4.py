@@ -22,7 +22,7 @@ logging.debug("Number of non-zero elements: " + str(X.nnz))
 
 U = U*s
 
-u = 0.1
+u = 1.0
 trainSplit = 2.0/3
 trainX, testX = SparseUtils.splitNnz(X, trainSplit)
 cvInds = Sampling.randCrossValidation(3, X.nnz)
@@ -32,33 +32,36 @@ logging.debug("Total local AUC:" + str(MCEvaluator.localAUC(X, U, V, u)))
 logging.debug("Train local AUC:" + str(MCEvaluator.localAUC(trainX, U, V, u)))
 logging.debug("Test local AUC:" + str(MCEvaluator.localAUC(testX, U, V, u)))
 
-u = 0.3
 rho = 0.00
-k2 = 3
-eps = 0.001
+k2 = 16
+eps = 0.0001
 sigma = 0.05
 maxLocalAuc = MaxLocalAUC(rho, k2, u, sigma=sigma, eps=eps, stochastic=True)
-maxLocalAuc.maxIterations = m*20
+maxLocalAuc.maxIterations = m*50
 maxLocalAuc.numRowSamples = 100
 maxLocalAuc.numStepIterations = 1
-maxLocalAuc.numAucSamples = 50
+maxLocalAuc.numAucSamples = 100
 maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.recordStep = 50
 maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 50    
+maxLocalAuc.alpha = 10    
 maxLocalAuc.t0 = 0.01
 
-
-maxLocalAuc.learningRateSelect(X)
+logging.debug(maxLocalAuc)
+#maxLocalAuc.learningRateSelect(X)
 maxLocalAuc.learnModel(X)
 
+"""
 sigma = 50
 maxLocalAuc2 = MaxLocalAUC(rho, k2, u, sigma=sigma, eps=eps, stochastic=False)
 maxLocalAuc2.maxIterations = m*2
-maxLocalAuc2.recordStep = 10
+maxLocalAuc2.recordStep = 1
 maxLocalAuc2.rate = "optimal"
-maxLocalAuc2.alpha = 0.1    
+maxLocalAuc2.alpha = 50.0    
 maxLocalAuc2.t0 = 0.1
 maxLocalAuc2.project = True
+maxLocalAuc2.nu = 20.0
 
-#maxLocalAuc2.learnModel(X)
+logging.debug(maxLocalAuc2)
+maxLocalAuc2.learnModel(X)
+"""
