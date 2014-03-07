@@ -168,16 +168,26 @@ class RankingExpHelper(object):
         scoreInds = MCEvaluator.recommendAtk(U, V, 20)
 
         trainMeasures = []
+        trainMeasures.append(MCEvaluator.precisionAtK(trainX, U, V, 3, scoreInds=scoreInds, omegaList=trainOmegaList))
         trainMeasures.append(MCEvaluator.precisionAtK(trainX, U, V, 5, scoreInds=scoreInds, omegaList=trainOmegaList))
         trainMeasures.append(MCEvaluator.precisionAtK(trainX, U, V, 10, scoreInds=scoreInds, omegaList=trainOmegaList))
         trainMeasures.append(MCEvaluator.precisionAtK(trainX, U, V, 20, scoreInds=scoreInds, omegaList=trainOmegaList))
+        trainMeasures.append(MCEvaluator.recallAtK(trainX, U, V, 3, scoreInds=scoreInds, omegaList=trainOmegaList))
+        trainMeasures.append(MCEvaluator.recallAtK(trainX, U, V, 5, scoreInds=scoreInds, omegaList=trainOmegaList))
+        trainMeasures.append(MCEvaluator.recallAtK(trainX, U, V, 10, scoreInds=scoreInds, omegaList=trainOmegaList))
+        trainMeasures.append(MCEvaluator.recallAtK(trainX, U, V, 20, scoreInds=scoreInds, omegaList=trainOmegaList))
         trainMeasures.append(MCEvaluator.localAUCApprox(trainX, U, V, self.algoArgs.u, self.algoArgs.numAucSamples, omegaList=trainOmegaList))
         trainMeasures.append(MCEvaluator.localAUCApprox(trainX, U, V, 1.0, self.algoArgs.numAucSamples, omegaList=trainOmegaList))
 
         testMeasures = []
+        testMeasures.append(MCEvaluator.precisionAtK(testX, U, V, 3, scoreInds=scoreInds, omegaList=testOmegaList))
         testMeasures.append(MCEvaluator.precisionAtK(testX, U, V, 5, scoreInds=scoreInds, omegaList=testOmegaList))
         testMeasures.append(MCEvaluator.precisionAtK(testX, U, V, 10, scoreInds=scoreInds, omegaList=testOmegaList))
         testMeasures.append(MCEvaluator.precisionAtK(testX, U, V, 20, scoreInds=scoreInds, omegaList=testOmegaList))
+        testMeasures.append(MCEvaluator.recallAtK(testX, U, V, 3, scoreInds=scoreInds, omegaList=testOmegaList))
+        testMeasures.append(MCEvaluator.recallAtK(testX, U, V, 5, scoreInds=scoreInds, omegaList=testOmegaList))
+        testMeasures.append(MCEvaluator.recallAtK(testX, U, V, 10, scoreInds=scoreInds, omegaList=testOmegaList))
+        testMeasures.append(MCEvaluator.recallAtK(testX, U, V, 20, scoreInds=scoreInds, omegaList=testOmegaList))
         testMeasures.append(MCEvaluator.localAUCApprox(testX, U, V, self.algoArgs.u, self.algoArgs.numAucSamples, omegaList=testOmegaList))
         testMeasures.append(MCEvaluator.localAUCApprox(testX, U, V, 1.0, self.algoArgs.numAucSamples, omegaList=testOmegaList))
 
