@@ -3,6 +3,7 @@ import logging
 import scipy.sparse 
 import scipy.sparse.linalg
 import array 
+import sklearn.preprocessing
 from sandbox.util.Util import Util 
 from sandbox.util.Evaluator import Evaluator
 
@@ -62,8 +63,8 @@ class RankAggregator(object):
         n = len(itemList)
         #Pj = scipy.sparse.lil_matrix((n, n))
         
-        rowInds = array.array('i')      
-        colInds = array.array('i')
+        rowInds = array.array('I')      
+        colInds = array.array('I')
         data = array.array('f')
         
         indexList = numpy.zeros(len(lst), numpy.int)            
@@ -78,7 +79,7 @@ class RankAggregator(object):
             data.extend(numpy.ones(i+1)*1.0/validStates.shape[0])
             #Pj[indexList[i], validStates] = 1.0/validStates.shape[0]    
             
-        Pj = scipy.sparse.csc_matrix((data, (rowInds, colInds)), shape=(n, n))
+        Pj = scipy.sparse.csc_matrix((data, (rowInds, colInds)), shape=(n, n), dtype=numpy.float16)
         return Pj
     
     @staticmethod 
@@ -89,10 +90,18 @@ class RankAggregator(object):
         n = len(itemList)
         #If all lists agree on top elements then we get a stationary distribution 
         #of 1 for that index and zero elsewhere. Therefore add a little noise. 
-        P += numpy.ones((n, n))*0.0001
-        for i in range(n): 
-            P[i, :] = P[i, :]/P[i, :].sum()
-                
+        #P += numpy.ones((n, n))*0.0001
+        
+        #for i in range(n): 
+        #    P[i, :] = P[i, :]/P[i, :].sum()
+        
+        P = sklearn.preprocessing.normalize(P, norm="l1", axis=1)  
+        N = scipy.sparse.rand(n, n, density=5.0/n, format="csr")
+        N = N/N
+        P = P + N*10**-5
+        P = sklearn.preprocessing.normalize(P, norm="l1", axis=1) 
+        
+        
         u, v = scipy.sparse.linalg.eigs(P.T, 1)
         v = numpy.array(v).flatten()
         scores = numpy.abs(v)
@@ -116,6 +125,8 @@ class RankAggregator(object):
         :param lists: A list of lists. Each sublist is an ordered set of a subset of the items from itemList 
         
         :param itemList: A list of all possible items 
+        
+        :param alpha: A vector of weights for the transition matrices 
         """
         
         n = len(itemList)
@@ -124,7 +135,8 @@ class RankAggregator(object):
         if alpha == None: 
             alpha = numpy.ones(ell)/ell
         
-        P = numpy.zeros((n, n))
+        #P = numpy.zeros((n, n))
+        P = scipy.sparse.csr_matrix((n, n))        
         PList = [] 
         
         logging.debug("Computing permutation matrices")
