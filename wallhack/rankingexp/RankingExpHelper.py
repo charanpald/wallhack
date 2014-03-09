@@ -15,6 +15,7 @@ from sandbox.util.MCEvaluator import MCEvaluator
 from sandbox.recommendation.MaxLocalAUC import MaxLocalAUC
 from sandbox.recommendation.WeightedMf import WeightedMf
 from sandbox.recommendation.WarpMf import WarpMf
+from sandbox.recommendation.KNNRecommender import KNNRecommender
 from sandbox.recommendation.IterativeSoftImpute import IterativeSoftImpute
 from sandbox.util.SparseUtils import SparseUtils 
 from sandbox.util.Sampling import Sampling 
@@ -27,6 +28,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.runSoftImpute = False
     defaultAlgoArgs.runWarpMf = False
     defaultAlgoArgs.runWrMf = False
+    defaultAlgoArgs.runKnn = False
     defaultAlgoArgs.rhos = numpy.linspace(0.5, 0.0, 6) 
     defaultAlgoArgs.lmbdas = numpy.linspace(0.5, 0.0, 6)     
     defaultAlgoArgs.folds = 4
@@ -50,6 +52,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.rate = "optimal"
     defaultAlgoArgs.recordStep = 50 
     defaultAlgoArgs.initialAlg = "rand"
+    defaultAlgoArgs.kns = numpy.array([20])
     
     def __init__(self, cmdLine=None, defaultAlgoArgs = None, dirName=""):
         """ priority for default args
@@ -97,7 +100,7 @@ class RankingExpHelper(object):
         
         # define parser
         algoParser = argparse.ArgumentParser(description="", add_help=add_help)
-        for method in ["runSoftImpute", "runMaxLocalAuc", "runWarpMf", "runWrMf"]:
+        for method in ["runSoftImpute", "runMaxLocalAuc", "runWarpMf", "runWrMf", "runKnn"]:
             algoParser.add_argument("--" + method, action="store_true", default=defaultAlgoArgs.__getattribute__(method))
         algoParser.add_argument("--rhos", type=float, nargs="+", help="Regularisation parameter (default: %(default)s)", default=defaultAlgoArgs.rhos)
         algoParser.add_argument("--ks", type=int, nargs="+", help="Max number of singular values/vectors (default: %(default)s)", default=defaultAlgoArgs.ks)
@@ -156,7 +159,7 @@ class RankingExpHelper(object):
             trainX = sppy.csarray(trainX)
             testX = sppy.csarray(testX)
         else: 
-            U, V = learner.learnModel(trainX)
+            learner.learnModel(trainX)
         learnTime = time.time()-start 
         metaData.append(learnTime)
 
@@ -165,31 +168,42 @@ class RankingExpHelper(object):
         logging.debug("Getting test omega")
         testOmegaList = SparseUtils.getOmegaList(testX)
         logging.debug("Getting recommendations")
-        scoreInds = MCEvaluator.recommendAtk(U, V, 20)
+        maxItems = 20        
+        
+        if type(learner) == IterativeSoftImpute:
+            orderedItems = MCEvaluator.recommendAtk(U, V, maxItems)
+        else: 
+            orderedItems = learner.predict(maxItems)
 
         trainMeasures = []
-        trainMeasures.append(MCEvaluator.precisionAtK(trainX, U, V, 3, scoreInds=scoreInds, omegaList=trainOmegaList))
-        trainMeasures.append(MCEvaluator.precisionAtK(trainX, U, V, 5, scoreInds=scoreInds, omegaList=trainOmegaList))
-        trainMeasures.append(MCEvaluator.precisionAtK(trainX, U, V, 10, scoreInds=scoreInds, omegaList=trainOmegaList))
-        trainMeasures.append(MCEvaluator.precisionAtK(trainX, U, V, 20, scoreInds=scoreInds, omegaList=trainOmegaList))
-        trainMeasures.append(MCEvaluator.recallAtK(trainX, U, V, 3, scoreInds=scoreInds, omegaList=trainOmegaList))
-        trainMeasures.append(MCEvaluator.recallAtK(trainX, U, V, 5, scoreInds=scoreInds, omegaList=trainOmegaList))
-        trainMeasures.append(MCEvaluator.recallAtK(trainX, U, V, 10, scoreInds=scoreInds, omegaList=trainOmegaList))
-        trainMeasures.append(MCEvaluator.recallAtK(trainX, U, V, 20, scoreInds=scoreInds, omegaList=trainOmegaList))
-        trainMeasures.append(MCEvaluator.localAUCApprox(trainX, U, V, self.algoArgs.u, self.algoArgs.numAucSamples, omegaList=trainOmegaList))
-        trainMeasures.append(MCEvaluator.localAUCApprox(trainX, U, V, 1.0, self.algoArgs.numAucSamples, omegaList=trainOmegaList))
+        trainMeasures.append(MCEvaluator.precisionAtK(trainX, orderedItems, 3, omegaList=trainOmegaList))
+        trainMeasures.append(MCEvaluator.precisionAtK(trainX, orderedItems, 5, omegaList=trainOmegaList))
+        trainMeasures.append(MCEvaluator.precisionAtK(trainX, orderedItems, 10, omegaList=trainOmegaList))
+        trainMeasures.append(MCEvaluator.precisionAtK(trainX, orderedItems, maxItems, omegaList=trainOmegaList))
+        trainMeasures.append(MCEvaluator.recallAtK(trainX, orderedItems, 3, omegaList=trainOmegaList))
+        trainMeasures.append(MCEvaluator.recallAtK(trainX, orderedItems, 5, omegaList=trainOmegaList))
+        trainMeasures.append(MCEvaluator.recallAtK(trainX, orderedItems, 10, omegaList=trainOmegaList))
+        trainMeasures.append(MCEvaluator.recallAtK(trainX, orderedItems, maxItems, omegaList=trainOmegaList))
+        try: 
+            trainMeasures.append(MCEvaluator.localAUCApprox(trainX, learner.U, learner.V, self.algoArgs.u, self.algoArgs.numAucSamples, omegaList=trainOmegaList))
+            trainMeasures.append(MCEvaluator.localAUCApprox(trainX, learner.U, learner.V, 1.0, self.algoArgs.numAucSamples, omegaList=trainOmegaList))
+        except:
+            pass
 
         testMeasures = []
-        testMeasures.append(MCEvaluator.precisionAtK(testX, U, V, 3, scoreInds=scoreInds, omegaList=testOmegaList))
-        testMeasures.append(MCEvaluator.precisionAtK(testX, U, V, 5, scoreInds=scoreInds, omegaList=testOmegaList))
-        testMeasures.append(MCEvaluator.precisionAtK(testX, U, V, 10, scoreInds=scoreInds, omegaList=testOmegaList))
-        testMeasures.append(MCEvaluator.precisionAtK(testX, U, V, 20, scoreInds=scoreInds, omegaList=testOmegaList))
-        testMeasures.append(MCEvaluator.recallAtK(testX, U, V, 3, scoreInds=scoreInds, omegaList=testOmegaList))
-        testMeasures.append(MCEvaluator.recallAtK(testX, U, V, 5, scoreInds=scoreInds, omegaList=testOmegaList))
-        testMeasures.append(MCEvaluator.recallAtK(testX, U, V, 10, scoreInds=scoreInds, omegaList=testOmegaList))
-        testMeasures.append(MCEvaluator.recallAtK(testX, U, V, 20, scoreInds=scoreInds, omegaList=testOmegaList))
-        testMeasures.append(MCEvaluator.localAUCApprox(testX, U, V, self.algoArgs.u, self.algoArgs.numAucSamples, omegaList=testOmegaList))
-        testMeasures.append(MCEvaluator.localAUCApprox(testX, U, V, 1.0, self.algoArgs.numAucSamples, omegaList=testOmegaList))
+        testMeasures.append(MCEvaluator.precisionAtK(testX, orderedItems, 3, omegaList=testOmegaList))
+        testMeasures.append(MCEvaluator.precisionAtK(testX, orderedItems, 5, omegaList=testOmegaList))
+        testMeasures.append(MCEvaluator.precisionAtK(testX, orderedItems, 10, omegaList=testOmegaList))
+        testMeasures.append(MCEvaluator.precisionAtK(testX, orderedItems, maxItems, omegaList=testOmegaList))
+        testMeasures.append(MCEvaluator.recallAtK(testX, orderedItems, 3, omegaList=testOmegaList))
+        testMeasures.append(MCEvaluator.recallAtK(testX, orderedItems, 5, omegaList=testOmegaList))
+        testMeasures.append(MCEvaluator.recallAtK(testX, orderedItems, 10, omegaList=testOmegaList))
+        testMeasures.append(MCEvaluator.recallAtK(testX, orderedItems, maxItems, omegaList=testOmegaList))
+        try: 
+            testMeasures.append(MCEvaluator.localAUCApprox(testX, learner.U, learner.V, self.algoArgs.u, self.algoArgs.numAucSamples, omegaList=testOmegaList))
+            testMeasures.append(MCEvaluator.localAUCApprox(testX, learner.U, learner.V, 1.0, self.algoArgs.numAucSamples, omegaList=testOmegaList))
+        except:
+            pass
 
         trainMeasures = numpy.array(trainMeasures)
         testMeasures = numpy.array(testMeasures)
@@ -197,7 +211,7 @@ class RankingExpHelper(object):
         
         logging.debug("Train measures: " + str(trainMeasures))
         logging.debug("Test measures: " + str(testMeasures))
-        numpy.savez(fileName, trainMeasures, testMeasures, metaData, scoreInds)
+        numpy.savez(fileName, trainMeasures, testMeasures, metaData, orderedItems)
         logging.debug("Saved file as " + fileName)
 
     def runExperiment(self, X):
@@ -384,5 +398,30 @@ class RankingExpHelper(object):
                     fileLock.unlock()
             else: 
                 logging.debug("File is locked or already computed: " + resultsFileName)  
-        
+       
+        if self.algoArgs.runKnn: 
+            logging.debug("Running kNN")
+            resultsFileName = self.resultsDir + "ResultsKnn.npz"
+                
+            fileLock = FileLock(resultsFileName)     
+            
+            if not fileLock.isLocked() and not fileLock.fileExists(): 
+                fileLock.lock()
+                
+                try: 
+                    trainX = trainX.toScipyCsr()
+                    testX = testX.toScipyCsr()
+
+                    learner = KNNRecommender(self.algoArgs.kns[0])
+                    learner.numProcesses = self.algoArgs.processes
+                    
+                         
+                    logging.debug(learner)   
+                    
+                    self.recordResults(trainX, testX, learner, resultsFileName)
+                finally: 
+                    fileLock.unlock()
+            else: 
+                logging.debug("File is locked or already computed: " + resultsFileName)         
+       
         logging.info("All done: see you around!")
