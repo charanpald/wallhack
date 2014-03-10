@@ -7,6 +7,7 @@ matplotlib.use("GTK3Agg")
 import matplotlib.pyplot as plt  
 from sandbox.util.PathDefaults import PathDefaults 
 from sandbox.util.IdIndexer import IdIndexer
+from sandbox.util.Latex import Latex 
 from apgl.graph.GraphUtils import GraphUtils 
 
 """
@@ -27,8 +28,10 @@ us = []
 boundFro = [] 
 bound2 = []
 ks = []
+eyes = []
+deltas = []
 
-for i in range(1, 11): 
+for i in range(1, 9): 
     print(i)
     networkFilename = dataDir + "network_1_kcores/network_1-core" + str("%02d" % (i,)) + ".txt"
     
@@ -62,16 +65,19 @@ for i in range(1, 11):
     
     u, V = scipy.sparse.linalg.eigs(L, k=m-2, which="SM")
     u = u.real 
-    u = numpy.sort(u)
+    inds = numpy.argsort(u)
+    u = u[inds]
+    V = V[:, inds]
     us.append(u)
     
-    k = numpy.argmax(numpy.diff(u))
-    delta = numpy.max(numpy.diff(u))
+
+    k0 = numpy.where(u > 0.01)[0][0]
+    k = numpy.argmax(numpy.diff(u[k0:]))
     
     ks.append(k)
     
-    print("k="+ str(k))
-    V = V[:, 0:k]
+    print("k0="+ str(k0) + " k="+ str(k))
+    V = V[:, k0:k0+k+1]
     
     if i != 1: 
         E = L - Ls[-2]
@@ -79,11 +85,24 @@ for i in range(1, 11):
         EV = E.dot(V)
         L = numpy.array(L.todense())
         
+        delta = us[-2][k0+k+1] - us[-1][k0+k]
+        
         boundFro.append(numpy.linalg.norm(EV)/delta)
         bound2.append(numpy.linalg.norm(EV, ord=2)/delta)
+        eyes.append(i)
+        deltas.append(delta)
+
+boundFro = numpy.array(boundFro)
+bound2 = numpy.array(bound2)
+eyes = numpy.array(eyes)-1
+deltas = numpy.array(deltas)
 
 #2 norm bound is bad 
-#Frobenius norm bound is good but only for last few cores 
-print(boundFro)
-print(bound2)
-print(numpy.sqrt(ks))
+#Frobenius norm bound is good but only for last few cores
+print(1/deltas)
+print(ks)
+print(boundFro/numpy.sqrt(ks[:-1]))
+print(Latex.array1DToRow(eyes)) 
+print(Latex.array1DToRow(numpy.sqrt(ks)))
+print(Latex.array1DToRow(boundFro))
+print(Latex.array1DToRow(bound2)) 
