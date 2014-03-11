@@ -14,7 +14,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 #dirName = "SyntheticDataset1" 
 dirName = "MendeleyCoauthors"
 resultsDir = PathDefaults.getOutputDir() + "ranking/" + dirName + "/"
-algs = ["SoftImpute", "WrMf", "MaxLocalAUC"]
+algs = ["SoftImpute", "WrMf"]
 #algs = ["MaxLocalAUC"]
 
 for alg in algs: 
@@ -57,9 +57,10 @@ for alg in algs:
         
     except IOError: 
         logging.debug("Missing file " + resultsFileName)
+        raise 
     
     modelSelectFileName = resultsDir + "ModelSelect" + alg + ".npz"
-    
+    """
     try: 
         data = numpy.load(modelSelectFileName)
         meanAucs, stdAucs = data["arr_0"], data["arr_1"]
@@ -74,3 +75,4 @@ for alg in algs:
         plt.show()
     except IOError: 
         logging.debug("Missing file " + modelSelectFileName)
+    """
