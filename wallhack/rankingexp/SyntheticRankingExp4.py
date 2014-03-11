@@ -16,12 +16,13 @@ numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 
 #Create a low rank matrix  
 m = 100
-n = 200 
-k = 16 
-w = 0.1
-u = 1-w
-X, U, s, V = SparseUtils.generateSparseBinaryMatrix((m,n), k, u, csarray=True, verbose=True, indsPerRow=200)
+n = 50 
+k = 10 
+u = 0.1
+w = 1-u
+X, U, s, V = SparseUtils.generateSparseBinaryMatrix((m,n), k, w, csarray=True, verbose=True, indsPerRow=200)
 logging.debug("Number of non-zero elements: " + str(X.nnz))
+
 
 U = U*s
 
@@ -36,19 +37,19 @@ logging.debug("Test local AUC:" + str(MCEvaluator.localAUC(testX, U, V, w)))
 
 #w = 1.0
 rho = 0.0
-k2 = 16
+k2 = k
 eps = 0.000001
 sigma = 10
 maxLocalAuc = MaxLocalAUC(rho, k2, w, sigma=sigma, eps=eps, stochastic=True)
 maxLocalAuc.maxIterations = m*50
-maxLocalAuc.numRowSamples = 100
+maxLocalAuc.numRowSamples = 50
 maxLocalAuc.numStepIterations = 50
 maxLocalAuc.numAucSamples = 50
 maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.recordStep = 50
-maxLocalAuc.nu = 1
-maxLocalAuc.rate = "constant"
-maxLocalAuc.alpha = m*5
+maxLocalAuc.nu = 20
+maxLocalAuc.rate = "optimal"
+maxLocalAuc.alpha = 10
 maxLocalAuc.t0 = 0.001
 
 
