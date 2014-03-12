@@ -146,7 +146,10 @@ class RankingExpHelper(object):
         Save results for a particular recommendation 
         """
         metaData = []
+        w = 1-self.defaultAlgoArgs.u
         logging.debug("Computing recommendation errors")
+        ps = [3, 5, 10, 20]
+        maxItems = ps[-1]
         
 
         start = time.time()
@@ -168,7 +171,7 @@ class RankingExpHelper(object):
         logging.debug("Getting test omega")
         testOmegaList = SparseUtils.getOmegaList(testX)
         logging.debug("Getting recommendations")
-        maxItems = 20        
+                
         
         if type(learner) == IterativeSoftImpute:
             orderedItems = MCEvaluator.recommendAtk(U, V, maxItems)
@@ -176,41 +179,35 @@ class RankingExpHelper(object):
             orderedItems = learner.predict(maxItems)
 
         trainMeasures = []
-        trainMeasures.append(MCEvaluator.precisionAtK(trainX, orderedItems, 3, omegaList=trainOmegaList))
-        trainMeasures.append(MCEvaluator.precisionAtK(trainX, orderedItems, 5, omegaList=trainOmegaList))
-        trainMeasures.append(MCEvaluator.precisionAtK(trainX, orderedItems, 10, omegaList=trainOmegaList))
-        trainMeasures.append(MCEvaluator.precisionAtK(trainX, orderedItems, maxItems, omegaList=trainOmegaList))
-        trainMeasures.append(MCEvaluator.recallAtK(trainX, orderedItems, 3, omegaList=trainOmegaList))
-        trainMeasures.append(MCEvaluator.recallAtK(trainX, orderedItems, 5, omegaList=trainOmegaList))
-        trainMeasures.append(MCEvaluator.recallAtK(trainX, orderedItems, 10, omegaList=trainOmegaList))
-        trainMeasures.append(MCEvaluator.recallAtK(trainX, orderedItems, maxItems, omegaList=trainOmegaList))
-        try: 
-            trainMeasures.append(MCEvaluator.localAUCApprox(trainX, learner.U, learner.V, self.algoArgs.u, self.algoArgs.numAucSamples, omegaList=trainOmegaList))
-            trainMeasures.append(MCEvaluator.localAUCApprox(trainX, learner.U, learner.V, 1.0, self.algoArgs.numAucSamples, omegaList=trainOmegaList))
-        except:
-            pass
-
         testMeasures = []
-        testMeasures.append(MCEvaluator.precisionAtK(testX, orderedItems, 3, omegaList=testOmegaList))
-        testMeasures.append(MCEvaluator.precisionAtK(testX, orderedItems, 5, omegaList=testOmegaList))
-        testMeasures.append(MCEvaluator.precisionAtK(testX, orderedItems, 10, omegaList=testOmegaList))
-        testMeasures.append(MCEvaluator.precisionAtK(testX, orderedItems, maxItems, omegaList=testOmegaList))
-        testMeasures.append(MCEvaluator.recallAtK(testX, orderedItems, 3, omegaList=testOmegaList))
-        testMeasures.append(MCEvaluator.recallAtK(testX, orderedItems, 5, omegaList=testOmegaList))
-        testMeasures.append(MCEvaluator.recallAtK(testX, orderedItems, 10, omegaList=testOmegaList))
-        testMeasures.append(MCEvaluator.recallAtK(testX, orderedItems, maxItems, omegaList=testOmegaList))
+        for p in ps: 
+            trainMeasures.append(MCEvaluator.precisionAtK(trainX, orderedItems, p, omegaList=trainOmegaList))
+            testMeasures.append(MCEvaluator.precisionAtK(testX, orderedItems, p, omegaList=testOmegaList))
+            
+            logging.debug("precision@" + str(p) + " (train/test):" + str(trainMeasures[-1]) + str("/") + str(testMeasures[-1]))
+            
+        for p in ps: 
+            trainMeasures.append(MCEvaluator.recallAtK(trainX, orderedItems, p, omegaList=trainOmegaList))
+            testMeasures.append(MCEvaluator.recallAtK(testX, orderedItems, 3, omegaList=testOmegaList))
+            
+            logging.debug("recall@" + str(p) + " (train/test):" + str(trainMeasures[-1]) + str("/") + str(testMeasures[-1]))
+            
+
         try: 
-            testMeasures.append(MCEvaluator.localAUCApprox(testX, learner.U, learner.V, self.algoArgs.u, self.algoArgs.numAucSamples, omegaList=testOmegaList))
-            testMeasures.append(MCEvaluator.localAUCApprox(testX, learner.U, learner.V, 1.0, self.algoArgs.numAucSamples, omegaList=testOmegaList))
+            trainMeasures.append(MCEvaluator.localAUCApprox(trainX, learner.U, learner.V, w, self.algoArgs.numAucSamples, omegaList=trainOmegaList))
+            trainMeasures.append(MCEvaluator.localAUCApprox(trainX, learner.U, learner.V, 0.0, self.algoArgs.numAucSamples, omegaList=trainOmegaList))
+            testMeasures.append(MCEvaluator.localAUCApprox(testX, learner.U, learner.V, w, self.algoArgs.numAucSamples, omegaList=testOmegaList))
+            testMeasures.append(MCEvaluator.localAUCApprox(testX, learner.U, learner.V, 0.0, self.algoArgs.numAucSamples, omegaList=testOmegaList))
+            
+            logging.debug("Local AUC@" + str(self.defaultAlgoArgs.u) +  " (train/test):" + str(trainMeasures[-2]) + str("/") + str(testMeasures[-2]))
+            logging.debug("Local AUC@1 (train/test):" + str(trainMeasures[-1]) + str("/") + str(testMeasures[-1]))
         except:
-            pass
+            logging.debug("Could not compute AUCs")
 
         trainMeasures = numpy.array(trainMeasures)
         testMeasures = numpy.array(testMeasures)
         metaData = numpy.array(metaData)
         
-        logging.debug("Train measures: " + str(trainMeasures))
-        logging.debug("Test measures: " + str(testMeasures))
         numpy.savez(fileName, trainMeasures, testMeasures, metaData, orderedItems)
         logging.debug("Saved file as " + fileName)
 
@@ -273,7 +270,7 @@ class RankingExpHelper(object):
                 fileLock.lock()
                 
                 try: 
-                    learner = MaxLocalAUC(self.algoArgs.rhos[0], self.algoArgs.ks[0], self.algoArgs.u, sigma=self.algoArgs.sigma, eps=self.algoArgs.eps, stochastic=not self.algoArgs.fullGradient)
+                    learner = MaxLocalAUC(self.algoArgs.rhos[0], self.algoArgs.ks[0], 1-self.algoArgs.u, sigma=self.algoArgs.sigma, eps=self.algoArgs.eps, stochastic=not self.algoArgs.fullGradient)
                     
                     learner.numRowSamples = self.algoArgs.numRowSamples
                     learner.numStepIterations = self.algoArgs.numStepIterations
