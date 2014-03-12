@@ -18,7 +18,7 @@ numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 m = 100
 n = 50 
 k = 10 
-u = 0.1
+u = 0.3
 w = 1-u
 X, U, s, V = SparseUtils.generateSparseBinaryMatrix((m,n), k, w, csarray=True, verbose=True, indsPerRow=200)
 logging.debug("Number of non-zero elements: " + str(X.nnz))
