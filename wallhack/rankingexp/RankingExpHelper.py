@@ -33,7 +33,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.lmbdas = numpy.linspace(0.5, 0.0, 6)     
     defaultAlgoArgs.folds = 4
     defaultAlgoArgs.u = 0.1
-    defaultAlgoArgs.eps = 0.01
+    defaultAlgoArgs.eps = 10**-5
     defaultAlgoArgs.sigma = 0.2
     defaultAlgoArgs.numRowSamples = 50
     defaultAlgoArgs.numAucSamples = 100
