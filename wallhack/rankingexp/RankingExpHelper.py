@@ -36,10 +36,8 @@ class RankingExpHelper(object):
     defaultAlgoArgs.eps = 0.01
     defaultAlgoArgs.sigma = 0.2
     defaultAlgoArgs.numRowSamples = 50
-    defaultAlgoArgs.numStepIterations = 50
     defaultAlgoArgs.numAucSamples = 100
     defaultAlgoArgs.nu = 20
-    defaultAlgoArgs.nuBar = 1
     defaultAlgoArgs.maxIterations = 1000
     defaultAlgoArgs.trainSplit = 2.0/3
     defaultAlgoArgs.modelSelect = False
@@ -108,10 +106,8 @@ class RankingExpHelper(object):
         algoParser.add_argument("--postProcess", action="store_true", help="Whether to do post processing for soft impute (default: %(default)s)", default=defaultAlgoArgs.postProcess)
         algoParser.add_argument("--verbose", action="store_true", help="Whether to generate verbose algorithmic details(default: %(default)s)", default=defaultAlgoArgs.verbose)
         algoParser.add_argument("--numRowSamples", type=int, help="Number of row samples for max local AUC (default: %(default)s)", default=defaultAlgoArgs.numRowSamples)
-        algoParser.add_argument("--numStepIterations", type=int, help="Number of col samples for max local AUC (default: %(default)s)", default=defaultAlgoArgs.numStepIterations)
         algoParser.add_argument("--numAucSamples", type=int, help="Number of AUC samples for max local AUC (default: %(default)s)", default=defaultAlgoArgs.numAucSamples)
         algoParser.add_argument("--nu", type=int, help="Weight of discordance for max local AUC (default: %(default)s)", default=defaultAlgoArgs.nu)
-        algoParser.add_argument("--nuBar", type=int, help="Weight of score threshold max local AUC (default: %(default)s)", default=defaultAlgoArgs.nuBar)
         algoParser.add_argument("--sigma", type=int, help="Learning rate for (stochastic) gradient descent (default: %(default)s)", default=defaultAlgoArgs.sigma)
         algoParser.add_argument("--recordStep", type=int, help="Number of iterations after which we display some partial results (default: %(default)s)", default=defaultAlgoArgs.recordStep)
         algoParser.add_argument("--processes", type=int, help="Number of CPU cores to use (default: %(default)s)", default=defaultAlgoArgs.processes)
@@ -146,7 +142,7 @@ class RankingExpHelper(object):
         Save results for a particular recommendation 
         """
         metaData = []
-        w = 1-self.defaultAlgoArgs.u
+        w = 1-self.algoArgs.u
         logging.debug("Computing recommendation errors")
         ps = [3, 5, 10, 20]
         maxItems = ps[-1]
@@ -184,13 +180,13 @@ class RankingExpHelper(object):
             trainMeasures.append(MCEvaluator.precisionAtK(trainX, orderedItems, p, omegaList=trainOmegaList))
             testMeasures.append(MCEvaluator.precisionAtK(testX, orderedItems, p, omegaList=testOmegaList))
             
-            logging.debug("precision@" + str(p) + " (train/test):" + str(trainMeasures[-1]) + str("/") + str(testMeasures[-1]))
+            logging.debug("precision@" + str(p) + " (train/test/total):" + str(trainMeasures[-1]) + str("/") + str(testMeasures[-1])+ str("/") + str(trainMeasures[-1]+testMeasures[-1]))
             
         for p in ps: 
             trainMeasures.append(MCEvaluator.recallAtK(trainX, orderedItems, p, omegaList=trainOmegaList))
-            testMeasures.append(MCEvaluator.recallAtK(testX, orderedItems, 3, omegaList=testOmegaList))
+            testMeasures.append(MCEvaluator.recallAtK(testX, orderedItems, p, omegaList=testOmegaList))
             
-            logging.debug("recall@" + str(p) + " (train/test):" + str(trainMeasures[-1]) + str("/") + str(testMeasures[-1]))
+            logging.debug("recall@" + str(p) + " (train/test/total):" + str(trainMeasures[-1]) + str("/") + str(testMeasures[-1]) + str("/") + str(trainMeasures[-1]+testMeasures[-1]))
             
 
         try: 
@@ -199,7 +195,7 @@ class RankingExpHelper(object):
             testMeasures.append(MCEvaluator.localAUCApprox(testX, learner.U, learner.V, w, self.algoArgs.numAucSamples, omegaList=testOmegaList))
             testMeasures.append(MCEvaluator.localAUCApprox(testX, learner.U, learner.V, 0.0, self.algoArgs.numAucSamples, omegaList=testOmegaList))
             
-            logging.debug("Local AUC@" + str(self.defaultAlgoArgs.u) +  " (train/test):" + str(trainMeasures[-2]) + str("/") + str(testMeasures[-2]))
+            logging.debug("Local AUC@" + str(self.algoArgs.u) +  " (train/test):" + str(trainMeasures[-2]) + str("/") + str(testMeasures[-2]))
             logging.debug("Local AUC@1 (train/test):" + str(trainMeasures[-1]) + str("/") + str(testMeasures[-1]))
         except:
             logging.debug("Could not compute AUCs")
@@ -262,7 +258,7 @@ class RankingExpHelper(object):
         if self.algoArgs.runMaxLocalAuc:
             logging.debug("Running max local AUC")
             resultsFileName = self.resultsDir + "ResultsMaxLocalAUC_nrs="+str(self.algoArgs.numRowSamples)+"_ncs="+str(self.algoArgs.numStepIterations)+"_nas="+str(self.algoArgs.numAucSamples)
-            resultsFileName += "_nu=" +str(self.algoArgs.nu)+"_nuBar="+str(self.algoArgs.nuBar)+".npz"
+            resultsFileName += "_nu=" +str(self.algoArgs.nu)+ ".npz"
                 
             fileLock = FileLock(resultsFileName)  
             
@@ -273,14 +269,12 @@ class RankingExpHelper(object):
                     learner = MaxLocalAUC(self.algoArgs.rhos[0], self.algoArgs.ks[0], 1-self.algoArgs.u, sigma=self.algoArgs.sigma, eps=self.algoArgs.eps, stochastic=not self.algoArgs.fullGradient)
                     
                     learner.numRowSamples = self.algoArgs.numRowSamples
-                    learner.numStepIterations = self.algoArgs.numStepIterations
                     learner.numAucSamples = self.algoArgs.numAucSamples
                     learner.nu = self.algoArgs.nu
-                    learner.nuBar = self.algoArgs.nuBar
                     learner.initialAlg = self.algoArgs.initialAlg
                     learner.recordStep = self.algoArgs.recordStep
                     learner.rate = self.algoArgs.rate
-                    learner.alpha = 100    
+                    learner.alpha = 50    
                     learner.t0 = 0.001   
                     learner.maxIterations = self.algoArgs.maxIterations  
                     learner.ks = self.algoArgs.ks
