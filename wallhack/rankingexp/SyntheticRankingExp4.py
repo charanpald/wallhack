@@ -38,7 +38,7 @@ logging.debug("Test local AUC:" + str(MCEvaluator.localAUC(testX, U, V, w)))
 #w = 1.0
 rho = 0.0
 k2 = k
-eps = 0.000001
+eps = 10**-5
 sigma = 10
 maxLocalAuc = MaxLocalAUC(rho, k2, w, sigma=sigma, eps=eps, stochastic=True)
 maxLocalAuc.maxIterations = m*50
