@@ -41,20 +41,20 @@ k2 = k
 eps = 10**-5
 sigma = 10
 maxLocalAuc = MaxLocalAUC(rho, k2, w, sigma=sigma, eps=eps, stochastic=True)
-maxLocalAuc.maxIterations = m*50
+maxLocalAuc.maxIterations = m*10
 maxLocalAuc.numRowSamples = 50
 maxLocalAuc.numStepIterations = 50
-maxLocalAuc.numAucSamples = 50
+maxLocalAuc.numAucSamples = 20
 maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.recordStep = 50
 maxLocalAuc.nu = 20
 maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 10
-maxLocalAuc.t0 = 0.001
+maxLocalAuc.alpha = 2.3
+maxLocalAuc.t0 = 0.00001
 
 
 logging.debug(maxLocalAuc)
-#maxLocalAuc.learningRateSelect(X)
+maxLocalAuc.learningRateSelect(X)
 U, V, objs, trainAucs, testAucs, ind, totalTime = maxLocalAuc.learnModel(X, verbose=True)
 
 plt.figure(0)
