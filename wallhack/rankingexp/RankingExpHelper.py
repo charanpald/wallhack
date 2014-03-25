@@ -50,6 +50,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.rate = "optimal"
     defaultAlgoArgs.recordStep = 50 
     defaultAlgoArgs.initialAlg = "rand"
+    defaultAlgoArgs.numStepIterations = 20
     defaultAlgoArgs.kns = numpy.array([20])
     
     def __init__(self, cmdLine=None, defaultAlgoArgs = None, dirName=""):
