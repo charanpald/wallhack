@@ -33,22 +33,21 @@ class RankingExpHelper(object):
     defaultAlgoArgs.lmbdas = numpy.linspace(0.5, 0.0, 6)     
     defaultAlgoArgs.folds = 4
     defaultAlgoArgs.u = 0.1
-    defaultAlgoArgs.eps = 10**-5
+    defaultAlgoArgs.eps = 10**-14
     defaultAlgoArgs.sigma = 0.2
     defaultAlgoArgs.numRowSamples = 50
-    defaultAlgoArgs.numAucSamples = 100
+    defaultAlgoArgs.numAucSamples = 50
     defaultAlgoArgs.nu = 20
     defaultAlgoArgs.maxIterations = 1000
     defaultAlgoArgs.trainSplit = 2.0/3
     defaultAlgoArgs.modelSelect = False
     defaultAlgoArgs.learningRateSelect = False
     defaultAlgoArgs.postProcess = False 
-    defaultAlgoArgs.trainError = False 
     defaultAlgoArgs.verbose = False
     defaultAlgoArgs.processes = 8
     defaultAlgoArgs.fullGradient = False
     defaultAlgoArgs.rate = "optimal"
-    defaultAlgoArgs.recordStep = 50 
+    defaultAlgoArgs.recordStep = 20 
     defaultAlgoArgs.initialAlg = "rand"
     defaultAlgoArgs.numStepIterations = 20
     defaultAlgoArgs.kns = numpy.array([20])
@@ -258,7 +257,7 @@ class RankingExpHelper(object):
                 
         if self.algoArgs.runMaxLocalAuc:
             logging.debug("Running max local AUC")
-            resultsFileName = self.resultsDir + "ResultsMaxLocalAUC_nrs="+str(self.algoArgs.numRowSamples)+"_ncs="+str(self.algoArgs.numStepIterations)+"_nas="+str(self.algoArgs.numAucSamples)
+            resultsFileName = self.resultsDir + "ResultsMaxLocalAUC_nrs="+str(self.algoArgs.numRowSamples)+"_nsi="+str(self.algoArgs.numStepIterations)+"_nas="+str(self.algoArgs.numAucSamples)
             resultsFileName += "_nu=" +str(self.algoArgs.nu)+ ".npz"
                 
             fileLock = FileLock(resultsFileName)  
@@ -276,12 +275,13 @@ class RankingExpHelper(object):
                     learner.recordStep = self.algoArgs.recordStep
                     learner.rate = self.algoArgs.rate
                     learner.alpha = 50    
-                    learner.t0 = 0.001   
+                    learner.t0 = 1.0/self.algoArgs.maxIterations   
                     learner.maxIterations = self.algoArgs.maxIterations  
                     learner.ks = self.algoArgs.ks
                     learner.rhos = self.algoArgs.rhos   
                     learner.folds = self.algoArgs.folds  
                     learner.numProcesses = self.algoArgs.processes 
+                    learner.numStepIterations = self.algoArgs.numStepIterations
 
                     if self.algoArgs.learningRateSelect:
                         logging.debug("Performing learning rate selection, taking subsample of entries of size " + str(self.sampleSize))

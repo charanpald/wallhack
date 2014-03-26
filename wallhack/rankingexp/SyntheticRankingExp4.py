@@ -15,10 +15,10 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 
 #Create a low rank matrix  
-m = 100
-n = 50 
+m = 1000
+n = 500
 k = 10 
-u = 0.3
+u = 0.05
 w = 1-u
 X, U, s, V = SparseUtils.generateSparseBinaryMatrix((m,n), k, w, csarray=True, verbose=True, indsPerRow=200)
 logging.debug("Number of non-zero elements: " + str(X.nnz))
@@ -31,30 +31,30 @@ trainX, testX = SparseUtils.splitNnz(X, trainSplit)
 cvInds = Sampling.randCrossValidation(3, X.nnz)
 
 logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))
-logging.debug("Total local AUC:" + str(MCEvaluator.localAUC(X, U, V, w)))
-logging.debug("Train local AUC:" + str(MCEvaluator.localAUC(trainX, U, V, w)))
-logging.debug("Test local AUC:" + str(MCEvaluator.localAUC(testX, U, V, w)))
+#logging.debug("Total local AUC:" + str(MCEvaluator.localAUC(X, U, V, w)))
+#logging.debug("Train local AUC:" + str(MCEvaluator.localAUC(trainX, U, V, w)))
+#logging.debug("Test local AUC:" + str(MCEvaluator.localAUC(testX, U, V, w)))
 
 #w = 1.0
 rho = 0.0
 k2 = k
-eps = 10**-5
+eps = 10**-6
 sigma = 10
 maxLocalAuc = MaxLocalAUC(rho, k2, w, sigma=sigma, eps=eps, stochastic=True)
-maxLocalAuc.maxIterations = m*5
+maxLocalAuc.maxIterations = m*20
 maxLocalAuc.numRowSamples = 50
 maxLocalAuc.numStepIterations = 50
 maxLocalAuc.numAucSamples = 20
-maxLocalAuc.initialAlg = "rand"
+maxLocalAuc.initialAlg = "svd"
 maxLocalAuc.recordStep = 50
 maxLocalAuc.nu = 20
 maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 5.6
-maxLocalAuc.t0 = 10**-6
+maxLocalAuc.alpha = 0.5
+maxLocalAuc.t0 = 10**-4
 
 
 logging.debug(maxLocalAuc)
-maxLocalAuc.learningRateSelect(X)
+#maxLocalAuc.learningRateSelect(X)
 U, V, objs, trainAucs, testAucs, ind, totalTime = maxLocalAuc.learnModel(X, verbose=True)
 
 plt.figure(0)
