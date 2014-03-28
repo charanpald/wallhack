@@ -30,7 +30,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.runWrMf = False
     defaultAlgoArgs.runKnn = False
     defaultAlgoArgs.rhos = numpy.linspace(0.5, 0.0, 6) 
-    defaultAlgoArgs.lmbdas = numpy.linspace(0.5, 0.0, 6)     
+    defaultAlgoArgs.lmbdas = numpy.flipud(numpy.logspace(-3, -1, 11)*2)      
     defaultAlgoArgs.folds = 4
     defaultAlgoArgs.u = 0.1
     defaultAlgoArgs.eps = 10**-14
@@ -368,6 +368,7 @@ class RankingExpHelper(object):
 
                     learner = WeightedMf(self.algoArgs.ks[0], self.algoArgs.lmbdas[0], u=self.algoArgs.u)
                     learner.ks = self.algoArgs.ks
+                    learner.lmbdas = self.algoArgs.lmbdas 
                     learner.numProcesses = self.algoArgs.processes
                     
                     if self.algoArgs.modelSelect: 
