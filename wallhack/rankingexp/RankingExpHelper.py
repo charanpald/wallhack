@@ -47,9 +47,11 @@ class RankingExpHelper(object):
     defaultAlgoArgs.processes = 8
     defaultAlgoArgs.fullGradient = False
     defaultAlgoArgs.rate = "optimal"
-    defaultAlgoArgs.recordStep = 20 
-    defaultAlgoArgs.initialAlg = "rand"
     defaultAlgoArgs.numStepIterations = 20
+    defaultAlgoArgs.recordStep = defaultAlgoArgs.numStepIterations 
+    defaultAlgoArgs.initialAlg = "svd"
+    defaultAlgoArgs.t0 = 10**-4 
+    defaultAlgoArgs.alpha = 0.1
     defaultAlgoArgs.kns = numpy.array([20])
     
     def __init__(self, cmdLine=None, defaultAlgoArgs = None, dirName=""):
@@ -186,7 +188,7 @@ class RankingExpHelper(object):
             trainMeasures.append(MCEvaluator.recallAtK(trainX, orderedItems, p, omegaList=trainOmegaList))
             testMeasures.append(MCEvaluator.recallAtK(testX, orderedItems, p, omegaList=testOmegaList))
             
-            logging.debug("recall@" + str(p) + " (train/test/total):" + str(trainMeasures[-1]) + str("/") + str(testMeasures[-1]) + str("/") + str(trainMeasures[-1]+testMeasures[-1]))
+            logging.debug("recall@" + str(p) + " (train/test):" + str(trainMeasures[-1]) + str("/") + str(testMeasures[-1]))
             
 
         try: 
@@ -266,7 +268,7 @@ class RankingExpHelper(object):
                 fileLock.lock()
                 
                 try: 
-                    learner = MaxLocalAUC(self.algoArgs.rhos[0], self.algoArgs.ks[0], 1-self.algoArgs.u, sigma=self.algoArgs.sigma, eps=self.algoArgs.eps, stochastic=not self.algoArgs.fullGradient)
+                    learner = MaxLocalAUC(self.algoArgs.ks[0], 1-self.algoArgs.u, sigma=self.algoArgs.sigma, eps=self.algoArgs.eps, stochastic=not self.algoArgs.fullGradient)
                     
                     learner.numRowSamples = self.algoArgs.numRowSamples
                     learner.numAucSamples = self.algoArgs.numAucSamples
@@ -274,8 +276,8 @@ class RankingExpHelper(object):
                     learner.initialAlg = self.algoArgs.initialAlg
                     learner.recordStep = self.algoArgs.recordStep
                     learner.rate = self.algoArgs.rate
-                    learner.alpha = 50    
-                    learner.t0 = 1.0/self.algoArgs.maxIterations   
+                    learner.alpha = self.algoArgs.alpha    
+                    learner.t0 = self.algoArgs.t0    
                     learner.maxIterations = self.algoArgs.maxIterations  
                     learner.ks = self.algoArgs.ks
                     learner.rhos = self.algoArgs.rhos   
