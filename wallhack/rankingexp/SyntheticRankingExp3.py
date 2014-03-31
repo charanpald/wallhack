@@ -15,11 +15,10 @@ numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 m = 1000
 n = 500
 k = 10 
-u = 20.0/n
+u = 20.0/m
 w = 1-u
 X, U, s, V = SparseUtils.generateSparseBinaryMatrix((m,n), k, w, csarray=True, verbose=True, indsPerRow=200)
 logging.debug("Number of non zero elements: " + str(X.nnz))
-(m, n) = X.shape
 logging.debug("Size of X: " + str(X.shape))
 logging.debug("Number of non zeros: " + str(X.nnz))
 
