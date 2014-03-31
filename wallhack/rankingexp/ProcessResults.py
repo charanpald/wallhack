@@ -1,5 +1,6 @@
 import numpy 
 from sandbox.util.PathDefaults import PathDefaults
+from sandbox.util.Latex import Latex
 import matplotlib 
 matplotlib.use("GTK3Agg")
 import matplotlib.pyplot as plt 
@@ -11,22 +12,28 @@ import csv
 numpy.set_printoptions(suppress=True, precision=3, linewidth=100)
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
-#dirName = "SyntheticDataset1" 
-dirName = "MendeleyCoauthors"
-resultsDir = PathDefaults.getOutputDir() + "ranking/" + dirName + "/"
-algs = ["SoftImpute", "WrMf"]
-#algs = ["MaxLocalAUC"]
+ps = [3, 5, 10, 20]
 
-for alg in algs: 
+dirName = "SyntheticDataset1" 
+#dirName = "MendeleyCoauthors"
+
+resultsDir = PathDefaults.getOutputDir() + "ranking/" + dirName + "/"
+algs = ["MaxLocalAUC", "SoftImpute", "WrMf"]
+
+trainResultsTable = numpy.zeros((len(algs), len(ps)*2+2))
+testResultsTable = numpy.zeros((len(algs), len(ps)*2+2))
+
+for s, alg in enumerate(algs): 
     resultsFileName = resultsDir + "Results" + alg + ".npz"
     try: 
         
         data = numpy.load(resultsFileName)
         trainMeasures, testMeasures, metaData, scoreInds = data["arr_0"], data["arr_1"], data["arr_2"], data["arr_3"]
         
+        trainResultsTable[s, 0:len(trainMeasures)] = trainMeasures
+        testResultsTable[s, 0:len(testMeasures)] = testMeasures      
+        
         logging.debug(alg)
-        logging.debug(trainMeasures)
-        logging.debug(testMeasures)
         logging.debug(metaData)
 
         if dirName == "MendeleyCoauthors": 
@@ -57,7 +64,7 @@ for alg in algs:
         
     except IOError: 
         logging.debug("Missing file " + resultsFileName)
-        raise 
+        #raise 
     
     modelSelectFileName = resultsDir + "ModelSelect" + alg + ".npz"
     """
@@ -76,3 +83,19 @@ for alg in algs:
     except IOError: 
         logging.debug("Missing file " + modelSelectFileName)
     """
+    
+
+colNames = []
+for i, p in enumerate(ps): 
+    colNames.append("p@" + str(p)) 
+for i, p in enumerate(ps): 
+    colNames.append("r@" + str(p)) 
+colNames.extend(["localAUC@u", "AUC"])
+
+print("")
+print(Latex.listToRow(colNames))
+print(Latex.addRowNames(algs, Latex.array2DToRows(trainResultsTable)))
+
+
+print(Latex.listToRow(colNames))
+print(Latex.addRowNames(algs, Latex.array2DToRows(testResultsTable)))
