@@ -37,6 +37,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.sigma = 0.2
     defaultAlgoArgs.numRowSamples = 50
     defaultAlgoArgs.numAucSamples = 50
+    defaultAlgoArgs.numRecordAucSamples = 100
     defaultAlgoArgs.nu = 20
     defaultAlgoArgs.maxIterations = 1000
     defaultAlgoArgs.trainSplit = 2.0/3
@@ -192,15 +193,20 @@ class RankingExpHelper(object):
             
 
         try: 
-            trainMeasures.append(MCEvaluator.localAUCApprox(trainX, learner.U, learner.V, w, self.algoArgs.numAucSamples, omegaList=trainOmegaList))
-            trainMeasures.append(MCEvaluator.localAUCApprox(trainX, learner.U, learner.V, 0.0, self.algoArgs.numAucSamples, omegaList=trainOmegaList))
-            testMeasures.append(MCEvaluator.localAUCApprox(testX, learner.U, learner.V, w, self.algoArgs.numAucSamples, omegaList=testOmegaList))
-            testMeasures.append(MCEvaluator.localAUCApprox(testX, learner.U, learner.V, 0.0, self.algoArgs.numAucSamples, omegaList=testOmegaList))
+            if type(learner) != IterativeSoftImpute:
+                U = learner.U 
+                V = learner.V 
+            
+            trainMeasures.append(MCEvaluator.localAUCApprox(trainX, U, V, w, self.algoArgs.numRecordAucSamples, omegaList=trainOmegaList))
+            trainMeasures.append(MCEvaluator.localAUCApprox(trainX, U, V, 0.0, self.algoArgs.numRecordAucSamples, omegaList=trainOmegaList))
+            testMeasures.append(MCEvaluator.localAUCApprox(testX, U, V, w, self.algoArgs.numRecordAucSamples, omegaList=testOmegaList))
+            testMeasures.append(MCEvaluator.localAUCApprox(testX, U, V, 0.0, self.algoArgs.numRecordAucSamples, omegaList=testOmegaList))
             
             logging.debug("Local AUC@" + str(self.algoArgs.u) +  " (train/test):" + str(trainMeasures[-2]) + str("/") + str(testMeasures[-2]))
             logging.debug("Local AUC@1 (train/test):" + str(trainMeasures[-1]) + str("/") + str(testMeasures[-1]))
         except:
             logging.debug("Could not compute AUCs")
+            raise
 
         trainMeasures = numpy.array(trainMeasures)
         testMeasures = numpy.array(testMeasures)
@@ -259,8 +265,7 @@ class RankingExpHelper(object):
                 
         if self.algoArgs.runMaxLocalAuc:
             logging.debug("Running max local AUC")
-            resultsFileName = self.resultsDir + "ResultsMaxLocalAUC_nrs="+str(self.algoArgs.numRowSamples)+"_nsi="+str(self.algoArgs.numStepIterations)+"_nas="+str(self.algoArgs.numAucSamples)
-            resultsFileName += "_nu=" +str(self.algoArgs.nu)+ ".npz"
+            resultsFileName = self.resultsDir + "ResultsMaxLocalAUC.npz"
                 
             fileLock = FileLock(resultsFileName)  
             
