@@ -4,7 +4,6 @@ import sys
 import argparse 
 import os
 import errno
-import sppy 
 from wallhack.rankingexp.RankingExpHelper import RankingExpHelper
 from sandbox.util.SparseUtils import SparseUtils
 
@@ -13,10 +12,12 @@ numpy.random.seed(21)
 numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 
 #Create a low rank matrix  
-m = 100
-n = 200 
-k = 16 
-X = SparseUtils.generateSparseBinaryMatrix((m,n), k, csarray=True)
+m = 1000
+n = 500
+k = 10 
+u = 20.0/n
+w = 1-u
+X, U, s, V = SparseUtils.generateSparseBinaryMatrix((m,n), k, w, csarray=True, verbose=True, indsPerRow=200)
 logging.debug("Number of non zero elements: " + str(X.nnz))
 (m, n) = X.shape
 logging.debug("Size of X: " + str(X.shape))
@@ -30,11 +31,13 @@ defaultAlgoArgs = argparse.Namespace()
 defaultAlgoArgs.ks = 2**numpy.arange(3, 7)
 defaultAlgoArgs.rhos = numpy.flipud(numpy.logspace(-7, -3, 5))
 defaultAlgoArgs.folds = 4
-defaultAlgoArgs.u = 20.0/n
-defaultAlgoArgs.maxIterations = 10*m
-defaultAlgoArgs.numRowSamples = 50
-defaultAlgoArgs.numStepIterations = 10
+defaultAlgoArgs.u = u
+defaultAlgoArgs.maxIterations = 20*m
+defaultAlgoArgs.numRowSamples = 20
+defaultAlgoArgs.numStepIterations = 500
 defaultAlgoArgs.numAucSamples = 20
+defaultAlgoArgs.t0 = 10**-4 
+defaultAlgoArgs.alpha = 0.1
 
 # data args parser #
 dataParser = argparse.ArgumentParser(description="", add_help=False)

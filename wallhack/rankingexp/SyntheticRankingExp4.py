@@ -9,7 +9,6 @@ import matplotlib
 matplotlib.use("GTK3Agg")
 import matplotlib.pyplot as plt
 
-
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 #numpy.random.seed(22)        
 numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
@@ -23,7 +22,6 @@ w = 1-u
 X, U, s, V = SparseUtils.generateSparseBinaryMatrix((m,n), k, w, csarray=True, verbose=True, indsPerRow=200)
 logging.debug("Number of non-zero elements: " + str(X.nnz))
 
-
 U = U*s
 
 trainSplit = 2.0/3
@@ -36,49 +34,37 @@ logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))
 #logging.debug("Test local AUC:" + str(MCEvaluator.localAUC(testX, U, V, w)))
 
 #w = 1.0
-rho = 0.0
 k2 = k
 eps = 10**-6
 sigma = 10
-maxLocalAuc = MaxLocalAUC(rho, k2, w, sigma=sigma, eps=eps, stochastic=True)
+maxLocalAuc = MaxLocalAUC(k2, w, sigma=sigma, eps=eps, stochastic=True)
 maxLocalAuc.maxIterations = m*20
-maxLocalAuc.numRowSamples = 50
-maxLocalAuc.numStepIterations = 50
+maxLocalAuc.numRowSamples = 20
+maxLocalAuc.numStepIterations = 500
 maxLocalAuc.numAucSamples = 20
 maxLocalAuc.initialAlg = "svd"
-maxLocalAuc.recordStep = 50
+maxLocalAuc.recordStep = maxLocalAuc.numStepIterations
 maxLocalAuc.nu = 20
 maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 0.5
+maxLocalAuc.alpha = 0.1
 maxLocalAuc.t0 = 10**-4
 
+alphas = [0.1, 0.2, 0.5, 1.0]
+t0s = numpy.logspace(-3, -5, 6, base=10)
 
-logging.debug(maxLocalAuc)
-#maxLocalAuc.learningRateSelect(X)
-U, V, objs, trainAucs, testAucs, ind, totalTime = maxLocalAuc.learnModel(X, verbose=True)
-
-plt.figure(0)
-plt.plot(trainAucs)
-plt.figure(1)
-plt.plot(objs)
+for i, t0 in enumerate(t0s): 
+    maxLocalAuc.t0 = t0
+    logging.debug(maxLocalAuc)
+    U, V, trainObjs, trainAucs, testObjs, testAucs, ind, totalTime = maxLocalAuc.learnModel(X, verbose=True)
+    
+    plt.figure(0)
+    plt.plot(trainAucs, label="t0="+str(t0))
+    plt.legend()
+    
+    plt.figure(1)
+    plt.plot(trainObjs, label="t0="+str(t0))
+    plt.legend()
+    
 plt.show()
 
-w = 0.1
-sigma = 50
-rho = 0.0001
-maxLocalAuc2 = MaxLocalAUC(rho, k2, w, sigma=sigma, eps=eps, stochastic=False)
-maxLocalAuc2.maxIterations = m*2
-maxLocalAuc2.recordStep = 1
-maxLocalAuc2.numAucSamples = 100
-
-maxLocalAuc2.initialAlg = "svd"
-maxLocalAuc2.rate = "optimal"
-maxLocalAuc2.alpha = 1.0    
-maxLocalAuc2.t0 = 0.5
-maxLocalAuc2.project = True
-maxLocalAuc2.nu = 5.0
-
-V = numpy.random.rand(X.shape[1], k)
-#logging.debug(maxLocalAuc2)
-#maxLocalAuc2.learnModel(X, U=U*s, V=V)
-#maxLocalAuc2.learnModel(X) 
+#Using the SVD as the initial solution gives a slightly better solution 
