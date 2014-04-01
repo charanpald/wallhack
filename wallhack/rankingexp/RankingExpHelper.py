@@ -30,7 +30,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.runWrMf = False
     defaultAlgoArgs.runKnn = False
     defaultAlgoArgs.rhos = numpy.linspace(0.5, 0.0, 6) 
-    defaultAlgoArgs.lmbdas = numpy.flipud(numpy.logspace(-3, -1, 11)*2)      
+    defaultAlgoArgs.lmbdas = numpy.linspace(0.5, 0.1, 5)     
     defaultAlgoArgs.folds = 4
     defaultAlgoArgs.u = 0.1
     defaultAlgoArgs.eps = 10**-14
@@ -238,7 +238,7 @@ class RankingExpHelper(object):
                 testX = testX.toScipyCsr().tocsc()
                                 
                 try: 
-                    learner = IterativeSoftImpute(self.algoArgs.rhos[0], eps=self.algoArgs.eps, k=self.algoArgs.ks[0], svdAlg="rsvd")
+                    learner = IterativeSoftImpute(self.algoArgs.rhos[0], eps=self.algoArgs.eps, k=self.algoArgs.ks[0], svdAlg="p")
                     learner.numProcesses = self.algoArgs.processes
                     
                     if self.algoArgs.modelSelect: 
@@ -284,8 +284,7 @@ class RankingExpHelper(object):
                     learner.alpha = self.algoArgs.alpha    
                     learner.t0 = self.algoArgs.t0    
                     learner.maxIterations = self.algoArgs.maxIterations  
-                    learner.ks = self.algoArgs.ks
-                    learner.rhos = self.algoArgs.rhos   
+                    learner.ks = self.algoArgs.ks 
                     learner.folds = self.algoArgs.folds  
                     learner.numProcesses = self.algoArgs.processes 
                     learner.numStepIterations = self.algoArgs.numStepIterations
@@ -305,13 +304,13 @@ class RankingExpHelper(object):
                         logging.debug("Performing model selection, taking subsample of entries of size " + str(self.sampleSize))
                         modelSelectX = SparseUtils.submatrix(trainX, self.sampleSize)
                         
-                        meanAucs, stdAucs = learner.modelSelect(modelSelectX)
+                        meanObjs, stdObjs = learner.modelSelect(modelSelectX)
                         
-                        logging.debug("Mean local AUCs = " + str(meanAucs))
-                        logging.debug("Std local AUCs = " + str(stdAucs))
+                        logging.debug("Mean objectives = " + str(meanObjs))
+                        logging.debug("Std objectives = " + str(stdObjs))
                         
                         modelSelectFileName = resultsFileName.replace("Results", "ModelSelect") 
-                        numpy.savez(modelSelectFileName, meanAucs, stdAucs)
+                        numpy.savez(modelSelectFileName, meanObjs, stdObjs)
                         logging.debug("Saved model selection grid as " + modelSelectFileName)                            
                     
                     logging.debug(learner)                
