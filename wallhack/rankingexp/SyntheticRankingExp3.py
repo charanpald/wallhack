@@ -14,7 +14,7 @@ numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 #Create a low rank matrix  
 m = 1000
 n = 500
-k = 10 
+k = 8 
 u = 20.0/m
 w = 1-u
 X, U, s, V = SparseUtils.generateSparseBinaryMatrix((m,n), k, w, csarray=True, verbose=True, indsPerRow=200)
@@ -51,7 +51,7 @@ dataArgs.extendedDirName = ""
 dataArgs.extendedDirName += "SyntheticDataset1"
 
 # print args #
-logging.info("Running on SyntheticDataset1")
+logging.info("Running on " + dataArgs.extendedDirName)
 logging.info("Data params:")
 keys = list(vars(dataArgs).keys())
 keys.sort()
