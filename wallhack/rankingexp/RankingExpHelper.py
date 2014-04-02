@@ -24,36 +24,36 @@ from sandbox.util.FileLock import FileLock
 
 class RankingExpHelper(object):
     defaultAlgoArgs = argparse.Namespace()
+    defaultAlgoArgs.alpha = 0.1
+    defaultAlgoArgs.eps = 10**-14
+    defaultAlgoArgs.folds = 4
+    defaultAlgoArgs.fullGradient = False
+    defaultAlgoArgs.initialAlg = "svd"
+    defaultAlgoArgs.kns = numpy.array([20])
+    defaultAlgoArgs.learningRateSelect = False
+    defaultAlgoArgs.lmbdas = numpy.linspace(0.5, 0.1, 5)     
+    defaultAlgoArgs.maxIterations = 1000
+    defaultAlgoArgs.modelSelect = False
+    defaultAlgoArgs.nu = 20
+    defaultAlgoArgs.numAucSamples = 50
+    defaultAlgoArgs.numRecordAucSamples = 100
+    defaultAlgoArgs.numRowSamples = 50
+    defaultAlgoArgs.numStepIterations = 20
+    defaultAlgoArgs.postProcess = False 
+    defaultAlgoArgs.processes = 8
+    defaultAlgoArgs.rate = "optimal"
+    defaultAlgoArgs.recordStep = defaultAlgoArgs.numStepIterations 
+    defaultAlgoArgs.rhos = numpy.linspace(0.5, 0.0, 6) 
+    defaultAlgoArgs.runKnn = False
     defaultAlgoArgs.runMaxLocalAuc = False
     defaultAlgoArgs.runSoftImpute = False
     defaultAlgoArgs.runWarpMf = False
     defaultAlgoArgs.runWrMf = False
-    defaultAlgoArgs.runKnn = False
-    defaultAlgoArgs.rhos = numpy.linspace(0.5, 0.0, 6) 
-    defaultAlgoArgs.lmbdas = numpy.linspace(0.5, 0.1, 5)     
-    defaultAlgoArgs.folds = 4
-    defaultAlgoArgs.u = 0.1
-    defaultAlgoArgs.eps = 10**-14
     defaultAlgoArgs.sigma = 0.2
-    defaultAlgoArgs.numRowSamples = 50
-    defaultAlgoArgs.numAucSamples = 50
-    defaultAlgoArgs.numRecordAucSamples = 100
-    defaultAlgoArgs.nu = 20
-    defaultAlgoArgs.maxIterations = 1000
-    defaultAlgoArgs.trainSplit = 2.0/3
-    defaultAlgoArgs.modelSelect = False
-    defaultAlgoArgs.learningRateSelect = False
-    defaultAlgoArgs.postProcess = False 
-    defaultAlgoArgs.verbose = False
-    defaultAlgoArgs.processes = 8
-    defaultAlgoArgs.fullGradient = False
-    defaultAlgoArgs.rate = "optimal"
-    defaultAlgoArgs.numStepIterations = 20
-    defaultAlgoArgs.recordStep = defaultAlgoArgs.numStepIterations 
-    defaultAlgoArgs.initialAlg = "svd"
     defaultAlgoArgs.t0 = 10**-4 
-    defaultAlgoArgs.alpha = 0.1
-    defaultAlgoArgs.kns = numpy.array([20])
+    defaultAlgoArgs.trainSplit = 2.0/3
+    defaultAlgoArgs.u = 0.1
+    defaultAlgoArgs.verbose = False
     
     def __init__(self, cmdLine=None, defaultAlgoArgs = None, dirName=""):
         """ priority for default args
@@ -103,21 +103,23 @@ class RankingExpHelper(object):
         algoParser = argparse.ArgumentParser(description="", add_help=add_help)
         for method in ["runSoftImpute", "runMaxLocalAuc", "runWarpMf", "runWrMf", "runKnn"]:
             algoParser.add_argument("--" + method, action="store_true", default=defaultAlgoArgs.__getattribute__(method))
-        algoParser.add_argument("--rhos", type=float, nargs="+", help="Regularisation parameter (default: %(default)s)", default=defaultAlgoArgs.rhos)
-        algoParser.add_argument("--ks", type=int, nargs="+", help="Max number of singular values/vectors (default: %(default)s)", default=defaultAlgoArgs.ks)
-        algoParser.add_argument("--modelSelect", action="store_true", help="Whether to do model selection(default: %(default)s)", default=defaultAlgoArgs.modelSelect)
-        algoParser.add_argument("--postProcess", action="store_true", help="Whether to do post processing for soft impute (default: %(default)s)", default=defaultAlgoArgs.postProcess)
-        algoParser.add_argument("--verbose", action="store_true", help="Whether to generate verbose algorithmic details(default: %(default)s)", default=defaultAlgoArgs.verbose)
-        algoParser.add_argument("--numRowSamples", type=int, help="Number of row samples for max local AUC (default: %(default)s)", default=defaultAlgoArgs.numRowSamples)
-        algoParser.add_argument("--numAucSamples", type=int, help="Number of AUC samples for max local AUC (default: %(default)s)", default=defaultAlgoArgs.numAucSamples)
-        algoParser.add_argument("--nu", type=int, help="Weight of discordance for max local AUC (default: %(default)s)", default=defaultAlgoArgs.nu)
-        algoParser.add_argument("--sigma", type=int, help="Learning rate for (stochastic) gradient descent (default: %(default)s)", default=defaultAlgoArgs.sigma)
-        algoParser.add_argument("--recordStep", type=int, help="Number of iterations after which we display some partial results (default: %(default)s)", default=defaultAlgoArgs.recordStep)
-        algoParser.add_argument("--processes", type=int, help="Number of CPU cores to use (default: %(default)s)", default=defaultAlgoArgs.processes)
-        algoParser.add_argument("--maxIterations", type=int, help="Maximal number of iterations (default: %(default)s)", default=defaultAlgoArgs.maxIterations)
-        algoParser.add_argument("--rate", type=str, help="Learning rate type: either constant or optimal (default: %(default)s)", default=defaultAlgoArgs.rate)
+        algoParser.add_argument("--alpha", type=float, help="Learning rate for max local AUC (default: %(default)s)", default=defaultAlgoArgs.alpha)
         algoParser.add_argument("--fullGradient", action="store_true", help="Whether to compute the full gradient at each iteration (default: %(default)s)", default=defaultAlgoArgs.fullGradient)
+        algoParser.add_argument("--initialAlg", type=str, help="Initial setup for U and V for max local AUC: either rand or svd (default: %(default)s)", default=defaultAlgoArgs.initialAlg)
+        algoParser.add_argument("--ks", type=int, nargs="+", help="Max number of singular values/vectors (default: %(default)s)", default=defaultAlgoArgs.ks)
         algoParser.add_argument("--learningRateSelect", action="store_true", help="Whether to do learning rate selection (default: %(default)s)", default=defaultAlgoArgs.learningRateSelect)
+        algoParser.add_argument("--maxIterations", type=int, help="Maximal number of iterations (default: %(default)s)", default=defaultAlgoArgs.maxIterations)
+        algoParser.add_argument("--modelSelect", action="store_true", help="Whether to do model selection(default: %(default)s)", default=defaultAlgoArgs.modelSelect)
+        algoParser.add_argument("--numAucSamples", type=int, help="Number of AUC samples for max local AUC (default: %(default)s)", default=defaultAlgoArgs.numAucSamples)
+        algoParser.add_argument("--numRowSamples", type=int, help="Number of row samples for max local AUC (default: %(default)s)", default=defaultAlgoArgs.numRowSamples)
+        algoParser.add_argument("--nu", type=int, help="Weight of discordance for max local AUC (default: %(default)s)", default=defaultAlgoArgs.nu)
+        algoParser.add_argument("--postProcess", action="store_true", help="Whether to do post processing for soft impute (default: %(default)s)", default=defaultAlgoArgs.postProcess)
+        algoParser.add_argument("--processes", type=int, help="Number of CPU cores to use (default: %(default)s)", default=defaultAlgoArgs.processes)
+        algoParser.add_argument("--rate", type=str, help="Learning rate type: either constant or optimal (default: %(default)s)", default=defaultAlgoArgs.rate)
+        algoParser.add_argument("--recordStep", type=int, help="Number of iterations after which we display some partial results (default: %(default)s)", default=defaultAlgoArgs.recordStep)
+        algoParser.add_argument("--rhos", type=float, nargs="+", help="Regularisation parameter (default: %(default)s)", default=defaultAlgoArgs.rhos)
+        algoParser.add_argument("--sigma", type=int, help="Learning rate for (stochastic) gradient descent (default: %(default)s)", default=defaultAlgoArgs.sigma)
+        algoParser.add_argument("--verbose", action="store_true", help="Whether to generate verbose algorithmic details(default: %(default)s)", default=defaultAlgoArgs.verbose)
                 
         return(algoParser)
     
@@ -238,7 +240,7 @@ class RankingExpHelper(object):
                 testX = testX.toScipyCsr().tocsc()
                                 
                 try: 
-                    learner = IterativeSoftImpute(self.algoArgs.rhos[0], eps=self.algoArgs.eps, k=self.algoArgs.ks[0], svdAlg="p")
+                    learner = IterativeSoftImpute(self.algoArgs.rhos[0], eps=self.algoArgs.eps, k=self.algoArgs.ks[0], svdAlg="propack")
                     learner.numProcesses = self.algoArgs.processes
                     
                     if self.algoArgs.modelSelect: 
