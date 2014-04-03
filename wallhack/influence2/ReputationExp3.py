@@ -11,6 +11,8 @@ from wallhack.influence2.ArnetMinerDataset import ArnetMinerDataset
 from sandbox.util.Latex import Latex 
 from sandbox.util.Evaluator import Evaluator
 from sandbox.util.Util import Util
+from sandbox.util.IdIndexer import IdIndexer
+import pickle
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.set_printoptions(suppress=True, precision=3, linewidth=160)
@@ -42,6 +44,10 @@ dataset.overwriteVectoriser = True
 if not knownAuthors: 
     dataset.modelSelection()
 
+#Sav the outputList and the graph
+fich = open("//home//idexlab//" + "TotalMeasuresBM25" + ".txt", "w")
+fgraph = open("//home//idexlab//" + "GraphTotal" + ".txt", "w")
+
 for field in dataset.fields: 
     logging.debug("Field = " + field)
     if not knownAuthors: 
@@ -53,11 +59,24 @@ for field in dataset.fields:
         relAuthorsDocSimilarity, relAuthorsDocCitations = dataset.findSimilarDocuments(field)
     else: 
         relAuthorsDocSimilarity, relAuthorsDocCitations = dataset.readKnownAuthors(field)
-        
+        #Relevant experts with BM25 score
+        expertAuthors = dataset.readKnownAuthorsExpert(field)
+	    
+
     relevantAuthors = set(relAuthorsDocSimilarity).union(set(relAuthorsDocCitations))
     logging.debug("Total number of relevant authors : " + str(len(relevantAuthors)))
     
     graph, authorIndexer = dataset.coauthorsGraph(field, relevantAuthors)
+    #f = open(dataset.getCoauthorsFilename(field),'rb') #Save the graph of co-authors
+    #storedlist=pickle.load(f)
+    #for i in storedlist:
+        #fgraph.write(str(i))
+        #fgraph.write("\n"+ "Author vertices") 
+        #fgraph.write(str(authorIndexer.getIdDict()))
+        #fgraph.write(str(numpy.ones(graph.ecount())))
+        #print(i)
+    #fgraph.close()
+    graph1, authorIndexer1 = dataset.GetIndexer(field, expertAuthors) #Get Index for the expert list BM25
     trainExpertMatches = dataset.matchExperts(relevantAuthors, dataset.trainExpertDict[field])   
     testExpertMatches = dataset.matchExperts(relevantAuthors, dataset.testExpertDict[field])     
     
@@ -66,16 +85,39 @@ for field in dataset.fields:
     relevantAuthorInds1 = authorIndexer.translate(relAuthorsDocSimilarity) 
     relevantAuthorInds2 = authorIndexer.translate(relAuthorsDocCitations) 
     relevantAuthorsInds = authorIndexer.translate(relevantAuthors)  
+    expertAuthorsInds = authorIndexer1.translate(expertAuthors)#Get Ids our BM25 List
     
     assert (numpy.array(relevantAuthorInds1) < len(relevantAuthorsInds)).all()
     assert (numpy.array(relevantAuthorInds2) < len(relevantAuthorsInds)).all()
     
-    if len(testExpertMatches) != 0: 
+    if len(testExpertMatches) != 0:
+        fich.write(field)
+        fich.write("\n") 
         #First compute graph properties 
         computeInfluence = False
-        graphRanker = GraphRanker(k=100, numRuns=100, computeInfluence=computeInfluence, p=0.05, inputRanking=[relevantAuthorInds1, relevantAuthorInds2])
+        #graphRanker = GraphRanker(k=100, numRuns=100, computeInfluence=computeInfluence, p=0.05, inputRanking=[relevantAuthorInds1, relevantAuthorInds2])
+        graphRanker = GraphRanker(k=100, numRuns=100, computeInfluence=computeInfluence, p=0.05, inputRanking=None)
         outputLists = graphRanker.vertexRankings(graph, relevantAuthorsInds)
-             
+        for line in outputLists:
+         ListeAuthorsFinale = authorIndexer.reverseTranslate(line)
+         #fich.write(' '.join(map(str, ListeAuthorsFinale)))
+         fich.write(str(ListeAuthorsFinale)+"\n")
+        outputListsE = []
+        #outputListsE.append(expertAuthorsInds)#Add BM25 Listto the outputList in order to aggregate scores later
+        for line in outputListsE:
+         ListeAuthorsFinale = authorIndexer1.reverseTranslate(line)
+         #fich.write(' '.join(map(str, ListeAuthorsFinale)))
+         fich.write(str(ListeAuthorsFinale)+"\n")
+        #Save relevant authors 
+        #numpy.save(dataset.dataDir  + "relevantAuthorsReputation" + field +  ".txt", outputLists)
+        fich.write("-----------------------------------------------")  
+          
+        #for line in outputLists:  
+         #fich.write(line[i]) 
+        #Ajout du score de l'expertise
+        #outputLists.append(expertAuthorsInds)
+
+         
         itemList = RankAggregator.generateItemList(outputLists)
         methodNames = graphRanker.getNames()
         
@@ -100,7 +142,11 @@ for field in dataset.fields:
         precisions2 = numpy.c_[numpy.array(ns), precisions]
         
         logging.debug(Latex.listToRow(methodNames))
+        logging.debug("Computing Precision")
         logging.debug(Latex.array2DToRows(precisions2))
+        logging.debug("Computing Average Precision")
         logging.debug(Latex.array1DToRow(averagePrecisions))
+#fermer le fichier 
+fich.close()
 
 logging.debug("All done!")

@@ -21,26 +21,28 @@ k = 10
 X = SparseUtils.generateSparseBinaryMatrix((m,n), k)
 logging.debug("Number of non zero elements: " + str(X.nnz))
 
+trainSplit = 0.8
+trainX, testX = SparseUtils.splitNnz(X, trainSplit)
 
 rho = 0.000
-u = 0.3
-eps = 0.001
+u = 0.1
+eps = 10**-5
 sigma = 0.2
 stochastic = True
-maxLocalAuc = MaxLocalAUC(rho, k, u, sigma=sigma, eps=eps, stochastic=stochastic)
-maxLocalAuc.maxIterations = m
-maxLocalAuc.numRowSamples = 50
-maxLocalAuc.numColSamples = 50
+maxLocalAuc = MaxLocalAUC(k, u, sigma=sigma, eps=eps, stochastic=stochastic)
+maxLocalAuc.maxIterations = m*20
+maxLocalAuc.numRowSamples = 20
+maxLocalAuc.numColSamples = 20
 maxLocalAuc.numAucSamples = 50
 maxLocalAuc.initialAlg = "rand"
-maxLocalAuc.recordStep = 10
+maxLocalAuc.numStepIterations = 500 
+maxLocalAuc.recordStep = maxLocalAuc.numStepIterations
 maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 0.1    
-maxLocalAuc.t0 = 0.1    
-omegaList = SparseUtils.getOmegaList(X)
+maxLocalAuc.alpha = 5.0  
+maxLocalAuc.t0 = 0.001 
 
 logging.debug("Starting training")
-ProfileUtils.profile('U, V, objs, trainAucs, testAucs, iterations, time = maxLocalAuc.learnModel(X, True)', globals(), locals())
+ProfileUtils.profile('U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=X, verbose=True)', globals(), locals())
 #U, V, objs, trainAucs, testAucs, iterations, times = maxLocalAuc.learnModel(X, True)
 
 logging.debug("||U||=" + str(numpy.linalg.norm(U)) + " ||V||=" + str(numpy.linalg.norm(V)))
@@ -49,12 +51,14 @@ logging.debug("Final local AUC:" + str(MCEvaluator.localAUCApprox(X, U, V, u)))
 logging.debug("Number of iterations: " + str(iterations))
 
 plt.figure(0)
-plt.plot(objs)
+plt.plot(trainObjs, label="train")
+plt.plot(testObjs, label="test")
 plt.xlabel("iteration")
 plt.ylabel("objective")
 
 plt.figure(1)
-plt.plot(trainAucs)
+plt.plot(trainAucs, label="train")
+plt.plot(testAucs, label="test")
 plt.xlabel("iteration")
 plt.ylabel("local AUC")
 plt.show()
