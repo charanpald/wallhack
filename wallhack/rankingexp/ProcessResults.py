@@ -14,8 +14,8 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 ps = [3, 5, 10, 20]
 
-#dirName = "SyntheticDataset1" 
-dirName = "MovieLens" 
+dirName = "SyntheticDataset1" 
+#dirName = "MovieLens" 
 #dirName = "MendeleyCoauthors"
 
 resultsDir = PathDefaults.getOutputDir() + "ranking/" + dirName + "/"

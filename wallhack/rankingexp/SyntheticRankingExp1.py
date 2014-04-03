@@ -15,40 +15,46 @@ numpy.random.seed(21)
 numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 
 #Create a low rank matrix  
-m = 500 
-n = 1000 
+m = 500
+n = 100
 k = 10 
-X = SparseUtils.generateSparseBinaryMatrix((m,n), k)
-logging.debug("Number of non zero elements: " + str(X.nnz))
+u = 0.05
+w = 1-u
+X, U, s, V = SparseUtils.generateSparseBinaryMatrix((m,n), k, w, csarray=True, verbose=True, indsPerRow=200)
+logging.debug("Number of non-zero elements: " + str(X.nnz))
 
-trainSplit = 0.8
+U = U*s
+
+trainSplit = 2.0/3
 trainX, testX = SparseUtils.splitNnz(X, trainSplit)
 
-rho = 0.000
-u = 0.1
-eps = 10**-5
-sigma = 0.2
-stochastic = True
-maxLocalAuc = MaxLocalAUC(k, u, sigma=sigma, eps=eps, stochastic=stochastic)
+logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))
+#logging.debug("Total local AUC:" + str(MCEvaluator.localAUC(X, U, V, w)))
+#logging.debug("Train local AUC:" + str(MCEvaluator.localAUC(trainX, U, V, w)))
+#logging.debug("Test local AUC:" + str(MCEvaluator.localAUC(testX, U, V, w)))
+
+#w = 1.0
+k2 = 64
+eps = 10**-6
+sigma = 10
+maxLocalAuc = MaxLocalAUC(k2, w, sigma=sigma, eps=eps, stochastic=True)
 maxLocalAuc.maxIterations = m*20
 maxLocalAuc.numRowSamples = 20
-maxLocalAuc.numColSamples = 20
+maxLocalAuc.numStepIterations = 200
 maxLocalAuc.numAucSamples = 50
 maxLocalAuc.initialAlg = "rand"
-maxLocalAuc.numStepIterations = 500 
 maxLocalAuc.recordStep = maxLocalAuc.numStepIterations
+maxLocalAuc.nu = 20
 maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 5.0  
-maxLocalAuc.t0 = 0.001 
+maxLocalAuc.alpha = 2.0
+maxLocalAuc.t0 = 10**-3
 
 logging.debug("Starting training")
-ProfileUtils.profile('U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=X, verbose=True)', globals(), locals())
-#U, V, objs, trainAucs, testAucs, iterations, times = maxLocalAuc.learnModel(X, True)
+logging.debug(maxLocalAuc)
+#maxLocalAuc.modelSelect(trainX)
+#ProfileUtils.profile('U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=X, verbose=True)', globals(), locals())
+U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=X, verbose=True)
 
-logging.debug("||U||=" + str(numpy.linalg.norm(U)) + " ||V||=" + str(numpy.linalg.norm(V)))
-logging.debug("Final local AUC:" + str(MCEvaluator.localAUCApprox(X, U, V, u)))
-
-logging.debug("Number of iterations: " + str(iterations))
 
 plt.figure(0)
 plt.plot(trainObjs, label="train")

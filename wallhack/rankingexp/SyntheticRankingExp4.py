@@ -40,13 +40,13 @@ sigma = 10
 maxLocalAuc = MaxLocalAUC(k2, w, sigma=sigma, eps=eps, stochastic=True)
 maxLocalAuc.maxIterations = m*20
 maxLocalAuc.numRowSamples = 20
-maxLocalAuc.numStepIterations = 500
-maxLocalAuc.numAucSamples = 20
-maxLocalAuc.initialAlg = "svd"
+maxLocalAuc.numStepIterations = 200
+maxLocalAuc.numAucSamples = 50
+maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.recordStep = maxLocalAuc.numStepIterations
 maxLocalAuc.nu = 20
 maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 0.1
+maxLocalAuc.alpha = 1.0
 maxLocalAuc.t0 = 10**-4
 
 alphas = [0.1, 0.2, 0.5, 1.0]

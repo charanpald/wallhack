@@ -27,10 +27,16 @@ dataArgs = argparse.Namespace()
 # Arguments related to the algorithm
 defaultAlgoArgs = argparse.Namespace()
 defaultAlgoArgs.ks = 2**numpy.arange(3, 8)
-defaultAlgoArgs.rhos = numpy.array([0])
+defaultAlgoArgs.rhos = numpy.flipud(numpy.logspace(-7, -3, 5))
 defaultAlgoArgs.folds = 4
-defaultAlgoArgs.u = 0.1
-defaultAlgoArgs.maxIterations = 5*m
+defaultAlgoArgs.u = 20.0/m
+defaultAlgoArgs.maxIterations = 10*m
+defaultAlgoArgs.numRowSamples = 20
+defaultAlgoArgs.numStepIterations = 500
+defaultAlgoArgs.numAucSamples = 20
+defaultAlgoArgs.t0 = 10.0/defaultAlgoArgs.maxIterations 
+defaultAlgoArgs.alpha = 2
+defaultAlgoArgs.initialAlg = "rand"
 
 # data args parser #
 dataParser = argparse.ArgumentParser(description="", add_help=False)
