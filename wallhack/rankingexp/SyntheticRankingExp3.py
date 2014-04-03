@@ -12,8 +12,8 @@ numpy.random.seed(21)
 numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 
 #Create a low rank matrix  
-m = 1000
-n = 500
+m = 500
+n = 200
 k = 8 
 u = 20.0/m
 w = 1-u

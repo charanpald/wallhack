@@ -25,13 +25,15 @@ from sandbox.util.FileLock import FileLock
 class RankingExpHelper(object):
     defaultAlgoArgs = argparse.Namespace()
     defaultAlgoArgs.alpha = 0.1
-    defaultAlgoArgs.eps = 10**-14
+    defaultAlgoArgs.epsSi = 10**-14
+    defaultAlgoArgs.epsMlauc = 10**-4
     defaultAlgoArgs.folds = 4
     defaultAlgoArgs.fullGradient = False
     defaultAlgoArgs.initialAlg = "svd"
     defaultAlgoArgs.kns = numpy.array([20])
     defaultAlgoArgs.learningRateSelect = False
-    defaultAlgoArgs.lmbdas = numpy.linspace(0.5, 0.1, 5)     
+    defaultAlgoArgs.lmbdasWrMf = numpy.linspace(0.5, 0.1, 5)   
+    defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(1, 10, 2)
     defaultAlgoArgs.maxIterations = 1000
     defaultAlgoArgs.modelSelect = False
     defaultAlgoArgs.nu = 20
@@ -117,7 +119,7 @@ class RankingExpHelper(object):
         algoParser.add_argument("--processes", type=int, help="Number of CPU cores to use (default: %(default)s)", default=defaultAlgoArgs.processes)
         algoParser.add_argument("--rate", type=str, help="Learning rate type: either constant or optimal (default: %(default)s)", default=defaultAlgoArgs.rate)
         algoParser.add_argument("--recordStep", type=int, help="Number of iterations after which we display some partial results (default: %(default)s)", default=defaultAlgoArgs.recordStep)
-        algoParser.add_argument("--rhos", type=float, nargs="+", help="Regularisation parameter (default: %(default)s)", default=defaultAlgoArgs.rhos)
+        algoParser.add_argument("--rhos", type=float, nargs="+", help="Regularisation parameter for SoftImpute (default: %(default)s)", default=defaultAlgoArgs.rhos)
         algoParser.add_argument("--sigma", type=int, help="Learning rate for (stochastic) gradient descent (default: %(default)s)", default=defaultAlgoArgs.sigma)
         algoParser.add_argument("--verbose", action="store_true", help="Whether to generate verbose algorithmic details(default: %(default)s)", default=defaultAlgoArgs.verbose)
                 
@@ -240,7 +242,7 @@ class RankingExpHelper(object):
                 testX = testX.toScipyCsr().tocsc()
                                 
                 try: 
-                    learner = IterativeSoftImpute(self.algoArgs.rhos[0], eps=self.algoArgs.eps, k=self.algoArgs.ks[0], svdAlg="propack")
+                    learner = IterativeSoftImpute(self.algoArgs.rhos[0], eps=self.algoArgs.epsSi, k=self.algoArgs.ks[0], svdAlg="propack")
                     learner.numProcesses = self.algoArgs.processes
                     
                     if self.algoArgs.modelSelect: 
@@ -275,7 +277,7 @@ class RankingExpHelper(object):
                 fileLock.lock()
                 
                 try: 
-                    learner = MaxLocalAUC(self.algoArgs.ks[0], 1-self.algoArgs.u, sigma=self.algoArgs.sigma, eps=self.algoArgs.eps, stochastic=not self.algoArgs.fullGradient)
+                    learner = MaxLocalAUC(self.algoArgs.ks[0], 1-self.algoArgs.u, sigma=self.algoArgs.sigma, eps=self.algoArgs.epsMlauc, stochastic=not self.algoArgs.fullGradient)
                     
                     learner.numRowSamples = self.algoArgs.numRowSamples
                     learner.numAucSamples = self.algoArgs.numAucSamples
@@ -287,6 +289,7 @@ class RankingExpHelper(object):
                     learner.t0 = self.algoArgs.t0    
                     learner.maxIterations = self.algoArgs.maxIterations  
                     learner.ks = self.algoArgs.ks 
+                    learner.lmbdas = self.algoArgs.lmbdasMlauc 
                     learner.folds = self.algoArgs.folds  
                     learner.numProcesses = self.algoArgs.processes 
                     learner.numStepIterations = self.algoArgs.numStepIterations
@@ -376,7 +379,7 @@ class RankingExpHelper(object):
 
                     learner = WeightedMf(self.algoArgs.ks[0], self.algoArgs.lmbdas[0], u=self.algoArgs.u)
                     learner.ks = self.algoArgs.ks
-                    learner.lmbdas = self.algoArgs.lmbdas 
+                    learner.lmbdas = self.algoArgs.lmbdasWrMf 
                     learner.numProcesses = self.algoArgs.processes
                     
                     if self.algoArgs.modelSelect: 
