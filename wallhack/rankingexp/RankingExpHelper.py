@@ -53,7 +53,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.runWrMf = False
     defaultAlgoArgs.sigma = 0.2
     defaultAlgoArgs.t0 = 10**-4 
-    defaultAlgoArgs.trainSplit = 2.0/3
+    defaultAlgoArgs.trainSplit = 0.8
     defaultAlgoArgs.u = 0.1
     defaultAlgoArgs.verbose = False
     
@@ -289,7 +289,6 @@ class RankingExpHelper(object):
                     learner.t0 = self.algoArgs.t0    
                     learner.maxIterations = self.algoArgs.maxIterations  
                     learner.ks = self.algoArgs.ks 
-                    learner.lmbdas = self.algoArgs.lmbdasMlauc 
                     learner.folds = self.algoArgs.folds  
                     learner.numProcesses = self.algoArgs.processes 
                     learner.numStepIterations = self.algoArgs.numStepIterations
@@ -298,8 +297,6 @@ class RankingExpHelper(object):
                         logging.debug("Performing learning rate selection, taking subsample of entries of size " + str(self.sampleSize))
                         modelSelectX = SparseUtils.submatrix(trainX, self.sampleSize)
                         objectives = learner.learningRateSelect(modelSelectX)        
-                        
-                        logging.debug("Objectives = " + str(objectives))
                         
                         rateSelectFileName = resultsFileName.replace("Results", "LearningRateSelect")
                         numpy.savez(rateSelectFileName, objectives)
@@ -310,9 +307,6 @@ class RankingExpHelper(object):
                         modelSelectX = SparseUtils.submatrix(trainX, self.sampleSize)
                         
                         meanObjs, stdObjs = learner.modelSelect(modelSelectX)
-                        
-                        logging.debug("Mean objectives = " + str(meanObjs))
-                        logging.debug("Std objectives = " + str(stdObjs))
                         
                         modelSelectFileName = resultsFileName.replace("Results", "ModelSelect") 
                         numpy.savez(modelSelectFileName, meanObjs, stdObjs)
