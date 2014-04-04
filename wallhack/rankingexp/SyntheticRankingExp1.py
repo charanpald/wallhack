@@ -34,10 +34,11 @@ logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))
 #logging.debug("Test local AUC:" + str(MCEvaluator.localAUC(testX, U, V, w)))
 
 #w = 1.0
-k2 = 64
-eps = 10**-6
+k2 = 50
+eps = 10**-4
 sigma = 10
-maxLocalAuc = MaxLocalAUC(k2, w, sigma=sigma, eps=eps, stochastic=True)
+lmbda = 0.02
+maxLocalAuc = MaxLocalAUC(k2, w, sigma=sigma, eps=eps, lmbda=lmbda, stochastic=True)
 maxLocalAuc.maxIterations = m*20
 maxLocalAuc.numRowSamples = 20
 maxLocalAuc.numStepIterations = 200
@@ -48,6 +49,7 @@ maxLocalAuc.nu = 20
 maxLocalAuc.rate = "optimal"
 maxLocalAuc.alpha = 2.0
 maxLocalAuc.t0 = 10**-3
+maxLocalAuc.folds = 3
 
 logging.debug("Starting training")
 logging.debug(maxLocalAuc)
