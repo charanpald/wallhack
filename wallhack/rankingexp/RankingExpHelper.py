@@ -277,7 +277,7 @@ class RankingExpHelper(object):
                 fileLock.lock()
                 
                 try: 
-                    learner = MaxLocalAUC(self.algoArgs.ks[0], 1-self.algoArgs.u, sigma=self.algoArgs.sigma, eps=self.algoArgs.epsMlauc, stochastic=not self.algoArgs.fullGradient)
+                    learner = MaxLocalAUC(self.algoArgs.ks[0], 1-self.algoArgs.u, lmbda=self.algoArgs.lmbdasMlauc[0], sigma=self.algoArgs.sigma, eps=self.algoArgs.epsMlauc, stochastic=not self.algoArgs.fullGradient)
                     
                     learner.numRowSamples = self.algoArgs.numRowSamples
                     learner.numAucSamples = self.algoArgs.numAucSamples
