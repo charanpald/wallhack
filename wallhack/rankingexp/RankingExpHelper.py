@@ -33,8 +33,8 @@ class RankingExpHelper(object):
     defaultAlgoArgs.ks = 2**numpy.arange(3, 8)
     defaultAlgoArgs.kns = numpy.array([20])
     defaultAlgoArgs.learningRateSelect = False
-    defaultAlgoArgs.lmbdasWrMf = numpy.linspace(0.5, 0.1, 5)   
-    defaultAlgoArgs.lmbdasMlauc = numpy.linspace(0.5, 0.1, 5) 
+    defaultAlgoArgs.lmbdasWrMf = 2.0**-numpy.arange(1, 12, 2)
+    defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(1, 12, 2)
     defaultAlgoArgs.maxIterations = 1000
     defaultAlgoArgs.modelSelect = False
     defaultAlgoArgs.nu = 20
