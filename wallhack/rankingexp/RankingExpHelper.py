@@ -371,7 +371,7 @@ class RankingExpHelper(object):
                     trainX = trainX.toScipyCsr()
                     testX = testX.toScipyCsr()
 
-                    learner = WeightedMf(self.algoArgs.ks[0], self.algoArgs.lmbdas[0], u=self.algoArgs.u)
+                    learner = WeightedMf(self.algoArgs.ks[0], self.algoArgs.lmbdasWrMf[0], u=self.algoArgs.u)
                     learner.ks = self.algoArgs.ks
                     learner.lmbdas = self.algoArgs.lmbdasWrMf 
                     learner.numProcesses = self.algoArgs.processes
@@ -381,9 +381,6 @@ class RankingExpHelper(object):
                         modelSelectX = SparseUtils.submatrix(trainX, self.sampleSize)
                         
                         meanAucs, stdAucs = learner.modelSelect(modelSelectX)
-                        
-                        logging.debug("Mean local AUCs = " + str(meanAucs))
-                        logging.debug("Std local AUCs = " + str(stdAucs))
                         
                         modelSelectFileName = resultsFileName.replace("Results", "ModelSelect") 
                         numpy.savez(modelSelectFileName, meanAucs, stdAucs)
