@@ -30,10 +30,11 @@ class RankingExpHelper(object):
     defaultAlgoArgs.folds = 4
     defaultAlgoArgs.fullGradient = False
     defaultAlgoArgs.initialAlg = "svd"
+    defaultAlgoArgs.ks = 2**numpy.arange(3, 8)
     defaultAlgoArgs.kns = numpy.array([20])
     defaultAlgoArgs.learningRateSelect = False
     defaultAlgoArgs.lmbdasWrMf = numpy.linspace(0.5, 0.1, 5)   
-    defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(1, 10, 2)
+    defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(1, 12, 2)
     defaultAlgoArgs.maxIterations = 1000
     defaultAlgoArgs.modelSelect = False
     defaultAlgoArgs.nu = 20
@@ -144,7 +145,7 @@ class RankingExpHelper(object):
             logging.info("    " + str(key) + ": " + str(self.algoArgs.__getattribute__(key)))
                      
           
-    def recordResults(self, trainX, testX, learner, fileName):
+    def recordResults(self, X, trainX, testX, learner, fileName):
         """
         Save results for a particular recommendation 
         """
@@ -169,6 +170,9 @@ class RankingExpHelper(object):
         learnTime = time.time()-start 
         metaData.append(learnTime)
 
+
+        logging.debug("Getting all omega")
+        omegaList = SparseUtils.getOmegaList(X)
         logging.debug("Getting train omega")
         trainOmegaList = SparseUtils.getOmegaList(trainX)
         logging.debug("Getting test omega")
@@ -203,11 +207,11 @@ class RankingExpHelper(object):
             
             trainMeasures.append(MCEvaluator.localAUCApprox(trainX, U, V, w, self.algoArgs.numRecordAucSamples, omegaList=trainOmegaList))
             trainMeasures.append(MCEvaluator.localAUCApprox(trainX, U, V, 0.0, self.algoArgs.numRecordAucSamples, omegaList=trainOmegaList))
-            testMeasures.append(MCEvaluator.localAUCApprox(testX, U, V, w, self.algoArgs.numRecordAucSamples, omegaList=testOmegaList))
-            testMeasures.append(MCEvaluator.localAUCApprox(testX, U, V, 0.0, self.algoArgs.numRecordAucSamples, omegaList=testOmegaList))
+            testMeasures.append(MCEvaluator.localAUCApprox(X, U, V, w, self.algoArgs.numRecordAucSamples, omegaList=omegaList))
+            testMeasures.append(MCEvaluator.localAUCApprox(X, U, V, 0.0, self.algoArgs.numRecordAucSamples, omegaList=omegaList))
             
-            logging.debug("Local AUC@" + str(self.algoArgs.u) +  " (train/test):" + str(trainMeasures[-2]) + str("/") + str(testMeasures[-2]))
-            logging.debug("Local AUC@1 (train/test):" + str(trainMeasures[-1]) + str("/") + str(testMeasures[-1]))
+            logging.debug("Local AUC@" + str(self.algoArgs.u) +  " (train/all):" + str(trainMeasures[-2]) + str("/") + str(testMeasures[-2]))
+            logging.debug("Local AUC@1 (train/all):" + str(trainMeasures[-1]) + str("/") + str(testMeasures[-1]))
         except:
             logging.debug("Could not compute AUCs")
             raise
@@ -261,7 +265,7 @@ class RankingExpHelper(object):
                         
                     logging.debug(learner)                
 
-                    self.recordResults(trainX, testX, learner, resultsFileName)
+                    self.recordResults(X, trainX, testX, learner, resultsFileName)
                 finally: 
                     fileLock.unlock()
             else: 
@@ -314,7 +318,7 @@ class RankingExpHelper(object):
                     
                     logging.debug(learner)                
 
-                    self.recordResults(trainX, testX, learner, resultsFileName)
+                    self.recordResults(X, trainX, testX, learner, resultsFileName)
                 finally: 
                     fileLock.unlock()
             else: 
@@ -352,7 +356,7 @@ class RankingExpHelper(object):
                     
                     logging.debug(learner)   
                     
-                    self.recordResults(trainX, testX, learner, resultsFileName)
+                    self.recordResults(X, trainX, testX, learner, resultsFileName)
                 finally: 
                     fileLock.unlock()
             else: 
@@ -388,7 +392,7 @@ class RankingExpHelper(object):
                     
                     logging.debug(learner)   
                     
-                    self.recordResults(trainX, testX, learner, resultsFileName)
+                    self.recordResults(X, trainX, testX, learner, resultsFileName)
                 finally: 
                     fileLock.unlock()
             else: 
@@ -413,7 +417,7 @@ class RankingExpHelper(object):
                          
                     logging.debug(learner)   
                     
-                    self.recordResults(trainX, testX, learner, resultsFileName)
+                    self.recordResults(X, trainX, testX, learner, resultsFileName)
                 finally: 
                     fileLock.unlock()
             else: 
