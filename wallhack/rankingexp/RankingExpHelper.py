@@ -26,7 +26,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs = argparse.Namespace()
     defaultAlgoArgs.alpha = 0.1
     defaultAlgoArgs.epsSi = 10**-14
-    defaultAlgoArgs.epsMlauc = 10**-4
+    defaultAlgoArgs.epsMlauc = 10**-5
     defaultAlgoArgs.folds = 4
     defaultAlgoArgs.fullGradient = False
     defaultAlgoArgs.initialAlg = "svd"
@@ -110,6 +110,7 @@ class RankingExpHelper(object):
         algoParser.add_argument("--fullGradient", action="store_true", help="Whether to compute the full gradient at each iteration (default: %(default)s)", default=defaultAlgoArgs.fullGradient)
         algoParser.add_argument("--initialAlg", type=str, help="Initial setup for U and V for max local AUC: either rand or svd (default: %(default)s)", default=defaultAlgoArgs.initialAlg)
         algoParser.add_argument("--ks", type=int, nargs="+", help="Max number of singular values/vectors (default: %(default)s)", default=defaultAlgoArgs.ks)
+        algoParser.add_argument("--lmbdasMlauc", type=float, nargs="+", help="Regularisations parameters for max local AUC (default: %(default)s)", default=defaultAlgoArgs.lmbdasMlauc)        
         algoParser.add_argument("--learningRateSelect", action="store_true", help="Whether to do learning rate selection (default: %(default)s)", default=defaultAlgoArgs.learningRateSelect)
         algoParser.add_argument("--maxIterations", type=int, help="Maximal number of iterations (default: %(default)s)", default=defaultAlgoArgs.maxIterations)
         algoParser.add_argument("--modelSelect", action="store_true", help="Whether to do model selection(default: %(default)s)", default=defaultAlgoArgs.modelSelect)

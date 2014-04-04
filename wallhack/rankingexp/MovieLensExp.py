@@ -36,7 +36,7 @@ defaultAlgoArgs.maxIterations = 20*m
 defaultAlgoArgs.numRowSamples = 20
 defaultAlgoArgs.numStepIterations = 500
 defaultAlgoArgs.numAucSamples = 20
-defaultAlgoArgs.t0 = 10.0/defaultAlgoArgs.maxIterations 
+defaultAlgoArgs.t0 = 5.0/defaultAlgoArgs.maxIterations 
 defaultAlgoArgs.alpha = 2
 defaultAlgoArgs.initialAlg = "rand"
 
