@@ -5,7 +5,7 @@ import sys
 import igraph
 import random  
 from sandbox.util.ProfileUtils import ProfileUtils
-from exp.influence2.RankAggregator import RankAggregator 
+from wallhack.influence2.RankAggregator import RankAggregator 
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
@@ -15,7 +15,7 @@ class RankAggregatorProfile(object):
         igraph._igraph.set_random_number_generator(random.WichmannHill(21))
         
     def profileMC2(self): 
-        numVals = 5000
+        numVals = 10000
         list1 = numpy.random.permutation(numVals).tolist()      
         list2 = numpy.random.permutation(numVals).tolist()   
         lists = [list1, list2]
