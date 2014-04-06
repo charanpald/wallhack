@@ -35,13 +35,13 @@ class RankingExpHelper(object):
     defaultAlgoArgs.learningRateSelect = False
     defaultAlgoArgs.lmbdasWrMf = 2.0**-numpy.arange(1, 12, 2)
     defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(0, 12, 1)
-    defaultAlgoArgs.maxIterations = 1000
+    defaultAlgoArgs.maxIterations = 5000
     defaultAlgoArgs.modelSelect = False
     defaultAlgoArgs.nu = 20
     defaultAlgoArgs.numAucSamples = 50
-    defaultAlgoArgs.numRecordAucSamples = 100
+    defaultAlgoArgs.numRecordAucSamples = 500
     defaultAlgoArgs.numRowSamples = 50
-    defaultAlgoArgs.numStepIterations = 20
+    defaultAlgoArgs.numStepIterations = 1000
     defaultAlgoArgs.overwrite = False 
     defaultAlgoArgs.postProcess = False 
     defaultAlgoArgs.processes = 8
@@ -300,6 +300,7 @@ class RankingExpHelper(object):
                     learner.folds = self.algoArgs.folds  
                     learner.numProcesses = self.algoArgs.processes 
                     learner.numStepIterations = self.algoArgs.numStepIterations
+                    learner.lmbdas = self.algoArgs.lmbdasMlauc
 
                     if self.algoArgs.learningRateSelect:
                         logging.debug("Performing learning rate selection, taking subsample of entries of size " + str(self.sampleSize))
