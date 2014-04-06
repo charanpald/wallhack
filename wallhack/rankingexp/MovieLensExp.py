@@ -37,7 +37,7 @@ defaultAlgoArgs.numRowSamples = 20
 defaultAlgoArgs.numStepIterations = 500
 defaultAlgoArgs.numAucSamples = 20
 defaultAlgoArgs.t0 = 5.0/defaultAlgoArgs.maxIterations 
-defaultAlgoArgs.alpha = 2
+defaultAlgoArgs.alpha = 5
 defaultAlgoArgs.initialAlg = "rand"
 
 # data args parser #

@@ -42,6 +42,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.numRecordAucSamples = 100
     defaultAlgoArgs.numRowSamples = 50
     defaultAlgoArgs.numStepIterations = 20
+    defaultAlgoArgs.overwrite = False 
     defaultAlgoArgs.postProcess = False 
     defaultAlgoArgs.processes = 8
     defaultAlgoArgs.rate = "optimal"
@@ -110,19 +111,21 @@ class RankingExpHelper(object):
         algoParser.add_argument("--fullGradient", action="store_true", help="Whether to compute the full gradient at each iteration (default: %(default)s)", default=defaultAlgoArgs.fullGradient)
         algoParser.add_argument("--initialAlg", type=str, help="Initial setup for U and V for max local AUC: either rand or svd (default: %(default)s)", default=defaultAlgoArgs.initialAlg)
         algoParser.add_argument("--ks", type=int, nargs="+", help="Max number of singular values/vectors (default: %(default)s)", default=defaultAlgoArgs.ks)
-        algoParser.add_argument("--lmbdasMlauc", type=float, nargs="+", help="Regularisations parameters for max local AUC (default: %(default)s)", default=defaultAlgoArgs.lmbdasMlauc)        
+        algoParser.add_argument("--lmbdasMlauc", type=float, nargs="+", help="Regularisation parameters for max local AUC (default: %(default)s)", default=defaultAlgoArgs.lmbdasMlauc)        
         algoParser.add_argument("--learningRateSelect", action="store_true", help="Whether to do learning rate selection (default: %(default)s)", default=defaultAlgoArgs.learningRateSelect)
         algoParser.add_argument("--maxIterations", type=int, help="Maximal number of iterations (default: %(default)s)", default=defaultAlgoArgs.maxIterations)
         algoParser.add_argument("--modelSelect", action="store_true", help="Whether to do model selection(default: %(default)s)", default=defaultAlgoArgs.modelSelect)
         algoParser.add_argument("--numAucSamples", type=int, help="Number of AUC samples for max local AUC (default: %(default)s)", default=defaultAlgoArgs.numAucSamples)
         algoParser.add_argument("--numRowSamples", type=int, help="Number of row samples for max local AUC (default: %(default)s)", default=defaultAlgoArgs.numRowSamples)
         algoParser.add_argument("--nu", type=int, help="Weight of discordance for max local AUC (default: %(default)s)", default=defaultAlgoArgs.nu)
+        algoParser.add_argument("--overwrite", action="store_true", help="Whether to overwrite results even if already computed (default: %(default)s)", default=defaultAlgoArgs.overwrite)
         algoParser.add_argument("--postProcess", action="store_true", help="Whether to do post processing for soft impute (default: %(default)s)", default=defaultAlgoArgs.postProcess)
         algoParser.add_argument("--processes", type=int, help="Number of CPU cores to use (default: %(default)s)", default=defaultAlgoArgs.processes)
         algoParser.add_argument("--rate", type=str, help="Learning rate type: either constant or optimal (default: %(default)s)", default=defaultAlgoArgs.rate)
         algoParser.add_argument("--recordStep", type=int, help="Number of iterations after which we display some partial results (default: %(default)s)", default=defaultAlgoArgs.recordStep)
         algoParser.add_argument("--rhos", type=float, nargs="+", help="Regularisation parameter for SoftImpute (default: %(default)s)", default=defaultAlgoArgs.rhos)
         algoParser.add_argument("--sigma", type=int, help="Learning rate for (stochastic) gradient descent (default: %(default)s)", default=defaultAlgoArgs.sigma)
+        algoParser.add_argument("--u", type=float, help="Focus on top proportion of u items (default: %(default)s)", default=defaultAlgoArgs.u)
         algoParser.add_argument("--verbose", action="store_true", help="Whether to generate verbose algorithmic details(default: %(default)s)", default=defaultAlgoArgs.verbose)
                 
         return(algoParser)
@@ -239,7 +242,7 @@ class RankingExpHelper(object):
                 
             fileLock = FileLock(resultsFileName)  
             
-            if not fileLock.isLocked() and not fileLock.fileExists(): 
+            if not (fileLock.isLocked() or fileLock.fileExists()) or self.algoArgs.overwrite:
                 fileLock.lock()
                 
                 #print(trainX.storagetype)
@@ -278,7 +281,7 @@ class RankingExpHelper(object):
                 
             fileLock = FileLock(resultsFileName)  
             
-            if not fileLock.isLocked() and not fileLock.fileExists(): 
+            if not (fileLock.isLocked() or fileLock.fileExists()) or self.algoArgs.overwrite: 
                 fileLock.lock()
                 
                 try: 
@@ -331,7 +334,7 @@ class RankingExpHelper(object):
                 
             fileLock = FileLock(resultsFileName)     
             
-            if not fileLock.isLocked() and not fileLock.fileExists(): 
+            if not (fileLock.isLocked() or fileLock.fileExists()) or self.algoArgs.overwrite:
                 fileLock.lock()
                 
                 try: 
@@ -369,7 +372,7 @@ class RankingExpHelper(object):
                 
             fileLock = FileLock(resultsFileName)     
             
-            if not fileLock.isLocked() and not fileLock.fileExists(): 
+            if not (fileLock.isLocked() or fileLock.fileExists()) or self.algoArgs.overwrite: 
                 fileLock.lock()
                 
                 try: 
@@ -405,7 +408,7 @@ class RankingExpHelper(object):
                 
             fileLock = FileLock(resultsFileName)     
             
-            if not fileLock.isLocked() and not fileLock.fileExists(): 
+            if not (fileLock.isLocked() or fileLock.fileExists()) or self.algoArgs.overwrite:
                 fileLock.lock()
                 
                 try: 
