@@ -34,11 +34,11 @@ defaultAlgoArgs.folds = 4
 defaultAlgoArgs.u = u
 defaultAlgoArgs.maxIterations = 20*m
 defaultAlgoArgs.numRowSamples = 20
-defaultAlgoArgs.numStepIterations = 500
+defaultAlgoArgs.numStepIterations = 200
 defaultAlgoArgs.numAucSamples = 20
 defaultAlgoArgs.t0 = 10.0/defaultAlgoArgs.maxIterations 
-defaultAlgoArgs.alpha = 2
-defaultAlgoArgs.initialAlg = "rand"
+defaultAlgoArgs.alpha = 0.1
+defaultAlgoArgs.initialAlg = "svd"
 
 # data args parser #
 dataParser = argparse.ArgumentParser(description="", add_help=False)
