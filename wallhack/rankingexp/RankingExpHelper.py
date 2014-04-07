@@ -125,6 +125,7 @@ class RankingExpHelper(object):
         algoParser.add_argument("--recordStep", type=int, help="Number of iterations after which we display some partial results (default: %(default)s)", default=defaultAlgoArgs.recordStep)
         algoParser.add_argument("--rhos", type=float, nargs="+", help="Regularisation parameter for SoftImpute (default: %(default)s)", default=defaultAlgoArgs.rhos)
         algoParser.add_argument("--sigma", type=int, help="Learning rate for (stochastic) gradient descent (default: %(default)s)", default=defaultAlgoArgs.sigma)
+        algoParser.add_argument("--t0", type=float, help="Learning rate decay for max local AUC (default: %(default)s)", default=defaultAlgoArgs.t0)
         algoParser.add_argument("--u", type=float, help="Focus on top proportion of u items (default: %(default)s)", default=defaultAlgoArgs.u)
         algoParser.add_argument("--verbose", action="store_true", help="Whether to generate verbose algorithmic details(default: %(default)s)", default=defaultAlgoArgs.verbose)
                 

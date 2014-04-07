@@ -36,10 +36,10 @@ defaultAlgoArgs.maxIterations = 20*m
 defaultAlgoArgs.numRowSamples = 20
 defaultAlgoArgs.numStepIterations = 1000
 defaultAlgoArgs.numAucSamples = 20
-defaultAlgoArgs.nu = 1
+defaultAlgoArgs.nu = 20
 defaultAlgoArgs.t0 = 5.0/defaultAlgoArgs.maxIterations 
-defaultAlgoArgs.alpha = 5
-defaultAlgoArgs.initialAlg = "rand"
+defaultAlgoArgs.alpha = 0.1
+defaultAlgoArgs.initialAlg = "svd"
 
 # data args parser #
 dataParser = argparse.ArgumentParser(description="", add_help=False)
