@@ -36,6 +36,7 @@ defaultAlgoArgs.maxIterations = 20*m
 defaultAlgoArgs.numRowSamples = 20
 defaultAlgoArgs.numStepIterations = 200
 defaultAlgoArgs.numAucSamples = 20
+defaultAlgoArgs.recordStep = defaultAlgoArgs.numStepIterations
 defaultAlgoArgs.t0 = 10.0/defaultAlgoArgs.maxIterations 
 defaultAlgoArgs.alpha = 0.1
 defaultAlgoArgs.initialAlg = "svd"
