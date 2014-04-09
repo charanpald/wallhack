@@ -9,6 +9,7 @@ import numpy
 import argparse
 import time 
 import sppy
+import multiprocessing
 from copy import copy
 from sandbox.util.PathDefaults import PathDefaults
 from sandbox.util.MCEvaluator import MCEvaluator 
@@ -38,13 +39,13 @@ class RankingExpHelper(object):
     defaultAlgoArgs.maxIterations = 5000
     defaultAlgoArgs.modelSelect = False
     defaultAlgoArgs.nu = 20
-    defaultAlgoArgs.numAucSamples = 50
+    defaultAlgoArgs.numAucSamples = 20
     defaultAlgoArgs.numRecordAucSamples = 500
-    defaultAlgoArgs.numRowSamples = 50
+    defaultAlgoArgs.numRowSamples = 20
     defaultAlgoArgs.numStepIterations = 1000
     defaultAlgoArgs.overwrite = False 
     defaultAlgoArgs.postProcess = False 
-    defaultAlgoArgs.processes = 8
+    defaultAlgoArgs.processes = multiprocessing.cpu_count()
     defaultAlgoArgs.rate = "optimal"
     defaultAlgoArgs.recordStep = defaultAlgoArgs.numStepIterations 
     defaultAlgoArgs.rhoMlauc = 0.000
