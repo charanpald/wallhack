@@ -1,6 +1,7 @@
 import numpy
 import logging
 import sys
+import os
 from sandbox.recommendation.MaxLocalAUC import MaxLocalAUC
 from sandbox.util.SparseUtils import SparseUtils
 import matplotlib 
@@ -47,14 +48,18 @@ maxLocalAuc.initialAlg = "svd"
 maxLocalAuc.recordStep = maxLocalAuc.numStepIterations
 maxLocalAuc.nu = 20
 maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 0.3
+maxLocalAuc.alpha = 0.2
 maxLocalAuc.t0 = 10**-3
 maxLocalAuc.folds = 3
 maxLocalAuc.rho = 0.00
 maxLocalAuc.ks = 2**numpy.arange(3, 7)
 
+
+os.system('taskset -p 0xffffffff %d' % os.getpid())
+
 logging.debug("Starting training")
-logging.debug(maxLocalAuc)
+#logging.debug(maxLocalAuc)
+maxLocalAuc.learningRateSelect(X)
 #maxLocalAuc.modelSelect(trainX)
 #ProfileUtils.profile('U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=X, verbose=True)', globals(), locals())
 U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=X, verbose=True)
