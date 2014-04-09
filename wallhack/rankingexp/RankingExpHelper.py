@@ -41,7 +41,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.nu = 20
     defaultAlgoArgs.numAucSamples = 20
     defaultAlgoArgs.numRecordAucSamples = 500
-    defaultAlgoArgs.numRowSamples = 20
+    defaultAlgoArgs.numRowSamples = 10
     defaultAlgoArgs.numStepIterations = 1000
     defaultAlgoArgs.overwrite = False 
     defaultAlgoArgs.postProcess = False 

@@ -35,14 +35,14 @@ logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))
 
 #w = 1.0
 k2 = k
-eps = 10**-5
+eps = 10**-15
 sigma = 10
 lmbda = 0.01
 maxLocalAuc = MaxLocalAUC(k2, w, sigma=sigma, eps=eps, lmbda=lmbda, stochastic=True)
 maxLocalAuc.maxIterations = m*20
-maxLocalAuc.numRowSamples = 20
-maxLocalAuc.numStepIterations = 200
-maxLocalAuc.numAucSamples = 50
+maxLocalAuc.numRowSamples = 10
+maxLocalAuc.numStepIterations = 500
+maxLocalAuc.numAucSamples = 20
 maxLocalAuc.initialAlg = "svd"
 maxLocalAuc.recordStep = maxLocalAuc.numStepIterations
 maxLocalAuc.nu = 20
@@ -55,7 +55,7 @@ maxLocalAuc.ks = 2**numpy.arange(3, 7)
 
 logging.debug("Starting training")
 logging.debug(maxLocalAuc)
-maxLocalAuc.modelSelect(trainX)
+#maxLocalAuc.modelSelect(trainX)
 #ProfileUtils.profile('U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=X, verbose=True)', globals(), locals())
 U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=X, verbose=True)
 

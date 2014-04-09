@@ -29,11 +29,11 @@ dataArgs = argparse.Namespace()
 defaultAlgoArgs = argparse.Namespace()
 defaultAlgoArgs.ks = 2**numpy.arange(3, 7)
 defaultAlgoArgs.rhos = numpy.flipud(numpy.logspace(-7, -3, 5))
-defaultAlgoArgs.folds = 4
+defaultAlgoArgs.folds = 3
 defaultAlgoArgs.u = 20.0/m
 defaultAlgoArgs.maxIterations = 20*m
 defaultAlgoArgs.t0 = 5.0/defaultAlgoArgs.maxIterations 
-defaultAlgoArgs.alpha = 0.3
+defaultAlgoArgs.alpha = 0.1
 defaultAlgoArgs.initialAlg = "svd"
 
 
