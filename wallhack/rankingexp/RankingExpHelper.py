@@ -215,11 +215,11 @@ class RankingExpHelper(object):
             
             trainMeasures.append(MCEvaluator.localAUCApprox(trainX, U, V, w, self.algoArgs.numRecordAucSamples, omegaList=trainOmegaList))
             trainMeasures.append(MCEvaluator.localAUCApprox(trainX, U, V, 0.0, self.algoArgs.numRecordAucSamples, omegaList=trainOmegaList))
-            testMeasures.append(MCEvaluator.localAUCApprox(X, U, V, w, self.algoArgs.numRecordAucSamples, omegaList=omegaList))
-            testMeasures.append(MCEvaluator.localAUCApprox(X, U, V, 0.0, self.algoArgs.numRecordAucSamples, omegaList=omegaList))
+            testMeasures.append(MCEvaluator.localAUCApprox(X, U, V, w, self.algoArgs.numRecordAucSamples, omegaList=testOmegaList))
+            testMeasures.append(MCEvaluator.localAUCApprox(X, U, V, 0.0, self.algoArgs.numRecordAucSamples, omegaList=testOmegaList))
             
             logging.debug("Local AUC@" + str(self.algoArgs.u) +  " (train/all):" + str(trainMeasures[-2]) + str("/") + str(testMeasures[-2]))
-            logging.debug("Local AUC@1 (train/all):" + str(trainMeasures[-1]) + str("/") + str(testMeasures[-1]))
+            logging.debug("AUC (train/all):" + str(trainMeasures[-1]) + str("/") + str(testMeasures[-1]))
         except:
             logging.debug("Could not compute AUCs")
             raise
