@@ -24,7 +24,7 @@ from sandbox.util.FileLock import FileLock
 
 class RankingExpHelper(object):
     defaultAlgoArgs = argparse.Namespace()
-    defaultAlgoArgs.alpha = 0.1
+    defaultAlgoArgs.alpha = 0.3
     defaultAlgoArgs.epsSi = 10**-14
     defaultAlgoArgs.epsMlauc = 10**-5
     defaultAlgoArgs.folds = 4
@@ -47,7 +47,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.processes = 8
     defaultAlgoArgs.rate = "optimal"
     defaultAlgoArgs.recordStep = defaultAlgoArgs.numStepIterations 
-    defaultAlgoArgs.rhoMlauc = 0.001
+    defaultAlgoArgs.rhoMlauc = 0.000
     defaultAlgoArgs.rhos = numpy.linspace(0.5, 0.0, 6) 
     defaultAlgoArgs.runKnn = False
     defaultAlgoArgs.runMaxLocalAuc = False

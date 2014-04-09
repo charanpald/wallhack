@@ -33,12 +33,8 @@ defaultAlgoArgs.rhos = numpy.flipud(numpy.logspace(-7, -3, 5))
 defaultAlgoArgs.folds = 4
 defaultAlgoArgs.u = 20.0/m
 defaultAlgoArgs.maxIterations = 20*m
-defaultAlgoArgs.numRowSamples = 20
-defaultAlgoArgs.numStepIterations = 1000
-defaultAlgoArgs.numAucSamples = 20
-defaultAlgoArgs.nu = 20
 defaultAlgoArgs.t0 = 5.0/defaultAlgoArgs.maxIterations 
-defaultAlgoArgs.alpha = 0.1
+defaultAlgoArgs.alpha = 0.3
 defaultAlgoArgs.initialAlg = "svd"
 
 # data args parser #
