@@ -47,6 +47,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.processes = 8
     defaultAlgoArgs.rate = "optimal"
     defaultAlgoArgs.recordStep = defaultAlgoArgs.numStepIterations 
+    defaultAlgoArgs.rhoMlauc = 0.001
     defaultAlgoArgs.rhos = numpy.linspace(0.5, 0.0, 6) 
     defaultAlgoArgs.runKnn = False
     defaultAlgoArgs.runMaxLocalAuc = False
@@ -123,6 +124,7 @@ class RankingExpHelper(object):
         algoParser.add_argument("--processes", type=int, help="Number of CPU cores to use (default: %(default)s)", default=defaultAlgoArgs.processes)
         algoParser.add_argument("--rate", type=str, help="Learning rate type: either constant or optimal (default: %(default)s)", default=defaultAlgoArgs.rate)
         algoParser.add_argument("--recordStep", type=int, help="Number of iterations after which we display some partial results (default: %(default)s)", default=defaultAlgoArgs.recordStep)
+        algoParser.add_argument("--rhoMlauc", type=float, help="The penalisation on non-orthogonal columns for U, V for max local AUC (default: %(default)s)", default=defaultAlgoArgs.rhoMlauc)        
         algoParser.add_argument("--rhos", type=float, nargs="+", help="Regularisation parameter for SoftImpute (default: %(default)s)", default=defaultAlgoArgs.rhos)
         algoParser.add_argument("--sigma", type=int, help="Learning rate for (stochastic) gradient descent (default: %(default)s)", default=defaultAlgoArgs.sigma)
         algoParser.add_argument("--t0", type=float, help="Learning rate decay for max local AUC (default: %(default)s)", default=defaultAlgoArgs.t0)
@@ -302,6 +304,7 @@ class RankingExpHelper(object):
                     learner.numProcesses = self.algoArgs.processes 
                     learner.numStepIterations = self.algoArgs.numStepIterations
                     learner.lmbdas = self.algoArgs.lmbdasMlauc
+                    learner.rho = self.algoArgs.rhoMlauc
 
                     if self.algoArgs.learningRateSelect:
                         logging.debug("Performing learning rate selection, taking subsample of entries of size " + str(self.sampleSize))
