@@ -1,9 +1,10 @@
 import numpy
 import logging
 import sys
+import sppy
 from sandbox.recommendation.MaxLocalAUC import MaxLocalAUC
 from sandbox.util.SparseUtils import SparseUtils
-from sandbox.util.MCEvaluator import MCEvaluator
+from sandbox.util.PathDefaults import PathDefaults
 from sandbox.util.Sampling import Sampling
 import matplotlib 
 matplotlib.use("GTK3Agg")
@@ -19,6 +20,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 #numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 
 #Create a low rank matrix  
+"""
 m = 500
 n = 100
 k = 10 
@@ -28,6 +30,20 @@ X, U, s, V = SparseUtils.generateSparseBinaryMatrix((m,n), k, w, csarray=True, v
 logging.debug("Number of non-zero elements: " + str(X.nnz))
 
 U = U*s
+"""
+
+matrixFileName = PathDefaults.getDataDir() + "movielens/ml-100k/u.data" 
+data = numpy.loadtxt(matrixFileName)
+X = sppy.csarray((numpy.max(data[:, 0]), numpy.max(data[:, 1])), storagetype="row")
+X[data[:, 0]-1, data[:, 1]-1] = numpy.array(data[:, 2]>3, numpy.int)
+logging.debug("Read file: " + matrixFileName)
+logging.debug("Shape of data: " + str(X.shape))
+logging.debug("Number of non zeros " + str(X.nnz))
+
+u = 0.1 
+w = 1-u
+(m, n) = X.shape
+
 
 trainSplit = 2.0/3
 trainX, testX = SparseUtils.splitNnz(X, trainSplit)
@@ -39,19 +55,19 @@ logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))
 #logging.debug("Test local AUC:" + str(MCEvaluator.localAUC(testX, U, V, w)))
 
 #w = 1.0
-k2 = k
+k2 = 16
 eps = 10**-6
 sigma = 10
 maxLocalAuc = MaxLocalAUC(k2, w, sigma=sigma, eps=eps, stochastic=True)
 maxLocalAuc.maxIterations = m*20
-maxLocalAuc.numRowSamples = 20
-maxLocalAuc.numStepIterations = 200
-maxLocalAuc.numAucSamples = 50
-maxLocalAuc.initialAlg = "rand"
+maxLocalAuc.numRowSamples = 10
+maxLocalAuc.numStepIterations = 500
+maxLocalAuc.numAucSamples = 20
+maxLocalAuc.initialAlg = "svd"
 maxLocalAuc.recordStep = maxLocalAuc.numStepIterations
 maxLocalAuc.nu = 20
 maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 5
+maxLocalAuc.alpha = 0.2
 maxLocalAuc.t0 = 10**-3
 
 

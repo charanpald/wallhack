@@ -27,7 +27,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs = argparse.Namespace()
     defaultAlgoArgs.alpha = 0.1
     defaultAlgoArgs.epsSi = 10**-14
-    defaultAlgoArgs.epsMlauc = 10**-5
+    defaultAlgoArgs.epsMlauc = 10**-6
     defaultAlgoArgs.folds = 4
     defaultAlgoArgs.fullGradient = False
     defaultAlgoArgs.initialAlg = "svd"
@@ -41,7 +41,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.nu = 20
     defaultAlgoArgs.numAucSamples = 20
     defaultAlgoArgs.numRecordAucSamples = 500
-    defaultAlgoArgs.numRowSamples = 10
+    defaultAlgoArgs.numRowSamples = 20
     defaultAlgoArgs.numStepIterations = 1000
     defaultAlgoArgs.overwrite = False 
     defaultAlgoArgs.postProcess = False 

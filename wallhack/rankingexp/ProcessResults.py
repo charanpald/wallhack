@@ -68,22 +68,25 @@ for s, alg in enumerate(algs):
         #raise 
     
     modelSelectFileName = resultsDir + "ModelSelect" + alg + ".npz"
-    """
+    
     try: 
         data = numpy.load(modelSelectFileName)
         meanAucs, stdAucs = data["arr_0"], data["arr_1"]
         
         logging.debug(meanAucs)
         
-        ks = numpy.array([10, 20, 50, 100])
-        rhos = numpy.flipud(numpy.logspace(-4, -1, 5))         
+        #ks = 2**numpy.arange(3, 8)
+        #lmbdas = 2.0**-numpy.arange(1, 12, 2)         
         
-        plt.contourf(rhos, ks, meanAucs)
-        plt.colorbar()
-        plt.show()
+        #ks = ks[0:meanAucs.shape[0]]
+        #print(ks)
+        #print(lmbdas)
+        #plt.contourf(lmbdas, ks, meanAucs)
+        #plt.colorbar()
+        
     except IOError: 
         logging.debug("Missing file " + modelSelectFileName)
-    """
+    
     
 
 colNames = []
