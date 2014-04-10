@@ -57,7 +57,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.runWrMf = False
     defaultAlgoArgs.sigma = 0.2
     defaultAlgoArgs.t0 = 10**-4 
-    defaultAlgoArgs.trainSplit = 0.8
+    defaultAlgoArgs.testSize = 5
     defaultAlgoArgs.u = 0.1
     defaultAlgoArgs.verbose = False
     
@@ -236,7 +236,8 @@ class RankingExpHelper(object):
         Run the selected ranking experiments and save results
         """
         logging.debug("Splitting into train and test sets")
-        trainX, testX = SparseUtils.splitNnz(X, self.algoArgs.trainSplit)
+        trainTestXs = Sampling.shuffleSplitRows(X, self.algoArgs.folds, self.algoArgs.testSize)
+        trainX, testX = trainTestXs[0]
         logging.debug("Train X shape and nnz: " + str(trainX.shape) + " " + str(trainX.nnz))    
         logging.debug("Test X shape and nnz: " + str(testX.shape) + " " + str(testX.nnz))
         
