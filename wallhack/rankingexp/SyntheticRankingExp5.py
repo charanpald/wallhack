@@ -45,9 +45,9 @@ w = 1-u
 (m, n) = X.shape
 
 
-trainSplit = 2.0/3
-trainX, testX = SparseUtils.splitNnz(X, trainSplit)
-cvInds = Sampling.randCrossValidation(3, X.nnz)
+testSize = 5
+trainTestXs = Sampling.shuffleSplitRows(X, 1, testSize)
+trainX, testX = trainTestXs[0]
 
 logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))
 #logging.debug("Total local AUC:" + str(MCEvaluator.localAUC(X, U, V, w)))
