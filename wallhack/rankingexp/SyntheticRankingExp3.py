@@ -15,7 +15,7 @@ numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 m = 500
 n = 200
 k = 8 
-u = 20.0/m
+u = 20.0/n
 w = 1-u
 X, U, s, V = SparseUtils.generateSparseBinaryMatrix((m,n), k, w, csarray=True, verbose=True, indsPerRow=200)
 logging.debug("Number of non zero elements: " + str(X.nnz))
@@ -27,7 +27,7 @@ dataArgs = argparse.Namespace()
 
 # Arguments related to the algorithm
 defaultAlgoArgs = argparse.Namespace()
-defaultAlgoArgs.ks = numpy.array([8])
+defaultAlgoArgs.ks = numpy.array([k])
 defaultAlgoArgs.rhos = numpy.flipud(numpy.logspace(-7, -3, 5))
 defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(0, 12, 2)
 defaultAlgoArgs.folds = 4

@@ -19,7 +19,7 @@ numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 m = 500
 n = 100
 k = 10 
-u = 0.05
+u = 0.2
 w = 1-u
 X, U, s, V = SparseUtils.generateSparseBinaryMatrix((m,n), k, w, csarray=True, verbose=True, indsPerRow=200)
 logging.debug("Number of non-zero elements: " + str(X.nnz))
@@ -52,15 +52,15 @@ maxLocalAuc.alpha = 0.2
 maxLocalAuc.t0 = 10**-3
 maxLocalAuc.folds = 3
 maxLocalAuc.rho = 0.00
-maxLocalAuc.ks = 2**numpy.arange(3, 7)
+maxLocalAuc.ks = numpy.array([k])
 
 
 os.system('taskset -p 0xffffffff %d' % os.getpid())
 
 logging.debug("Starting training")
 #logging.debug(maxLocalAuc)
-maxLocalAuc.learningRateSelect(X)
-#maxLocalAuc.modelSelect(trainX)
+#maxLocalAuc.learningRateSelect(X)
+maxLocalAuc.modelSelect(trainX)
 #ProfileUtils.profile('U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=X, verbose=True)', globals(), locals())
 U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=X, verbose=True)
 
