@@ -9,6 +9,10 @@ import matplotlib
 matplotlib.use("GTK3Agg")
 import matplotlib.pyplot as plt
 
+"""
+Look at convergence with different rate/decay parameters. 
+"""
+
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 #numpy.random.seed(22)        
 numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
