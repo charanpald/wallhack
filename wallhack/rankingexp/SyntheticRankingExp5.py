@@ -59,11 +59,11 @@ k2 = 16
 eps = 10**-6
 sigma = 10
 maxLocalAuc = MaxLocalAUC(k2, w, sigma=sigma, eps=eps, stochastic=True)
-maxLocalAuc.maxIterations = m*20
+maxLocalAuc.maxIterations = m*10
 maxLocalAuc.numRowSamples = 10
 maxLocalAuc.numStepIterations = 500
 maxLocalAuc.numAucSamples = 20
-maxLocalAuc.initialAlg = "svd"
+maxLocalAuc.initialAlg = "softimpute"
 maxLocalAuc.recordStep = maxLocalAuc.numStepIterations
 maxLocalAuc.nu = 20
 maxLocalAuc.rate = "optimal"
@@ -77,14 +77,16 @@ print(rhos)
 for i, rho in enumerate(rhos): 
     maxLocalAuc.rho = rho
     logging.debug(maxLocalAuc)
-    U, V, trainObjs, trainAucs, testObjs, testAucs, ind, totalTime = maxLocalAuc.learnModel(X, verbose=True)
+    U, V, trainObjs, trainAucs, testObjs, testAucs, ind, totalTime = maxLocalAuc.learnModel(trainX, verbose=True, testX=testX)
     
     plt.figure(0)
-    plt.plot(trainAucs, label="rho="+str(rho))
+    plt.plot(trainAucs, label="train rho="+str(rho))
+    plt.plot(testAucs, label="test rho="+str(rho))
     plt.legend()
     
     plt.figure(1)
-    plt.plot(trainObjs, label="rho="+str(rho))
+    plt.plot(trainObjs, label="train rho="+str(rho))
+    plt.plot(testObjs, label="test rho="+str(rho))
     plt.legend()
     
 plt.show()

@@ -32,9 +32,10 @@ defaultAlgoArgs.rhos = numpy.flipud(numpy.logspace(-7, -3, 5))
 defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(0, 12, 2)
 defaultAlgoArgs.folds = 4
 defaultAlgoArgs.u = 10.0/n
-defaultAlgoArgs.maxIterations = 30*m
+defaultAlgoArgs.maxIterations = 10*m
 defaultAlgoArgs.t0 = 5.0/defaultAlgoArgs.maxIterations 
 defaultAlgoArgs.alpha = 0.1
+defaultAlgoArgs.t0 = 10**-2
 defaultAlgoArgs.initialAlg = "softimpute"
 
 

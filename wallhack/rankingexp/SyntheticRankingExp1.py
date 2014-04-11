@@ -51,7 +51,7 @@ maxLocalAuc.recordStep = maxLocalAuc.numStepIterations
 maxLocalAuc.nu = 20
 maxLocalAuc.rate = "optimal"
 maxLocalAuc.alpha = 0.2
-maxLocalAuc.t0 = 10**-3
+maxLocalAuc.t0 = 10**-2
 maxLocalAuc.folds = 8
 maxLocalAuc.rho = 0.00
 maxLocalAuc.ks = numpy.array([k])
@@ -64,7 +64,7 @@ os.system('taskset -p 0xffffffff %d' % os.getpid())
 logging.debug("Starting training")
 logging.debug(maxLocalAuc)
 #maxLocalAuc.learningRateSelect(X)
-maxLocalAuc.modelSelect(trainX)
+#maxLocalAuc.modelSelect(trainX)
 #ProfileUtils.profile('U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=X, verbose=True)', globals(), locals())
 U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=testX, verbose=True)
 
