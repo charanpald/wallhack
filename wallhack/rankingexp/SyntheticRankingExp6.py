@@ -36,19 +36,15 @@ trainX, testX = trainTestXs[0]
 
 logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))
 
-testSize = 5
-trainTestXs = Sampling.shuffleSplitRows(X, 1, testSize)
-trainX, testX = trainTestXs[0]
-
-logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))
 #logging.debug("Total local AUC:" + str(MCEvaluator.localAUC(X, U, V, w)))
 #logging.debug("Train local AUC:" + str(MCEvaluator.localAUC(trainX, U, V, w)))
 #logging.debug("Test local AUC:" + str(MCEvaluator.localAUC(testX, U, V, w)))
 
 #w = 1.0
+u = 0.05 
+w = 1-u 
 k2 = k
 eps = 10**-6
-sigma = 10
 maxLocalAuc = MaxLocalAUC(k2, w, eps=eps, stochastic=True)
 maxLocalAuc.maxIterations = m*10
 maxLocalAuc.numRowSamples = 10
@@ -59,10 +55,11 @@ maxLocalAuc.recordStep = maxLocalAuc.numStepIterations
 maxLocalAuc.nu = 20
 maxLocalAuc.rate = "optimal"
 maxLocalAuc.alpha = 0.2
-maxLocalAuc.t0 = 10**-3
+maxLocalAuc.t0 = 10**-2
+maxLocalAuc.lmbda = 0.01
 
 
-nus = numpy.array([5, 10, 20])
+nus = numpy.array([1, 10, 100])
 print(nus)
 
 for i, nu in enumerate(nus): 
