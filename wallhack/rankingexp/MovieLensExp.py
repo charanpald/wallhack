@@ -32,10 +32,10 @@ defaultAlgoArgs.ks = 2**numpy.arange(3, 7)
 defaultAlgoArgs.rhos = numpy.flipud(numpy.logspace(-7, -3, 5))
 defaultAlgoArgs.folds = 4
 defaultAlgoArgs.u = 20.0/m
-defaultAlgoArgs.maxIterations = 20*m
-defaultAlgoArgs.t0 = 5.0/defaultAlgoArgs.maxIterations 
-defaultAlgoArgs.alpha = 0.3
-defaultAlgoArgs.initialAlg = "svd"
+defaultAlgoArgs.maxIterations = 10*m
+defaultAlgoArgs.t0 = 10**-3
+defaultAlgoArgs.alpha = 0.2
+defaultAlgoArgs.initialAlg = "softimpute"
 
 # data args parser #
 dataParser = argparse.ArgumentParser(description="", add_help=False)
