@@ -39,7 +39,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(1, 12, 2)
     defaultAlgoArgs.maxIterations = 5000
     defaultAlgoArgs.modelSelect = False
-    defaultAlgoArgs.nu = 20
+    defaultAlgoArgs.nu = 10
     defaultAlgoArgs.numAucSamples = 20
     defaultAlgoArgs.numRecordAucSamples = 500
     defaultAlgoArgs.numRowSamples = 20
@@ -56,7 +56,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.runSoftImpute = False
     defaultAlgoArgs.runWarpMf = False
     defaultAlgoArgs.runWrMf = False
-    defaultAlgoArgs.t0 = 10**-4 
+    defaultAlgoArgs.t0 = 10**-3 
     defaultAlgoArgs.testSize = 3
     defaultAlgoArgs.u = 0.1
     defaultAlgoArgs.verbose = False
