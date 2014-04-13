@@ -19,7 +19,8 @@ dirName = "SyntheticDataset1"
 #dirName = "MendeleyCoauthors"
 
 resultsDir = PathDefaults.getOutputDir() + "ranking/" + dirName + "/"
-algs = ["MaxLocalAUC", "SoftImpute", "WrMf"]
+algs = ["MaxLocalAUC_u=0.2", "MaxLocalAUC_u=0.1", "MaxLocalAUC_u=0.05", "MaxLocalAUC_u=0.025", "SoftImpute", "WrMf"]
+names = ["MLAUC $u=0.2$", "MLAUC $U=0.1$", "MLAUC $U=0.05$", "MLAUC $U=0.025$", "SoftImpute", "WrMf"]
 
 trainResultsTable = numpy.zeros((len(algs), len(ps)*2+2))
 testResultsTable = numpy.zeros((len(algs), len(ps)*2+2))
@@ -98,8 +99,8 @@ colNames.extend(["localAUC@u", "AUC"])
 
 print("")
 print(Latex.listToRow(colNames))
-print(Latex.addRowNames(algs, Latex.array2DToRows(trainResultsTable)))
+print(Latex.addRowNames(names, Latex.array2DToRows(trainResultsTable)))
 
 
 print(Latex.listToRow(colNames))
-print(Latex.addRowNames(algs, Latex.array2DToRows(testResultsTable)))
+print(Latex.addRowNames(names, Latex.array2DToRows(testResultsTable)))

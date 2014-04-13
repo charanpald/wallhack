@@ -13,6 +13,7 @@ import multiprocessing
 from copy import copy
 from sandbox.util.PathDefaults import PathDefaults
 from sandbox.util.MCEvaluator import MCEvaluator 
+from sandbox.util.MCEvaluatorCython import MCEvaluatorCython 
 from sandbox.recommendation.MaxLocalAUC import MaxLocalAUC
 from sandbox.recommendation.WeightedMf import WeightedMf
 from sandbox.recommendation.WarpMf import WarpMf
@@ -29,7 +30,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.alpha = 0.1
     defaultAlgoArgs.epsSi = 10**-14
     defaultAlgoArgs.epsMlauc = 10**-6
-    defaultAlgoArgs.folds = 4
+    defaultAlgoArgs.folds = 5
     defaultAlgoArgs.fullGradient = False
     defaultAlgoArgs.gamma = 0.0001
     defaultAlgoArgs.initialAlg = "svd"
@@ -41,7 +42,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.lmbdasClimf = [0.001]
     defaultAlgoArgs.maxIterations = 5000
     defaultAlgoArgs.modelSelect = False
-    defaultAlgoArgs.nu = 20
+    defaultAlgoArgs.nu = 10
     defaultAlgoArgs.numAucSamples = 20
     defaultAlgoArgs.numRecordAucSamples = 500
     defaultAlgoArgs.numRowSamples = 20
@@ -58,9 +59,8 @@ class RankingExpHelper(object):
     defaultAlgoArgs.runSoftImpute = False
     defaultAlgoArgs.runWarpMf = False
     defaultAlgoArgs.runWrMf = False
-    defaultAlgoArgs.sigma = 0.2
-    defaultAlgoArgs.t0 = 10**-4 
-    defaultAlgoArgs.testSize = 5
+    defaultAlgoArgs.t0 = 10**-3 
+    defaultAlgoArgs.testSize = 3
     defaultAlgoArgs.u = 0.1
     defaultAlgoArgs.verbose = False
     
@@ -132,7 +132,6 @@ class RankingExpHelper(object):
         algoParser.add_argument("--recordStep", type=int, help="Number of iterations after which we display some partial results (default: %(default)s)", default=defaultAlgoArgs.recordStep)
         algoParser.add_argument("--rhoMlauc", type=float, help="The penalisation on non-orthogonal columns for U, V for max local AUC (default: %(default)s)", default=defaultAlgoArgs.rhoMlauc)        
         algoParser.add_argument("--rhos", type=float, nargs="+", help="Regularisation parameter for SoftImpute (default: %(default)s)", default=defaultAlgoArgs.rhos)
-        algoParser.add_argument("--sigma", type=int, help="Learning rate for (stochastic) gradient descent (default: %(default)s)", default=defaultAlgoArgs.sigma)
         algoParser.add_argument("--t0", type=float, help="Learning rate decay for max local AUC (default: %(default)s)", default=defaultAlgoArgs.t0)
         algoParser.add_argument("--u", type=float, help="Focus on top proportion of u items (default: %(default)s)", default=defaultAlgoArgs.u)
         algoParser.add_argument("--verbose", action="store_true", help="Whether to generate verbose algorithmic details(default: %(default)s)", default=defaultAlgoArgs.verbose)
@@ -178,11 +177,15 @@ class RankingExpHelper(object):
             
             trainX = sppy.csarray(trainX)
             testX = sppy.csarray(testX)
+            U = numpy.ascontiguousarray(U)
+            V = numpy.ascontiguousarray(V)
         else: 
             learner.learnModel(trainX)
+            U = learner.U 
+            V = learner.V 
+            
         learnTime = time.time()-start 
         metaData.append(learnTime)
-
 
         logging.debug("Getting all omega")
         omegaList = SparseUtils.getOmegaList(X)
@@ -192,39 +195,33 @@ class RankingExpHelper(object):
         testOmegaList = SparseUtils.getOmegaList(testX)
         logging.debug("Getting recommendations")
                 
-        
-        if type(learner) == IterativeSoftImpute:
-            orderedItems = MCEvaluator.recommendAtk(U, V, maxItems)
-        else: 
-            orderedItems = learner.predict(maxItems)
+        trainOrderedItems = MCEvaluator.recommendAtk(U, V, maxItems)
+        testOrderedItems = MCEvaluatorCython.recommendAtk(U, V, maxItems, trainX)
+
 
         trainMeasures = []
         testMeasures = []
         for p in ps: 
-            trainMeasures.append(MCEvaluator.precisionAtK(trainX, orderedItems, p, omegaList=trainOmegaList))
-            testMeasures.append(MCEvaluator.precisionAtK(testX, orderedItems, p, omegaList=testOmegaList))
+            trainMeasures.append(MCEvaluator.precisionAtK(trainX, trainOrderedItems, p, omegaList=trainOmegaList))
+            testMeasures.append(MCEvaluator.precisionAtK(testX, testOrderedItems, p, omegaList=testOmegaList))
             
-            logging.debug("precision@" + str(p) + " (train/test/total):" + str(trainMeasures[-1]) + str("/") + str(testMeasures[-1])+ str("/") + str(trainMeasures[-1]+testMeasures[-1]))
+            logging.debug("precision@" + str(p) + " (train/test):" + str(trainMeasures[-1]) + str("/") + str(testMeasures[-1]))
             
         for p in ps: 
-            trainMeasures.append(MCEvaluator.recallAtK(trainX, orderedItems, p, omegaList=trainOmegaList))
-            testMeasures.append(MCEvaluator.recallAtK(testX, orderedItems, p, omegaList=testOmegaList))
+            trainMeasures.append(MCEvaluator.recallAtK(trainX, trainOrderedItems, p, omegaList=trainOmegaList))
+            testMeasures.append(MCEvaluator.recallAtK(testX, testOrderedItems, p, omegaList=testOmegaList))
             
             logging.debug("recall@" + str(p) + " (train/test):" + str(trainMeasures[-1]) + str("/") + str(testMeasures[-1]))
             
 
         try: 
-            if type(learner) != IterativeSoftImpute:
-                U = learner.U 
-                V = learner.V 
-            
             trainMeasures.append(MCEvaluator.localAUCApprox(trainX, U, V, w, self.algoArgs.numRecordAucSamples, omegaList=trainOmegaList))
             trainMeasures.append(MCEvaluator.localAUCApprox(trainX, U, V, 0.0, self.algoArgs.numRecordAucSamples, omegaList=trainOmegaList))
             testMeasures.append(MCEvaluator.localAUCApprox(X, U, V, w, self.algoArgs.numRecordAucSamples, omegaList=testOmegaList))
             testMeasures.append(MCEvaluator.localAUCApprox(X, U, V, 0.0, self.algoArgs.numRecordAucSamples, omegaList=testOmegaList))
             
             logging.debug("Local AUC@" + str(self.algoArgs.u) +  " (train/all):" + str(trainMeasures[-2]) + str("/") + str(testMeasures[-2]))
-            logging.debug("AUC (train/all):" + str(trainMeasures[-1]) + str("/") + str(testMeasures[-1]))
+            logging.debug("AUC (train/test):" + str(trainMeasures[-1]) + str("/") + str(testMeasures[-1]))
         except:
             logging.debug("Could not compute AUCs")
             raise
@@ -233,7 +230,7 @@ class RankingExpHelper(object):
         testMeasures = numpy.array(testMeasures)
         metaData = numpy.array(metaData)
         
-        numpy.savez(fileName, trainMeasures, testMeasures, metaData, orderedItems)
+        numpy.savez(fileName, trainMeasures, testMeasures, metaData, trainOrderedItems, testOrderedItems)
         logging.debug("Saved file as " + fileName)
 
     def runExperiment(self, X):
@@ -260,7 +257,7 @@ class RankingExpHelper(object):
                 testX = testX.toScipyCsr().tocsc()
                                 
                 try: 
-                    learner = IterativeSoftImpute(self.algoArgs.rhos[0], eps=self.algoArgs.epsSi, k=self.algoArgs.ks[0], svdAlg="propack")
+                    learner = IterativeSoftImpute(self.algoArgs.rhos[0], eps=self.algoArgs.epsSi, k=self.algoArgs.ks[0], svdAlg="propack", postProcess=self.algoArgs.postProcess)
                     learner.numProcesses = self.algoArgs.processes
                     
                     if self.algoArgs.modelSelect: 
@@ -287,7 +284,7 @@ class RankingExpHelper(object):
                 
         if self.algoArgs.runMaxLocalAuc:
             logging.debug("Running max local AUC")
-            resultsFileName = self.resultsDir + "ResultsMaxLocalAUC.npz"
+            resultsFileName = self.resultsDir + "ResultsMaxLocalAUC_u=" + str(self.algoArgs.u) + ".npz"
                 
             fileLock = FileLock(resultsFileName)  
             
@@ -295,7 +292,7 @@ class RankingExpHelper(object):
                 fileLock.lock()
                 
                 try: 
-                    learner = MaxLocalAUC(self.algoArgs.ks[0], 1-self.algoArgs.u, lmbda=self.algoArgs.lmbdasMlauc[0], sigma=self.algoArgs.sigma, eps=self.algoArgs.epsMlauc, stochastic=not self.algoArgs.fullGradient)
+                    learner = MaxLocalAUC(self.algoArgs.ks[0], 1-self.algoArgs.u, lmbda=self.algoArgs.lmbdasMlauc[0], eps=self.algoArgs.epsMlauc, stochastic=not self.algoArgs.fullGradient)
                     
                     learner.numRowSamples = self.algoArgs.numRowSamples
                     learner.numAucSamples = self.algoArgs.numAucSamples
@@ -312,6 +309,7 @@ class RankingExpHelper(object):
                     learner.numStepIterations = self.algoArgs.numStepIterations
                     learner.lmbdas = self.algoArgs.lmbdasMlauc
                     learner.rho = self.algoArgs.rhoMlauc
+                    learner.testSize = self.algoArgs.testSize
 
                     if self.algoArgs.learningRateSelect:
                         logging.debug("Performing learning rate selection, taking subsample of entries of size " + str(self.sampleSize))

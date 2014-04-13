@@ -20,7 +20,6 @@ w = 1-u
 X, U, s, V = SparseUtils.generateSparseBinaryMatrix((m,n), k, w, csarray=True, verbose=True, indsPerRow=200)
 logging.debug("Number of non zero elements: " + str(X.nnz))
 logging.debug("Size of X: " + str(X.shape))
-logging.debug("Number of non zeros: " + str(X.nnz))
 
 # Arguments related to the dataset
 dataArgs = argparse.Namespace()
@@ -29,14 +28,23 @@ dataArgs = argparse.Namespace()
 defaultAlgoArgs = argparse.Namespace()
 defaultAlgoArgs.ks = numpy.array([k])
 defaultAlgoArgs.rhos = numpy.flipud(numpy.logspace(-7, -3, 5))
-defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(0, 12, 2)
-defaultAlgoArgs.folds = 4
-defaultAlgoArgs.u = 10.0/n
-defaultAlgoArgs.maxIterations = 10*m
-defaultAlgoArgs.t0 = 5.0/defaultAlgoArgs.maxIterations 
-defaultAlgoArgs.alpha = 0.1
-defaultAlgoArgs.t0 = 10**-2
+defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(4, 12, 1)
+#defaultAlgoArgs.lmbdasMlauc = numpy.array([0.1])
+defaultAlgoArgs.maxIterations = m* 10
+defaultAlgoArgs.numRowSamples = 10
+defaultAlgoArgs.numStepIterations = 500
+defaultAlgoArgs.numAucSamples = 20
 defaultAlgoArgs.initialAlg = "softimpute"
+defaultAlgoArgs.recordStep = defaultAlgoArgs.numStepIterations
+defaultAlgoArgs.nu = 20
+defaultAlgoArgs.rate = "optimal"
+defaultAlgoArgs.alpha = 0.2
+defaultAlgoArgs.t0 = 10**-2
+defaultAlgoArgs.folds = 4
+defaultAlgoArgs.rho = 0.00
+defaultAlgoArgs.ks = numpy.array([k])
+defaultAlgoArgs.testSize = 5
+defaultAlgoArgs.u = u 
 
 
 # data args parser #
