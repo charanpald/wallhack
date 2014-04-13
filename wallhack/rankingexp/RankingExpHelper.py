@@ -21,6 +21,7 @@ from sandbox.recommendation.IterativeSoftImpute import IterativeSoftImpute
 from sandbox.util.SparseUtils import SparseUtils 
 from sandbox.util.Sampling import Sampling 
 from sandbox.util.FileLock import FileLock 
+from sandbox.ext.climf import Climf
 
 
 class RankingExpHelper(object):
@@ -30,12 +31,14 @@ class RankingExpHelper(object):
     defaultAlgoArgs.epsMlauc = 10**-6
     defaultAlgoArgs.folds = 4
     defaultAlgoArgs.fullGradient = False
+    defaultAlgoArgs.gamma = 0.0001
     defaultAlgoArgs.initialAlg = "svd"
     defaultAlgoArgs.ks = 2**numpy.arange(3, 8)
     defaultAlgoArgs.kns = numpy.array([20])
     defaultAlgoArgs.learningRateSelect = False
     defaultAlgoArgs.lmbdasWrMf = 2.0**-numpy.arange(1, 12, 2)
     defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(1, 12, 2)
+    defaultAlgoArgs.lmbdasClimf = [0.001]
     defaultAlgoArgs.maxIterations = 5000
     defaultAlgoArgs.modelSelect = False
     defaultAlgoArgs.nu = 20
@@ -111,8 +114,10 @@ class RankingExpHelper(object):
             algoParser.add_argument("--" + method, action="store_true", default=defaultAlgoArgs.__getattribute__(method))
         algoParser.add_argument("--alpha", type=float, help="Learning rate for max local AUC (default: %(default)s)", default=defaultAlgoArgs.alpha)
         algoParser.add_argument("--fullGradient", action="store_true", help="Whether to compute the full gradient at each iteration (default: %(default)s)", default=defaultAlgoArgs.fullGradient)
+        algoParser.add_argument("--gamma", type=float, help="Regularisation parameter (gamma) for CLiMF (default: %(default)s)", default=defaultAlgoArgs.gamma)        
         algoParser.add_argument("--initialAlg", type=str, help="Initial setup for U and V for max local AUC: either rand or svd (default: %(default)s)", default=defaultAlgoArgs.initialAlg)
         algoParser.add_argument("--ks", type=int, nargs="+", help="Max number of singular values/vectors (default: %(default)s)", default=defaultAlgoArgs.ks)
+        algoParser.add_argument("--lmbdasClimf", type=float, nargs="+", help="Regularisation parameters (lambda) for CLiMF (default: %(default)s)", default=defaultAlgoArgs.lmbdasClimf)        
         algoParser.add_argument("--lmbdasMlauc", type=float, nargs="+", help="Regularisation parameters for max local AUC (default: %(default)s)", default=defaultAlgoArgs.lmbdasMlauc)        
         algoParser.add_argument("--learningRateSelect", action="store_true", help="Whether to do learning rate selection (default: %(default)s)", default=defaultAlgoArgs.learningRateSelect)
         algoParser.add_argument("--maxIterations", type=int, help="Maximal number of iterations (default: %(default)s)", default=defaultAlgoArgs.maxIterations)
@@ -433,5 +438,32 @@ class RankingExpHelper(object):
                     fileLock.unlock()
             else: 
                 logging.debug("File is locked or already computed: " + resultsFileName)         
+
+        if self.algoArgs.runCLiMF: 
+            # !!!! no model selection
+            logging.debug("Running CLiMF")
+            resultsFileName = self.resultsDir + "ResultsCLiMF.npz"
+                
+            fileLock = FileLock(resultsFileName)
+            
+            if not (fileLock.isLocked() or fileLock.fileExists()) or self.algoArgs.overwrite:
+                fileLock.lock()
+                
+                try: 
+                    trainX = trainX.toScipyCsr()
+                    testX = testX.toScipyCsr()
+
+                    learner = Climf(self.algoArgs.kns[0], self.algoArgs.lmbdasClimf[0], self.algoArgs.gamma)
+                    learner.max_iters = learner.max_iters
+
+                    logging.debug(learner)   
+                    
+                    self.recordResults(X, trainX, testX, learner, resultsFileName)
+                finally: 
+                    fileLock.unlock()
+            else: 
+                logging.debug("File is locked or already computed: " + resultsFileName)         
+
+
        
         logging.info("All done: see you around!")
