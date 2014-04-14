@@ -57,8 +57,8 @@ logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))
 #w = 1.0
 k2 = 16
 eps = 10**-6
-sigma = 10
-maxLocalAuc = MaxLocalAUC(k2, w, sigma=sigma, eps=eps, stochastic=True)
+alpha = 10
+maxLocalAuc = MaxLocalAUC(k2, w, alpha=alpha, eps=eps, stochastic=True)
 maxLocalAuc.maxIterations = m*10
 maxLocalAuc.numRowSamples = 10
 maxLocalAuc.numStepIterations = 500

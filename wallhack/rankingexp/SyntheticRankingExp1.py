@@ -40,9 +40,9 @@ logging.debug("Train local AUC:" + str(MCEvaluator.localAUCApprox(trainX, U, V, 
 logging.debug("Test local AUC:" + str(MCEvaluator.localAUCApprox(X, U, V, w, numRecordAucSamples, omegaList=testOmegaList)))
 
 #w = 1.0
-k2 = k
+k2 = 16
 eps = 10**-15
-lmbda = 0.00048828125
+lmbda = 0.0001220703125
 maxLocalAuc = MaxLocalAUC(k2, w, eps=eps, lmbda=lmbda, stochastic=True)
 maxLocalAuc.maxIterations = m*20
 maxLocalAuc.numRowSamples = 10

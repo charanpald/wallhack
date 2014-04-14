@@ -12,15 +12,14 @@ import csv
 numpy.set_printoptions(suppress=True, precision=3, linewidth=100)
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
-ps = [3, 5, 10, 20]
+ps = [1, 3, 5]
 
-#dirName = "SyntheticDataset1" 
-dirName = "MovieLens" 
+dirName = "SyntheticDataset1" 
+#dirName = "MovieLens" 
 #dirName = "MendeleyCoauthors"
 
 resultsDir = PathDefaults.getOutputDir() + "ranking/" + dirName + "/"
-algs = ["MaxLocalAUC_u=0.0212089077413", "SoftImpute", "WrMf"]
-#algs = ["MaxLocalAUC_u=0.1", "SoftImpute", "WrMf"]
+algs = ["MaxLocalAUC", "SoftImpute", "WrMf"]
 names = ["MLAUC",  "SoftImpute", "WrMf"]
 
 trainResultsTable = numpy.zeros((len(algs), len(ps)*2+2))
