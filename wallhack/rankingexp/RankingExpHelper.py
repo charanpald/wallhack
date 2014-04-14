@@ -19,10 +19,10 @@ from sandbox.recommendation.WeightedMf import WeightedMf
 from sandbox.recommendation.WarpMf import WarpMf
 from sandbox.recommendation.KNNRecommender import KNNRecommender
 from sandbox.recommendation.IterativeSoftImpute import IterativeSoftImpute
+from sandbox.recommendation.CLiMF import CLiMF
 from sandbox.util.SparseUtils import SparseUtils 
 from sandbox.util.Sampling import Sampling 
 from sandbox.util.FileLock import FileLock 
-from sandbox.ext.climf import Climf
 
 
 class RankingExpHelper(object):
@@ -39,7 +39,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.learningRateSelect = False
     defaultAlgoArgs.lmbdasWrMf = 2.0**-numpy.arange(1, 12, 2)
     defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(1, 12, 2)
-    defaultAlgoArgs.lmbdasClimf = [0.001]
+    defaultAlgoArgs.lmbdasCLiMF = [0.001]
     defaultAlgoArgs.maxIterations = 5000
     defaultAlgoArgs.modelSelect = False
     defaultAlgoArgs.nu = 10
@@ -59,6 +59,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.runSoftImpute = False
     defaultAlgoArgs.runWarpMf = False
     defaultAlgoArgs.runWrMf = False
+    defaultAlgoArgs.runCLiMF = False
     defaultAlgoArgs.t0 = 10**-3 
     defaultAlgoArgs.testSize = 3
     defaultAlgoArgs.u = 0.1
@@ -110,14 +111,14 @@ class RankingExpHelper(object):
         
         # define parser
         algoParser = argparse.ArgumentParser(description="", add_help=add_help)
-        for method in ["runSoftImpute", "runMaxLocalAuc", "runWarpMf", "runWrMf", "runKnn"]:
+        for method in ["runSoftImpute", "runMaxLocalAuc", "runWarpMf", "runWrMf", "runKnn", "runCLiMF"]:
             algoParser.add_argument("--" + method, action="store_true", default=defaultAlgoArgs.__getattribute__(method))
         algoParser.add_argument("--alpha", type=float, help="Learning rate for max local AUC (default: %(default)s)", default=defaultAlgoArgs.alpha)
         algoParser.add_argument("--fullGradient", action="store_true", help="Whether to compute the full gradient at each iteration (default: %(default)s)", default=defaultAlgoArgs.fullGradient)
         algoParser.add_argument("--gamma", type=float, help="Regularisation parameter (gamma) for CLiMF (default: %(default)s)", default=defaultAlgoArgs.gamma)        
         algoParser.add_argument("--initialAlg", type=str, help="Initial setup for U and V for max local AUC: either rand or svd (default: %(default)s)", default=defaultAlgoArgs.initialAlg)
         algoParser.add_argument("--ks", type=int, nargs="+", help="Max number of singular values/vectors (default: %(default)s)", default=defaultAlgoArgs.ks)
-        algoParser.add_argument("--lmbdasClimf", type=float, nargs="+", help="Regularisation parameters (lambda) for CLiMF (default: %(default)s)", default=defaultAlgoArgs.lmbdasClimf)        
+        algoParser.add_argument("--lmbdasCLiMF", type=float, nargs="+", help="Regularisation parameters (lambda) for CLiMF (default: %(default)s)", default=defaultAlgoArgs.lmbdasCLiMF)        
         algoParser.add_argument("--lmbdasMlauc", type=float, nargs="+", help="Regularisation parameters for max local AUC (default: %(default)s)", default=defaultAlgoArgs.lmbdasMlauc)        
         algoParser.add_argument("--learningRateSelect", action="store_true", help="Whether to do learning rate selection (default: %(default)s)", default=defaultAlgoArgs.learningRateSelect)
         algoParser.add_argument("--maxIterations", type=int, help="Maximal number of iterations (default: %(default)s)", default=defaultAlgoArgs.maxIterations)
@@ -451,7 +452,7 @@ class RankingExpHelper(object):
                     trainX = trainX.toScipyCsr()
                     testX = testX.toScipyCsr()
 
-                    learner = Climf(self.algoArgs.kns[0], self.algoArgs.lmbdasClimf[0], self.algoArgs.gamma)
+                    learner = CLiMF(self.algoArgs.kns[0], self.algoArgs.lmbdasCLiMF[0], self.algoArgs.gamma)
                     learner.max_iters = learner.max_iters
 
                     logging.debug(learner)   
