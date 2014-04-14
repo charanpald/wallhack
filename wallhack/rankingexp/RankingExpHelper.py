@@ -62,7 +62,8 @@ class RankingExpHelper(object):
     defaultAlgoArgs.runWrMf = False
     defaultAlgoArgs.runCLiMF = False
     defaultAlgoArgs.t0 = 10**-3 
-    defaultAlgoArgs.testSize = 3
+    defaultAlgoArgs.testSize = 5
+    defaultAlgoArgs.validationSize = 3
     defaultAlgoArgs.u = 0.1
     defaultAlgoArgs.verbose = False
     
@@ -167,7 +168,7 @@ class RankingExpHelper(object):
         metaData = []
         w = 1-self.algoArgs.u
         logging.debug("Computing recommendation errors")
-        ps = [3, 5, 10, 20]
+        ps = [1, 3, 5]
         maxItems = ps[-1]
         
 
@@ -241,7 +242,7 @@ class RankingExpHelper(object):
         Run the selected ranking experiments and save results
         """
         logging.debug("Splitting into train and test sets")
-        trainTestXs = Sampling.shuffleSplitRows(X, self.algoArgs.folds, self.algoArgs.testSize)
+        trainTestXs = Sampling.shuffleSplitRows(X, 1, self.algoArgs.testSize)
         trainX, testX = trainTestXs[0]
         logging.debug("Train X shape and nnz: " + str(trainX.shape) + " " + str(trainX.nnz))    
         logging.debug("Test X shape and nnz: " + str(testX.shape) + " " + str(testX.nnz))
@@ -287,7 +288,7 @@ class RankingExpHelper(object):
                 
         if self.algoArgs.runMaxLocalAuc:
             logging.debug("Running max local AUC")
-            resultsFileName = self.resultsDir + "ResultsMaxLocalAUC_u=" + str(self.algoArgs.u) + ".npz"
+            resultsFileName = self.resultsDir + "ResultsMaxLocalAUC.npz"
                 
             fileLock = FileLock(resultsFileName)  
             
@@ -312,7 +313,7 @@ class RankingExpHelper(object):
                     learner.numStepIterations = self.algoArgs.numStepIterations
                     learner.lmbdas = self.algoArgs.lmbdasMlauc
                     learner.rho = self.algoArgs.rhoMlauc
-                    learner.testSize = self.algoArgs.testSize
+                    learner.testSize = self.algoArgs.validationSize
 
                     if self.algoArgs.learningRateSelect:
                         logging.debug("Performing learning rate selection, taking subsample of entries of size " + str(self.sampleSize))
@@ -392,10 +393,11 @@ class RankingExpHelper(object):
                     trainX = trainX.toScipyCsr()
                     testX = testX.toScipyCsr()
 
-                    learner = WeightedMf(self.algoArgs.ks[0], self.algoArgs.lmbdasWrMf[0], u=self.algoArgs.u)
+                    learner = WeightedMf(self.algoArgs.ks[0], self.algoArgs.lmbdasWrMf[0], w=1-self.algoArgs.u)
                     learner.ks = self.algoArgs.ks
                     learner.lmbdas = self.algoArgs.lmbdasWrMf 
                     learner.numProcesses = self.algoArgs.processes
+                    learner.testSize = self.algoArgs.validationSize
                     
                     if self.algoArgs.modelSelect: 
                         logging.debug("Performing model selection, taking subsample of entries of size " + str(self.sampleSize))

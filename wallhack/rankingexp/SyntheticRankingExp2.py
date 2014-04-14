@@ -30,11 +30,10 @@ X = X.tocsr()
 
 u = 0.2
 eps = 0.000001
-sigma = 200
 stochastic = True
 rho = 0.1
 
-maxLocalAuc = MaxLocalAUC(rho, k, u, sigma=sigma, eps=eps, stochastic=stochastic)
+maxLocalAuc = MaxLocalAUC(rho, k, u, eps=eps, stochastic=stochastic)
 maxLocalAuc.maxIterations = 100
 maxLocalAuc.numRowSamples = 50
 maxLocalAuc.numAucSamples = 200
