@@ -14,13 +14,14 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 ps = [3, 5, 10, 20]
 
-dirName = "SyntheticDataset1" 
-#dirName = "MovieLens" 
+#dirName = "SyntheticDataset1" 
+dirName = "MovieLens" 
 #dirName = "MendeleyCoauthors"
 
 resultsDir = PathDefaults.getOutputDir() + "ranking/" + dirName + "/"
-algs = ["MaxLocalAUC_u=0.2", "MaxLocalAUC_u=0.1", "MaxLocalAUC_u=0.05", "MaxLocalAUC_u=0.025", "SoftImpute", "WrMf"]
-names = ["MLAUC $u=0.2$", "MLAUC $U=0.1$", "MLAUC $U=0.05$", "MLAUC $U=0.025$", "SoftImpute", "WrMf"]
+algs = ["MaxLocalAUC_u=0.0212089077413", "SoftImpute", "WrMf"]
+#algs = ["MaxLocalAUC_u=0.1", "SoftImpute", "WrMf"]
+names = ["MLAUC",  "SoftImpute", "WrMf"]
 
 trainResultsTable = numpy.zeros((len(algs), len(ps)*2+2))
 testResultsTable = numpy.zeros((len(algs), len(ps)*2+2))

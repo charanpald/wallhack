@@ -32,28 +32,28 @@ testSize = 5
 trainTestXs = Sampling.shuffleSplitRows(X, 1, testSize)
 trainX, testX = trainTestXs[0]
 
+
+testOmegaList = SparseUtils.getOmegaList(testX)
+numRecordAucSamples = 200
 logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))
-#logging.debug("Total local AUC:" + str(MCEvaluator.localAUC(X, U, V, w)))
-#logging.debug("Train local AUC:" + str(MCEvaluator.localAUC(trainX, U, V, w)))
-#logging.debug("Test local AUC:" + str(MCEvaluator.localAUC(testX, U, V, w)))
+logging.debug("Train local AUC:" + str(MCEvaluator.localAUCApprox(trainX, U, V, w, numRecordAucSamples)))
+logging.debug("Test local AUC:" + str(MCEvaluator.localAUCApprox(X, U, V, w, numRecordAucSamples, omegaList=testOmegaList)))
 
 #w = 1.0
 k2 = k
 eps = 10**-15
-lmbda = 0.01
-u = 10.0/n
-w = 1-u
+lmbda = 0.0
 maxLocalAuc = MaxLocalAUC(k2, w, eps=eps, lmbda=lmbda, stochastic=True)
-maxLocalAuc.maxIterations = m*10
+maxLocalAuc.maxIterations = m*20
 maxLocalAuc.numRowSamples = 10
 maxLocalAuc.numStepIterations = 500
 maxLocalAuc.numAucSamples = 20
 maxLocalAuc.initialAlg = "softimpute"
 maxLocalAuc.recordStep = maxLocalAuc.numStepIterations
-maxLocalAuc.nu = 10
+maxLocalAuc.nu = 100
 maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 0.2
-maxLocalAuc.t0 = 10**-2
+maxLocalAuc.alpha = 0.0625
+maxLocalAuc.t0 = 0.01
 maxLocalAuc.folds = 4
 maxLocalAuc.rho = 0.00
 maxLocalAuc.ks = numpy.array([k])
@@ -66,7 +66,7 @@ os.system('taskset -p 0xffffffff %d' % os.getpid())
 logging.debug("Starting training")
 logging.debug(maxLocalAuc)
 #maxLocalAuc.learningRateSelect(X)
-maxLocalAuc.modelSelect(trainX)
+#maxLocalAuc.modelSelect(trainX)
 #ProfileUtils.profile('U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=X, verbose=True)', globals(), locals())
 U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=testX, verbose=True)
 
