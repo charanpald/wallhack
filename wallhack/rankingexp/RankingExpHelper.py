@@ -41,6 +41,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(1, 12, 2)
     defaultAlgoArgs.lmbdasCLiMF = [0.001]
     defaultAlgoArgs.maxIterations = 5000
+    defaultAlgoArgs.maxIterCLiMF = 25
     defaultAlgoArgs.modelSelect = False
     defaultAlgoArgs.nu = 10
     defaultAlgoArgs.numAucSamples = 20
@@ -122,6 +123,7 @@ class RankingExpHelper(object):
         algoParser.add_argument("--lmbdasMlauc", type=float, nargs="+", help="Regularisation parameters for max local AUC (default: %(default)s)", default=defaultAlgoArgs.lmbdasMlauc)        
         algoParser.add_argument("--learningRateSelect", action="store_true", help="Whether to do learning rate selection (default: %(default)s)", default=defaultAlgoArgs.learningRateSelect)
         algoParser.add_argument("--maxIterations", type=int, help="Maximal number of iterations (default: %(default)s)", default=defaultAlgoArgs.maxIterations)
+        algoParser.add_argument("--maxIterCLiMF", type=int, help="Maximal number of iterations for CLiMF algorithm (default: %(default)s)", default=defaultAlgoArgs.maxIterCLiMF)
         algoParser.add_argument("--modelSelect", action="store_true", help="Whether to do model selection(default: %(default)s)", default=defaultAlgoArgs.modelSelect)
         algoParser.add_argument("--numAucSamples", type=int, help="Number of AUC samples for max local AUC (default: %(default)s)", default=defaultAlgoArgs.numAucSamples)
         algoParser.add_argument("--numRowSamples", type=int, help="Number of row samples for max local AUC (default: %(default)s)", default=defaultAlgoArgs.numRowSamples)
@@ -428,7 +430,6 @@ class RankingExpHelper(object):
 
                     learner = KNNRecommender(self.algoArgs.kns[0])
                     learner.numProcesses = self.algoArgs.processes
-                    
                          
                     logging.debug(learner)   
                     
@@ -453,9 +454,26 @@ class RankingExpHelper(object):
                     testX = testX.toScipyCsr()
 
                     learner = CLiMF(self.algoArgs.kns[0], self.algoArgs.lmbdasCLiMF[0], self.algoArgs.gamma)
-                    learner.max_iters = learner.max_iters
+                    learner.max_iters = self.algoArgs.maxIterCLiMF
+                    learner.ks = self.algoArgs.ks 
+                    learner.lmbdas = self.algoArgs.lmbdasMlauc
+                    learner.numRecordAucSamples = self.algoArgs.numRecordAucSamples
+                    learner.w = 1-self.algoArgs.u
+                    learner.folds = self.algoArgs.folds  
+                    learner.testSize = self.algoArgs.testSize
+                    learner.numProcesses = self.algoArgs.processes 
 
-                    logging.debug(learner)   
+                    if self.algoArgs.modelSelect: 
+                        logging.debug("Performing model selection, taking subsample of entries of size " + str(self.sampleSize))
+                        modelSelectX = SparseUtils.submatrix(trainX, self.sampleSize)
+                        
+                        meanObjs, stdObjs = learner.modelSelect(modelSelectX)
+                        
+                        modelSelectFileName = resultsFileName.replace("Results", "ModelSelect") 
+                        numpy.savez(modelSelectFileName, meanObjs, stdObjs)
+                        logging.debug("Saved model selection grid as " + modelSelectFileName)                            
+                    
+                    logging.debug(learner)                
                     
                     self.recordResults(X, trainX, testX, learner, resultsFileName)
                 finally: 
