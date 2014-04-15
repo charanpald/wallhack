@@ -36,14 +36,13 @@ defaultAlgoArgs.numStepIterations = 500
 defaultAlgoArgs.numAucSamples = 20
 defaultAlgoArgs.initialAlg = "softimpute"
 defaultAlgoArgs.recordStep = defaultAlgoArgs.numStepIterations
-defaultAlgoArgs.nu = 20
 defaultAlgoArgs.rate = "optimal"
 defaultAlgoArgs.alpha = 0.2
 defaultAlgoArgs.t0 = 10**-2
 defaultAlgoArgs.folds = 3
 defaultAlgoArgs.rho = 0.00
 defaultAlgoArgs.ks = numpy.array([k])
-defaultAlgoArgs.testSize = 5
+defaultAlgoArgs.validationSize = 3
 defaultAlgoArgs.u = u 
 
 
