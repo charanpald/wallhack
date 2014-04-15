@@ -43,7 +43,8 @@ class RankingExpHelper(object):
     defaultAlgoArgs.maxIterations = 5000
     defaultAlgoArgs.maxIterCLiMF = 25
     defaultAlgoArgs.modelSelect = False
-    defaultAlgoArgs.nu = 10
+    defaultAlgoArgs.nu = 1.5
+    defaultAlgoArgs.nuPrime = 1
     defaultAlgoArgs.numAucSamples = 20
     defaultAlgoArgs.numRecordAucSamples = 500
     defaultAlgoArgs.numRowSamples = 20
@@ -301,6 +302,7 @@ class RankingExpHelper(object):
                     learner.numRowSamples = self.algoArgs.numRowSamples
                     learner.numAucSamples = self.algoArgs.numAucSamples
                     learner.nu = self.algoArgs.nu
+                    learner.nuPrime = self.algoArgs.nuPrime
                     learner.initialAlg = self.algoArgs.initialAlg
                     learner.recordStep = self.algoArgs.recordStep
                     learner.rate = self.algoArgs.rate
