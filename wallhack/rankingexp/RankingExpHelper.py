@@ -39,7 +39,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.learningRateSelect = False
     defaultAlgoArgs.lmbdasWrMf = 2.0**-numpy.arange(1, 12, 2)
     defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(1, 12, 2)
-    defaultAlgoArgs.lmbdasCLiMF = [0.001]
+    defaultAlgoArgs.lmbdasCLiMF = 2.0**-numpy.arange(1, 12, 2)
     defaultAlgoArgs.maxIterations = 5000
     defaultAlgoArgs.maxIterCLiMF = 25
     defaultAlgoArgs.modelSelect = False
@@ -458,7 +458,7 @@ class RankingExpHelper(object):
                     learner = CLiMF(self.algoArgs.kns[0], self.algoArgs.lmbdasCLiMF[0], self.algoArgs.gamma)
                     learner.max_iters = self.algoArgs.maxIterCLiMF
                     learner.ks = self.algoArgs.ks 
-                    learner.lmbdas = self.algoArgs.lmbdasMlauc
+                    learner.lmbdas = self.algoArgs.lmbdasCLiMF
                     learner.numRecordAucSamples = self.algoArgs.numRecordAucSamples
                     learner.w = 1-self.algoArgs.u
                     learner.folds = self.algoArgs.folds  
