@@ -45,9 +45,9 @@ eps = 10**-15
 lmbda = 0.1
 maxLocalAuc = MaxLocalAUC(k2, w, eps=eps, lmbda=lmbda, stochastic=True)
 maxLocalAuc.maxIterations = m*30
-maxLocalAuc.numRowSamples = 10
+maxLocalAuc.numRowSamples = 5
 maxLocalAuc.numStepIterations = 500
-maxLocalAuc.numAucSamples = 20
+maxLocalAuc.numAucSamples = 5
 maxLocalAuc.initialAlg = "softimpute"
 maxLocalAuc.recordStep = maxLocalAuc.numStepIterations
 maxLocalAuc.nu = 1.5
@@ -68,7 +68,7 @@ os.system('taskset -p 0xffffffff %d' % os.getpid())
 logging.debug("Starting training")
 logging.debug(maxLocalAuc)
 #maxLocalAuc.learningRateSelect(X)
-maxLocalAuc.modelSelect(trainX)
+#maxLocalAuc.modelSelect(trainX)
 #ProfileUtils.profile('U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=X, verbose=True)', globals(), locals())
 U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=testX, verbose=True)
 
