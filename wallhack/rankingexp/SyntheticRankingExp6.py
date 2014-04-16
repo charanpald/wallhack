@@ -4,14 +4,14 @@ import sys
 import sppy
 from sandbox.recommendation.MaxLocalAUC import MaxLocalAUC
 from sandbox.util.SparseUtils import SparseUtils
-from sandbox.util.PathDefaults import PathDefaults
+from sandbox.util.MCEvaluator import MCEvaluator
 from sandbox.util.Sampling import Sampling
 import matplotlib 
 matplotlib.use("GTK3Agg")
 import matplotlib.pyplot as plt
 
 """
-Test the effect of nu parameter and also quantile threshold u. 
+Let's increase nu as we go along 
 """
 
 
@@ -36,48 +36,47 @@ trainX, testX = trainTestXs[0]
 
 logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))
 
-#logging.debug("Total local AUC:" + str(MCEvaluator.localAUC(X, U, V, w)))
-#logging.debug("Train local AUC:" + str(MCEvaluator.localAUC(trainX, U, V, w)))
-#logging.debug("Test local AUC:" + str(MCEvaluator.localAUC(testX, U, V, w)))
 
-#w = 1.0
-u = 0.05 
-w = 1-u 
 k2 = k
 eps = 10**-6
 maxLocalAuc = MaxLocalAUC(k2, w, eps=eps, stochastic=True)
-maxLocalAuc.maxIterations = m*10
+maxLocalAuc.maxIterations = m*20
 maxLocalAuc.numRowSamples = 10
 maxLocalAuc.numStepIterations = 500
 maxLocalAuc.numAucSamples = 20
-maxLocalAuc.initialAlg = "softimpute"
+maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.recordStep = maxLocalAuc.numStepIterations
-maxLocalAuc.nu = 20
+maxLocalAuc.nu = 1
 maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 0.2
-maxLocalAuc.t0 = 10**-2
-maxLocalAuc.lmbda = 0.01
+maxLocalAuc.alpha = 1.0
+maxLocalAuc.t0 = 10**-3
+maxLocalAuc.lmbda = 0.00
 
 
-nus = numpy.array([1, 10, 100])
+nus = numpy.array([1, 2, 3, 4, 5], dtype=numpy.float)**2
 print(nus)
+
+
+numRecordAucSamples = 500 
+trainLocalAucs = numpy.zeros(nus.shape[0])
+testLocalAucs = numpy.zeros(nus.shape[0])
+
+trainOmegaList = SparseUtils.getOmegaList(trainX)
+testOmegaList = SparseUtils.getOmegaList(testX)
+U, V = maxLocalAuc.initUV(trainX)
+lastInd = 0
 
 for i, nu in enumerate(nus): 
     maxLocalAuc.nu = nu
+    maxLocalAuc.nuPrime = nu
+    maxLocalAuc.alpha = 2*maxLocalAuc.alpha/((1 + maxLocalAuc.alpha*maxLocalAuc.t0*lastInd))
     logging.debug(maxLocalAuc)
-    U, V, trainObjs, trainAucs, testObjs, testAucs, ind, totalTime = maxLocalAuc.learnModel(trainX, verbose=True, testX=testX)
+    U, V, trainObjs, trainAucs, testObjs, testAucs, ind, totalTime = maxLocalAuc.learnModel(trainX, U=U, V=V, verbose=True, testX=testX)
     
-    plt.figure(0)
-    plt.plot(trainAucs, label="train nu="+str(nu))
-    plt.plot(testAucs, label="test nu="+str(nu))
-    plt.legend()
+    lastInd = ind 
     
-    plt.figure(1)
-    plt.plot(trainObjs, label="train nu="+str(nu))
-    plt.plot(testObjs, label="test nu="+str(nu))
-    plt.legend()
-    
-plt.show()
+    trainLocalAucs[i] = MCEvaluator.localAUCApprox(trainX, U, V, w, numRecordAucSamples, omegaList=trainOmegaList)
+    testLocalAucs[i] = MCEvaluator.localAUCApprox(X, U, V, w, numRecordAucSamples, omegaList=testOmegaList)
 
-#Using larger nu helps train AUC, not so much test 
-#Using a nu on the kappa makes results slightly worse 
+print(trainLocalAucs)
+print(testLocalAucs)
