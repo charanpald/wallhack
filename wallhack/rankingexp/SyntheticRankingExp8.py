@@ -54,11 +54,11 @@ maxLocalAuc.maxIterations = m*20
 maxLocalAuc.numRowSamples = 10
 maxLocalAuc.numStepIterations = 500
 maxLocalAuc.numAucSamples = 20
-maxLocalAuc.initialAlg = "rand"
+maxLocalAuc.initialAlg = "softimpute"
 maxLocalAuc.recordStep = maxLocalAuc.numStepIterations
-maxLocalAuc.nu = 2
+maxLocalAuc.nu = 50
 maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 5
+maxLocalAuc.alpha = 0.1
 maxLocalAuc.t0 = 10**-3
 maxLocalAuc.lmbda = 0.0001
 
@@ -67,8 +67,8 @@ trainOmegaList = SparseUtils.getOmegaList(trainX)
 testOmegaList = SparseUtils.getOmegaList(testX)
 
 maxItems = 20
-nus = numpy.array([1, 1.5, 2, 3, 4, 5])
-nuPrimes = numpy.array([1, 1.5, 2, 3, 4, 5])
+nus = numpy.array([1, 2, 3, 4, 5])**2
+nuPrimes = numpy.array([1, 2, 3, 4, 5])**2
 
 trainLocalAucs = numpy.zeros((nus.shape[0], nuPrimes.shape[0]))
 testLocalAucs = numpy.zeros((nus.shape[0], nuPrimes.shape[0]))
