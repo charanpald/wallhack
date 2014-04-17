@@ -40,35 +40,36 @@ logging.debug("Train local AUC:" + str(MCEvaluator.localAUCApprox(trainX, U, V, 
 logging.debug("Test local AUC:" + str(MCEvaluator.localAUCApprox(X, U, V, w, numRecordAucSamples, omegaList=testOmegaList)))
 
 #w = 1.0
-k2 = 16
+k2 = 4
 eps = 10**-15
-lmbda = 0.1
+lmbda = 0.0000
 maxLocalAuc = MaxLocalAUC(k2, w, eps=eps, lmbda=lmbda, stochastic=True)
 maxLocalAuc.maxIterations = m*30
-maxLocalAuc.numRowSamples = 5
+maxLocalAuc.numRowSamples = 10
 maxLocalAuc.numStepIterations = 500
-maxLocalAuc.numAucSamples = 5
-maxLocalAuc.initialAlg = "softimpute"
+maxLocalAuc.numAucSamples = 10
+maxLocalAuc.initialAlg = "wrmf"
 maxLocalAuc.recordStep = maxLocalAuc.numStepIterations
-maxLocalAuc.nu = 1.5
-maxLocalAuc.nuPrime = 1
+maxLocalAuc.nu = 50
+maxLocalAuc.nuPrime = 50
 maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 1.0
-maxLocalAuc.t0 = 0.001
-maxLocalAuc.folds = 2
+maxLocalAuc.alpha = 0.001
+maxLocalAuc.t0 = 0.0001
+maxLocalAuc.folds = 3
 maxLocalAuc.rho = 0.00
-maxLocalAuc.ks = numpy.array([8, 16])
+maxLocalAuc.ks = numpy.array([k2])
 maxLocalAuc.testSize = 3
 maxLocalAuc.lmbdas = 2.0**-numpy.arange(3, 14, 2)
+#maxLocalAuc.lmbdas = numpy.array([0.001])
 #maxLocalAuc.numProcesses = 1
 
 
 os.system('taskset -p 0xffffffff %d' % os.getpid())
 
 logging.debug("Starting training")
-logging.debug(maxLocalAuc)
+#logging.debug(maxLocalAuc)
 #maxLocalAuc.learningRateSelect(X)
-#maxLocalAuc.modelSelect(trainX)
+#maxLocalAuc.modelSelect(X)
 #ProfileUtils.profile('U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=X, verbose=True)', globals(), locals())
 U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=testX, verbose=True)
 

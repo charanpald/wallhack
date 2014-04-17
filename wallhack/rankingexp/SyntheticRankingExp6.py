@@ -53,7 +53,8 @@ maxLocalAuc.t0 = 10**-3
 maxLocalAuc.lmbda = 0.00
 
 
-nus = numpy.array([1, 2, 3, 4, 5], dtype=numpy.float)**2
+lmbda = 0.00
+nus = numpy.array([1, 2, 3, 4, 5, 6], dtype=numpy.float)**3
 print(nus)
 
 
@@ -69,7 +70,8 @@ lastInd = 0
 for i, nu in enumerate(nus): 
     maxLocalAuc.nu = nu
     maxLocalAuc.nuPrime = nu
-    maxLocalAuc.alpha = 2*maxLocalAuc.alpha/((1 + maxLocalAuc.alpha*maxLocalAuc.t0*lastInd))
+    maxLocalAuc.alpha = maxLocalAuc.alpha/((1 + maxLocalAuc.alpha*maxLocalAuc.t0*lastInd))
+    maxLocalAuc.lmbda = lmbda*nu
     logging.debug(maxLocalAuc)
     U, V, trainObjs, trainAucs, testObjs, testAucs, ind, totalTime = maxLocalAuc.learnModel(trainX, U=U, V=V, verbose=True, testX=testX)
     
