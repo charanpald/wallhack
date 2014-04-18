@@ -28,6 +28,7 @@ from sandbox.util.FileLock import FileLock
 class RankingExpHelper(object):
     defaultAlgoArgs = argparse.Namespace()
     defaultAlgoArgs.alpha = 0.1
+    defaultAlgoArgs.alphas = 2.0**-numpy.arange(2, 11, 1)
     defaultAlgoArgs.epsSi = 10**-14
     defaultAlgoArgs.epsMlauc = 10**-6
     defaultAlgoArgs.folds = 5
@@ -63,6 +64,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.runWrMf = False
     defaultAlgoArgs.runCLiMF = False
     defaultAlgoArgs.t0 = 10**-3 
+    defaultAlgoArgs.t0s = numpy.logspace(-1, -4, 6, base=10)
     defaultAlgoArgs.testSize = 5
     defaultAlgoArgs.validationSize = 3
     defaultAlgoArgs.u = 0.1
@@ -130,6 +132,7 @@ class RankingExpHelper(object):
         algoParser.add_argument("--numAucSamples", type=int, help="Number of AUC samples for max local AUC (default: %(default)s)", default=defaultAlgoArgs.numAucSamples)
         algoParser.add_argument("--numRowSamples", type=int, help="Number of row samples for max local AUC (default: %(default)s)", default=defaultAlgoArgs.numRowSamples)
         algoParser.add_argument("--nu", type=int, help="Weight of discordance for max local AUC (default: %(default)s)", default=defaultAlgoArgs.nu)
+        algoParser.add_argument("--nuPrime", type=int, help="Weight of discordance for max local AUC (default: %(default)s)", default=defaultAlgoArgs.nuPrime)
         algoParser.add_argument("--overwrite", action="store_true", help="Whether to overwrite results even if already computed (default: %(default)s)", default=defaultAlgoArgs.overwrite)
         algoParser.add_argument("--postProcess", action="store_true", help="Whether to do post processing for soft impute (default: %(default)s)", default=defaultAlgoArgs.postProcess)
         algoParser.add_argument("--processes", type=int, help="Number of CPU cores to use (default: %(default)s)", default=defaultAlgoArgs.processes)
@@ -316,6 +319,8 @@ class RankingExpHelper(object):
                     learner.lmbdas = self.algoArgs.lmbdasMlauc
                     learner.rho = self.algoArgs.rhoMlauc
                     learner.testSize = self.algoArgs.validationSize
+                    learner.alphas = self.algoArgs.alphas
+                    learner.t0s = self.algoArgs.t0s
 
                     if self.algoArgs.learningRateSelect:
                         logging.debug("Performing learning rate selection, taking subsample of entries of size " + str(self.sampleSize))
