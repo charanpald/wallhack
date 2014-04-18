@@ -30,12 +30,23 @@ dataArgs = argparse.Namespace()
 defaultAlgoArgs = argparse.Namespace()
 defaultAlgoArgs.ks = 2**numpy.arange(3, 7)
 defaultAlgoArgs.rhos = numpy.flipud(numpy.logspace(-7, -3, 5))
-defaultAlgoArgs.folds = 4
-defaultAlgoArgs.u = 20.0/m
-defaultAlgoArgs.maxIterations = 10*m
+defaultAlgoArgs.rhos = numpy.flipud(numpy.logspace(-7, -3, 5))
+#defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(4, 12, 1)
+defaultAlgoArgs.lmbdasMlauc = numpy.array([0.0])
+defaultAlgoArgs.maxIterations = m*20
+defaultAlgoArgs.numRowSamples = 10
+defaultAlgoArgs.numStepIterations = 500
+defaultAlgoArgs.numAucSamples = 20
+defaultAlgoArgs.initialAlg = "svd"
+defaultAlgoArgs.recordStep = defaultAlgoArgs.numStepIterations
+defaultAlgoArgs.rate = "optimal"
+defaultAlgoArgs.alpha = 0.001
 defaultAlgoArgs.t0 = 10**-3
-defaultAlgoArgs.alpha = 0.2
-defaultAlgoArgs.initialAlg = "softimpute"
+defaultAlgoArgs.folds = 3
+defaultAlgoArgs.nu = 50
+defaultAlgoArgs.nuPrime = 50
+defaultAlgoArgs.rho = 0.00
+defaultAlgoArgs.validationSize = 3
 
 # data args parser #
 dataParser = argparse.ArgumentParser(description="", add_help=False)
