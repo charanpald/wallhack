@@ -44,17 +44,17 @@ maxLocalAuc.maxIterations = m*20
 maxLocalAuc.numRowSamples = 10
 maxLocalAuc.numStepIterations = 500
 maxLocalAuc.numAucSamples = 20
-maxLocalAuc.initialAlg = "rand"
+maxLocalAuc.initialAlg = "svd"
 maxLocalAuc.recordStep = maxLocalAuc.numStepIterations
 maxLocalAuc.nu = 1
 maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 1.0
+maxLocalAuc.alpha = 0.01
 maxLocalAuc.t0 = 10**-3
-maxLocalAuc.lmbda = 0.00
+maxLocalAuc.lmbda = 0.001
 
 
 lmbda = 0.00
-nus = numpy.array([1, 2, 3, 4, 5, 6], dtype=numpy.float)**3
+nus = numpy.array([1, 2, 3, 4, 5], dtype=numpy.float)**3
 print(nus)
 
 
@@ -70,8 +70,8 @@ lastInd = 0
 for i, nu in enumerate(nus): 
     maxLocalAuc.nu = nu
     maxLocalAuc.nuPrime = nu
-    maxLocalAuc.alpha = maxLocalAuc.alpha/((1 + maxLocalAuc.alpha*maxLocalAuc.t0*lastInd))
-    maxLocalAuc.lmbda = lmbda*nu
+    #maxLocalAuc.alpha = maxLocalAuc.alpha/((1 + maxLocalAuc.alpha*maxLocalAuc.t0*lastInd))
+    #maxLocalAuc.lmbda = lmbda*nu
     logging.debug(maxLocalAuc)
     U, V, trainObjs, trainAucs, testObjs, testAucs, ind, totalTime = maxLocalAuc.learnModel(trainX, U=U, V=V, verbose=True, testX=testX)
     
