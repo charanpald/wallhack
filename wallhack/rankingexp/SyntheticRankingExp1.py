@@ -40,28 +40,30 @@ logging.debug("Train local AUC:" + str(MCEvaluator.localAUCApprox(trainX, U, V, 
 logging.debug("Test local AUC:" + str(MCEvaluator.localAUCApprox(X, U, V, w, numRecordAucSamples, omegaList=testOmegaList)))
 
 #w = 1.0
-k2 = 4
+k2 = k
 eps = 10**-15
-lmbda = 0.0000
+lmbda = 0.000
 maxLocalAuc = MaxLocalAUC(k2, w, eps=eps, lmbda=lmbda, stochastic=True)
-maxLocalAuc.maxIterations = m*30
+maxLocalAuc.maxIterations = m*100
 maxLocalAuc.numRowSamples = 10
-maxLocalAuc.numStepIterations = 500
+maxLocalAuc.numStepIterations = 1000
 maxLocalAuc.numAucSamples = 10
-maxLocalAuc.initialAlg = "wrmf"
+maxLocalAuc.numRecordAucSamples = 200
+maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.recordStep = maxLocalAuc.numStepIterations
 maxLocalAuc.nu = 50
 maxLocalAuc.nuPrime = 50
 maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 0.001
-maxLocalAuc.t0 = 0.0001
+maxLocalAuc.alpha = 1.4
+maxLocalAuc.t0 = 0.0005
 maxLocalAuc.folds = 3
 maxLocalAuc.rho = 0.00
 maxLocalAuc.ks = numpy.array([k2])
 maxLocalAuc.testSize = 3
-maxLocalAuc.lmbdas = 2.0**-numpy.arange(3, 14, 2)
-#maxLocalAuc.lmbdas = numpy.array([0.001])
+maxLocalAuc.lmbdas = 2.0**-numpy.arange(4, 15, 2)
 #maxLocalAuc.numProcesses = 1
+maxLocalAuc.alphas = 2.0**-numpy.arange(-1, 2, 0.5)
+maxLocalAuc.t0s = 2.0**-numpy.arange(6, 14, 1)
 
 
 os.system('taskset -p 0xffffffff %d' % os.getpid())
@@ -73,15 +75,15 @@ logging.debug("Starting training")
 #ProfileUtils.profile('U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=X, verbose=True)', globals(), locals())
 U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=testX, verbose=True)
 
-fprTrain, tprTrain = MCEvaluator.averageRocCurve(trainX, U, V)
-fprTest, tprTest = MCEvaluator.averageRocCurve(testX, U, V)
 
+"""
 plt.figure(0)
 plt.plot(trainObjs, label="train")
 plt.plot(testObjs, label="test")
 plt.xlabel("iteration")
 plt.ylabel("objective")
 plt.legend()
+"""
 
 plt.figure(1)
 plt.plot(trainAucs, label="train")
@@ -90,11 +92,14 @@ plt.xlabel("iteration")
 plt.ylabel("local AUC")
 plt.legend()
 
-plt.figure(2)
-plt.plot(fprTrain, tprTrain, label="train")
-plt.plot(fprTest, tprTest, label="test")
-plt.xlabel("mean false positive rate")
-plt.ylabel("mean true positive rate")
-plt.legend()
+#fprTrain, tprTrain = MCEvaluator.averageRocCurve(trainX, U, V)
+#fprTest, tprTest = MCEvaluator.averageRocCurve(testX, U, V)
+#
+#plt.figure(2)
+#plt.plot(fprTrain, tprTrain, label="train")
+#plt.plot(fprTest, tprTest, label="test")
+#plt.xlabel("mean false positive rate")
+#plt.ylabel("mean true positive rate")
+#plt.legend()
 plt.show()
 
