@@ -45,14 +45,14 @@ k2 = k
 u2 = 5.0/n
 w2 = 1-u2
 eps = 10**-15
-lmbda = 0.000
+lmbda = 0
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbda=lmbda, stochastic=True)
-maxLocalAuc.maxIterations = m*40
-maxLocalAuc.numRowSamples = 50
+maxLocalAuc.maxIterations = m*80
+maxLocalAuc.numRowSamples = 100
 maxLocalAuc.numStepIterations = 1000
-maxLocalAuc.numAucSamples = 50
+maxLocalAuc.numAucSamples = 10
 maxLocalAuc.numRecordAucSamples = 200
-maxLocalAuc.initialAlg = "svd"
+maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.recordStep = maxLocalAuc.numStepIterations
 maxLocalAuc.rate = "optimal"
 maxLocalAuc.alpha = 0.1
@@ -88,14 +88,14 @@ for p in [1, 3, 5]:
     logging.debug("Train precision@" + str(p) + "=" + str(MCEvaluator.precisionAtK(trainX, trainOrderedItems, p, omegaList=trainOmegaList))) 
     logging.debug("Test precision@" + str(p) + "=" + str(MCEvaluator.precisionAtK(testX, testOrderedItems, p, omegaList=testOmegaList))) 
 
-"""
+
 plt.figure(0)
 plt.plot(trainObjs, label="train")
 plt.plot(testObjs, label="test")
 plt.xlabel("iteration")
 plt.ylabel("objective")
 plt.legend()
-"""
+
 
 plt.figure(1)
 plt.plot(trainAucs, label="train")
