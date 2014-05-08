@@ -1,148 +1,137 @@
 import numpy
 import logging
 import sys
+import os
 from sandbox.recommendation.MaxLocalAUC import MaxLocalAUC
 from sandbox.util.SparseUtils import SparseUtils
-from sandbox.util.MCEvaluator import MCEvaluator
 import matplotlib 
 matplotlib.use("GTK3Agg")
 import matplotlib.pyplot as plt 
+from sandbox.util.ProfileUtils import ProfileUtils
+from sandbox.util.MCEvaluator import MCEvaluator
+from sandbox.util.Util import Util
+from sandbox.util.Sampling import Sampling
+from sandbox.util.MCEvaluatorCython import MCEvaluatorCython
+
+"""
+How much random sampling do we need for fast convergence 
+"""
+
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.random.seed(21)        
 numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 
-"""
-In this script we play around with parameters to see their effect on convergence speed. 
-"""
-
 #Create a low rank matrix  
-m = 1000 
-n = 2000 
-k = 10 
-numInds = 50000
-X = SparseUtils.generateSparseLowRank((m, n), k, numInds)
+m = 500
+n = 200
+k = 8 
+u = 20.0/n
+w = 1-u
+X, U, s, V = SparseUtils.generateSparseBinaryMatrix((m,n), k, w, csarray=True, verbose=True, indsPerRow=200)
+logging.debug("Number of non zero elements: " + str(X.nnz))
+logging.debug("Size of X: " + str(X.shape))
 
-X = X/X
-X = X.tocsr()
+U = U*s
 
+testSize = 5
+trainTestXs = Sampling.shuffleSplitRows(X, 1, testSize)
+trainX, testX = trainTestXs[0]
 
+trainOmegaList = SparseUtils.getOmegaList(trainX)
+testOmegaList = SparseUtils.getOmegaList(testX)
+numRecordAucSamples = 200
+logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))
+logging.debug("Train local AUC:" + str(MCEvaluator.localAUCApprox(trainX, U, V, w, numRecordAucSamples)))
+logging.debug("Test local AUC:" + str(MCEvaluator.localAUCApprox(X, U, V, w, numRecordAucSamples, omegaList=testOmegaList)))
 
-u = 0.2
-eps = 0.000001
-stochastic = True
-rho = 0.1
-
-maxLocalAuc = MaxLocalAUC(rho, k, u, eps=eps, stochastic=stochastic)
-maxLocalAuc.maxIterations = 100
+#w = 1.0
+k2 = k
+u2 = 5.0/n
+w2 = 1-u2
+eps = 10**-15
+lmbda = 0
+maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbda=lmbda, stochastic=True)
+maxLocalAuc.maxIterations = m*20
 maxLocalAuc.numRowSamples = 50
-maxLocalAuc.numAucSamples = 200
-maxLocalAuc.approxDerivative = True
+maxLocalAuc.numStepIterations = 1000
+maxLocalAuc.numAucSamples = 50
+maxLocalAuc.numRecordAucSamples = 200
 maxLocalAuc.initialAlg = "svd"
-maxLocalAuc.recordStep = 50
+maxLocalAuc.recordStep = maxLocalAuc.numStepIterations
+maxLocalAuc.rate = "optimal"
+maxLocalAuc.alpha = 0.1
+maxLocalAuc.t0 = 0.001953125
+maxLocalAuc.folds = 2
+maxLocalAuc.rho = 0.0
+maxLocalAuc.ks = numpy.array([k2])
+maxLocalAuc.testSize = 3
+maxLocalAuc.lmbdas = 2.0**-numpy.arange(0, 10, 2)
+#maxLocalAuc.numProcesses = 1
+maxLocalAuc.alphas = 2.0**-numpy.arange(0, 6, 1)
+maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
+maxLocalAuc.beta = 1.0
+maxLocalAuc.normalise = True
 
-plotInd = 0
-omegaList = SparseUtils.getOmegaList(X)
+os.system('taskset -p 0xffffffff %d' % os.getpid())
 
-#Now let's vary learning rate sigma 
-maxLocalAuc.lmbda = 0.0001
+numRowSamplesArray = numpy.array([10, 20, 50, 100])
+numAucSamplesArray = numpy.array([10, 20, 50, 100])
 
-sigmas = numpy.array([50, 100, 200, 400, 800, 1600]) 
-aucs = numpy.zeros(sigmas.shape[0])
-times = numpy.zeros(sigmas.shape[0])
+maxLocalAuc.numRowSamples = 100
+maxLocalAuc.numAucSamples = 100
 
-for i, sigma in enumerate(sigmas): 
-    maxLocalAuc.sigma = sigma
-            
-    logging.debug("Starting training")
-    U, V, objs, localAucs, iterations, time = maxLocalAuc.learnModel(X, True)
-    logging.debug("Done")
-    
-    aucs[i] = MCEvaluator.localAUCApprox(X, U, V, u)
-    times[i] = time
-  
-logging.debug(aucs)
-logging.debug(times)
-  
-plt.figure(plotInd)
-plt.plot(sigmas, aucs)
-plt.xlabel("sigma")
-plt.ylabel("local AUC")
-plotInd += 1
-
-plt.figure(plotInd)
-plt.plot(sigmas, times)
-plt.xlabel("sigma")
-plt.ylabel("time")
-plotInd += 1
-
-#Now the number of row samples used for stochastic gradient descent
-numRowSamplesArr = numpy.array([5, 10, 20, 50, 100])
-aucs = numpy.zeros(numRowSamplesArr.shape[0])
-times = numpy.zeros(numRowSamplesArr.shape[0])
-
-maxLocalAuc.lmbda = 0.0001
-maxLocalAuc.sigma = 800
-maxLocalAuc.numRowSamples = 50
-maxLocalAuc.numAucSamples = 200
-
-for i, numRowSamples in enumerate(numRowSamplesArr): 
+for numRowSamples in numRowSamplesArray: 
     maxLocalAuc.numRowSamples = numRowSamples
-            
-    logging.debug("Starting training")
-    U, V, objs, localAucs, iterations, time = maxLocalAuc.learnModel(X, True)
-    logging.debug("Done")
+    logging.debug(maxLocalAuc)
+    U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=testX, verbose=True)
     
-    aucs[i] = MCEvaluator.localAUCApprox(X, U, V, u)
-    times[i] = time
-   
-logging.debug(aucs)   
-logging.debug(times)
-   
-plt.figure(plotInd)
-plt.plot(numRowSamplesArr, aucs)
-plt.xlabel("numRowSamples")
-plt.ylabel("local AUC")
-plotInd += 1
+    plt.figure(0)
+    plt.plot(trainObjs, label="train nRow="+str(numRowSamples))
+    #plt.plot(testObjs, label="test nRow="+str(numRowSamples))
+    
+    plt.figure(1)
+    plt.plot(trainAucs, label="train nRow="+str(numRowSamples))
+    #plt.plot(testAucs, label="test nRow="+str(numRowSamples))
 
-plt.figure(plotInd)
-plt.plot(numRowSamplesArr, times)
-plt.xlabel("numRowSamples")
-plt.ylabel("time")
-plotInd += 1
+maxLocalAuc.numRowSamples = 100
+maxLocalAuc.numAucSamples = 100
 
-#Now the number of samples used to approximate AUC
-numAucSamplesArr = numpy.array([20, 50, 100, 200])
-aucs = numpy.zeros(numAucSamplesArr.shape[0])
-times = numpy.zeros(numAucSamplesArr.shape[0])
-
-maxLocalAuc.lmbda = 0.0001
-maxLocalAuc.sigma = 800
-maxLocalAuc.numRowSamples = 50
-maxLocalAuc.numAucSamples = 200
-
-for i, numAucSamples in enumerate(numAucSamplesArr): 
+for numAucSamples in numAucSamplesArray: 
     maxLocalAuc.numAucSamples = numAucSamples
-            
-    logging.debug("Starting training")
-    U, V, objs, localAucs, iterations, time = maxLocalAuc.learnModel(X, True)
-    logging.debug("Done")
-    
-    aucs[i] = MCEvaluator.localAUCApprox(X, U, V, u)
-    times[i] = time
-   
-logging.debug(aucs)   
-logging.debug(times)
-   
-plt.figure(plotInd)
-plt.plot(numAucSamplesArr, aucs)
-plt.xlabel("numAucSamples")
-plt.ylabel("local AUC")
-plotInd += 1
+    logging.debug(maxLocalAuc)
+    U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=testX, verbose=True)
 
-plt.figure(plotInd)
-plt.plot(numAucSamplesArr, times)
-plt.xlabel("numAucSamples")
-plt.ylabel("time")
-plotInd += 1
+    plt.figure(2)
+    plt.plot(trainObjs, label="train nAuc="+str(numAucSamples))
+    #plt.plot(testObjs, label="test nAuc="+str(numAucSamples))
+    
+    plt.figure(3)
+    plt.plot(trainAucs, label="train nAuc="+str(numAucSamples))
+    #plt.plot(testAucs, label="test nAuc="+str(numAucSamples))
+
+
+plt.figure(0)
+plt.xlabel("iteration")
+plt.ylabel("objective")
+plt.legend()
+
+
+plt.figure(1)
+plt.xlabel("iteration")
+plt.ylabel("local AUC")
+plt.legend()
+
+plt.figure(2)
+plt.xlabel("iteration")
+plt.ylabel("objective")
+plt.legend()
+
+
+plt.figure(3)
+plt.xlabel("iteration")
+plt.ylabel("local AUC")
+plt.legend()
+
 plt.show()
+
