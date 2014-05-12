@@ -52,7 +52,7 @@ maxLocalAuc.numRowSamples = 100
 maxLocalAuc.numStepIterations = 1000
 maxLocalAuc.numAucSamples = 10
 maxLocalAuc.numRecordAucSamples = 200
-maxLocalAuc.initialAlg = "rand"
+maxLocalAuc.initialAlg = "svd"
 maxLocalAuc.recordStep = maxLocalAuc.numStepIterations
 maxLocalAuc.rate = "optimal"
 maxLocalAuc.alpha = 0.1
@@ -67,13 +67,14 @@ maxLocalAuc.alphas = 2.0**-numpy.arange(0, 6, 1)
 maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
 maxLocalAuc.beta = 1.0
 maxLocalAuc.normalise = True
+maxLocalAuc.metric = "precision"
 
 os.system('taskset -p 0xffffffff %d' % os.getpid())
 
 logging.debug("Starting training")
 #logging.debug(maxLocalAuc)
 #maxLocalAuc.learningRateSelect(X)
-#maxLocalAuc.modelSelect(X)
+maxLocalAuc.modelSelect(X)
 #ProfileUtils.profile('U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=X, verbose=True)', globals(), locals())
 U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=testX, verbose=True)
 

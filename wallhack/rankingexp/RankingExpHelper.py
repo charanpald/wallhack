@@ -321,6 +321,7 @@ class RankingExpHelper(object):
                     learner.testSize = self.algoArgs.validationSize
                     learner.alphas = self.algoArgs.alphas
                     learner.t0s = self.algoArgs.t0s
+                    learner.metric = "precision"
 
                     if self.algoArgs.learningRateSelect:
                         logging.debug("Performing learning rate selection, taking subsample of entries of size " + str(self.sampleSize))
