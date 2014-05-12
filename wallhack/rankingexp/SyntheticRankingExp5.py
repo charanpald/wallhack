@@ -11,7 +11,7 @@ matplotlib.use("GTK3Agg")
 import matplotlib.pyplot as plt
 
 """
-Script to see if orthogonality constraint helps. 
+Script to see if varying rho helps
 """
 
 
@@ -60,13 +60,11 @@ eps = 10**-6
 alpha = 10
 maxLocalAuc = MaxLocalAUC(k2, w, alpha=alpha, eps=eps, stochastic=True)
 maxLocalAuc.maxIterations = m*20
-maxLocalAuc.numRowSamples = 10
-maxLocalAuc.numStepIterations = 500
-maxLocalAuc.numAucSamples = 20
-maxLocalAuc.initialAlg = "rand"
+maxLocalAuc.numRowSamples = 100
+maxLocalAuc.numStepIterations = 1000
+maxLocalAuc.numAucSamples = 10
+maxLocalAuc.initialAlg = "svd"
 maxLocalAuc.recordStep = maxLocalAuc.numStepIterations
-maxLocalAuc.nu = 1.5
-maxLocalAuc.nuPrime = 1
 maxLocalAuc.rate = "optimal"
 maxLocalAuc.alpha = 0.2
 maxLocalAuc.t0 = 10**-3
