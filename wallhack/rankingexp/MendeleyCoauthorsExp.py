@@ -28,12 +28,23 @@ dataArgs = argparse.Namespace()
 defaultAlgoArgs = argparse.Namespace()
 defaultAlgoArgs.ks = 2**numpy.arange(3, 7)
 defaultAlgoArgs.rhos = numpy.flipud(numpy.logspace(-7, -3, 5))
-defaultAlgoArgs.folds = 4
-defaultAlgoArgs.u = 20.0/m
-defaultAlgoArgs.maxIterations = 20*m
-defaultAlgoArgs.t0 = 5.0/defaultAlgoArgs.maxIterations 
-defaultAlgoArgs.alpha = 0.3
+defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(1, 12, 2)
+#defaultAlgoArgs.lmbdasMlauc = numpy.array([0.0])
+defaultAlgoArgs.maxIterations = m*80
+defaultAlgoArgs.numRowSamples = 100
+defaultAlgoArgs.numStepIterations = 1000
+defaultAlgoArgs.numAucSamples = 10
 defaultAlgoArgs.initialAlg = "svd"
+defaultAlgoArgs.recordStep = defaultAlgoArgs.numStepIterations
+defaultAlgoArgs.rate = "optimal"
+defaultAlgoArgs.alpha = 0.1
+defaultAlgoArgs.t0 = 0.001
+defaultAlgoArgs.folds = 3
+defaultAlgoArgs.rhoMlauc = 0.0
+defaultAlgoArgs.validationSize = 3
+defaultAlgoArgs.u = 0.1 
+defaultAlgoArgs.alphas = 2.0**-numpy.arange(-1, 2, 0.5)
+defaultAlgoArgs.t0s = 2.0**-numpy.arange(6, 14, 1)
 
 # data args parser #
 dataParser = argparse.ArgumentParser(description="", add_help=False)
