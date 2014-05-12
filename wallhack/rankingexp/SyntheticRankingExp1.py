@@ -47,7 +47,7 @@ w2 = 1-u2
 eps = 10**-15
 lmbda = 0
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbda=lmbda, stochastic=True)
-maxLocalAuc.maxIterations = m*80
+maxLocalAuc.maxIterations = m*40
 maxLocalAuc.numRowSamples = 100
 maxLocalAuc.numStepIterations = 1000
 maxLocalAuc.numAucSamples = 10
@@ -55,8 +55,8 @@ maxLocalAuc.numRecordAucSamples = 200
 maxLocalAuc.initialAlg = "svd"
 maxLocalAuc.recordStep = maxLocalAuc.numStepIterations
 maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 0.1
-maxLocalAuc.t0 = 0.001953125
+maxLocalAuc.alpha = 0.5
+maxLocalAuc.t0 = 0.0001
 maxLocalAuc.folds = 2
 maxLocalAuc.rho = 0.0
 maxLocalAuc.ks = numpy.array([k2])
@@ -73,8 +73,8 @@ os.system('taskset -p 0xffffffff %d' % os.getpid())
 
 logging.debug("Starting training")
 #logging.debug(maxLocalAuc)
-#maxLocalAuc.learningRateSelect(X)
-maxLocalAuc.modelSelect(X)
+maxLocalAuc.learningRateSelect(X)
+#maxLocalAuc.modelSelect(X)
 #ProfileUtils.profile('U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=X, verbose=True)', globals(), locals())
 U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=testX, verbose=True)
 
@@ -92,7 +92,7 @@ for p in [1, 3, 5]:
 
 plt.figure(0)
 plt.plot(trainObjs, label="train")
-plt.plot(testObjs, label="test")
+plt.plot(testObjs, label="test") 
 plt.xlabel("iteration")
 plt.ylabel("objective")
 plt.legend()
