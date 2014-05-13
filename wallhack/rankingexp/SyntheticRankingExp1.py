@@ -15,7 +15,7 @@ from sandbox.util.MCEvaluatorCython import MCEvaluatorCython
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.random.seed(21)        
-numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
+numpy.set_printoptions(precision=4, suppress=True, linewidth=150)
 
 #Create a low rank matrix  
 m = 500
@@ -52,19 +52,21 @@ maxLocalAuc.numRowSamples = 100
 maxLocalAuc.numStepIterations = 1000
 maxLocalAuc.numAucSamples = 10
 maxLocalAuc.numRecordAucSamples = 200
-maxLocalAuc.initialAlg = "svd"
-maxLocalAuc.recordStep = maxLocalAuc.numStepIterations
+maxLocalAuc.initialAlg = "rand"
+maxLocalAuc.recordStep = maxLocalAuc.numStepIterations*2
 maxLocalAuc.rate = "optimal"
 maxLocalAuc.alpha = 0.5
 maxLocalAuc.t0 = 0.0001
 maxLocalAuc.folds = 2
 maxLocalAuc.rho = 0.0
 maxLocalAuc.ks = numpy.array([k2])
-maxLocalAuc.testSize = 3
+maxLocalAuc.testSize = 5
 maxLocalAuc.lmbdas = 2.0**-numpy.arange(0, 10, 2)
 #maxLocalAuc.numProcesses = 1
-maxLocalAuc.alphas = 2.0**-numpy.arange(0, 6, 1)
-maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
+#maxLocalAuc.alphas = 2.0**-numpy.arange(0, 5, 1)
+#maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
+maxLocalAuc.alphas = numpy.array([0.5, 0.25])
+maxLocalAuc.t0s = numpy.array([0.0001, 0.001])
 maxLocalAuc.beta = 1.0
 maxLocalAuc.normalise = True
 maxLocalAuc.metric = "precision"
@@ -73,9 +75,12 @@ os.system('taskset -p 0xffffffff %d' % os.getpid())
 
 logging.debug("Starting training")
 #logging.debug(maxLocalAuc)
-maxLocalAuc.learningRateSelect(X)
-#maxLocalAuc.modelSelect(X)
-#ProfileUtils.profile('U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=X, verbose=True)', globals(), locals())
+
+#modelSelectX = trainX[0:100, :]
+#maxLocalAuc.learningRateSelect(trainX)
+#maxLocalAuc.modelSelect(trainX)
+#ProfileUtils.profile('U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=testX, verbose=True)', globals(), locals())
+print(maxLocalAuc)
 U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=testX, verbose=True)
 
 
