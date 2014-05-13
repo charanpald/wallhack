@@ -47,7 +47,7 @@ w2 = 1-u2
 eps = 10**-15
 lmbda = 0
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbda=lmbda, stochastic=True)
-maxLocalAuc.maxIterations = m*40
+maxLocalAuc.maxIterations = m*50
 maxLocalAuc.numRowSamples = 100
 maxLocalAuc.numStepIterations = 1000
 maxLocalAuc.numAucSamples = 10
@@ -80,7 +80,7 @@ logging.debug("Starting training")
 #maxLocalAuc.learningRateSelect(trainX)
 #maxLocalAuc.modelSelect(trainX)
 #ProfileUtils.profile('U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=testX, verbose=True)', globals(), locals())
-print(maxLocalAuc)
+
 U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=testX, verbose=True)
 
 
