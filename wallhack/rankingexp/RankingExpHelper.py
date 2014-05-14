@@ -31,7 +31,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.alpha = 0.1
     defaultAlgoArgs.alphas = 2.0**-numpy.arange(0, 5, 1)
     defaultAlgoArgs.epsSi = 10**-14
-    defaultAlgoArgs.epsMlauc = 10**-4
+    defaultAlgoArgs.epsMlauc = 10**-5
     defaultAlgoArgs.folds = 3
     defaultAlgoArgs.fullGradient = False
     defaultAlgoArgs.gamma = 0.0001
