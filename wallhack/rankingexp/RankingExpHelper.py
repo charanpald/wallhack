@@ -30,7 +30,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.alpha = 0.1
     defaultAlgoArgs.alphas = 2.0**-numpy.arange(0, 5, 1)
     defaultAlgoArgs.epsSi = 10**-14
-    defaultAlgoArgs.epsMlauc = 10**-6
+    defaultAlgoArgs.epsMlauc = 10**-4
     defaultAlgoArgs.folds = 5
     defaultAlgoArgs.fullGradient = False
     defaultAlgoArgs.gamma = 0.0001
@@ -305,8 +305,6 @@ class RankingExpHelper(object):
                     
                     learner.numRowSamples = self.algoArgs.numRowSamples
                     learner.numAucSamples = self.algoArgs.numAucSamples
-                    learner.nu = self.algoArgs.nu
-                    learner.nuPrime = self.algoArgs.nuPrime
                     learner.initialAlg = self.algoArgs.initialAlg
                     learner.recordStep = self.algoArgs.recordStep
                     learner.rate = self.algoArgs.rate
@@ -343,6 +341,7 @@ class RankingExpHelper(object):
                         numpy.savez(modelSelectFileName, meanObjs, stdObjs)
                         logging.debug("Saved model selection grid as " + modelSelectFileName)                            
                     
+                    learner.maxIterations = self.algoArgs.maxIterations*2 
                     logging.debug(learner)                
 
                     self.recordResults(X, trainX, testX, learner, resultsFileName)
