@@ -20,6 +20,7 @@ from sandbox.recommendation.WarpMf import WarpMf
 from sandbox.recommendation.KNNRecommender import KNNRecommender
 from sandbox.recommendation.IterativeSoftImpute import IterativeSoftImpute
 from sandbox.recommendation.CLiMF import CLiMF
+from sandbox.recommendation.BprRecommender import BprRecommender
 from sandbox.util.SparseUtils import SparseUtils 
 from sandbox.util.Sampling import Sampling 
 from sandbox.util.FileLock import FileLock 
@@ -31,7 +32,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.alphas = 2.0**-numpy.arange(0, 5, 1)
     defaultAlgoArgs.epsSi = 10**-14
     defaultAlgoArgs.epsMlauc = 10**-4
-    defaultAlgoArgs.folds = 5
+    defaultAlgoArgs.folds = 3
     defaultAlgoArgs.fullGradient = False
     defaultAlgoArgs.gamma = 0.0001
     defaultAlgoArgs.initialAlg = "rand"
@@ -64,6 +65,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.runWarpMf = False
     defaultAlgoArgs.runWrMf = False
     defaultAlgoArgs.runCLiMF = False
+    defaultAlgoArgs.runBpr = False
     defaultAlgoArgs.t0 = 10**-3 
     defaultAlgoArgs.t0s = numpy.array([10**-3, 10**-4, 10**-5])
     defaultAlgoArgs.testSize = 5
@@ -117,11 +119,12 @@ class RankingExpHelper(object):
         
         # define parser
         algoParser = argparse.ArgumentParser(description="", add_help=add_help)
-        for method in ["runSoftImpute", "runMaxLocalAuc", "runWarpMf", "runWrMf", "runKnn", "runCLiMF"]:
+        for method in ["runSoftImpute", "runMaxLocalAuc", "runWarpMf", "runWrMf", "runKnn", "runCLiMF", "runBpr"]:
             algoParser.add_argument("--" + method, action="store_true", default=defaultAlgoArgs.__getattribute__(method))
         algoParser.add_argument("--alpha", type=float, help="Learning rate for max local AUC (default: %(default)s)", default=defaultAlgoArgs.alpha)
         algoParser.add_argument("--fullGradient", action="store_true", help="Whether to compute the full gradient at each iteration (default: %(default)s)", default=defaultAlgoArgs.fullGradient)
-        algoParser.add_argument("--gamma", type=float, help="Regularisation parameter (gamma) for CLiMF (default: %(default)s)", default=defaultAlgoArgs.gamma)        
+        algoParser.add_argument("--gamma", type=float, help="Regularisation parameter (gamma) for CLiMF (default: %(default)s)", default=defaultAlgoArgs.gamma)     
+        algoParser.add_argument("--folds", type=int, help="Folds/repetitions for model selection (default: %(default)s)", default=defaultAlgoArgs.folds)   
         algoParser.add_argument("--initialAlg", type=str, help="Initial setup for U and V for max local AUC: either rand or svd (default: %(default)s)", default=defaultAlgoArgs.initialAlg)
         algoParser.add_argument("--ks", type=int, nargs="+", help="Max number of singular values/vectors (default: %(default)s)", default=defaultAlgoArgs.ks)
         algoParser.add_argument("--lmbdasCLiMF", type=float, nargs="+", help="Regularisation parameters (lambda) for CLiMF (default: %(default)s)", default=defaultAlgoArgs.lmbdasCLiMF)        
@@ -406,10 +409,11 @@ class RankingExpHelper(object):
                     learner.lmbdas = self.algoArgs.lmbdasWrMf 
                     learner.numProcesses = self.algoArgs.processes
                     learner.testSize = self.algoArgs.validationSize
+                    learner.folds = self.algoArgs.folds
                     
                     if self.algoArgs.modelSelect: 
                         logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
-                        modelSelectX = trainX[0:self.algoArgs.modelSelectSamples, :]
+                        modelSelectX = trainX[0:min(trainX.shape[0], self.algoArgs.modelSelectSamples), :]
                         
                         meanAucs, stdAucs = learner.modelSelect(modelSelectX)
                         
@@ -424,6 +428,43 @@ class RankingExpHelper(object):
                     fileLock.unlock()
             else: 
                 logging.debug("File is locked or already computed: " + resultsFileName)  
+       
+        if self.algoArgs.runBpr: 
+            logging.debug("Running Bayesian Personalised Recommendation")
+            resultsFileName = self.resultsDir + "ResultsBpr.npz"
+                
+            fileLock = FileLock(resultsFileName)     
+            
+            if not (fileLock.isLocked() or fileLock.fileExists()) or self.algoArgs.overwrite: 
+                fileLock.lock()
+                
+                try: 
+                    trainX = trainX.toScipyCsr()
+                    testX = testX.toScipyCsr()
+
+                    learner = BprRecommender(self.algoArgs.ks[0], w=1-self.algoArgs.u)
+                    learner.ks = self.algoArgs.ks
+                    learner.numProcesses = self.algoArgs.processes
+                    learner.testSize = self.algoArgs.validationSize
+                    learner.folds = self.algoArgs.folds
+                    
+                    if self.algoArgs.modelSelect: 
+                        logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
+                        modelSelectX = trainX[0:min(trainX.shape[0], self.algoArgs.modelSelectSamples), :]
+                        
+                        meanAucs, stdAucs = learner.modelSelect(modelSelectX)
+                        
+                        modelSelectFileName = resultsFileName.replace("Results", "ModelSelect") 
+                        numpy.savez(modelSelectFileName, meanAucs, stdAucs)
+                        logging.debug("Saved model selection grid as " + modelSelectFileName)                            
+                    
+                    logging.debug(learner)   
+                    
+                    self.recordResults(X, trainX, testX, learner, resultsFileName)
+                finally: 
+                    fileLock.unlock()
+            else: 
+                logging.debug("File is locked or already computed: " + resultsFileName)         
        
         if self.algoArgs.runKnn: 
             logging.debug("Running kNN")
