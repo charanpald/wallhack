@@ -47,7 +47,7 @@ w2 = 1-u2
 eps = 10**-15
 lmbda = 0
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbda=lmbda, stochastic=True)
-maxLocalAuc.maxIterations = m*50
+maxLocalAuc.maxIterations = m*100
 maxLocalAuc.numRowSamples = 100
 maxLocalAuc.numStepIterations = 1000
 maxLocalAuc.numAucSamples = 10
@@ -67,7 +67,6 @@ maxLocalAuc.lmbdas = 2.0**-numpy.arange(0, 10, 2)
 #maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
 maxLocalAuc.alphas = numpy.array([0.5, 0.25])
 maxLocalAuc.t0s = numpy.array([0.0001, 0.001])
-maxLocalAuc.beta = 1.0
 maxLocalAuc.normalise = True
 maxLocalAuc.metric = "precision"
 
