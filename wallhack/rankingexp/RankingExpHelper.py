@@ -28,22 +28,23 @@ from sandbox.util.FileLock import FileLock
 class RankingExpHelper(object):
     defaultAlgoArgs = argparse.Namespace()
     defaultAlgoArgs.alpha = 0.1
-    defaultAlgoArgs.alphas = 2.0**-numpy.arange(2, 11, 1)
+    defaultAlgoArgs.alphas = 2.0**-numpy.arange(0, 5, 1)
     defaultAlgoArgs.epsSi = 10**-14
     defaultAlgoArgs.epsMlauc = 10**-6
     defaultAlgoArgs.folds = 5
     defaultAlgoArgs.fullGradient = False
     defaultAlgoArgs.gamma = 0.0001
-    defaultAlgoArgs.initialAlg = "svd"
+    defaultAlgoArgs.initialAlg = "rand"
     defaultAlgoArgs.ks = 2**numpy.arange(3, 8)
     defaultAlgoArgs.kns = numpy.array([20])
     defaultAlgoArgs.learningRateSelect = False
     defaultAlgoArgs.lmbdasWrMf = 2.0**-numpy.arange(1, 12, 2)
     defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(1, 12, 2)
     defaultAlgoArgs.lmbdasCLiMF = 2.0**-numpy.arange(1, 12, 2)
-    defaultAlgoArgs.maxIterations = 5000
+    defaultAlgoArgs.maxIterations = 50
     defaultAlgoArgs.maxIterCLiMF = 25
     defaultAlgoArgs.modelSelect = False
+    defaultAlgoArgs.modelSelectSamples = 1000
     defaultAlgoArgs.nu = 1.5
     defaultAlgoArgs.nuPrime = 1
     defaultAlgoArgs.numAucSamples = 20
@@ -64,7 +65,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.runWrMf = False
     defaultAlgoArgs.runCLiMF = False
     defaultAlgoArgs.t0 = 10**-3 
-    defaultAlgoArgs.t0s = numpy.logspace(-1, -4, 6, base=10)
+    defaultAlgoArgs.t0s = numpy.array([10**-3, 10**-4, 10**-5])
     defaultAlgoArgs.testSize = 5
     defaultAlgoArgs.validationSize = 3
     defaultAlgoArgs.u = 0.1
@@ -324,8 +325,8 @@ class RankingExpHelper(object):
                     learner.metric = "precision"
 
                     if self.algoArgs.learningRateSelect:
-                        logging.debug("Performing learning rate selection, taking subsample of entries of size " + str(self.sampleSize))
-                        modelSelectX = SparseUtils.submatrix(trainX, self.sampleSize)
+                        logging.debug("Performing learning rate selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
+                        modelSelectX = trainX[0:self.algoArgs.modelSelectSamples, :]
                         objectives = learner.learningRateSelect(modelSelectX)        
                         
                         rateSelectFileName = resultsFileName.replace("Results", "LearningRateSelect")
@@ -333,8 +334,8 @@ class RankingExpHelper(object):
                         logging.debug("Saved learning rate selection grid as " + rateSelectFileName) 
                     
                     if self.algoArgs.modelSelect: 
-                        logging.debug("Performing model selection, taking subsample of entries of size " + str(self.sampleSize))
-                        modelSelectX = SparseUtils.submatrix(trainX, self.sampleSize)
+                        logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
+                        modelSelectX = trainX[0:self.algoArgs.modelSelectSamples, :]
                         
                         meanObjs, stdObjs = learner.modelSelect(modelSelectX)
                         
@@ -368,8 +369,8 @@ class RankingExpHelper(object):
                     learner.numProcesses = self.algoArgs.processes
                                         
                     if self.algoArgs.modelSelect: 
-                        logging.debug("Performing model selection, taking subsample of entries of size " + str(self.sampleSize))
-                        modelSelectX = SparseUtils.submatrix(trainX, self.sampleSize)
+                        logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
+                        modelSelectX = trainX[0:self.algoArgs.modelSelectSamples, :]
                         
                         meanAucs, stdAucs = learner.modelSelect(modelSelectX)
                         
@@ -408,8 +409,8 @@ class RankingExpHelper(object):
                     learner.testSize = self.algoArgs.validationSize
                     
                     if self.algoArgs.modelSelect: 
-                        logging.debug("Performing model selection, taking subsample of entries of size " + str(self.sampleSize))
-                        modelSelectX = SparseUtils.submatrix(trainX, self.sampleSize)
+                        logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
+                        modelSelectX = trainX[0:self.algoArgs.modelSelectSamples, :]
                         
                         meanAucs, stdAucs = learner.modelSelect(modelSelectX)
                         
@@ -474,8 +475,8 @@ class RankingExpHelper(object):
                     learner.numProcesses = self.algoArgs.processes 
 
                     if self.algoArgs.modelSelect: 
-                        logging.debug("Performing model selection, taking subsample of entries of size " + str(self.sampleSize))
-                        modelSelectX = SparseUtils.submatrix(trainX, self.sampleSize)
+                        logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
+                        modelSelectX = trainX[0:self.algoArgs.modelSelectSamples, :]
                         
                         meanObjs, stdObjs = learner.modelSelect(modelSelectX)
                         

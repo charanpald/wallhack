@@ -30,7 +30,7 @@ defaultAlgoArgs.ks = numpy.array([k])
 defaultAlgoArgs.rhos = numpy.flipud(numpy.logspace(-7, -3, 5))
 defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(-1, 12, 2)
 #defaultAlgoArgs.lmbdasMlauc = numpy.array([0.0])
-defaultAlgoArgs.maxIterations = m*50
+defaultAlgoArgs.maxIterations = 50
 defaultAlgoArgs.numRowSamples = 100
 defaultAlgoArgs.numStepIterations = 1000
 defaultAlgoArgs.numAucSamples = 10
@@ -44,8 +44,7 @@ defaultAlgoArgs.rhoMlauc = 0.0
 defaultAlgoArgs.ks = numpy.array([k])
 defaultAlgoArgs.validationSize = 3
 defaultAlgoArgs.u = u 
-defaultAlgoArgs.alphas = 2.0**-numpy.arange(-1, 2, 0.5)
-defaultAlgoArgs.t0s = 2.0**-numpy.arange(6, 14, 1)
+
 
 
 # data args parser #

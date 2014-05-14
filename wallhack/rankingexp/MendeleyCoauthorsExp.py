@@ -43,8 +43,6 @@ defaultAlgoArgs.folds = 3
 defaultAlgoArgs.rhoMlauc = 0.0
 defaultAlgoArgs.validationSize = 3
 defaultAlgoArgs.u = 0.1 
-defaultAlgoArgs.alphas = 2.0**-numpy.arange(-1, 2, 0.5)
-defaultAlgoArgs.t0s = 2.0**-numpy.arange(6, 14, 1)
 
 # data args parser #
 dataParser = argparse.ArgumentParser(description="", add_help=False)
