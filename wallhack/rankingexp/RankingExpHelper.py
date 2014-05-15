@@ -57,10 +57,11 @@ class RankingExpHelper(object):
     defaultAlgoArgs.lmbdaUser = 0.1
     defaultAlgoArgs.lmbdaPos = 0.1
     defaultAlgoArgs.lmbdaNeg = 0.1
-    defaultAlgoArgs.lmbdaUsers = 2.0**-numpy.arange(1, 8, 4)
-    defaultAlgoArgs.lmbdaPoses = 2.0**-numpy.arange(1, 8, 4)
-    defaultAlgoArgs.lmbdaNegs = 2.0**-numpy.arange(1, 8, 4)
-    defaultAlgoArgs.gammasBpr = 2.0**-numpy.arange(1, 8, 4)
+    defaultAlgoArgs.lmbdaUsers = 2.0**-numpy.arange(0, 5, 1)
+    defaultAlgoArgs.lmbdaPoses = 2.0**-numpy.arange(0, 5, 1)
+    defaultAlgoArgs.lmbdaNegs = 2.0**-numpy.arange(0, 5, 1)
+    defaultAlgoArgs.maxIterationsBpr = 30
+    defaultAlgoArgs.gammasBpr = 2.0**-numpy.arange(0, 5, 1)
     defaultAlgoArgs.gammaBpr = 0.1
     
     #parameters for CLiMF
@@ -481,6 +482,7 @@ class RankingExpHelper(object):
                     learner.lmbdaPoses = self.algoArgs.lmbdaPoses
                     learner.lmbdaNegs = self.algoArgs.lmbdaNegs
                     learner.gammasBpr = self.algoArgs.gammasBpr
+                    learner.maxIterations = self.algoArgs.maxIterationsBpr
                     
                     if self.algoArgs.modelSelect: 
                         logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
