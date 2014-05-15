@@ -64,7 +64,10 @@ class RankingExpHelper(object):
     defaultAlgoArgs.gammaBpr = 0.1
     
     #parameters for CLiMF
-    defaultAlgoArgs.lmbdasCLiMF = 2.0**-numpy.arange(1, 12, 2)
+    defaultAlgoArgs.gammaCLiMF = 0.0001
+    defaultAlgoArgs.gammasCLiMF = 2.0**-numpy.arange(1, 8, 4)
+    defaultAlgoArgs.lmbdaCLiMF = 0.001
+    defaultAlgoArgs.lmbdasCLiMF = 2.0**-numpy.arange(1, 8, 4)
     defaultAlgoArgs.maxIterCLiMF = 25    
     
     #Parameters for KNN
@@ -533,12 +536,15 @@ class RankingExpHelper(object):
                 fileLock.lock()
                 
                 try: 
+                    modelSelectX = trainX[0:self.algoArgs.modelSelectSamples, :]
+                    modelSelectX = modelSelectX.toScipyCsr()
                     trainX = trainX.toScipyCsr()
                     testX = testX.toScipyCsr()
 
-                    learner = CLiMF(self.algoArgs.kns[0], self.algoArgs.lmbdasCLiMF[0], self.algoArgs.gamma)
+                    learner = CLiMF(self.algoArgs.k, self.algoArgs.lmbdaCLiMF, self.algoArgs.gammaCLiMF)
                     learner.max_iters = self.algoArgs.maxIterCLiMF
                     learner.ks = self.algoArgs.ks 
+                    learner.gammas = self.algoArgs.gammasCLiMF
                     learner.lmbdas = self.algoArgs.lmbdasCLiMF
                     learner.numRecordAucSamples = self.algoArgs.numRecordAucSamples
                     learner.w = 1-self.algoArgs.u
@@ -548,7 +554,7 @@ class RankingExpHelper(object):
 
                     if self.algoArgs.modelSelect: 
                         logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
-                        modelSelectX = trainX[0:self.algoArgs.modelSelectSamples, :]
+
                         
                         meanObjs, stdObjs = learner.modelSelect(modelSelectX)
                         
