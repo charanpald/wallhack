@@ -29,21 +29,7 @@ dataArgs = argparse.Namespace()
 # Arguments related to the algorithm
 defaultAlgoArgs = argparse.Namespace()
 defaultAlgoArgs.ks = 2**numpy.arange(3, 7)
-defaultAlgoArgs.rhos = numpy.flipud(numpy.logspace(-7, -3, 5))
 defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(1, 12, 2)
-#defaultAlgoArgs.lmbdasMlauc = numpy.array([0.0])
-defaultAlgoArgs.maxIterations = m*50
-defaultAlgoArgs.numRowSamples = 100
-defaultAlgoArgs.numStepIterations = 1000
-defaultAlgoArgs.numAucSamples = 10
-defaultAlgoArgs.initialAlg = "rand"
-defaultAlgoArgs.recordStep = defaultAlgoArgs.numStepIterations
-defaultAlgoArgs.rate = "optimal"
-defaultAlgoArgs.alpha = 0.1
-defaultAlgoArgs.t0 = 0.0001
-defaultAlgoArgs.folds = 3
-defaultAlgoArgs.rhoMlauc = 0.0
-defaultAlgoArgs.validationSize = 3
 defaultAlgoArgs.u = 0.1 
 
 # data args parser #
