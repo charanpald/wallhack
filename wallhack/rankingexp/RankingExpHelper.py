@@ -98,6 +98,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.postProcess = False 
     defaultAlgoArgs.rhoSi = 0.1
     defaultAlgoArgs.rhosSi = numpy.linspace(0.5, 0.0, 6) 
+    defaultAlgoArgs.svdAlg = "rsvd"
     
     #Parameters for WrMf 
     defaultAlgoArgs.alphaWrMf = 1
@@ -292,25 +293,23 @@ class RankingExpHelper(object):
             
             if not (fileLock.isLocked() or fileLock.fileExists()) or self.algoArgs.overwrite:
                 fileLock.lock()
-                
-                #print(trainX.storagetype)
+                modelSelectX = trainX[0:self.algoArgs.modelSelectSamples, :]
+                modelSelectX = modelSelectX.toScipyCsr().tocsc()
                 trainX = trainX.toScipyCsr().tocsc()
                 testX = testX.toScipyCsr().tocsc()
                                 
                 try: 
-                    learner = IterativeSoftImpute(self.algoArgs.rhoSi, eps=self.algoArgs.epsSi, k=self.algoArgs.k, svdAlg="propack", postProcess=self.algoArgs.postProcess)
+                    learner = IterativeSoftImpute(self.algoArgs.rhoSi, eps=self.algoArgs.epsSi, k=self.algoArgs.k, svdAlg=self.algoArgs.svdAlg, postProcess=self.algoArgs.postProcess)
                     learner.numProcesses = self.algoArgs.processes
                     learner.folds = self.algoArgs.folds
+                    learner.metric = "precision"
+                    learner.validationSize = self.algoArgs.validationSize
                     
                     if self.algoArgs.modelSelect: 
                         logging.debug("Performing model selection, taking subsample of entries of size " + str(self.sampleSize))
-                        modelSelectX = SparseUtils.submatrix(trainX, self.sampleSize)
                         
                         cvInds = Sampling.randCrossValidation(self.algoArgs.folds, modelSelectX.nnz)
-                        meanErrors, stdErrors = learner.modelSelect(modelSelectX, self.algoArgs.rhosSi, self.algoArgs.ks, cvInds)
-                        
-                        logging.debug("Mean errors = " + str(meanErrors))
-                        logging.debug("Std errors = " + str(stdErrors))
+                        meanErrors, stdErrors = learner.modelSelect2(modelSelectX, self.algoArgs.rhosSi, self.algoArgs.ks, cvInds)
                         
                         modelSelectFileName = resultsFileName.replace("Results", "ModelSelect") 
                         numpy.savez(modelSelectFileName, meanErrors, stdErrors)
@@ -368,10 +367,10 @@ class RankingExpHelper(object):
                         logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
                         modelSelectX = trainX[0:self.algoArgs.modelSelectSamples, :]
                         
-                        meanObjs, stdObjs = learner.modelSelect(modelSelectX)
+                        meanAucs, stdAucs = learner.modelSelect(modelSelectX)
                         
                         modelSelectFileName = resultsFileName.replace("Results", "ModelSelect") 
-                        numpy.savez(modelSelectFileName, meanObjs, stdObjs)
+                        numpy.savez(modelSelectFileName, meanAucs, stdAucs)
                         logging.debug("Saved model selection grid as " + modelSelectFileName)                            
                     
                     learner.maxIterations = self.algoArgs.maxIterations*2 
