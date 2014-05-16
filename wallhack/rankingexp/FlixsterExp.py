@@ -66,7 +66,7 @@ logging.debug("Number of non zeros " + str(X.nnz))
 defaultAlgoArgs.u = 5/float(n) 
 
 dataArgs.extendedDirName = ""
-dataArgs.extendedDirName += "MovieLens"
+dataArgs.extendedDirName += "Flixster"
 
 # print args #
 logging.info("Running on " + dataArgs.extendedDirName)
