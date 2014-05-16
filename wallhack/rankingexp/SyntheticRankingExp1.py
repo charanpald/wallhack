@@ -44,8 +44,8 @@ logging.debug("Test local AUC:" + str(MCEvaluator.localAUCApprox(X, U, V, w, num
 k2 = k
 u2 = 5.0/n
 w2 = 1-u2
-eps = 10**-4
-lmbda = 0
+eps = 10**-6
+lmbda = 0.1
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbda=lmbda, stochastic=True)
 maxLocalAuc.maxIterations = 100
 maxLocalAuc.numRowSamples = 100
@@ -58,7 +58,7 @@ maxLocalAuc.rate = "optimal"
 maxLocalAuc.alpha = 0.5
 maxLocalAuc.t0 = 0.0001
 maxLocalAuc.folds = 2
-maxLocalAuc.rho = 0.0
+maxLocalAuc.rho = 0.5
 maxLocalAuc.ks = numpy.array([k2])
 maxLocalAuc.testSize = 5
 maxLocalAuc.lmbdas = 2.0**-numpy.arange(0, 10, 2)
@@ -73,7 +73,7 @@ maxLocalAuc.metric = "precision"
 os.system('taskset -p 0xffffffff %d' % os.getpid())
 
 logging.debug("Starting training")
-#logging.debug(maxLocalAuc)
+logging.debug(maxLocalAuc)
 
 #modelSelectX = trainX[0:100, :]
 #maxLocalAuc.learningRateSelect(trainX)
