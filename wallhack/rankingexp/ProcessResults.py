@@ -14,9 +14,11 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 ps = [1, 3, 5]
 
-dirName = "SyntheticDataset1" 
+#dirName = "SyntheticDataset1" 
 #dirName = "MovieLens" 
-#dirName = "MendeleyCoauthors"
+dirName = "MendeleyCoauthors"
+
+generateRecommendations = False
 
 resultsDir = PathDefaults.getOutputDir() + "ranking/" + dirName + "/"
 algs = ["MaxLocalAUC", "SoftImpute", "WrMf", "Bpr"]
@@ -38,7 +40,7 @@ for s, alg in enumerate(algs):
         logging.debug(alg)
         logging.debug("Metadata: " + str(metaData))
 
-        if dirName == "MendeleyCoauthors": 
+        if dirName == "MendeleyCoauthors" and generateRecommendations: 
             logging.debug("Generating recommendations for authors")
             authorIndexerFilename = PathDefaults.getDataDir() + "reference/authorIndexer.pkl"
             authorIndexerFile = open(authorIndexerFilename)
