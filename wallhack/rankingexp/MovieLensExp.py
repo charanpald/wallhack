@@ -7,21 +7,11 @@ import errno
 import sppy 
 from wallhack.rankingexp.RankingExpHelper import RankingExpHelper
 from sandbox.util.PathDefaults import PathDefaults
+from sandbox.util.SparseUtils import SparseUtils
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.random.seed(21)        
 numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
-
-#Create a low rank matrix  
-matrixFileName = PathDefaults.getDataDir() + "movielens/ml-100k/u.data" 
-data = numpy.loadtxt(matrixFileName)
-X = sppy.csarray((numpy.max(data[:, 0]), numpy.max(data[:, 1])), storagetype="row")
-X[data[:, 0]-1, data[:, 1]-1] = numpy.array(data[:, 2]>3, numpy.int)
-logging.debug("Read file: " + matrixFileName)
-logging.debug("Shape of data: " + str(X.shape))
-logging.debug("Number of non zeros " + str(X.nnz))
-
-(m, n) = X.shape
 
 # Arguments related to the dataset
 dataArgs = argparse.Namespace()
@@ -30,7 +20,6 @@ dataArgs = argparse.Namespace()
 defaultAlgoArgs = argparse.Namespace()
 defaultAlgoArgs.ks = 2**numpy.arange(3, 7)
 defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(1, 12, 2)
-defaultAlgoArgs.u = 0.1 
 
 # data args parser #
 dataParser = argparse.ArgumentParser(description="", add_help=False)
@@ -40,6 +29,19 @@ if dataArgs.help:
     helpParser  = argparse.ArgumentParser(description="", add_help=False, parents=[dataParser, RankingExpHelper.newAlgoParser(defaultAlgoArgs)])
     helpParser.print_help()
     exit()
+
+#Load/create the dataset 
+matrixFileName = PathDefaults.getDataDir() + "movielens/ml-100k/u.data" 
+data = numpy.loadtxt(matrixFileName)
+X = sppy.csarray((numpy.max(data[:, 0]), numpy.max(data[:, 1])), storagetype="row", dtype=numpy.int)
+X.put(numpy.array(data[:, 2]>3, numpy.int), numpy.array(data[:, 0]-1, numpy.int32), numpy.array(data[:, 1]-1, numpy.int32), init=True)
+X = SparseUtils.pruneMatrix(X, minNnzRows=10, minNnzCols=10)
+logging.debug("Read file: " + matrixFileName)
+logging.debug("Shape of data: " + str(X.shape))
+logging.debug("Number of non zeros " + str(X.nnz))
+(m, n) = X.shape
+
+defaultAlgoArgs.u = 5/float(n) 
 
 dataArgs.extendedDirName = ""
 dataArgs.extendedDirName += "MovieLens"
