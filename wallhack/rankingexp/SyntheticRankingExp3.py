@@ -27,7 +27,6 @@ dataArgs = argparse.Namespace()
 # Arguments related to the algorithm
 defaultAlgoArgs = argparse.Namespace()
 defaultAlgoArgs.ks = numpy.array([8, 16, 32])
-defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(-1, 12, 2)
 defaultAlgoArgs.u = 5/float(n) 
 
 # data args parser #
