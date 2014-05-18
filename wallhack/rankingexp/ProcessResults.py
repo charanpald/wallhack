@@ -14,9 +14,10 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 ps = [1, 3, 5]
 
-#dirName = "SyntheticDataset1" 
+dirName = "SyntheticDataset1" 
 #dirName = "MovieLens" 
-dirName = "MendeleyCoauthors"
+#dirName = "Flixster" 
+#dirName = "MendeleyCoauthors"
 
 generateRecommendations = False
 
@@ -77,7 +78,7 @@ for s, alg in enumerate(algs):
         data = numpy.load(modelSelectFileName)
         meanMetrics, stdMetrics = data["arr_0"], data["arr_1"]
         
-        #logging.debug(meanMetrics)
+        logging.debug(meanMetrics)
     except IOError: 
         logging.debug("Missing file " + modelSelectFileName)
     
