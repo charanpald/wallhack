@@ -358,6 +358,7 @@ class RankingExpHelper(object):
                     if self.algoArgs.learningRateSelect:
                         logging.debug("Performing learning rate selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
                         modelSelectX = trainX[0:self.algoArgs.modelSelectSamples, :]
+                        logging.debug("Done")
                         objectives = learner.learningRateSelect(modelSelectX)        
                         
                         rateSelectFileName = resultsFileName.replace("Results", "LearningRateSelect")
