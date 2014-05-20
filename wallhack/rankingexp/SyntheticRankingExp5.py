@@ -11,7 +11,7 @@ matplotlib.use("GTK3Agg")
 import matplotlib.pyplot as plt
 
 """
-Script to see if orthogonality constraint helps. 
+Script to see if varying rho helps
 """
 
 
@@ -57,19 +57,17 @@ logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))
 #w = 1.0
 k2 = 16
 eps = 10**-6
-alpha = 10
+alpha = 0.5
 maxLocalAuc = MaxLocalAUC(k2, w, alpha=alpha, eps=eps, stochastic=True)
-maxLocalAuc.maxIterations = m*20
-maxLocalAuc.numRowSamples = 10
-maxLocalAuc.numStepIterations = 500
-maxLocalAuc.numAucSamples = 20
+maxLocalAuc.maxIterations = 50
+maxLocalAuc.numRowSamples = 100
+maxLocalAuc.numStepIterations = 1000
+maxLocalAuc.numAucSamples = 10
 maxLocalAuc.initialAlg = "rand"
-maxLocalAuc.recordStep = maxLocalAuc.numStepIterations
-maxLocalAuc.nu = 1.5
-maxLocalAuc.nuPrime = 1
+maxLocalAuc.recordStep = maxLocalAuc.numStepIterations*2
 maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 0.2
-maxLocalAuc.t0 = 10**-3
+maxLocalAuc.alpha = 0.5
+maxLocalAuc.t0 = 10**-4
 
 
 rhos = 10.0**numpy.arange(-1, -8, -2)

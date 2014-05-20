@@ -4,14 +4,14 @@ import sys
 import sppy
 from sandbox.recommendation.MaxLocalAUC import MaxLocalAUC
 from sandbox.util.SparseUtils import SparseUtils
-from sandbox.util.MCEvaluator import MCEvaluator
+from sandbox.util.PathDefaults import PathDefaults
 from sandbox.util.Sampling import Sampling
 import matplotlib 
 matplotlib.use("GTK3Agg")
 import matplotlib.pyplot as plt
 
 """
-Let's increase nu as we go along 
+Let's see if we can get the right learning rate on a subsample of rows 
 """
 
 
@@ -19,66 +19,75 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 #numpy.random.seed(22)        
 #numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 
+#Create a low rank matrix  
+"""
 m = 500
-n = 200
-k = 8 
-u = 20.0/n
+n = 100
+k = 10 
+u = 0.05
 w = 1-u
 X, U, s, V = SparseUtils.generateSparseBinaryMatrix((m,n), k, w, csarray=True, verbose=True, indsPerRow=200)
-logging.debug("Number of non zero elements: " + str(X.nnz))
-logging.debug("Size of X: " + str(X.shape))
+logging.debug("Number of non-zero elements: " + str(X.nnz))
 
 U = U*s
+"""
+
+matrixFileName = PathDefaults.getDataDir() + "movielens/ml-100k/u.data" 
+data = numpy.loadtxt(matrixFileName)
+X = sppy.csarray((numpy.max(data[:, 0]), numpy.max(data[:, 1])), storagetype="row")
+X[data[:, 0]-1, data[:, 1]-1] = numpy.array(data[:, 2]>3, numpy.int)
+logging.debug("Read file: " + matrixFileName)
+logging.debug("Shape of data: " + str(X.shape))
+logging.debug("Number of non zeros " + str(X.nnz))
+
+u = 0.1 
+w = 1-u
+(m, n) = X.shape
+
 
 testSize = 5
 trainTestXs = Sampling.shuffleSplitRows(X, 1, testSize)
 trainX, testX = trainTestXs[0]
 
 logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))
+#logging.debug("Total local AUC:" + str(MCEvaluator.localAUC(X, U, V, w)))
+#logging.debug("Train local AUC:" + str(MCEvaluator.localAUC(trainX, U, V, w)))
+#logging.debug("Test local AUC:" + str(MCEvaluator.localAUC(testX, U, V, w)))
 
-
-k2 = k
+#w = 1.0
+k2 = 16
 eps = 10**-6
-maxLocalAuc = MaxLocalAUC(k2, w, eps=eps, stochastic=True)
-maxLocalAuc.maxIterations = m*20
-maxLocalAuc.numRowSamples = 10
-maxLocalAuc.numStepIterations = 500
-maxLocalAuc.numAucSamples = 20
-maxLocalAuc.initialAlg = "svd"
-maxLocalAuc.recordStep = maxLocalAuc.numStepIterations
-maxLocalAuc.nu = 1
+alpha = 10
+maxLocalAuc = MaxLocalAUC(k2, w, alpha=alpha, eps=eps, stochastic=True)
+maxLocalAuc.maxIterations = 50
+maxLocalAuc.numRowSamples = 100
+maxLocalAuc.numStepIterations = 1000
+maxLocalAuc.numAucSamples = 10
+maxLocalAuc.initialAlg = "rand"
+maxLocalAuc.recordStep = maxLocalAuc.numStepIterations*2
 maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 0.01
-maxLocalAuc.t0 = 10**-3
-maxLocalAuc.lmbda = 0.001
+maxLocalAuc.alpha = 0.5
+maxLocalAuc.t0 = 10**-4
 
 
-lmbda = 0.00
-nus = numpy.array([1, 2, 3, 4, 5], dtype=numpy.float)**3
-print(nus)
+maxLocalAuc.t0s = numpy.array([10**-4])
+maxLocalAuc.alphas = 2.0**-numpy.arange(0, 5, 1)
 
+newM = 200
+modelSelectX = trainX[0:newM, :]
 
-numRecordAucSamples = 500 
-trainLocalAucs = numpy.zeros(nus.shape[0])
-testLocalAucs = numpy.zeros(nus.shape[0])
+#objs1 = maxLocalAuc.learningRateSelect(trainX)
+#objs2 = maxLocalAuc.learningRateSelect(modelSelectX)
 
-trainOmegaList = SparseUtils.getOmegaList(trainX)
-testOmegaList = SparseUtils.getOmegaList(testX)
-U, V = maxLocalAuc.initUV(trainX)
-lastInd = 0
+#Now vary t0s
+maxLocalAuc.alphas = numpy.array([0.5])
+maxLocalAuc.t0s = numpy.array([10**-3, 10**-4, 10**-5])
 
-for i, nu in enumerate(nus): 
-    maxLocalAuc.nu = nu
-    maxLocalAuc.nuPrime = nu
-    #maxLocalAuc.alpha = maxLocalAuc.alpha/((1 + maxLocalAuc.alpha*maxLocalAuc.t0*lastInd))
-    #maxLocalAuc.lmbda = lmbda*nu
-    logging.debug(maxLocalAuc)
-    U, V, trainObjs, trainAucs, testObjs, testAucs, ind, totalTime = maxLocalAuc.learnModel(trainX, U=U, V=V, verbose=True, testX=testX)
-    
-    lastInd = ind 
-    
-    trainLocalAucs[i] = MCEvaluator.localAUCApprox(trainX, U, V, w, numRecordAucSamples, omegaList=trainOmegaList)
-    testLocalAucs[i] = MCEvaluator.localAUCApprox(X, U, V, w, numRecordAucSamples, omegaList=testOmegaList)
+objs3 = maxLocalAuc.learningRateSelect(trainX)
+objs4 = maxLocalAuc.learningRateSelect(modelSelectX)
 
-print(trainLocalAucs)
-print(testLocalAucs)
+#print(objs1)
+#print(objs2)
+print(objs3)
+print(objs4)
+

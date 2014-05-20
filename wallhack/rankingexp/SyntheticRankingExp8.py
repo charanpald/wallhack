@@ -1,99 +1,93 @@
-
-
 import numpy
 import logging
 import sys
 import sppy
-import multiprocessing 
 from sandbox.recommendation.MaxLocalAUC import MaxLocalAUC
 from sandbox.util.SparseUtils import SparseUtils
 from sandbox.util.PathDefaults import PathDefaults
-from sandbox.util.MCEvaluator import MCEvaluator
-from sandbox.util.MCEvaluatorCython import MCEvaluatorCython
 from sandbox.util.Sampling import Sampling
 import matplotlib 
 matplotlib.use("GTK3Agg")
 import matplotlib.pyplot as plt
 
 """
-Test the effect of nu and nuPrime
+Let's see if we can get the right learning rate on a subsample of rows 
 """
+
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 #numpy.random.seed(22)        
 #numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 
-def computeTestAucs(args): 
-    maxLocalAuc, trainX, testX = args 
-    U, V, trainObjs, trainAucs, testObjs, testAucs, ind, totalTime = maxLocalAuc.learnModel(trainX, verbose=True, testX=testX)
-
-    trainLocalAuc = MCEvaluator.localAUCApprox(trainX, U, V, w, numRecordAucSamples, omegaList=trainOmegaList)
-    testLocalAuc = MCEvaluator.localAUCApprox(X, U, V, w, numRecordAucSamples, omegaList=testOmegaList)
-    return trainLocalAuc, testLocalAuc 
-
+#Create a low rank matrix  
+"""
 m = 500
-n = 200
-k = 8 
-u = 20.0/n
+n = 100
+k = 10 
+u = 0.05
 w = 1-u
 X, U, s, V = SparseUtils.generateSparseBinaryMatrix((m,n), k, w, csarray=True, verbose=True, indsPerRow=200)
-logging.debug("Number of non zero elements: " + str(X.nnz))
-logging.debug("Size of X: " + str(X.shape))
+logging.debug("Number of non-zero elements: " + str(X.nnz))
 
 U = U*s
+"""
+
+matrixFileName = PathDefaults.getDataDir() + "movielens/ml-100k/u.data" 
+data = numpy.loadtxt(matrixFileName)
+X = sppy.csarray((numpy.max(data[:, 0]), numpy.max(data[:, 1])), storagetype="row")
+X[data[:, 0]-1, data[:, 1]-1] = numpy.array(data[:, 2]>3, numpy.int)
+logging.debug("Read file: " + matrixFileName)
+logging.debug("Shape of data: " + str(X.shape))
+logging.debug("Number of non zeros " + str(X.nnz))
+
+u = 0.1 
+w = 1-u
+(m, n) = X.shape
+
 
 testSize = 5
 trainTestXs = Sampling.shuffleSplitRows(X, 1, testSize)
 trainX, testX = trainTestXs[0]
 
 logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))
+#logging.debug("Total local AUC:" + str(MCEvaluator.localAUC(X, U, V, w)))
+#logging.debug("Train local AUC:" + str(MCEvaluator.localAUC(trainX, U, V, w)))
+#logging.debug("Test local AUC:" + str(MCEvaluator.localAUC(testX, U, V, w)))
 
+#w = 1.0
+k2 = 16
 eps = 10**-6
-maxLocalAuc = MaxLocalAUC(k, w, eps=eps, stochastic=True)
-maxLocalAuc.maxIterations = m*20
-maxLocalAuc.numRowSamples = 10
-maxLocalAuc.numStepIterations = 500
-maxLocalAuc.numAucSamples = 20
-maxLocalAuc.initialAlg = "softimpute"
-maxLocalAuc.recordStep = maxLocalAuc.numStepIterations
-maxLocalAuc.nu = 50
+alpha = 10
+maxLocalAuc = MaxLocalAUC(k2, w, alpha=alpha, eps=eps, stochastic=True)
+maxLocalAuc.maxIterations = 50
+maxLocalAuc.numRowSamples = 100
+maxLocalAuc.numStepIterations = 1000
+maxLocalAuc.numAucSamples = 10
+maxLocalAuc.initialAlg = "rand"
+maxLocalAuc.recordStep = maxLocalAuc.numStepIterations*2
 maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 0.1
-maxLocalAuc.t0 = 10**-3
-maxLocalAuc.lmbda = 0.0001
+maxLocalAuc.alpha = 0.5
+maxLocalAuc.t0 = 10**-4
+maxLocalAuc.folds = 2
 
-numRecordAucSamples = 200
-trainOmegaList = SparseUtils.getOmegaList(trainX)
-testOmegaList = SparseUtils.getOmegaList(testX)
+maxLocalAuc.ks = numpy.array([4, 8, 16])
+maxLocalAuc.lmbdas = numpy.array([0.01])
 
-maxItems = 20
-nus = numpy.array([1, 2, 3, 4, 5])**2
-nuPrimes = numpy.array([1, 2, 3, 4, 5])**2
+newM = 200
+modelSelectX = trainX[0:newM, :]
 
-trainLocalAucs = numpy.zeros((nus.shape[0], nuPrimes.shape[0]))
-testLocalAucs = numpy.zeros((nus.shape[0], nuPrimes.shape[0]))
+meanTestLocalAucs1, stdTestLocalAucs = maxLocalAuc.modelSelect(trainX)
+meanTestLocalAucs2, stdTestLocalAucs = maxLocalAuc.modelSelect(modelSelectX)
 
-paramList = [] 
+#Now vary lmbdas
+maxLocalAuc.ks = numpy.array([8])
+maxLocalAuc.lmbdas = numpy.array([10**-2, 10**-3, 10**-4])
 
-for i, nu in enumerate(nus): 
-    maxLocalAuc.nu = nu
-    for j, nuPrime in enumerate(nuPrimes):
-        maxLocalAuc.nuPrime = nuPrime 
-        logging.debug(maxLocalAuc)
-        
-        paramList.append((maxLocalAuc.copy(), trainX, testX))
+meanTestLocalAucs3, stdTestLocalAucs = maxLocalAuc.modelSelect(trainX)
+meanTestLocalAucs4, stdTestLocalAucs = maxLocalAuc.modelSelect(modelSelectX)
 
-pool = multiprocessing.Pool(processes=8, maxtasksperchild=100)
-resultsIterator = pool.imap(computeTestAucs, paramList, 1)
-       
-
-for i, nu in enumerate(nus): 
-    for j, nuPrime in enumerate(nuPrimes):          
-        trainLocalAucs[i, j], testLocalAucs[i, j] = resultsIterator.next()
-
-pool.terminate()
-            
-print(trainLocalAucs)
-print("\n")
-print(testLocalAucs)
+print(meanTestLocalAucs1)
+print(meanTestLocalAucs2)
+print(meanTestLocalAucs3)
+print(meanTestLocalAucs4)
 

@@ -21,6 +21,7 @@ from sandbox.recommendation.WarpMf import WarpMf
 from sandbox.recommendation.KNNRecommender import KNNRecommender
 from sandbox.recommendation.IterativeSoftImpute import IterativeSoftImpute
 from sandbox.recommendation.CLiMF import CLiMF
+from sandbox.recommendation.BprRecommender import BprRecommender
 from sandbox.util.SparseUtils import SparseUtils 
 from sandbox.util.Sampling import Sampling 
 from sandbox.util.FileLock import FileLock 
@@ -28,49 +29,84 @@ from sandbox.util.FileLock import FileLock
 
 class RankingExpHelper(object):
     defaultAlgoArgs = argparse.Namespace()
-    defaultAlgoArgs.alpha = 0.1
-    defaultAlgoArgs.alphas = 2.0**-numpy.arange(2, 11, 1)
-    defaultAlgoArgs.epsSi = 10**-14
-    defaultAlgoArgs.epsMlauc = 10**-6
-    defaultAlgoArgs.folds = 5
-    defaultAlgoArgs.fullGradient = False
-    defaultAlgoArgs.gamma = 0.0001
-    defaultAlgoArgs.initialAlg = "svd"
-    defaultAlgoArgs.ks = 2**numpy.arange(3, 8)
-    defaultAlgoArgs.kns = numpy.array([20])
-    defaultAlgoArgs.learningRateSelect = False
-    defaultAlgoArgs.lmbdasWrMf = 2.0**-numpy.arange(1, 12, 2)
-    defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(1, 12, 2)
-    defaultAlgoArgs.lmbdasCLiMF = 2.0**-numpy.arange(1, 12, 2)
-    defaultAlgoArgs.maxIterations = 5000
-    defaultAlgoArgs.maxIterCLiMF = 25
-    defaultAlgoArgs.modelSelect = False
-    defaultAlgoArgs.nu = 1.5
-    defaultAlgoArgs.nuPrime = 1
-    defaultAlgoArgs.numAucSamples = 20
-    defaultAlgoArgs.numRecordAucSamples = 500
-    defaultAlgoArgs.numRowSamples = 20
-    defaultAlgoArgs.numStepIterations = 1000
-    defaultAlgoArgs.overwrite = False 
-    defaultAlgoArgs.postProcess = False 
-    defaultAlgoArgs.processes = multiprocessing.cpu_count()
-    defaultAlgoArgs.rate = "optimal"
-    defaultAlgoArgs.recordStep = defaultAlgoArgs.numStepIterations 
-    defaultAlgoArgs.rhoMlauc = 0.000
-    defaultAlgoArgs.rhos = numpy.linspace(0.5, 0.0, 6) 
+    
+    #Which algorithm to run 
+    defaultAlgoArgs.runBpr = False
+    defaultAlgoArgs.runCLiMF = False
     defaultAlgoArgs.runKnn = False
     defaultAlgoArgs.runMaxLocalAuc = False
     defaultAlgoArgs.runSoftImpute = False
     defaultAlgoArgs.runWarpMf = False
     defaultAlgoArgs.runWrMf = False
-    defaultAlgoArgs.runCLiMF = False
-    defaultAlgoArgs.t0 = 10**-3 
-    defaultAlgoArgs.t0s = numpy.logspace(-1, -4, 6, base=10)
+    
+    #General algorithm parameters 
+    defaultAlgoArgs.folds = 3
+    defaultAlgoArgs.k = 8 
+    defaultAlgoArgs.ks = 2**numpy.arange(3, 8)
+    defaultAlgoArgs.learningRateSelect = False
+    defaultAlgoArgs.modelSelect = False
+    defaultAlgoArgs.modelSelectSamples = 1000
+    defaultAlgoArgs.numRecordAucSamples = 500
+    defaultAlgoArgs.overwrite = False 
+    defaultAlgoArgs.processes = multiprocessing.cpu_count()
     defaultAlgoArgs.testSize = 5
-    defaultAlgoArgs.validationSize = 3
     defaultAlgoArgs.u = 0.1
+    defaultAlgoArgs.validationSize = 3
     defaultAlgoArgs.verbose = False
     
+    #parameters for Bpr
+    defaultAlgoArgs.lmbdaUser = 0.1
+    defaultAlgoArgs.lmbdaPos = 0.1
+    defaultAlgoArgs.lmbdaNeg = 0.1
+    defaultAlgoArgs.lmbdaUsers = 2.0**-numpy.arange(0, 10, 2)
+    defaultAlgoArgs.lmbdaPoses = 2.0**-numpy.arange(2, 7, 1)
+    defaultAlgoArgs.lmbdaNegs = 2.0**-numpy.arange(2, 7, 1)
+    defaultAlgoArgs.maxIterationsBpr = 30
+    defaultAlgoArgs.gammasBpr = 2.0**-numpy.arange(0, 5, 1)
+    defaultAlgoArgs.gammaBpr = 0.1
+    
+    #parameters for CLiMF
+    defaultAlgoArgs.gammaCLiMF = 0.0001
+    defaultAlgoArgs.gammasCLiMF = 2.0**-numpy.arange(1, 8, 4)
+    defaultAlgoArgs.lmbdaCLiMF = 0.001
+    defaultAlgoArgs.lmbdasCLiMF = 2.0**-numpy.arange(1, 8, 4)
+    defaultAlgoArgs.maxIterCLiMF = 25    
+    
+    #Parameters for KNN
+    defaultAlgoArgs.kns = numpy.array([20]) 
+    
+    #Parameters for MlAuc
+    defaultAlgoArgs.alpha = 0.5  
+    defaultAlgoArgs.alphas = 2.0**-numpy.arange(0, 5, 1)    
+    defaultAlgoArgs.epsMlauc = 10**-5    
+    defaultAlgoArgs.fullGradient = False
+    defaultAlgoArgs.initialAlg = "rand"
+    defaultAlgoArgs.lmbdaMlauc = 0
+    defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(-1, 12, 2)
+    defaultAlgoArgs.maxIterations = 50
+    defaultAlgoArgs.numAucSamples = 10
+    defaultAlgoArgs.numRowSamples = 100
+    defaultAlgoArgs.numStepIterations = 1000
+    defaultAlgoArgs.rate = "optimal"
+    defaultAlgoArgs.recordStep = defaultAlgoArgs.numStepIterations*5 
+    defaultAlgoArgs.rhoMlauc = 0.000
+    defaultAlgoArgs.rhosMlauc = numpy.linspace(1.0, 0.0, 6) 
+    defaultAlgoArgs.t0 = 10**-3 
+    defaultAlgoArgs.t0s = numpy.array([10**-3, 10**-4, 10**-5])
+    
+    #Parameters for SoftImpute 
+    defaultAlgoArgs.epsSi = 10**-14
+    defaultAlgoArgs.gamma = 0.0001
+    defaultAlgoArgs.postProcess = False 
+    defaultAlgoArgs.rhoSi = 0.1
+    defaultAlgoArgs.rhosSi = numpy.linspace(0.5, 0.0, 6) 
+    defaultAlgoArgs.svdAlg = "rsvd"
+    
+    #Parameters for WrMf 
+    defaultAlgoArgs.alphaWrMf = 1
+    defaultAlgoArgs.lmbdasWrMf = 2.0**-numpy.arange(1, 12, 2)
+    defaultAlgoArgs.numIterationsWrMf = 20     
+        
     def __init__(self, cmdLine=None, defaultAlgoArgs = None, dirName=""):
         """ priority for default args
          - best priority: command-line value
@@ -117,11 +153,12 @@ class RankingExpHelper(object):
         
         # define parser
         algoParser = argparse.ArgumentParser(description="", add_help=add_help)
-        for method in ["runSoftImpute", "runMaxLocalAuc", "runWarpMf", "runWrMf", "runKnn", "runCLiMF"]:
+        for method in ["runSoftImpute", "runMaxLocalAuc", "runWarpMf", "runWrMf", "runKnn", "runCLiMF", "runBpr"]:
             algoParser.add_argument("--" + method, action="store_true", default=defaultAlgoArgs.__getattribute__(method))
         algoParser.add_argument("--alpha", type=float, help="Learning rate for max local AUC (default: %(default)s)", default=defaultAlgoArgs.alpha)
         algoParser.add_argument("--fullGradient", action="store_true", help="Whether to compute the full gradient at each iteration (default: %(default)s)", default=defaultAlgoArgs.fullGradient)
-        algoParser.add_argument("--gamma", type=float, help="Regularisation parameter (gamma) for CLiMF (default: %(default)s)", default=defaultAlgoArgs.gamma)        
+        algoParser.add_argument("--gamma", type=float, help="Regularisation parameter (gamma) for CLiMF (default: %(default)s)", default=defaultAlgoArgs.gamma)     
+        algoParser.add_argument("--folds", type=int, help="Folds/repetitions for model selection (default: %(default)s)", default=defaultAlgoArgs.folds)   
         algoParser.add_argument("--initialAlg", type=str, help="Initial setup for U and V for max local AUC: either rand or svd (default: %(default)s)", default=defaultAlgoArgs.initialAlg)
         algoParser.add_argument("--ks", type=int, nargs="+", help="Max number of singular values/vectors (default: %(default)s)", default=defaultAlgoArgs.ks)
         algoParser.add_argument("--lmbdasCLiMF", type=float, nargs="+", help="Regularisation parameters (lambda) for CLiMF (default: %(default)s)", default=defaultAlgoArgs.lmbdasCLiMF)        
@@ -132,15 +169,13 @@ class RankingExpHelper(object):
         algoParser.add_argument("--modelSelect", action="store_true", help="Whether to do model selection(default: %(default)s)", default=defaultAlgoArgs.modelSelect)
         algoParser.add_argument("--numAucSamples", type=int, help="Number of AUC samples for max local AUC (default: %(default)s)", default=defaultAlgoArgs.numAucSamples)
         algoParser.add_argument("--numRowSamples", type=int, help="Number of row samples for max local AUC (default: %(default)s)", default=defaultAlgoArgs.numRowSamples)
-        algoParser.add_argument("--nu", type=int, help="Weight of discordance for max local AUC (default: %(default)s)", default=defaultAlgoArgs.nu)
-        algoParser.add_argument("--nuPrime", type=int, help="Weight of discordance for max local AUC (default: %(default)s)", default=defaultAlgoArgs.nuPrime)
         algoParser.add_argument("--overwrite", action="store_true", help="Whether to overwrite results even if already computed (default: %(default)s)", default=defaultAlgoArgs.overwrite)
         algoParser.add_argument("--postProcess", action="store_true", help="Whether to do post processing for soft impute (default: %(default)s)", default=defaultAlgoArgs.postProcess)
         algoParser.add_argument("--processes", type=int, help="Number of CPU cores to use (default: %(default)s)", default=defaultAlgoArgs.processes)
         algoParser.add_argument("--rate", type=str, help="Learning rate type: either constant or optimal (default: %(default)s)", default=defaultAlgoArgs.rate)
         algoParser.add_argument("--recordStep", type=int, help="Number of iterations after which we display some partial results (default: %(default)s)", default=defaultAlgoArgs.recordStep)
-        algoParser.add_argument("--rhoMlauc", type=float, help="The penalisation on non-orthogonal columns for U, V for max local AUC (default: %(default)s)", default=defaultAlgoArgs.rhoMlauc)        
-        algoParser.add_argument("--rhos", type=float, nargs="+", help="Regularisation parameter for SoftImpute (default: %(default)s)", default=defaultAlgoArgs.rhos)
+        algoParser.add_argument("--rhoMlauc", type=float, help="The trade off between penalties for max local AUC (default: %(default)s)", default=defaultAlgoArgs.rhoMlauc)        
+        algoParser.add_argument("--rhosMlauc", type=float, nargs="+", help="The trade off between penalties for max local AUC model selection (default: %(default)s)", default=defaultAlgoArgs.rhosMlauc)
         algoParser.add_argument("--t0", type=float, help="Learning rate decay for max local AUC (default: %(default)s)", default=defaultAlgoArgs.t0)
         algoParser.add_argument("--u", type=float, help="Focus on top proportion of u items (default: %(default)s)", default=defaultAlgoArgs.u)
         algoParser.add_argument("--verbose", action="store_true", help="Whether to generate verbose algorithmic details(default: %(default)s)", default=defaultAlgoArgs.verbose)
@@ -260,24 +295,23 @@ class RankingExpHelper(object):
             
             if not (fileLock.isLocked() or fileLock.fileExists()) or self.algoArgs.overwrite:
                 fileLock.lock()
-                
-                #print(trainX.storagetype)
+                modelSelectX = trainX[0:self.algoArgs.modelSelectSamples, :]
+                modelSelectX = modelSelectX.toScipyCsr().tocsc()
                 trainX = trainX.toScipyCsr().tocsc()
                 testX = testX.toScipyCsr().tocsc()
                                 
                 try: 
-                    learner = IterativeSoftImpute(self.algoArgs.rhos[0], eps=self.algoArgs.epsSi, k=self.algoArgs.ks[0], svdAlg="propack", postProcess=self.algoArgs.postProcess)
+                    learner = IterativeSoftImpute(self.algoArgs.rhoSi, eps=self.algoArgs.epsSi, k=self.algoArgs.k, svdAlg=self.algoArgs.svdAlg, postProcess=self.algoArgs.postProcess)
                     learner.numProcesses = self.algoArgs.processes
+                    learner.folds = self.algoArgs.folds
+                    learner.metric = "precision"
+                    learner.validationSize = self.algoArgs.validationSize
                     
                     if self.algoArgs.modelSelect: 
                         logging.debug("Performing model selection, taking subsample of entries of size " + str(self.sampleSize))
-                        modelSelectX = SparseUtils.submatrix(trainX, self.sampleSize)
                         
                         cvInds = Sampling.randCrossValidation(self.algoArgs.folds, modelSelectX.nnz)
-                        meanErrors, stdErrors = learner.modelSelect(modelSelectX, self.algoArgs.rhos, self.algoArgs.ks, cvInds)
-                        
-                        logging.debug("Mean errors = " + str(meanErrors))
-                        logging.debug("Std errors = " + str(stdErrors))
+                        meanErrors, stdErrors = learner.modelSelect2(modelSelectX, self.algoArgs.rhosSi, self.algoArgs.ks, cvInds)
                         
                         modelSelectFileName = resultsFileName.replace("Results", "ModelSelect") 
                         numpy.savez(modelSelectFileName, meanErrors, stdErrors)
@@ -301,12 +335,10 @@ class RankingExpHelper(object):
                 fileLock.lock()
                 
                 try: 
-                    learner = MaxLocalAUC(self.algoArgs.ks[0], 1-self.algoArgs.u, lmbda=self.algoArgs.lmbdasMlauc[0], eps=self.algoArgs.epsMlauc, stochastic=not self.algoArgs.fullGradient)
+                    learner = MaxLocalAUC(self.algoArgs.k, 1-self.algoArgs.u, lmbda=self.algoArgs.lmbdaMlauc, eps=self.algoArgs.epsMlauc, stochastic=not self.algoArgs.fullGradient)
                     
                     learner.numRowSamples = self.algoArgs.numRowSamples
                     learner.numAucSamples = self.algoArgs.numAucSamples
-                    learner.nu = self.algoArgs.nu
-                    learner.nuPrime = self.algoArgs.nuPrime
                     learner.initialAlg = self.algoArgs.initialAlg
                     learner.recordStep = self.algoArgs.recordStep
                     learner.rate = self.algoArgs.rate
@@ -319,13 +351,15 @@ class RankingExpHelper(object):
                     learner.numStepIterations = self.algoArgs.numStepIterations
                     learner.lmbdas = self.algoArgs.lmbdasMlauc
                     learner.rho = self.algoArgs.rhoMlauc
-                    learner.testSize = self.algoArgs.validationSize
+                    learner.validationSize = self.algoArgs.validationSize
                     learner.alphas = self.algoArgs.alphas
                     learner.t0s = self.algoArgs.t0s
+                    learner.metric = "precision"
 
                     if self.algoArgs.learningRateSelect:
-                        logging.debug("Performing learning rate selection, taking subsample of entries of size " + str(self.sampleSize))
-                        modelSelectX = SparseUtils.submatrix(trainX, self.sampleSize)
+                        logging.debug("Performing learning rate selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
+                        modelSelectX = trainX[0:self.algoArgs.modelSelectSamples, :]
+                        logging.debug("Done")
                         objectives = learner.learningRateSelect(modelSelectX)        
                         
                         rateSelectFileName = resultsFileName.replace("Results", "LearningRateSelect")
@@ -333,15 +367,16 @@ class RankingExpHelper(object):
                         logging.debug("Saved learning rate selection grid as " + rateSelectFileName) 
                     
                     if self.algoArgs.modelSelect: 
-                        logging.debug("Performing model selection, taking subsample of entries of size " + str(self.sampleSize))
-                        modelSelectX = SparseUtils.submatrix(trainX, self.sampleSize)
+                        logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
+                        modelSelectX = trainX[0:self.algoArgs.modelSelectSamples, :]
                         
-                        meanObjs, stdObjs = learner.modelSelect(modelSelectX)
+                        meanAucs, stdAucs = learner.modelSelect(modelSelectX)
                         
                         modelSelectFileName = resultsFileName.replace("Results", "ModelSelect") 
-                        numpy.savez(modelSelectFileName, meanObjs, stdObjs)
+                        numpy.savez(modelSelectFileName, meanAucs, stdAucs)
                         logging.debug("Saved model selection grid as " + modelSelectFileName)                            
                     
+                    learner.maxIterations = self.algoArgs.maxIterations*2 
                     logging.debug(learner)                
 
                     self.recordResults(X, trainX, testX, learner, resultsFileName)
@@ -363,13 +398,13 @@ class RankingExpHelper(object):
                     trainX = trainX.toScipyCsr()
                     testX = testX.toScipyCsr()
 
-                    learner = WarpMf(self.algoArgs.ks[0], self.algoArgs.lmbdas[0], u=self.algoArgs.u)
+                    learner = WarpMf(self.algoArgs.k, self.algoArgs.lmbdas[0], u=self.algoArgs.u)
                     learner.ks = self.algoArgs.ks
                     learner.numProcesses = self.algoArgs.processes
                                         
                     if self.algoArgs.modelSelect: 
-                        logging.debug("Performing model selection, taking subsample of entries of size " + str(self.sampleSize))
-                        modelSelectX = SparseUtils.submatrix(trainX, self.sampleSize)
+                        logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
+                        modelSelectX = trainX[0:self.algoArgs.modelSelectSamples, :]
                         
                         meanAucs, stdAucs = learner.modelSelect(modelSelectX)
                         
@@ -401,15 +436,17 @@ class RankingExpHelper(object):
                     trainX = trainX.toScipyCsr()
                     testX = testX.toScipyCsr()
 
-                    learner = WeightedMf(self.algoArgs.ks[0], self.algoArgs.lmbdasWrMf[0], w=1-self.algoArgs.u)
+                    learner = WeightedMf(self.algoArgs.k, alpha=self.algoArgs.alphaWrMf, lmbda=self.algoArgs.lmbdasWrMf[0], numIterations=self.algoArgs.numIterationsWrMf, w=1-self.algoArgs.u)
                     learner.ks = self.algoArgs.ks
                     learner.lmbdas = self.algoArgs.lmbdasWrMf 
                     learner.numProcesses = self.algoArgs.processes
-                    learner.testSize = self.algoArgs.validationSize
+                    learner.validationSize = self.algoArgs.validationSize
+                    learner.folds = self.algoArgs.folds
+                    learner.numRecordAucSamples = self.algoArgs.numRecordAucSamples
                     
                     if self.algoArgs.modelSelect: 
-                        logging.debug("Performing model selection, taking subsample of entries of size " + str(self.sampleSize))
-                        modelSelectX = SparseUtils.submatrix(trainX, self.sampleSize)
+                        logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
+                        modelSelectX = trainX[0:min(trainX.shape[0], self.algoArgs.modelSelectSamples), :]
                         
                         meanAucs, stdAucs = learner.modelSelect(modelSelectX)
                         
@@ -424,6 +461,48 @@ class RankingExpHelper(object):
                     fileLock.unlock()
             else: 
                 logging.debug("File is locked or already computed: " + resultsFileName)  
+       
+        if self.algoArgs.runBpr: 
+            logging.debug("Running Bayesian Personalised Recommendation")
+            resultsFileName = self.resultsDir + "ResultsBpr.npz"
+                
+            fileLock = FileLock(resultsFileName)     
+            
+            if not (fileLock.isLocked() or fileLock.fileExists()) or self.algoArgs.overwrite: 
+                fileLock.lock()
+                
+                try: 
+                    trainX = trainX.toScipyCsr()
+                    testX = testX.toScipyCsr()
+
+                    learner = BprRecommender(self.algoArgs.k, lmbdaUser=self.algoArgs.lmbdaUser, lmbdaPos=self.algoArgs.lmbdaPos, lmbdaNeg=self.algoArgs.lmbdaNeg, gamma=self.algoArgs.gammaBpr, w=1-self.algoArgs.u)
+                    learner.ks = self.algoArgs.ks
+                    learner.numProcesses = self.algoArgs.processes
+                    learner.validationSize = self.algoArgs.validationSize
+                    learner.folds = self.algoArgs.folds
+                    learner.lmbdaUsers = self.algoArgs.lmbdaUsers
+                    learner.lmbdaPoses = self.algoArgs.lmbdaPoses
+                    learner.lmbdaNegs = self.algoArgs.lmbdaNegs
+                    learner.gammasBpr = self.algoArgs.gammasBpr
+                    learner.maxIterations = self.algoArgs.maxIterationsBpr
+                    
+                    if self.algoArgs.modelSelect: 
+                        logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
+                        modelSelectX = trainX[0:min(trainX.shape[0], self.algoArgs.modelSelectSamples), :]
+                        
+                        meanAucs, stdAucs = learner.modelSelect(modelSelectX)
+                        
+                        modelSelectFileName = resultsFileName.replace("Results", "ModelSelect") 
+                        numpy.savez(modelSelectFileName, meanAucs, stdAucs)
+                        logging.debug("Saved model selection grid as " + modelSelectFileName)                            
+                    
+                    logging.debug(learner)   
+                    
+                    self.recordResults(X, trainX, testX, learner, resultsFileName)
+                finally: 
+                    fileLock.unlock()
+            else: 
+                logging.debug("File is locked or already computed: " + resultsFileName)         
        
         if self.algoArgs.runKnn: 
             logging.debug("Running kNN")
@@ -459,23 +538,26 @@ class RankingExpHelper(object):
             if not (fileLock.isLocked() or fileLock.fileExists()) or self.algoArgs.overwrite:
                 fileLock.lock()
                 
-                try:
+                try: 
+                    modelSelectX = trainX[0:self.algoArgs.modelSelectSamples, :]
+                    modelSelectX = scipy.sparse.csr_matrix(modelSelectX.toScipyCsr(), dtype=numpy.float64)
                     trainX = scipy.sparse.csr_matrix(trainX.toScipyCsr(), dtype=numpy.float64)
                     testX = testX.toScipyCsr()
 
-                    learner = CLiMF(self.algoArgs.kns[0], self.algoArgs.lmbdasCLiMF[0], self.algoArgs.gamma)
+                    learner = CLiMF(self.algoArgs.k, self.algoArgs.lmbdaCLiMF, self.algoArgs.gammaCLiMF)
                     learner.max_iters = self.algoArgs.maxIterCLiMF
                     learner.ks = self.algoArgs.ks 
+                    learner.gammas = self.algoArgs.gammasCLiMF
                     learner.lmbdas = self.algoArgs.lmbdasCLiMF
                     learner.numRecordAucSamples = self.algoArgs.numRecordAucSamples
                     learner.w = 1-self.algoArgs.u
                     learner.folds = self.algoArgs.folds  
-                    learner.testSize = self.algoArgs.testSize
+                    learner.validationSize = self.algoArgs.validationSize
                     learner.numProcesses = self.algoArgs.processes 
 
                     if self.algoArgs.modelSelect: 
-                        logging.debug("Performing model selection, taking subsample of entries of size " + str(self.sampleSize))
-                        modelSelectX = SparseUtils.submatrix(trainX, self.sampleSize)
+                        logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
+
                         
                         meanObjs, stdObjs = learner.modelSelect(modelSelectX)
                         

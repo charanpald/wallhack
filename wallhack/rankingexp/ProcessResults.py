@@ -16,19 +16,22 @@ ps = [1, 3, 5]
 
 dirName = "SyntheticDataset1" 
 #dirName = "MovieLens" 
+#dirName = "Flixster" 
 #dirName = "MendeleyCoauthors"
 
+generateRecommendations = False
+
 resultsDir = PathDefaults.getOutputDir() + "ranking/" + dirName + "/"
-algs = ["MaxLocalAUC", "SoftImpute", "WrMf"]
-names = ["MLAUC",  "SoftImpute", "WrMf"]
+algs = ["MaxLocalAUC", "SoftImpute", "WrMf", "Bpr"]
+names = ["MLAUC",  "SoftImpute", "WrMf", "BPR"]
 
 trainResultsTable = numpy.zeros((len(algs), len(ps)*2+2))
 testResultsTable = numpy.zeros((len(algs), len(ps)*2+2))
+figInd = 0
 
 for s, alg in enumerate(algs): 
     resultsFileName = resultsDir + "Results" + alg + ".npz"
     try: 
-        
         data = numpy.load(resultsFileName)
         trainMeasures, testMeasures, metaData, scoreInds = data["arr_0"], data["arr_1"], data["arr_2"], data["arr_3"]
         
@@ -36,9 +39,10 @@ for s, alg in enumerate(algs):
         testResultsTable[s, 0:len(testMeasures)] = testMeasures      
         
         logging.debug(alg)
-        logging.debug(metaData)
+        logging.debug("Metadata: " + str(metaData))
 
-        if dirName == "MendeleyCoauthors": 
+        if dirName == "MendeleyCoauthors" and generateRecommendations: 
+            logging.debug("Generating recommendations for authors")
             authorIndexerFilename = PathDefaults.getDataDir() + "reference/authorIndexer.pkl"
             authorIndexerFile = open(authorIndexerFilename)
             authorIndexer = pickle.load(authorIndexerFile)
@@ -72,24 +76,12 @@ for s, alg in enumerate(algs):
     
     try: 
         data = numpy.load(modelSelectFileName)
-        meanAucs, stdAucs = data["arr_0"], data["arr_1"]
+        meanMetrics, stdMetrics = data["arr_0"], data["arr_1"]
         
-        logging.debug(meanAucs)
-        
-        #ks = 2**numpy.arange(3, 8)
-        #lmbdas = 2.0**-numpy.arange(1, 12, 2)         
-        
-        #ks = ks[0:meanAucs.shape[0]]
-        #print(ks)
-        #print(lmbdas)
-        #plt.contourf(lmbdas, ks, meanAucs)
-        #plt.colorbar()
-        
+        logging.debug(meanMetrics)
     except IOError: 
         logging.debug("Missing file " + modelSelectFileName)
     
-    
-
 colNames = []
 for i, p in enumerate(ps): 
     colNames.append("p@" + str(p)) 
@@ -98,9 +90,11 @@ for i, p in enumerate(ps):
 colNames.extend(["localAUC@u", "AUC"])
 
 print("")
+print("-"*20 + "Train metrics" + "-"*20)
 print(Latex.listToRow(colNames))
 print(Latex.addRowNames(names, Latex.array2DToRows(trainResultsTable)))
 
 
+print("-"*20 + "Test metrics" + "-"*20)
 print(Latex.listToRow(colNames))
 print(Latex.addRowNames(names, Latex.array2DToRows(testResultsTable)))

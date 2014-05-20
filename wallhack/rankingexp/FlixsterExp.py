@@ -15,16 +15,31 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.random.seed(21)        
 numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 
-#Create a low rank matrix  
-matrixFileName = PathDefaults.getDataDir() + "flixster/Ratings.timed.txt" 
+# Arguments related to the dataset
+dataArgs = argparse.Namespace()
 
-print(matrixFileName)
+# Arguments related to the algorithm
+defaultAlgoArgs = argparse.Namespace()
+defaultAlgoArgs.ks = 2**numpy.arange(3, 7)
+
+# data args parser #
+dataParser = argparse.ArgumentParser(description="", add_help=False)
+dataParser.add_argument("-h", "--help", action="store_true", help="show this help message and exit")
+devNull, remainingArgs = dataParser.parse_known_args(namespace=dataArgs)
+if dataArgs.help:
+    helpParser  = argparse.ArgumentParser(description="", add_help=False, parents=[dataParser, RankingExpHelper.newAlgoParser(defaultAlgoArgs)])
+    helpParser.print_help()
+    exit()
+
+#Create/load a low rank matrix 
+matrixFileName = PathDefaults.getDataDir() + "flixster/Ratings.timed.txt" 
 matrixFile = open(matrixFileName)
 matrixFile.readline()
 userIndexer = IdIndexer("i")
 movieIndexer = IdIndexer("i")
 
 ratings = array.array("f")
+logging.debug("Loading ratings from " + matrixFileName)
 
 for i, line in enumerate(matrixFile):
     if i % 1000000 == 0: 
@@ -38,9 +53,6 @@ for i, line in enumerate(matrixFile):
 rowInds = userIndexer.getArray()
 colInds = movieIndexer.getArray()
 ratings = numpy.array(ratings)
-print(rowInds.dtype)
-print(colInds.dtype)
-print(ratings.shape, ratings.dtype)
 
 X = sppy.csarray((len(userIndexer.getIdDict()), len(movieIndexer.getIdDict())), storagetype="row", dtype=numpy.int)
 X.put(numpy.array(ratings>3, numpy.int), numpy.array(rowInds, numpy.int32), numpy.array(colInds, numpy.int32), init=True)
@@ -48,34 +60,12 @@ X = SparseUtils.pruneMatrix(X, minNnzRows=10, minNnzCols=10)
 logging.debug("Read file: " + matrixFileName)
 logging.debug("Shape of data: " + str(X.shape))
 logging.debug("Number of non zeros " + str(X.nnz))
-
 (m, n) = X.shape
 
-# Arguments related to the dataset
-dataArgs = argparse.Namespace()
-
-# Arguments related to the algorithm
-defaultAlgoArgs = argparse.Namespace()
-defaultAlgoArgs.ks = 2**numpy.arange(3, 7)
-defaultAlgoArgs.rhos = numpy.flipud(numpy.logspace(-7, -3, 5))
-defaultAlgoArgs.folds = 4
-defaultAlgoArgs.u = 20.0/m
-defaultAlgoArgs.maxIterations = 10*m
-defaultAlgoArgs.t0 = 10**-3
-defaultAlgoArgs.alpha = 0.2
-defaultAlgoArgs.initialAlg = "softimpute"
-
-# data args parser #
-dataParser = argparse.ArgumentParser(description="", add_help=False)
-dataParser.add_argument("-h", "--help", action="store_true", help="show this help message and exit")
-devNull, remainingArgs = dataParser.parse_known_args(namespace=dataArgs)
-if dataArgs.help:
-    helpParser  = argparse.ArgumentParser(description="", add_help=False, parents=[dataParser, RankingExpHelper.newAlgoParser(defaultAlgoArgs)])
-    helpParser.print_help()
-    exit()
+defaultAlgoArgs.u = 5/float(n) 
 
 dataArgs.extendedDirName = ""
-dataArgs.extendedDirName += "MovieLens"
+dataArgs.extendedDirName += "Flixster"
 
 # print args #
 logging.info("Running on " + dataArgs.extendedDirName)

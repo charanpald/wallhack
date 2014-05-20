@@ -50,17 +50,17 @@ w2 = 1-u2
 k2 = k
 eps = 10**-6
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, stochastic=True)
-maxLocalAuc.maxIterations = m*10
-maxLocalAuc.numRowSamples = 10
+maxLocalAuc.maxIterations = m*50
+maxLocalAuc.numRowSamples = 100
 maxLocalAuc.numStepIterations = 500
-maxLocalAuc.numAucSamples = 20
-maxLocalAuc.initialAlg = "softimpute"
+maxLocalAuc.numAucSamples = 10
+maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.recordStep = maxLocalAuc.numStepIterations
-maxLocalAuc.nu = 2
 maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 0.2
-maxLocalAuc.t0 = 10**-2
+maxLocalAuc.alpha = 0.5
+maxLocalAuc.t0 = 10**-4
 maxLocalAuc.lmbda = 0.001
+maxLocalAuc.rho = 0.1
 
 numRecordAucSamples = 200
 trainOmegaList = SparseUtils.getOmegaList(trainX)

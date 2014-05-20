@@ -15,7 +15,7 @@ from sandbox.util.MCEvaluatorCython import MCEvaluatorCython
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.random.seed(21)        
-numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
+numpy.set_printoptions(precision=4, suppress=True, linewidth=150)
 
 #Create a low rank matrix  
 m = 500
@@ -44,41 +44,43 @@ logging.debug("Test local AUC:" + str(MCEvaluator.localAUCApprox(X, U, V, w, num
 k2 = k
 u2 = 5.0/n
 w2 = 1-u2
-eps = 10**-15
-lmbda = 0.0
+eps = 10**-6
+lmbda = 0.03125
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbda=lmbda, stochastic=True)
-maxLocalAuc.maxIterations = m*80
-maxLocalAuc.numRowSamples = 50
+maxLocalAuc.maxIterations = 100
+maxLocalAuc.numRowSamples = 100
 maxLocalAuc.numStepIterations = 1000
-maxLocalAuc.numAucSamples = 50
+maxLocalAuc.numAucSamples = 10
 maxLocalAuc.numRecordAucSamples = 200
-maxLocalAuc.initialAlg = "svd"
-maxLocalAuc.recordStep = maxLocalAuc.numStepIterations
-maxLocalAuc.nu = 50
-maxLocalAuc.nuPrime = 50
-maxLocalAuc.rate = "constant"
-maxLocalAuc.alpha = 0.0625
-maxLocalAuc.t0 = 0.001953125
+maxLocalAuc.initialAlg = "rand"
+maxLocalAuc.recordStep = maxLocalAuc.numStepIterations*2
+maxLocalAuc.rate = "optimal"
+maxLocalAuc.alpha = 1.0
+maxLocalAuc.t0 = 0.0001
 maxLocalAuc.folds = 2
-maxLocalAuc.rho = 0.1
+maxLocalAuc.rho = 0.0
 maxLocalAuc.ks = numpy.array([k2])
-maxLocalAuc.testSize = 3
+maxLocalAuc.testSize = 5
 maxLocalAuc.lmbdas = 2.0**-numpy.arange(0, 10, 2)
 #maxLocalAuc.numProcesses = 1
-#maxLocalAuc.alphas = 2.0**-numpy.arange(-1, 2, 0.5)
-maxLocalAuc.alphas = 2.0**-numpy.arange(0, 6, 1)
-#maxLocalAuc.t0s = 2.0**-numpy.arange(6, 14, 1)
-maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
-maxLocalAuc.beta = 1.0
+#maxLocalAuc.alphas = 2.0**-numpy.arange(0, 5, 1)
+#maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
+maxLocalAuc.alphas = numpy.array([0.5, 0.25])
+maxLocalAuc.t0s = numpy.array([0.0001, 0.001])
+maxLocalAuc.normalise = True
+maxLocalAuc.metric = "precision"
 
 os.system('taskset -p 0xffffffff %d' % os.getpid())
 
 logging.debug("Starting training")
-#logging.debug(maxLocalAuc)
-#maxLocalAuc.learningRateSelect(X)
-#maxLocalAuc.modelSelect(X)
-#ProfileUtils.profile('U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=X, verbose=True)', globals(), locals())
-U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=testX, verbose=True)
+logging.debug(maxLocalAuc)
+
+#modelSelectX = trainX[0:100, :]
+#maxLocalAuc.learningRateSelect(trainX)
+#maxLocalAuc.modelSelect(trainX)
+#ProfileUtils.profile('U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=testX, verbose=True)', globals(), locals())
+
+U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=testX, U=U, V=V, verbose=True)
 
 
 maxItems = 5
@@ -91,14 +93,14 @@ for p in [1, 3, 5]:
     logging.debug("Train precision@" + str(p) + "=" + str(MCEvaluator.precisionAtK(trainX, trainOrderedItems, p, omegaList=trainOmegaList))) 
     logging.debug("Test precision@" + str(p) + "=" + str(MCEvaluator.precisionAtK(testX, testOrderedItems, p, omegaList=testOmegaList))) 
 
-"""
+
 plt.figure(0)
 plt.plot(trainObjs, label="train")
-plt.plot(testObjs, label="test")
+plt.plot(testObjs, label="test") 
 plt.xlabel("iteration")
 plt.ylabel("objective")
 plt.legend()
-"""
+
 
 plt.figure(1)
 plt.plot(trainAucs, label="train")

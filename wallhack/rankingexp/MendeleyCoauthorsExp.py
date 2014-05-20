@@ -11,29 +11,12 @@ import sppy.io
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
-authorAuthorFileName = PathDefaults.getDataDir() + "reference/authorAuthorMatrix.mtx" 
-X = sppy.io.mmread(authorAuthorFileName, storagetype="row")
-logging.debug("Read file: " + authorAuthorFileName)
-
-#X = X[0:20000, :]
-
-(m, n) = X.shape
-logging.debug("Size of X: " + str(X.shape))
-logging.debug("Number of non zeros: " + str(X.nnz))
-
 # Arguments related to the dataset
 dataArgs = argparse.Namespace()
 
 # Arguments related to the algorithm
 defaultAlgoArgs = argparse.Namespace()
 defaultAlgoArgs.ks = 2**numpy.arange(3, 7)
-defaultAlgoArgs.rhos = numpy.flipud(numpy.logspace(-7, -3, 5))
-defaultAlgoArgs.folds = 4
-defaultAlgoArgs.u = 20.0/m
-defaultAlgoArgs.maxIterations = 20*m
-defaultAlgoArgs.t0 = 5.0/defaultAlgoArgs.maxIterations 
-defaultAlgoArgs.alpha = 0.3
-defaultAlgoArgs.initialAlg = "svd"
 
 # data args parser #
 dataParser = argparse.ArgumentParser(description="", add_help=False)
@@ -43,6 +26,16 @@ if dataArgs.help:
     helpParser  = argparse.ArgumentParser(description="", add_help=False, parents=[dataParser, RankingExpHelper.newAlgoParser(defaultAlgoArgs)])
     helpParser.print_help()
     exit()
+
+#Load/create the dataset 
+authorAuthorFileName = PathDefaults.getDataDir() + "reference/authorAuthorMatrix.mtx" 
+logging.debug("Reading file: " + authorAuthorFileName)
+X = sppy.io.mmread(authorAuthorFileName, storagetype="row")
+(m, n) = X.shape
+logging.debug("Size of X: " + str(X.shape))
+logging.debug("Number of non zeros: " + str(X.nnz))
+
+defaultAlgoArgs.u = 5/float(n) 
 
 dataArgs.extendedDirName = ""
 dataArgs.extendedDirName += "MendeleyCoauthors"
