@@ -89,8 +89,8 @@ class RankingExpHelper(object):
     defaultAlgoArgs.numStepIterations = 1000
     defaultAlgoArgs.rate = "optimal"
     defaultAlgoArgs.recordStep = defaultAlgoArgs.numStepIterations*5 
-    defaultAlgoArgs.rhoMlauc = 0.000
-    defaultAlgoArgs.rhosMlauc = numpy.linspace(1.0, 0.0, 6) 
+    defaultAlgoArgs.CMlauc = 0.0001
+    defaultAlgoArgs.CsMlauc = 2.0**-numpy.arange(0, 10, 2)
     defaultAlgoArgs.t0 = 10**-3 
     defaultAlgoArgs.t0s = numpy.array([10**-3, 10**-4, 10**-5])
     
@@ -350,7 +350,8 @@ class RankingExpHelper(object):
                     learner.numProcesses = self.algoArgs.processes 
                     learner.numStepIterations = self.algoArgs.numStepIterations
                     learner.lmbdas = self.algoArgs.lmbdasMlauc
-                    learner.rho = self.algoArgs.rhoMlauc
+                    learner.C = self.algoArgs.CMlauc
+                    learner.Cs = self.algoArgs.CsMlauc
                     learner.validationSize = self.algoArgs.validationSize
                     learner.alphas = self.algoArgs.alphas
                     learner.t0s = self.algoArgs.t0s
