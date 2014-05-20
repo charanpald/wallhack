@@ -6,6 +6,7 @@ import os
 import gc 
 import logging
 import numpy
+import scipy.sparse
 import argparse
 import time 
 import sppy
@@ -539,8 +540,8 @@ class RankingExpHelper(object):
                 
                 try: 
                     modelSelectX = trainX[0:self.algoArgs.modelSelectSamples, :]
-                    modelSelectX = modelSelectX.toScipyCsr()
-                    trainX = trainX.toScipyCsr()
+                    modelSelectX = scipy.sparse.csr_matrix(modelSelectX.toScipyCsr(), dtype=numpy.float64)
+                    trainX = scipy.sparse.csr_matrix(trainX.toScipyCsr(), dtype=numpy.float64)
                     testX = testX.toScipyCsr()
 
                     learner = CLiMF(self.algoArgs.k, self.algoArgs.lmbdaCLiMF, self.algoArgs.gammaCLiMF)
