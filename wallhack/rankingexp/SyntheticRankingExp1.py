@@ -55,10 +55,10 @@ maxLocalAuc.numRecordAucSamples = 200
 maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.recordStep = maxLocalAuc.numStepIterations*2
 maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 1.0
-maxLocalAuc.t0 = 0.0001
+maxLocalAuc.alpha = 0.5
+maxLocalAuc.t0 = 0.001
 maxLocalAuc.folds = 2
-maxLocalAuc.rho = 0.0
+maxLocalAuc.C = 0.001
 maxLocalAuc.ks = numpy.array([k2])
 maxLocalAuc.testSize = 5
 maxLocalAuc.lmbdas = 2.0**-numpy.arange(0, 10, 2)
@@ -80,7 +80,7 @@ logging.debug(maxLocalAuc)
 #maxLocalAuc.modelSelect(trainX)
 #ProfileUtils.profile('U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=testX, verbose=True)', globals(), locals())
 
-U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=testX, U=U, V=V, verbose=True)
+U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=testX, verbose=True)
 
 
 maxItems = 5
