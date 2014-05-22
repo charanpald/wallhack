@@ -79,6 +79,7 @@ for s, alg in enumerate(algs):
         meanMetrics, stdMetrics = data["arr_0"], data["arr_1"]
         
         logging.debug(meanMetrics)
+        logging.debug(numpy.unravel_index(numpy.argmax(meanMetrics), meanMetrics.shape))
     except IOError: 
         logging.debug("Missing file " + modelSelectFileName)
     
