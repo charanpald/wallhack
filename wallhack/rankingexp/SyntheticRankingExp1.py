@@ -41,7 +41,7 @@ logging.debug("Train local AUC:" + str(MCEvaluator.localAUCApprox(trainX, U, V, 
 logging.debug("Test local AUC:" + str(MCEvaluator.localAUCApprox(X, U, V, w, numRecordAucSamples, omegaList=testOmegaList)))
 
 #w = 1.0
-k2 = k
+k2 = 32
 u2 = 5.0/n
 w2 = 1-u2
 eps = 10**-6

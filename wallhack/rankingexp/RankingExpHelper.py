@@ -90,7 +90,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.rate = "optimal"
     defaultAlgoArgs.recordStep = defaultAlgoArgs.numStepIterations*5 
     defaultAlgoArgs.CMlauc = 0.0001
-    defaultAlgoArgs.CsMlauc = 2.0**-numpy.arange(0, 10, 2)
+    defaultAlgoArgs.CsMlauc = 2.0**-numpy.arange(4, 14, 2)
     defaultAlgoArgs.t0 = 10**-3 
     defaultAlgoArgs.t0s = numpy.array([10**-3, 10**-4, 10**-5])
     
