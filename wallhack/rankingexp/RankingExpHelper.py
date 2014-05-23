@@ -234,7 +234,7 @@ class RankingExpHelper(object):
         metaData.append(learnTime)
 
         logging.debug("Getting all omega")
-        omegaList = SparseUtils.getOmegaList(X)
+        allOmegaList = SparseUtils.getOmegaList(X)
         logging.debug("Getting train omega")
         trainOmegaList = SparseUtils.getOmegaList(trainX)
         logging.debug("Getting test omega")
@@ -261,10 +261,10 @@ class RankingExpHelper(object):
             
 
         try: 
-            trainMeasures.append(MCEvaluator.localAUCApprox(trainX, U, V, w, self.algoArgs.numRecordAucSamples, omegaList=trainOmegaList))
-            trainMeasures.append(MCEvaluator.localAUCApprox(trainX, U, V, 0.0, self.algoArgs.numRecordAucSamples, omegaList=trainOmegaList))
-            testMeasures.append(MCEvaluator.localAUCApprox(X, U, V, w, self.algoArgs.numRecordAucSamples, omegaList=testOmegaList))
-            testMeasures.append(MCEvaluator.localAUCApprox(X, U, V, 0.0, self.algoArgs.numRecordAucSamples, omegaList=testOmegaList))
+            trainMeasures.append(MCEvaluator.localAUCApprox(trainX, U, V, w, self.algoArgs.numRecordAucSamples))
+            trainMeasures.append(MCEvaluator.localAUCApprox(trainX, U, V, 0.0, self.algoArgs.numRecordAucSamples))
+            testMeasures.append(MCEvaluator.localAUCApprox(X, U, V, w, self.algoArgs.numRecordAucSamples))
+            testMeasures.append(MCEvaluator.localAUCApprox(X, U, V, 0.0, self.algoArgs.numRecordAucSamples))
             
             logging.debug("Local AUC@" + str(self.algoArgs.u) +  " (train/all):" + str(trainMeasures[-2]) + str("/") + str(testMeasures[-2]))
             logging.debug("AUC (train/test):" + str(trainMeasures[-1]) + str("/") + str(testMeasures[-1]))
