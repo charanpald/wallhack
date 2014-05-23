@@ -89,6 +89,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.numStepIterations = 1000
     defaultAlgoArgs.rate = "optimal"
     defaultAlgoArgs.recordStep = defaultAlgoArgs.numStepIterations*5 
+    defaultAlgoArgs.sampling = "uniform"
     defaultAlgoArgs.CMlauc = 0.0001
     defaultAlgoArgs.CsMlauc = 2.0**-numpy.arange(4, 14, 2)
     defaultAlgoArgs.t0 = 10**-3 
@@ -174,6 +175,7 @@ class RankingExpHelper(object):
         algoParser.add_argument("--processes", type=int, help="Number of CPU cores to use (default: %(default)s)", default=defaultAlgoArgs.processes)
         algoParser.add_argument("--rate", type=str, help="Learning rate type: either constant or optimal (default: %(default)s)", default=defaultAlgoArgs.rate)
         algoParser.add_argument("--recordStep", type=int, help="Number of iterations after which we display some partial results (default: %(default)s)", default=defaultAlgoArgs.recordStep)
+        algoParser.add_argument("--sampling", type=str, help="The random sampling for max local AUC: uniform/rank/top (default: %(default)s)", default=defaultAlgoArgs.sampling)
         algoParser.add_argument("--CMlauc", type=float, help="The C penalty for max local AUC (default: %(default)s)", default=defaultAlgoArgs.CMlauc)        
         algoParser.add_argument("--CsMlauc", type=float, nargs="+", help="The C penalty for max local AUC model selection (default: %(default)s)", default=defaultAlgoArgs.CsMlauc)
         algoParser.add_argument("--t0", type=float, help="Learning rate decay for max local AUC (default: %(default)s)", default=defaultAlgoArgs.t0)
@@ -327,7 +329,7 @@ class RankingExpHelper(object):
                 
         if self.algoArgs.runMaxLocalAuc:
             logging.debug("Running max local AUC")
-            resultsFileName = self.resultsDir + "ResultsMaxLocalAUC.npz"
+            resultsFileName = self.resultsDir + "ResultsMaxLocalAUC_" + self.algoArgs.sampling + ".npz"
                 
             fileLock = FileLock(resultsFileName)  
             
@@ -356,6 +358,7 @@ class RankingExpHelper(object):
                     learner.alphas = self.algoArgs.alphas
                     learner.t0s = self.algoArgs.t0s
                     learner.metric = "precision"
+                    learner.sampling = self.algoArgs.sampling 
 
                     if self.algoArgs.learningRateSelect:
                         logging.debug("Performing learning rate selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
