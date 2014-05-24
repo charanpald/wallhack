@@ -23,6 +23,7 @@ from sandbox.recommendation.IterativeSoftImpute import IterativeSoftImpute
 from sandbox.recommendation.CLiMF import CLiMF
 from sandbox.recommendation.BprRecommender import BprRecommender
 from sandbox.util.SparseUtils import SparseUtils 
+from sandbox.util.SparseUtilsCython import SparseUtilsCython 
 from sandbox.util.Sampling import Sampling 
 from sandbox.util.FileLock import FileLock 
 
@@ -234,11 +235,11 @@ class RankingExpHelper(object):
         metaData.append(learnTime)
 
         logging.debug("Getting all omega")
-        allOmegaList = SparseUtils.getOmegaList(X)
+        allOmegaPtr = SparseUtils.getOmegaListPtr(X)
         logging.debug("Getting train omega")
-        trainOmegaList = SparseUtils.getOmegaList(trainX)
+        trainOmegaPtr = SparseUtils.getOmegaListPtr(trainX)
         logging.debug("Getting test omega")
-        testOmegaList = SparseUtils.getOmegaList(testX)
+        testOmegaPtr = SparseUtils.getOmegaListPtr(testX)
         logging.debug("Getting recommendations")
                 
         trainOrderedItems = MCEvaluator.recommendAtk(U, V, maxItems)
@@ -248,23 +249,25 @@ class RankingExpHelper(object):
         trainMeasures = []
         testMeasures = []
         for p in ps: 
-            trainMeasures.append(MCEvaluator.precisionAtK(trainX, trainOrderedItems, p, omegaList=trainOmegaList))
-            testMeasures.append(MCEvaluator.precisionAtK(testX, testOrderedItems, p, omegaList=testOmegaList))
+            
+            trainMeasures.append(MCEvaluator.precisionAtK(trainOmegaPtr, trainOrderedItems, p))
+            testMeasures.append(MCEvaluator.precisionAtK(testOmegaPtr, trainOrderedItems, p))
             
             logging.debug("precision@" + str(p) + " (train/test):" + str(trainMeasures[-1]) + str("/") + str(testMeasures[-1]))
             
         for p in ps: 
-            trainMeasures.append(MCEvaluator.recallAtK(trainX, trainOrderedItems, p, omegaList=trainOmegaList))
-            testMeasures.append(MCEvaluator.recallAtK(testX, testOrderedItems, p, omegaList=testOmegaList))
+            trainMeasures.append(MCEvaluator.recallAtK(trainOmegaPtr, trainOrderedItems, p))
+            testMeasures.append(MCEvaluator.recallAtK(testOmegaPtr, testOrderedItems, p))
             
             logging.debug("recall@" + str(p) + " (train/test):" + str(trainMeasures[-1]) + str("/") + str(testMeasures[-1]))
             
 
         try: 
-            trainMeasures.append(MCEvaluator.localAUCApprox(trainX, U, V, w, self.algoArgs.numRecordAucSamples))
-            trainMeasures.append(MCEvaluator.localAUCApprox(trainX, U, V, 0.0, self.algoArgs.numRecordAucSamples))
-            testMeasures.append(MCEvaluator.localAUCApprox(X, U, V, w, self.algoArgs.numRecordAucSamples))
-            testMeasures.append(MCEvaluator.localAUCApprox(X, U, V, 0.0, self.algoArgs.numRecordAucSamples))
+            r = SparseUtilsCython.computeR(U, V, w, self.algoArgs.numRecordAucSamples)
+            trainMeasures.append(MCEvaluator.localAUCApprox(trainOmegaPtr, U, V, w, self.algoArgs.numRecordAucSamples, r=r))
+            trainMeasures.append(MCEvaluator.localAUCApprox(trainOmegaPtr, U, V, 0.0, self.algoArgs.numRecordAucSamples, r=r))
+            testMeasures.append(MCEvaluator.localAUCApprox(testOmegaPtr, U, V, w, self.algoArgs.numRecordAucSamples, allArray=allOmegaPtr, r=r))
+            testMeasures.append(MCEvaluator.localAUCApprox(testOmegaPtr, U, V, 0.0, self.algoArgs.numRecordAucSamples, allArray=allOmegaPtr, r=r))
             
             logging.debug("Local AUC@" + str(self.algoArgs.u) +  " (train/all):" + str(trainMeasures[-2]) + str("/") + str(testMeasures[-2]))
             logging.debug("AUC (train/test):" + str(trainMeasures[-1]) + str("/") + str(testMeasures[-1]))

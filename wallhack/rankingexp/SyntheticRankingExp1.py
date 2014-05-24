@@ -34,11 +34,15 @@ trainTestXs = Sampling.shuffleSplitRows(X, 1, testSize)
 trainX, testX = trainTestXs[0]
 
 trainOmegaList = SparseUtils.getOmegaList(trainX)
+trainOmegaPtr = SparseUtils.getOmegaListPtr(trainX)
 testOmegaList = SparseUtils.getOmegaList(testX)
+testOmegaPtr = SparseUtils.getOmegaListPtr(testX)
+allOmegaPtr = SparseUtils.getOmegaListPtr(X)
 numRecordAucSamples = 200
+
 logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))
-logging.debug("Train local AUC:" + str(MCEvaluator.localAUCApprox(trainX, U, V, w, numRecordAucSamples)))
-logging.debug("Test local AUC:" + str(MCEvaluator.localAUCApprox(X, U, V, w, numRecordAucSamples)))
+logging.debug("Train local AUC:" + str(MCEvaluator.localAUCApprox(trainOmegaPtr, U, V, w, numRecordAucSamples, allArray=allOmegaPtr)))
+logging.debug("Test local AUC:" + str(MCEvaluator.localAUCApprox(testOmegaPtr, U, V, w, numRecordAucSamples, allArray=allOmegaPtr)))
 
 #w = 1.0
 k2 = 8
@@ -47,7 +51,7 @@ w2 = 1-u2
 eps = 10**-6
 lmbda = 0.03125
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbda=lmbda, stochastic=True)
-maxLocalAuc.maxIterations = 10
+maxLocalAuc.maxIterations = 100
 maxLocalAuc.numRowSamples = 100
 maxLocalAuc.numStepIterations = 1000
 maxLocalAuc.numAucSamples = 10
@@ -78,7 +82,7 @@ logging.debug(maxLocalAuc)
 
 #modelSelectX = trainX[0:100, :]
 #maxLocalAuc.learningRateSelect(trainX)
-maxLocalAuc.modelSelect(trainX)
+#maxLocalAuc.modelSelect(trainX)
 #ProfileUtils.profile('U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=testX, verbose=True)', globals(), locals())
 
 U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=testX, verbose=True)
@@ -89,8 +93,8 @@ trainOrderedItems = MCEvaluator.recommendAtk(U, V, p)
 testOrderedItems = MCEvaluatorCython.recommendAtk(U, V, p, trainX)
 
 for p in [1, 3, 5]: 
-    logging.debug("Train precision@" + str(p) + "=" + str(MCEvaluator.precisionAtK(trainX, trainOrderedItems, p, omegaList=trainOmegaList))) 
-    logging.debug("Test precision@" + str(p) + "=" + str(MCEvaluator.precisionAtK(testX, testOrderedItems, p, omegaList=testOmegaList))) 
+    logging.debug("Train precision@" + str(p) + "=" + str(MCEvaluator.precisionAtK(trainOmegaPtr, trainOrderedItems, p))) 
+    logging.debug("Test precision@" + str(p) + "=" + str(MCEvaluator.precisionAtK(testOmegaPtr, testOrderedItems, p))) 
 
 plt.figure(0)
 plt.plot(trainObjs, label="train")
