@@ -251,7 +251,7 @@ class RankingExpHelper(object):
         for p in ps: 
             
             trainMeasures.append(MCEvaluator.precisionAtK(trainOmegaPtr, trainOrderedItems, p))
-            testMeasures.append(MCEvaluator.precisionAtK(testOmegaPtr, trainOrderedItems, p))
+            testMeasures.append(MCEvaluator.precisionAtK(testOmegaPtr, testOrderedItems, p))
             
             logging.debug("precision@" + str(p) + " (train/test):" + str(trainMeasures[-1]) + str("/") + str(testMeasures[-1]))
             
@@ -264,10 +264,13 @@ class RankingExpHelper(object):
 
         try: 
             r = SparseUtilsCython.computeR(U, V, w, self.algoArgs.numRecordAucSamples)
-            trainMeasures.append(MCEvaluator.localAUCApprox(trainOmegaPtr, U, V, w, self.algoArgs.numRecordAucSamples, r=r))
-            trainMeasures.append(MCEvaluator.localAUCApprox(trainOmegaPtr, U, V, 0.0, self.algoArgs.numRecordAucSamples, r=r))
+            trainMeasures.append(MCEvaluator.localAUCApprox(trainOmegaPtr, U, V, w, self.algoArgs.numRecordAucSamples, r=r))            
             testMeasures.append(MCEvaluator.localAUCApprox(testOmegaPtr, U, V, w, self.algoArgs.numRecordAucSamples, allArray=allOmegaPtr, r=r))
-            testMeasures.append(MCEvaluator.localAUCApprox(testOmegaPtr, U, V, 0.0, self.algoArgs.numRecordAucSamples, allArray=allOmegaPtr, r=r))
+            
+            w = 0.0            
+            r = SparseUtilsCython.computeR(U, V, w, self.algoArgs.numRecordAucSamples)
+            trainMeasures.append(MCEvaluator.localAUCApprox(trainOmegaPtr, U, V, w, self.algoArgs.numRecordAucSamples, r=r))
+            testMeasures.append(MCEvaluator.localAUCApprox(testOmegaPtr, U, V, w, self.algoArgs.numRecordAucSamples, allArray=allOmegaPtr, r=r))
             
             logging.debug("Local AUC@" + str(self.algoArgs.u) +  " (train/all):" + str(trainMeasures[-2]) + str("/") + str(testMeasures[-2]))
             logging.debug("AUC (train/test):" + str(trainMeasures[-1]) + str("/") + str(testMeasures[-1]))
