@@ -24,7 +24,7 @@ os.system('taskset -p 0xffffffff %d' % os.getpid())
 m = 500
 n = 100
 k = 10 
-u = 0.05
+u = 0.1
 w = 1-u
 X, U, s, V = SparseUtils.generateSparseBinaryMatrix((m,n), k, w, csarray=True, verbose=True, indsPerRow=200)
 logging.debug("Number of non-zero elements: " + str(X.nnz))
@@ -69,18 +69,19 @@ maxLocalAuc.rate = "optimal"
 maxLocalAuc.alpha = 0.5
 maxLocalAuc.t0 = 10**-4
 maxLocalAuc.lmbda = 0.1
+#maxLocalAuc.numProcesses = 1
 
-maxLocalAuc.t0s = numpy.array([10**-3, 10**-4, 10**-5])
-maxLocalAuc.alphas = 2.0**-numpy.arange(0, 5, 1)
+maxLocalAuc.t0s = numpy.array([10**-2, 10**-3, 10**-4, 10**-5])
+maxLocalAuc.alphas = 2.0**-numpy.arange(-1, 3, 0.5)
 
 newM = 200
 modelSelectX = trainX[0:newM, :]
 
 objs1 = maxLocalAuc.learningRateSelect(X)
-objs2 = maxLocalAuc.learningRateSelect(trainX)
-objs3 = maxLocalAuc.learningRateSelect(modelSelectX)
+#objs2 = maxLocalAuc.learningRateSelect(trainX)
+#objs3 = maxLocalAuc.learningRateSelect(modelSelectX)
 
 
 print(objs1)
-print(objs2)
-print(objs3)
+#print(objs2)
+#print(objs3)
