@@ -71,7 +71,7 @@ maxLocalAuc.t0 = 10**-4
 maxLocalAuc.lmbda = 0.1
 #maxLocalAuc.numProcesses = 1
 
-maxLocalAuc.t0s = numpy.array([10**-2, 10**-3, 10**-4, 10**-5])
+maxLocalAuc.t0s = 10**-numpy.arange(2, 5, 0.5)
 maxLocalAuc.alphas = 2.0**-numpy.arange(-1, 3, 0.5)
 
 newM = 200
