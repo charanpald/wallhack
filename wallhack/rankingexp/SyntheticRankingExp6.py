@@ -2,6 +2,7 @@ import numpy
 import logging
 import sys
 import sppy
+import os
 from sandbox.recommendation.MaxLocalAUC import MaxLocalAUC
 from sandbox.util.SparseUtils import SparseUtils
 from sandbox.util.PathDefaults import PathDefaults
@@ -19,6 +20,8 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 #numpy.random.seed(22)        
 #numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 
+os.system('taskset -p 0xffffffff %d' % os.getpid())
+
 #Create a low rank matrix  
 """
 m = 500
@@ -34,11 +37,13 @@ U = U*s
 
 matrixFileName = PathDefaults.getDataDir() + "movielens/ml-100k/u.data" 
 data = numpy.loadtxt(matrixFileName)
-X = sppy.csarray((numpy.max(data[:, 0]), numpy.max(data[:, 1])), storagetype="row")
-X[data[:, 0]-1, data[:, 1]-1] = numpy.array(data[:, 2]>3, numpy.int)
+X = sppy.csarray((numpy.max(data[:, 0]), numpy.max(data[:, 1])), storagetype="row", dtype=numpy.int)
+X.put(numpy.array(data[:, 2]>3, numpy.int), numpy.array(data[:, 0]-1, numpy.int32), numpy.array(data[:, 1]-1, numpy.int32), init=True)
+X = SparseUtils.pruneMatrix(X, minNnzRows=10, minNnzCols=10)
 logging.debug("Read file: " + matrixFileName)
 logging.debug("Shape of data: " + str(X.shape))
 logging.debug("Number of non zeros " + str(X.nnz))
+(m, n) = X.shape
 
 u = 0.1 
 w = 1-u
@@ -70,24 +75,19 @@ maxLocalAuc.alpha = 0.5
 maxLocalAuc.t0 = 10**-4
 
 
-maxLocalAuc.t0s = numpy.array([10**-4])
+maxLocalAuc.t0s = numpy.array([10**-3, 10**-4, 10**-5])
 maxLocalAuc.alphas = 2.0**-numpy.arange(0, 5, 1)
 
 newM = 200
 modelSelectX = trainX[0:newM, :]
 
-#objs1 = maxLocalAuc.learningRateSelect(trainX)
-#objs2 = maxLocalAuc.learningRateSelect(modelSelectX)
+objs1 = maxLocalAuc.learningRateSelect(X)
+objs2 = maxLocalAuc.learningRateSelect(trainX)
+objs3 = maxLocalAuc.learningRateSelect(modelSelectX)
 
-#Now vary t0s
-maxLocalAuc.alphas = numpy.array([0.5])
-maxLocalAuc.t0s = numpy.array([10**-3, 10**-4, 10**-5])
 
-objs3 = maxLocalAuc.learningRateSelect(trainX)
-objs4 = maxLocalAuc.learningRateSelect(modelSelectX)
-
-#print(objs1)
-#print(objs2)
+print(objs1)
+print(objs2)
 print(objs3)
-print(objs4)
+
 

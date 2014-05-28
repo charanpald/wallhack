@@ -4,6 +4,7 @@ import numpy
 import logging
 import sys
 import sppy
+import os 
 import multiprocessing 
 from sandbox.recommendation.MaxLocalAUC import MaxLocalAUC
 from sandbox.util.SparseUtils import SparseUtils
@@ -22,6 +23,8 @@ See how regularisation can help overfitting
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 #numpy.random.seed(22)        
 #numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
+
+os.system('taskset -p 0xffffffff %d' % os.getpid())
 
 def computeTestAuc(args): 
     trainX, testX, maxLocalAuc  = args 
@@ -63,9 +66,6 @@ maxLocalAuc.alpha = 0.5
 maxLocalAuc.t0 = 10**-3
 maxLocalAuc.lmbda = 0.0001
 
-numRecordAucSamples = 200
-trainOmegaList = SparseUtils.getOmegaList(trainX)
-testOmegaList = SparseUtils.getOmegaList(testX)
 
 maxItems = 20
 lmbdas = 2.0**-numpy.arange(1, 14, 2)
