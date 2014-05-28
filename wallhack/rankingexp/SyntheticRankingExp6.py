@@ -1,15 +1,12 @@
 import numpy
 import logging
 import sys
-import sppy
+
 import os
 from sandbox.recommendation.MaxLocalAUC import MaxLocalAUC
 from sandbox.util.SparseUtils import SparseUtils
 from sandbox.util.PathDefaults import PathDefaults
-from sandbox.util.Sampling import Sampling
-import matplotlib 
-matplotlib.use("GTK3Agg")
-import matplotlib.pyplot as plt
+from sandbox.util.Sampling import Sampling 
 
 """
 Let's see if we can get the right learning rate on a subsample of rows 
@@ -23,7 +20,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 os.system('taskset -p 0xffffffff %d' % os.getpid())
 
 #Create a low rank matrix  
-"""
+
 m = 500
 n = 100
 k = 10 
@@ -33,8 +30,8 @@ X, U, s, V = SparseUtils.generateSparseBinaryMatrix((m,n), k, w, csarray=True, v
 logging.debug("Number of non-zero elements: " + str(X.nnz))
 
 U = U*s
-"""
 
+"""
 matrixFileName = PathDefaults.getDataDir() + "movielens/ml-100k/u.data" 
 data = numpy.loadtxt(matrixFileName)
 X = sppy.csarray((numpy.max(data[:, 0]), numpy.max(data[:, 1])), storagetype="row", dtype=numpy.int)
@@ -47,8 +44,7 @@ logging.debug("Number of non zeros " + str(X.nnz))
 
 u = 0.1 
 w = 1-u
-(m, n) = X.shape
-
+"""
 
 testSize = 5
 trainTestXs = Sampling.shuffleSplitRows(X, 1, testSize)
@@ -60,20 +56,19 @@ logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))
 #logging.debug("Test local AUC:" + str(MCEvaluator.localAUC(testX, U, V, w)))
 
 #w = 1.0
-k2 = 16
+k2 = 8
 eps = 10**-6
-alpha = 10
+alpha = 0.5
 maxLocalAuc = MaxLocalAUC(k2, w, alpha=alpha, eps=eps, stochastic=True)
 maxLocalAuc.maxIterations = 50
 maxLocalAuc.numRowSamples = 100
-maxLocalAuc.numStepIterations = 1000
 maxLocalAuc.numAucSamples = 10
 maxLocalAuc.initialAlg = "rand"
-maxLocalAuc.recordStep = maxLocalAuc.numStepIterations*2
+maxLocalAuc.recordStep = 2000
 maxLocalAuc.rate = "optimal"
 maxLocalAuc.alpha = 0.5
 maxLocalAuc.t0 = 10**-4
-
+maxLocalAuc.lmbda = 0.1
 
 maxLocalAuc.t0s = numpy.array([10**-3, 10**-4, 10**-5])
 maxLocalAuc.alphas = 2.0**-numpy.arange(0, 5, 1)
@@ -89,5 +84,3 @@ objs3 = maxLocalAuc.learningRateSelect(modelSelectX)
 print(objs1)
 print(objs2)
 print(objs3)
-
-
