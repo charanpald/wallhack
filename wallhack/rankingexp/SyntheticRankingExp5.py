@@ -19,23 +19,11 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 #numpy.random.seed(22)        
 #numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 
-#Create a low rank matrix  
-"""
-m = 500
-n = 100
-k = 10 
-u = 0.05
-w = 1-u
-X, U, s, V = SparseUtils.generateSparseBinaryMatrix((m,n), k, w, csarray=True, verbose=True, indsPerRow=200)
-logging.debug("Number of non-zero elements: " + str(X.nnz))
-
-U = U*s
-"""
-
 matrixFileName = PathDefaults.getDataDir() + "movielens/ml-100k/u.data" 
 data = numpy.loadtxt(matrixFileName)
-X = sppy.csarray((numpy.max(data[:, 0]), numpy.max(data[:, 1])), storagetype="row")
-X[data[:, 0]-1, data[:, 1]-1] = numpy.array(data[:, 2]>3, numpy.int)
+X = sppy.csarray((numpy.max(data[:, 0]), numpy.max(data[:, 1])), storagetype="row", dtype=numpy.int)
+X.put(numpy.array(data[:, 2]>3, numpy.int), numpy.array(data[:, 0]-1, numpy.int32), numpy.array(data[:, 1]-1, numpy.int32), init=True)
+X = SparseUtils.pruneMatrix(X, minNnzRows=10, minNnzCols=10)
 logging.debug("Read file: " + matrixFileName)
 logging.debug("Shape of data: " + str(X.shape))
 logging.debug("Number of non zeros " + str(X.nnz))
@@ -61,21 +49,22 @@ alpha = 0.5
 maxLocalAuc = MaxLocalAUC(k2, w, alpha=alpha, eps=eps, stochastic=True)
 maxLocalAuc.maxIterations = 50
 maxLocalAuc.numRowSamples = 100
-maxLocalAuc.numStepIterations = 1000
 maxLocalAuc.numAucSamples = 10
 maxLocalAuc.initialAlg = "rand"
-maxLocalAuc.recordStep = maxLocalAuc.numStepIterations*2
+maxLocalAuc.recordStep = m*2
 maxLocalAuc.rate = "optimal"
 maxLocalAuc.alpha = 0.5
 maxLocalAuc.t0 = 10**-4
+maxLocalAuc.lmbda = 0.01
 
 
-rhos = 10.0**numpy.arange(-1, -8, -2)
+rhos = 10.0**-numpy.arange(0, 5)
 print(rhos)
 
 for i, rho in enumerate(rhos): 
     maxLocalAuc.rho = rho
     logging.debug(maxLocalAuc)
+    print("got here")
     U, V, trainObjs, trainAucs, testObjs, testAucs, ind, totalTime = maxLocalAuc.learnModel(trainX, verbose=True, testX=testX)
     
     plt.figure(0)

@@ -39,11 +39,15 @@ trainTestXs = Sampling.shuffleSplitRows(X, 1, testSize)
 trainX, testX = trainTestXs[0]
 
 trainOmegaList = SparseUtils.getOmegaList(trainX)
+trainOmegaPtr = SparseUtils.getOmegaListPtr(trainX)
 testOmegaList = SparseUtils.getOmegaList(testX)
+testOmegaPtr = SparseUtils.getOmegaListPtr(testX)
+allOmegaPtr = SparseUtils.getOmegaListPtr(X)
 numRecordAucSamples = 200
+
 logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))
-logging.debug("Train local AUC:" + str(MCEvaluator.localAUCApprox(trainX, U, V, w, numRecordAucSamples)))
-logging.debug("Test local AUC:" + str(MCEvaluator.localAUCApprox(X, U, V, w, numRecordAucSamples, omegaList=testOmegaList)))
+logging.debug("Train local AUC:" + str(MCEvaluator.localAUCApprox(trainOmegaPtr, U, V, w, numRecordAucSamples, allArray=allOmegaPtr)))
+logging.debug("Test local AUC:" + str(MCEvaluator.localAUCApprox(testOmegaPtr, U, V, w, numRecordAucSamples, allArray=allOmegaPtr)))
 
 #w = 1.0
 k2 = k
@@ -52,7 +56,7 @@ w2 = 1-u2
 eps = 10**-15
 lmbda = 0
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbda=lmbda, stochastic=True)
-maxLocalAuc.maxIterations = m*50
+maxLocalAuc.maxIterations = 50
 maxLocalAuc.numRowSamples = 100
 maxLocalAuc.numStepIterations = 1000
 maxLocalAuc.numAucSamples = 10

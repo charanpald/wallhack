@@ -87,14 +87,13 @@ class RankingExpHelper(object):
     defaultAlgoArgs.maxIterations = 50
     defaultAlgoArgs.numAucSamples = 10
     defaultAlgoArgs.numRowSamples = 100
-    defaultAlgoArgs.numStepIterations = 1000
     defaultAlgoArgs.rate = "optimal"
-    defaultAlgoArgs.recordStep = defaultAlgoArgs.numStepIterations*5 
+    defaultAlgoArgs.recordStep = 1000 
     defaultAlgoArgs.sampling = "uniform"
     defaultAlgoArgs.rhoMlauc = 1.0
     defaultAlgoArgs.rhosMlauc = 2.0**-numpy.arange(-1, 10, 2)
     defaultAlgoArgs.t0 = 10**-3 
-    defaultAlgoArgs.t0s = numpy.array([10**-3, 10**-4, 10**-5])
+    defaultAlgoArgs.t0s = numpy.array([10**-2, 10**-3, 10**-4, 10**-5])
     
     #Parameters for SoftImpute 
     defaultAlgoArgs.epsSi = 10**-14
@@ -356,7 +355,6 @@ class RankingExpHelper(object):
                     learner.ks = self.algoArgs.ks 
                     learner.folds = self.algoArgs.folds  
                     learner.numProcesses = self.algoArgs.processes 
-                    learner.numStepIterations = self.algoArgs.numStepIterations
                     learner.lmbdas = self.algoArgs.lmbdasMlauc
                     learner.rho = self.algoArgs.rhoMlauc
                     learner.rhos = self.algoArgs.rhosMlauc

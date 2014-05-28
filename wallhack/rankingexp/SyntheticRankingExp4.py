@@ -41,12 +41,11 @@ logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))
 k2 = k
 eps = 10**-6
 maxLocalAuc = MaxLocalAUC(k2, w, eps=eps, stochastic=True)
-maxLocalAuc.maxIterations = m*50
+maxLocalAuc.maxIterations = 50
 maxLocalAuc.numRowSamples = 100
-maxLocalAuc.numStepIterations = 1000
 maxLocalAuc.numAucSamples = 10
 maxLocalAuc.initialAlg = "rand"
-maxLocalAuc.recordStep = maxLocalAuc.numStepIterations*2
+maxLocalAuc.recordStep = m*2
 maxLocalAuc.rate = "optimal"
 maxLocalAuc.alpha = 0.5
 maxLocalAuc.t0 = 10**-4

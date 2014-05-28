@@ -38,6 +38,10 @@ testSize = 5
 trainTestXs = Sampling.shuffleSplitRows(X, 1, testSize)
 trainX, testX = trainTestXs[0]
 
+trainOmegaPtr = SparseUtils.getOmegaListPtr(trainX)
+testOmegaPtr = SparseUtils.getOmegaListPtr(testX)
+allOmegaPtr = SparseUtils.getOmegaListPtr(X)
+
 logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))
 
 #logging.debug("Total local AUC:" + str(MCEvaluator.localAUC(X, U, V, w)))
@@ -50,17 +54,16 @@ w2 = 1-u2
 k2 = k
 eps = 10**-6
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, stochastic=True)
-maxLocalAuc.maxIterations = m*50
+maxLocalAuc.maxIterations = 50
 maxLocalAuc.numRowSamples = 100
-maxLocalAuc.numStepIterations = 500
 maxLocalAuc.numAucSamples = 10
 maxLocalAuc.initialAlg = "rand"
-maxLocalAuc.recordStep = maxLocalAuc.numStepIterations
+maxLocalAuc.recordStep = 2000
 maxLocalAuc.rate = "optimal"
 maxLocalAuc.alpha = 0.5
 maxLocalAuc.t0 = 10**-4
 maxLocalAuc.lmbda = 0.001
-maxLocalAuc.rho = 0.1
+maxLocalAuc.rho = 1.0
 
 numRecordAucSamples = 200
 trainOmegaList = SparseUtils.getOmegaList(trainX)
@@ -82,15 +85,15 @@ for i, u in enumerate(us):
     logging.debug(maxLocalAuc)
     U, V, trainObjs, trainAucs, testObjs, testAucs, ind, totalTime = maxLocalAuc.learnModel(trainX, verbose=True, testX=testX)
     
-    trainOrderedItems = MCEvaluator.recommendAtk(U, V, maxItems)
-    trainLocalAucs[i] = MCEvaluator.localAUCApprox(trainX, U, V, w, numRecordAucSamples, omegaList=trainOmegaList)
-    trainPrecisions[i] = MCEvaluator.precisionAtK(trainX, trainOrderedItems, maxItems, omegaList=trainOmegaList)
-    trainRecalls[i] = MCEvaluator.recallAtK(trainX, trainOrderedItems, maxItems, omegaList=trainOmegaList)
+    trainLocalAucs[i] = trainAucs[-1]
+    trainOrderedItems = MCEvaluator.recommendAtk(U, V, maxItems)    
+    trainPrecisions[i] = MCEvaluator.precisionAtK(trainOmegaPtr, trainOrderedItems, maxItems)
+    trainRecalls[i] = MCEvaluator.recallAtK(trainX, trainOrderedItems, maxItems)
     
-    testLocalAucs[i] = MCEvaluator.localAUCApprox(X, U, V, w, numRecordAucSamples, omegaList=testOmegaList)
+    testLocalAucs[i] = testAucs[-1]
     testOrderedItems = MCEvaluatorCython.recommendAtk(U, V, maxItems, trainX)
-    testPrecisions[i] = MCEvaluator.precisionAtK(testX, testOrderedItems, maxItems, omegaList=testOmegaList)
-    testRecalls[i] = MCEvaluator.recallAtK(testX, testOrderedItems, maxItems, omegaList=testOmegaList)
+    testPrecisions[i] = MCEvaluator.precisionAtK(testX, testOrderedItems, maxItems)
+    testRecalls[i] = MCEvaluator.recallAtK(testX, testOrderedItems, maxItems)
 
 print(trainLocalAucs)
 print(trainPrecisions)

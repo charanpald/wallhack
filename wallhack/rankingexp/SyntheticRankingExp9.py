@@ -23,13 +23,15 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 #numpy.random.seed(22)        
 #numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 
-def computeTestAucs(args): 
-    maxLocalAuc, trainX, testX = args 
-    U, V, trainObjs, trainAucs, testObjs, testAucs, ind, totalTime = maxLocalAuc.learnModel(trainX, verbose=True, testX=testX)
-
-    trainLocalAuc = MCEvaluator.localAUCApprox(trainX, U, V, w, numRecordAucSamples, omegaList=trainOmegaList)
-    testLocalAuc = MCEvaluator.localAUCApprox(X, U, V, w, numRecordAucSamples, omegaList=testOmegaList)
+def computeTestAuc(args): 
+    trainX, testX, maxLocalAuc  = args 
+    
+    U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, totalTime = maxLocalAuc.learnModel(trainX, testX=testX, verbose=True)
+    trainLocalAuc = trainAucs[-1]
+    testLocalAuc = testAucs[-1]
+        
     return trainLocalAuc, testLocalAuc 
+
 
 m = 500
 n = 200
@@ -50,15 +52,14 @@ logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))
 
 eps = 10**-6
 maxLocalAuc = MaxLocalAUC(k, w, eps=eps, stochastic=True)
-maxLocalAuc.maxIterations = m*20
-maxLocalAuc.numRowSamples = 10
-maxLocalAuc.numStepIterations = 500
-maxLocalAuc.numAucSamples = 20
-maxLocalAuc.initialAlg = "softimpute"
-maxLocalAuc.recordStep = maxLocalAuc.numStepIterations
-maxLocalAuc.nu = 50
+maxLocalAuc.maxIterations = 50
+maxLocalAuc.numRowSamples = 100
+maxLocalAuc.numAucSamples = 10
+maxLocalAuc.initialAlg = "rand"
+maxLocalAuc.recordStep = 2000
+maxLocalAuc.rho = 1.0
 maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 0.01
+maxLocalAuc.alpha = 0.5
 maxLocalAuc.t0 = 10**-3
 maxLocalAuc.lmbda = 0.0001
 
@@ -78,10 +79,10 @@ for i, lmbda in enumerate(lmbdas):
     maxLocalAuc.lmbda = lmbda
     logging.debug(maxLocalAuc)
     
-    paramList.append((maxLocalAuc.copy(), trainX, testX))
+    paramList.append((trainX, testX, maxLocalAuc.copy()))
 
-pool = multiprocessing.Pool(processes=8, maxtasksperchild=100)
-resultsIterator = pool.imap(computeTestAucs, paramList, 1)
+pool = multiprocessing.Pool(processes=7, maxtasksperchild=100)
+resultsIterator = pool.imap(computeTestAuc, paramList, 1)
        
 
 for i, lmbda in enumerate(lmbdas): 
