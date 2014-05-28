@@ -91,8 +91,8 @@ class RankingExpHelper(object):
     defaultAlgoArgs.rate = "optimal"
     defaultAlgoArgs.recordStep = defaultAlgoArgs.numStepIterations*5 
     defaultAlgoArgs.sampling = "uniform"
-    defaultAlgoArgs.CMlauc = 0.0001
-    defaultAlgoArgs.CsMlauc = 2.0**-numpy.arange(4, 14, 2)
+    defaultAlgoArgs.rhoMlauc = 1.0
+    defaultAlgoArgs.rhosMlauc = 2.0**-numpy.arange(-1, 10, 2)
     defaultAlgoArgs.t0 = 10**-3 
     defaultAlgoArgs.t0s = numpy.array([10**-3, 10**-4, 10**-5])
     
@@ -177,8 +177,8 @@ class RankingExpHelper(object):
         algoParser.add_argument("--rate", type=str, help="Learning rate type: either constant or optimal (default: %(default)s)", default=defaultAlgoArgs.rate)
         algoParser.add_argument("--recordStep", type=int, help="Number of iterations after which we display some partial results (default: %(default)s)", default=defaultAlgoArgs.recordStep)
         algoParser.add_argument("--sampling", type=str, help="The random sampling for max local AUC: uniform/rank/top (default: %(default)s)", default=defaultAlgoArgs.sampling)
-        algoParser.add_argument("--CMlauc", type=float, help="The C penalty for max local AUC (default: %(default)s)", default=defaultAlgoArgs.CMlauc)        
-        algoParser.add_argument("--CsMlauc", type=float, nargs="+", help="The C penalty for max local AUC model selection (default: %(default)s)", default=defaultAlgoArgs.CsMlauc)
+        algoParser.add_argument("--rhoMlauc", type=float, help="The rho penalty for max local AUC (default: %(default)s)", default=defaultAlgoArgs.rhoMlauc)        
+        algoParser.add_argument("--rhosMlauc", type=float, nargs="+", help="The rho penalty for max local AUC model selection (default: %(default)s)", default=defaultAlgoArgs.rhosMlauc)
         algoParser.add_argument("--t0", type=float, help="Learning rate decay for max local AUC (default: %(default)s)", default=defaultAlgoArgs.t0)
         algoParser.add_argument("--u", type=float, help="Focus on top proportion of u items (default: %(default)s)", default=defaultAlgoArgs.u)
         algoParser.add_argument("--verbose", action="store_true", help="Whether to generate verbose algorithmic details(default: %(default)s)", default=defaultAlgoArgs.verbose)
@@ -358,8 +358,8 @@ class RankingExpHelper(object):
                     learner.numProcesses = self.algoArgs.processes 
                     learner.numStepIterations = self.algoArgs.numStepIterations
                     learner.lmbdas = self.algoArgs.lmbdasMlauc
-                    learner.C = self.algoArgs.CMlauc
-                    learner.Cs = self.algoArgs.CsMlauc
+                    learner.rho = self.algoArgs.rhoMlauc
+                    learner.rhos = self.algoArgs.rhosMlauc
                     learner.validationSize = self.algoArgs.validationSize
                     learner.alphas = self.algoArgs.alphas
                     learner.t0s = self.algoArgs.t0s

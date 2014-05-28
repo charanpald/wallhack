@@ -49,7 +49,7 @@ k2 = 8
 u2 = 5.0/n
 w2 = 1-u2
 eps = 10**-6
-lmbda = 0.03125
+lmbda = 0.2
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbda=lmbda, stochastic=True)
 maxLocalAuc.maxIterations = 100
 maxLocalAuc.numRowSamples = 100
@@ -60,7 +60,7 @@ maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.recordStep = maxLocalAuc.numStepIterations*2
 maxLocalAuc.rate = "optimal"
 maxLocalAuc.alpha = 0.5
-maxLocalAuc.t0 = 0.001
+maxLocalAuc.t0 = 0.01
 maxLocalAuc.folds = 2
 maxLocalAuc.C = 0.001
 maxLocalAuc.ks = numpy.array([k2])
@@ -73,7 +73,7 @@ maxLocalAuc.alphas = numpy.array([0.5, 0.25])
 maxLocalAuc.t0s = numpy.array([0.0001, 0.001])
 maxLocalAuc.normalise = True
 maxLocalAuc.metric = "precision"
-maxLocalAuc.sampling = "rank"
+maxLocalAuc.sampling = "uniform"
 
 os.system('taskset -p 0xffffffff %d' % os.getpid())
 
