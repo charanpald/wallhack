@@ -78,10 +78,10 @@ newM = 200
 modelSelectX = trainX[0:newM, :]
 
 objs1 = maxLocalAuc.learningRateSelect(X)
-#objs2 = maxLocalAuc.learningRateSelect(trainX)
-#objs3 = maxLocalAuc.learningRateSelect(modelSelectX)
+objs2 = maxLocalAuc.learningRateSelect(trainX)
+objs3 = maxLocalAuc.learningRateSelect(modelSelectX)
 
 
 print(objs1)
-#print(objs2)
-#print(objs3)
+print(objs2)
+print(objs3)
