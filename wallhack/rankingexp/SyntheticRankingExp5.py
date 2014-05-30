@@ -6,9 +6,7 @@ from sandbox.recommendation.MaxLocalAUC import MaxLocalAUC
 from sandbox.util.SparseUtils import SparseUtils
 from sandbox.util.PathDefaults import PathDefaults
 from sandbox.util.Sampling import Sampling
-import matplotlib 
-matplotlib.use("GTK3Agg")
-import matplotlib.pyplot as plt
+
 
 """
 Script to see if model selection is the same on a subset of rows or elements 
