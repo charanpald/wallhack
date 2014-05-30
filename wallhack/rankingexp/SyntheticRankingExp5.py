@@ -64,6 +64,7 @@ maxLocalAuc.rate = "optimal"
 maxLocalAuc.alpha = 1.414
 maxLocalAuc.t0 = 0.003
 maxLocalAuc.lmbda = 0.01
+maxLocalAuc.metric = "precision"
 
 
 newM = 200

@@ -43,11 +43,11 @@ logging.debug("Train local AUC:" + str(MCEvaluator.localAUCApprox(trainOmegaPtr,
 logging.debug("Test local AUC:" + str(MCEvaluator.localAUCApprox(testOmegaPtr, U, V, w, numRecordAucSamples, allArray=allOmegaPtr)))
 
 #w = 1.0
-k2 = 8
+k2 = 32
 u2 = 5.0/n
 w2 = 1-u2
 eps = 10**-6
-lmbda = 0.1
+lmbda = 0.25
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbda=lmbda, stochastic=True)
 maxLocalAuc.maxIterations = 100
 maxLocalAuc.numRowSamples = 100
@@ -56,8 +56,8 @@ maxLocalAuc.numRecordAucSamples = 200
 maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.recordStep = 2000
 maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 0.5
-maxLocalAuc.t0 = 0.01
+maxLocalAuc.alpha = 1.414
+maxLocalAuc.t0 = 0.003
 maxLocalAuc.folds = 2
 maxLocalAuc.rho = 1.0
 maxLocalAuc.ks = numpy.array([k2])
