@@ -22,14 +22,13 @@ os.system('taskset -p 0xffffffff %d' % os.getpid())
 #Create a low rank matrix  
 
 m = 500
-n = 100
-k = 10 
-u = 0.1
+n = 200
+k = 8 
+u = 20.0/n
 w = 1-u
 X, U, s, V = SparseUtils.generateSparseBinaryMatrix((m,n), k, w, csarray=True, verbose=True, indsPerRow=200)
-logging.debug("Number of non-zero elements: " + str(X.nnz))
-
-U = U*s
+logging.debug("Number of non zero elements: " + str(X.nnz))
+logging.debug("Size of X: " + str(X.shape))
 
 """
 matrixFileName = PathDefaults.getDataDir() + "movielens/ml-100k/u.data" 
