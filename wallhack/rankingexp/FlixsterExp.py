@@ -56,11 +56,13 @@ ratings = numpy.array(ratings)
 
 X = sppy.csarray((len(userIndexer.getIdDict()), len(movieIndexer.getIdDict())), storagetype="row", dtype=numpy.int)
 X.put(numpy.array(ratings>3, numpy.int), numpy.array(rowInds, numpy.int32), numpy.array(colInds, numpy.int32), init=True)
-X = SparseUtils.pruneMatrix(X, minNnzRows=10, minNnzCols=10)
+X.prune()
+X = SparseUtils.pruneMatrixRows(X, minNnzRows=10)
 logging.debug("Read file: " + matrixFileName)
 logging.debug("Shape of data: " + str(X.shape))
 logging.debug("Number of non zeros " + str(X.nnz))
 (m, n) = X.shape
+
 
 defaultAlgoArgs.u = 5/float(n) 
 
