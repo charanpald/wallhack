@@ -65,8 +65,8 @@ maxLocalAuc.alpha = 0.5
 maxLocalAuc.t0 = 0.01
 maxLocalAuc.lmbda = 0.01
 maxLocalAuc.metric = "precision"
-maxLocalAuc.t0s = 10**-numpy.arange(2, 6, 0.5)
-maxLocalAuc.alphas = 2.0**-numpy.arange(1, 5, 0.5)
+maxLocalAuc.t0s = 10**-numpy.arange(2, 5, 0.5)
+maxLocalAuc.alphas = 2.0**-numpy.arange(1, 4, 0.5)
 
 
 newM = 200
