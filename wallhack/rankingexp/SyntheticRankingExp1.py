@@ -54,7 +54,6 @@ maxLocalAuc.numRowSamples = 100
 maxLocalAuc.numAucSamples = 10
 maxLocalAuc.numRecordAucSamples = 200
 maxLocalAuc.initialAlg = "svd"
-maxLocalAuc.recordStep = 2000
 maxLocalAuc.rate = "optimal"
 maxLocalAuc.alpha = 1.414
 maxLocalAuc.alpha = 0.4
