@@ -57,21 +57,19 @@ logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))
 #w = 1.0
 k2 = 8
 eps = 10**-6
-alpha = 0.5
-maxLocalAuc = MaxLocalAUC(k2, w, alpha=alpha, eps=eps, stochastic=True)
+maxLocalAuc = MaxLocalAUC(k2, w, eps=eps, stochastic=True)
 maxLocalAuc.maxIterations = 50
 maxLocalAuc.numRowSamples = 100
 maxLocalAuc.numAucSamples = 10
-maxLocalAuc.initialAlg = "rand"
+maxLocalAuc.initialAlg = "svd"
 maxLocalAuc.recordStep = 2000
 maxLocalAuc.rate = "optimal"
 maxLocalAuc.alpha = 0.5
 maxLocalAuc.t0 = 10**-4
 maxLocalAuc.lmbda = 0.1
 #maxLocalAuc.numProcesses = 1
-
-maxLocalAuc.t0s = 10**-numpy.arange(2, 5, 0.5)
-maxLocalAuc.alphas = 2.0**-numpy.arange(-1, 3, 0.5)
+maxLocalAuc.t0s = 10**-numpy.arange(2, 6, 0.5)
+maxLocalAuc.alphas = 2.0**-numpy.arange(1, 5, 0.5)
 
 newM = 200
 modelSelectX = trainX[0:newM, :]

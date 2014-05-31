@@ -58,7 +58,7 @@ maxLocalAuc = MaxLocalAUC(k2, w, eps=eps, stochastic=True)
 maxLocalAuc.maxIterations = 50
 maxLocalAuc.numRowSamples = 100
 maxLocalAuc.numAucSamples = 10
-maxLocalAuc.initialAlg = "rand"
+maxLocalAuc.initialAlg = "svd"
 maxLocalAuc.recordStep = m*2
 maxLocalAuc.rate = "optimal"
 maxLocalAuc.alpha = 1.414
