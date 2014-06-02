@@ -334,7 +334,7 @@ class RankingExpHelper(object):
                 
         if self.algoArgs.runMaxLocalAuc:
             logging.debug("Running max local AUC")
-            resultsFileName = self.resultsDir + "ResultsMaxLocalAUC_" + self.algoArgs.sampling + ".npz"
+            resultsFileName = self.resultsDir + "ResultsMaxLocalAUC.npz"
                 
             fileLock = FileLock(resultsFileName)  
             
