@@ -68,10 +68,10 @@ class RankingExpHelper(object):
     
     #parameters for CLiMF
     defaultAlgoArgs.gammaCLiMF = 0.0001
-    defaultAlgoArgs.gammasCLiMF = 2.0**-numpy.arange(1, 8, 4)
+    defaultAlgoArgs.gammasCLiMF = 2.0**-numpy.arange(3, 12, 2)
     defaultAlgoArgs.lmbdaCLiMF = 0.001
-    defaultAlgoArgs.lmbdasCLiMF = 2.0**-numpy.arange(1, 8, 4)
-    defaultAlgoArgs.maxIterCLiMF = 25    
+    defaultAlgoArgs.lmbdasCLiMF = 2.0**-numpy.arange(1, 10, 2)
+    defaultAlgoArgs.maxIterCLiMF = 50    
     
     #Parameters for KNN
     defaultAlgoArgs.kns = numpy.array([20]) 
@@ -409,6 +409,7 @@ class RankingExpHelper(object):
                     learner = WarpMf(self.algoArgs.k, self.algoArgs.lmbdas[0], u=self.algoArgs.u)
                     learner.ks = self.algoArgs.ks
                     learner.numProcesses = self.algoArgs.processes
+                    learner.validationSize = self.algoArgs.validationSize
                                         
                     if self.algoArgs.modelSelect: 
                         logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
@@ -562,6 +563,7 @@ class RankingExpHelper(object):
                     learner.folds = self.algoArgs.folds  
                     learner.validationSize = self.algoArgs.validationSize
                     learner.numProcesses = self.algoArgs.processes 
+                    learner.verbose = 0
 
                     if self.algoArgs.modelSelect: 
                         logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
