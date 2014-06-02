@@ -28,6 +28,7 @@ dataArgs = argparse.Namespace()
 defaultAlgoArgs = argparse.Namespace()
 defaultAlgoArgs.ks = numpy.array([8, 16, 32])
 defaultAlgoArgs.u = 5/float(n) 
+defaultAlgoArgs.numRowSamples = 100
 
 # data args parser #
 dataParser = argparse.ArgumentParser(description="", add_help=False)
