@@ -50,8 +50,8 @@ eps = 10**-6
 lmbda = 0.0625
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbda=lmbda, stochastic=True)
 maxLocalAuc.maxIterations = 100
-maxLocalAuc.numRowSamples = 100
-maxLocalAuc.numAucSamples = 10
+maxLocalAuc.numRowSamples = 10
+maxLocalAuc.numAucSamples = 5
 maxLocalAuc.numRecordAucSamples = 200
 maxLocalAuc.initialAlg = "svd"
 maxLocalAuc.rate = "optimal"

@@ -78,8 +78,8 @@ maxLocalAuc.normalise = True
 
 os.system('taskset -p 0xffffffff %d' % os.getpid())
 
-numRowSamplesArray = numpy.array([10, 20, 50, 100])
-numAucSamplesArray = numpy.array([10, 20, 50, 100])
+numRowSamplesArray = numpy.array([5, 10, 20, 50])
+numAucSamplesArray = numpy.array([5, 10, 20, 50])
 
 maxLocalAuc.numRowSamples = 100
 maxLocalAuc.numAucSamples = 100
