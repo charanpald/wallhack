@@ -60,8 +60,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.lmbdaPos = 0.1
     defaultAlgoArgs.lmbdaNeg = 0.1
     defaultAlgoArgs.lmbdaUsers = 2.0**-numpy.arange(0, 10, 2)
-    defaultAlgoArgs.lmbdaPoses = 2.0**-numpy.arange(2, 7, 1)
-    defaultAlgoArgs.lmbdaNegs = 2.0**-numpy.arange(2, 7, 1)
+    defaultAlgoArgs.lmbdaItems = 2.0**-numpy.arange(2, 7, 1)
     defaultAlgoArgs.maxIterationsBpr = 30
     defaultAlgoArgs.gammasBpr = 2.0**-numpy.arange(0, 5, 1)
     defaultAlgoArgs.gammaBpr = 0.1
@@ -490,8 +489,7 @@ class RankingExpHelper(object):
                     learner.validationSize = self.algoArgs.validationSize
                     learner.folds = self.algoArgs.folds
                     learner.lmbdaUsers = self.algoArgs.lmbdaUsers
-                    learner.lmbdaPoses = self.algoArgs.lmbdaPoses
-                    learner.lmbdaNegs = self.algoArgs.lmbdaNegs
+                    learner.lmbdaItems = self.algoArgs.lmbdaItems
                     learner.gammasBpr = self.algoArgs.gammasBpr
                     learner.maxIterations = self.algoArgs.maxIterationsBpr
                     
@@ -568,7 +566,6 @@ class RankingExpHelper(object):
                     if self.algoArgs.modelSelect: 
                         logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
 
-                        
                         meanObjs, stdObjs = learner.modelSelect(modelSelectX)
                         
                         modelSelectFileName = resultsFileName.replace("Results", "ModelSelect") 
@@ -582,7 +579,5 @@ class RankingExpHelper(object):
                     fileLock.unlock()
             else: 
                 logging.debug("File is locked or already computed: " + resultsFileName)         
-
-
        
         logging.info("All done: see you around!")
