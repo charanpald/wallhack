@@ -52,7 +52,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.processes = multiprocessing.cpu_count()
     defaultAlgoArgs.testSize = 5
     defaultAlgoArgs.u = 0.1
-    defaultAlgoArgs.validationSize = 3
+    defaultAlgoArgs.validationSize = 5
     defaultAlgoArgs.verbose = False
     
     #parameters for Bpr
@@ -77,7 +77,7 @@ class RankingExpHelper(object):
     
     #Parameters for MlAuc
     defaultAlgoArgs.alpha = 0.5  
-    defaultAlgoArgs.alphas = 2.0**-numpy.arange(1, 4, 0.5)
+    defaultAlgoArgs.alphas = 2.0**-numpy.arange(1.0, 5.0)
     defaultAlgoArgs.epsMlauc = 10**-5    
     defaultAlgoArgs.fullGradient = False
     defaultAlgoArgs.initialAlg = "svd"
@@ -92,7 +92,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.rhoMlauc = 1.0
     defaultAlgoArgs.rhosMlauc = 2.0**-numpy.arange(-1, 10, 2)
     defaultAlgoArgs.t0 = 10**-3 
-    defaultAlgoArgs.t0s = 10**-numpy.arange(2, 5, 0.5)
+    defaultAlgoArgs.t0s = 10**-numpy.arange(2.0, 5.0)
     
     #Parameters for SoftImpute 
     defaultAlgoArgs.epsSi = 10**-14
@@ -363,6 +363,7 @@ class RankingExpHelper(object):
                     learner.metric = "precision"
                     learner.sampling = self.algoArgs.sampling 
 
+                    """
                     if self.algoArgs.learningRateSelect:
                         logging.debug("Performing learning rate selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
                         modelSelectX = trainX[0:self.algoArgs.modelSelectSamples, :]
@@ -372,7 +373,7 @@ class RankingExpHelper(object):
                         rateSelectFileName = resultsFileName.replace("Results", "LearningRateSelect")
                         numpy.savez(rateSelectFileName, objectives)
                         logging.debug("Saved learning rate selection grid as " + rateSelectFileName) 
-                    
+                    """
                     if self.algoArgs.modelSelect: 
                         logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
                         modelSelectX = trainX[0:self.algoArgs.modelSelectSamples, :]
