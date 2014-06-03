@@ -17,6 +17,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 #numpy.random.seed(22)        
 #numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 
+"""
 m = 500
 n = 200
 k = 8 
@@ -31,15 +32,17 @@ matrixFileName = PathDefaults.getDataDir() + "movielens/ml-100k/u.data"
 data = numpy.loadtxt(matrixFileName)
 X = sppy.csarray((numpy.max(data[:, 0]), numpy.max(data[:, 1])), storagetype="row", dtype=numpy.int)
 X.put(numpy.array(data[:, 2]>3, numpy.int), numpy.array(data[:, 0]-1, numpy.int32), numpy.array(data[:, 1]-1, numpy.int32), init=True)
-X = SparseUtils.pruneMatrix(X, minNnzRows=10, minNnzCols=10)
+X.prune()
+X = SparseUtils.pruneMatrixRows(X, minNnzRows=10)
 logging.debug("Read file: " + matrixFileName)
 logging.debug("Shape of data: " + str(X.shape))
 logging.debug("Number of non zeros " + str(X.nnz))
+(m, n) = X.shape
 
 u = 0.1 
 w = 1-u
 (m, n) = X.shape
-"""
+
 
 
 testSize = 5
@@ -56,10 +59,10 @@ k2 = 16
 eps = 10**-6
 maxLocalAuc = MaxLocalAUC(k2, w, eps=eps, stochastic=True)
 maxLocalAuc.maxIterations = 50
-maxLocalAuc.numRowSamples = 100
+maxLocalAuc.numRowSamples = 10
 maxLocalAuc.numAucSamples = 10
 maxLocalAuc.initialAlg = "svd"
-maxLocalAuc.recordStep = m*2
+maxLocalAuc.recordStep = 2
 maxLocalAuc.rate = "optimal"
 maxLocalAuc.alpha = 0.5
 maxLocalAuc.t0 = 0.01
@@ -67,9 +70,9 @@ maxLocalAuc.lmbda = 0.01
 maxLocalAuc.metric = "precision"
 maxLocalAuc.t0s = 10**-numpy.arange(2, 5, 0.5)
 maxLocalAuc.alphas = 2.0**-numpy.arange(1, 4, 0.5)
+maxLocalAuc.numProcesses = 6
 
-
-newM = 200
+newM = m/2
 modelSelectX = trainX[0:newM, :]
 
 objs1 = maxLocalAuc.modelSelect(X)
