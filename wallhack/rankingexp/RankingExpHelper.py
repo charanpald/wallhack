@@ -52,7 +52,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.processes = multiprocessing.cpu_count()
     defaultAlgoArgs.testSize = 5
     defaultAlgoArgs.u = 0.1
-    defaultAlgoArgs.validationSize = 5
+    defaultAlgoArgs.validationSize = 3
     defaultAlgoArgs.verbose = False
     
     #parameters for Bpr
@@ -92,7 +92,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.rhoMlauc = 1.0
     defaultAlgoArgs.rhosMlauc = 2.0**-numpy.arange(-1, 10, 2)
     defaultAlgoArgs.t0 = 10**-3 
-    defaultAlgoArgs.t0s = 10**-numpy.arange(2.0, 5.0)
+    defaultAlgoArgs.t0s = 10**-numpy.arange(1.0, 5.0)
     
     #Parameters for SoftImpute 
     defaultAlgoArgs.epsSi = 10**-14
