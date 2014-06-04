@@ -19,7 +19,7 @@ numpy.random.seed(21)
 numpy.set_printoptions(precision=4, suppress=True, linewidth=150)
 
 #Create a low rank matrix  
-synthetic = False
+synthetic = True
 
 if synthetic: 
     m = 500
@@ -58,25 +58,25 @@ if synthetic:
     logging.debug("Test local AUC:" + str(MCEvaluator.localAUCApprox(testOmegaPtr, U, V, w, numRecordAucSamples, allArray=allOmegaPtr)))
 
 #w = 1.0
-k2 = 32
+k2 = 16
 u2 = 5.0/n
 w2 = 1-u2
 eps = 10**-6
-lmbda = 0.25
+lmbda = 0.5
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbda=lmbda, stochastic=True)
-maxLocalAuc.maxIterations = 100
-maxLocalAuc.numRowSamples = 100
-maxLocalAuc.numAucSamples = 50
+maxLocalAuc.maxIterations = 200
+maxLocalAuc.numRowSamples = 10
+maxLocalAuc.numAucSamples = 10
 maxLocalAuc.numRecordAucSamples = 200
-maxLocalAuc.recordStep = 1
+maxLocalAuc.recordStep = 5
 maxLocalAuc.initialAlg = "svd"
 maxLocalAuc.rate = "optimal"
 maxLocalAuc.alpha = 0.1
-maxLocalAuc.t0 = 0.01
+maxLocalAuc.t0 = 0.5
 maxLocalAuc.folds = 2
 maxLocalAuc.rho = 1.0
 maxLocalAuc.ks = numpy.array([k2])
-maxLocalAuc.testSize = 5
+maxLocalAuc.validationSize = 2
 maxLocalAuc.lmbdas = 2.0**-numpy.arange(0, 10, 2)
 #maxLocalAuc.numProcesses = 1
 #maxLocalAuc.alphas = 2.0**-numpy.arange(0, 5, 1)
@@ -97,7 +97,7 @@ logging.debug(maxLocalAuc)
 #maxLocalAuc.modelSelect(trainX)
 #ProfileUtils.profile('U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=testX, verbose=True)', globals(), locals())
 
-U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=testX, verbose=True)
+U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, verbose=True)
 
 p = 5
 
