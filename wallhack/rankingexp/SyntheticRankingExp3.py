@@ -26,7 +26,7 @@ dataArgs = argparse.Namespace()
 
 # Arguments related to the algorithm
 defaultAlgoArgs = argparse.Namespace()
-defaultAlgoArgs.ks = numpy.array([8, 16, 32])
+defaultAlgoArgs.ks = numpy.array([8, 16, 32, 64])
 defaultAlgoArgs.u = 5/float(n) 
 
 # data args parser #

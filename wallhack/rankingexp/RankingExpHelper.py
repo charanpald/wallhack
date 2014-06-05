@@ -92,7 +92,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.rhoMlauc = 1.0
     defaultAlgoArgs.rhosMlauc = 2.0**-numpy.arange(-1, 10, 2)
     defaultAlgoArgs.t0 = 10**-3 
-    defaultAlgoArgs.t0s = 10**-numpy.arange(0.0, 5.0)
+    defaultAlgoArgs.t0s = 10**-numpy.arange(-1.0, 5.0)
     
     #Parameters for SoftImpute 
     defaultAlgoArgs.epsSi = 10**-14
