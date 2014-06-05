@@ -65,7 +65,7 @@ maxLocalAuc.alpha = 0.5
 maxLocalAuc.t0 = 0.01
 maxLocalAuc.lmbda = 0.01
 maxLocalAuc.metric = "precision"
-maxLocalAuc.ks = 2**numpy.arange(3, 8, 0.5)
+maxLocalAuc.ks = 2**numpy.arange(3, 8)
 maxLocalAuc.lmbdas = 2.0**-numpy.arange(-1, 6, 0.5)
 #maxLocalAuc.numProcesses = 8
 
