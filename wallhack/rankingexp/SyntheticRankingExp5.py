@@ -17,31 +17,30 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 #numpy.random.seed(22)        
 #numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 
-"""
-m = 500
-n = 200
-k = 8 
-u = 20.0/n
-w = 1-u
-X, U, s, V = SparseUtils.generateSparseBinaryMatrix((m,n), k, w, csarray=True, verbose=True, indsPerRow=200)
-logging.debug("Number of non zero elements: " + str(X.nnz))
-logging.debug("Size of X: " + str(X.shape))
+synthetic = False
 
-"""
-matrixFileName = PathDefaults.getDataDir() + "movielens/ml-100k/u.data" 
-data = numpy.loadtxt(matrixFileName)
-X = sppy.csarray((numpy.max(data[:, 0]), numpy.max(data[:, 1])), storagetype="row", dtype=numpy.int)
-X.put(numpy.array(data[:, 2]>3, numpy.int), numpy.array(data[:, 0]-1, numpy.int32), numpy.array(data[:, 1]-1, numpy.int32), init=True)
-X.prune()
-X = SparseUtils.pruneMatrixRows(X, minNnzRows=10)
-logging.debug("Read file: " + matrixFileName)
-logging.debug("Shape of data: " + str(X.shape))
-logging.debug("Number of non zeros " + str(X.nnz))
-(m, n) = X.shape
-
-u = 0.1 
-w = 1-u
-(m, n) = X.shape
+if synthetic: 
+    m = 500
+    n = 200
+    k = 8 
+    u = 20.0/n
+    w = 1-u
+    X, U, s, V = SparseUtils.generateSparseBinaryMatrix((m,n), k, w, csarray=True, verbose=True, indsPerRow=200)
+    logging.debug("Number of non zero elements: " + str(X.nnz))
+    logging.debug("Size of X: " + str(X.shape))
+    U = U*s
+else: 
+    matrixFileName = PathDefaults.getDataDir() + "movielens/ml-100k/u.data" 
+    data = numpy.loadtxt(matrixFileName)
+    X = sppy.csarray((numpy.max(data[:, 0]), numpy.max(data[:, 1])), storagetype="row", dtype=numpy.int)
+    X.put(numpy.array(data[:, 2]>3, numpy.int), numpy.array(data[:, 0]-1, numpy.int32), numpy.array(data[:, 1]-1, numpy.int32), init=True)
+    X.prune()
+    X = SparseUtils.pruneMatrixRows(X, minNnzRows=10)
+    logging.debug("Read file: " + matrixFileName)
+    logging.debug("Shape of data: " + str(X.shape))
+    logging.debug("Number of non zeros " + str(X.nnz))
+    (m, n) = X.shape
+    w = 0.9
 
 
 
