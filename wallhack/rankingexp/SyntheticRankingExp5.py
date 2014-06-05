@@ -79,6 +79,6 @@ objs2 = maxLocalAuc.modelSelect(trainX)
 objs3 = maxLocalAuc.modelSelect(modelSelectX)
 
 
-print(objs1)
-print(objs2)
-print(objs3)
+print(objs1[0])
+print(objs2[0])
+print(objs3[0])
