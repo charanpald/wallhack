@@ -57,7 +57,7 @@ logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))
 #logging.debug("Test local AUC:" + str(MCEvaluator.localAUC(testX, U, V, w)))
 
 #w = 1.0
-k2 = 8
+k2 = 16
 eps = 10**-6
 maxLocalAuc = MaxLocalAUC(k2, w, eps=eps, stochastic=True)
 maxLocalAuc.maxIterations = 50
@@ -76,11 +76,26 @@ maxLocalAuc.alphas = 2.0**-numpy.arange(1, 5, 0.5)
 newM = 200
 modelSelectX = trainX[0:newM, :]
 
-objs1 = maxLocalAuc.learningRateSelect(X)
-objs2 = maxLocalAuc.learningRateSelect(trainX)
-objs3 = maxLocalAuc.learningRateSelect(modelSelectX)
+saveResults = True
+outputFile = PathDefaults.getOutputDir() + "ranking/Exp6Results.npz" 
+
+if saveResults: 
+    meanObjs1 = maxLocalAuc.learningRateSelect(X)
+    meanObjs2 = maxLocalAuc.learningRateSelect(trainX)
+    meanObjs3 = maxLocalAuc.learningRateSelect(modelSelectX)
+
+    numpy.savez(outputFile, meanObjs1, meanObjs2, meanObjs3)
+else: 
+    data = numpy.load(outputFile)
+    meanObjs1, meanObjs2, meanObjs3 = data["arr_0"], data["arr_1"], data["arr_2"]
+    
+    import matplotlib.pyplot as plt 
+    plt.contourf(meanObjs1)
+    plt.contourf(meanObjs2)
+    plt.contourf(meanObjs3)
+    plt.show()
 
 
-print(objs1)
-print(objs2)
-print(objs3)
+print(meanObjs1)
+print(meanObjs2)
+print(meanObjs3)

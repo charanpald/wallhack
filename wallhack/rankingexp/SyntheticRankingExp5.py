@@ -42,8 +42,6 @@ else:
     (m, n) = X.shape
     w = 0.9
 
-
-
 testSize = 5
 trainTestXs = Sampling.shuffleSplitRows(X, 1, testSize)
 trainX, testX = trainTestXs[0]
@@ -57,7 +55,7 @@ logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))
 k2 = 16
 eps = 10**-6
 maxLocalAuc = MaxLocalAUC(k2, w, eps=eps, stochastic=True)
-maxLocalAuc.maxIterations = 50
+maxLocalAuc.maxIterations = 10
 maxLocalAuc.numRowSamples = 10
 maxLocalAuc.numAucSamples = 10
 maxLocalAuc.initialAlg = "svd"
@@ -67,18 +65,32 @@ maxLocalAuc.alpha = 0.5
 maxLocalAuc.t0 = 0.01
 maxLocalAuc.lmbda = 0.01
 maxLocalAuc.metric = "precision"
-maxLocalAuc.t0s = 10**-numpy.arange(2, 5, 0.5)
-maxLocalAuc.alphas = 2.0**-numpy.arange(1, 4, 0.5)
-maxLocalAuc.numProcesses = 6
+maxLocalAuc.ks = 2**numpy.arange(3, 8, 0.5)
+maxLocalAuc.lmbdas = 2.0**-numpy.arange(-1, 6, 0.5)
+#maxLocalAuc.numProcesses = 8
 
 newM = m/2
 modelSelectX = trainX[0:newM, :]
 
-objs1 = maxLocalAuc.modelSelect(X)
-objs2 = maxLocalAuc.modelSelect(trainX)
-objs3 = maxLocalAuc.modelSelect(modelSelectX)
+saveResults = True
+outputFile = PathDefaults.getOutputDir() + "ranking/Exp5Results.npz" 
 
+if saveResults: 
+    meanObjs1, stdObjs1 = maxLocalAuc.modelSelect(X)
+    meanObjs2, stdObjs2 = maxLocalAuc.modelSelect(trainX)
+    meanObjs3, stdObjs3 = maxLocalAuc.modelSelect(modelSelectX)
 
-print(objs1[0])
-print(objs2[0])
-print(objs3[0])
+    numpy.savez(outputFile, meanObjs1, meanObjs2, meanObjs3)
+else: 
+    data = numpy.load(outputFile)
+    meanObjs1, meanObjs2, meanObjs3 = data["arr_0"], data["arr_1"], data["arr_2"]
+    
+    import matplotlib.pyplot as plt 
+    plt.contourf(meanObjs1)
+    plt.contourf(meanObjs2)
+    plt.contourf(meanObjs3)
+    plt.show()
+    
+print(meanObjs1)
+print(meanObjs2)
+print(meanObjs3)
