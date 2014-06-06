@@ -21,9 +21,9 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "synthetic"
+    dataset = "movielens"
 
-saveResults = False
+saveResults = True
 
 if dataset == "synthetic": 
     X, U, V = DatasetUtils.syntheticDataset1()
@@ -38,20 +38,15 @@ elif dataset == "flixster":
 else: 
     raise ValueError("Unknown dataset: " + dataset)
 
+m, n = X.shape
+
 testSize = 5
 folds = 3
 trainTestXs = Sampling.shuffleSplitRows(X, folds, testSize)
-trainX, testX = trainTestXs[0]
-
-trainOmegaPtr = SparseUtils.getOmegaListPtr(trainX)
-testOmegaPtr = SparseUtils.getOmegaListPtr(testX)
-allOmegaPtr = SparseUtils.getOmegaListPtr(X)
-
-logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))
 
 u = 0.1 
 w2 = 1-u 
-k = 8
+k = 16
 eps = 10**-6
 maxLocalAuc = MaxLocalAUC(k, w2, eps=eps, stochastic=True)
 maxLocalAuc.maxIterations = 50
@@ -66,11 +61,9 @@ maxLocalAuc.lmbda = 0.01
 maxLocalAuc.rho = 1.0
 
 numRecordAucSamples = 200
-trainOmegaList = SparseUtils.getOmegaList(trainX)
-testOmegaList = SparseUtils.getOmegaList(testX)
 
-maxItems = 10
-rhos = numpy.linspace(0, 1, 10)
+maxItems = 5
+rhos = numpy.linspace(0, 1, 5)
 
 if saveResults: 
     trainLocalAucs = numpy.zeros(rhos.shape[0])
@@ -81,14 +74,14 @@ if saveResults:
     testPrecisions = numpy.zeros(rhos.shape[0])
     testRecalls = numpy.zeros(rhos.shape[0])
     
-    for trainX, testX in trainTestXs: 
+    for trainX, testX in trainTestXs:     
         trainOmegaPtr = SparseUtils.getOmegaListPtr(trainX)
         testOmegaPtr = SparseUtils.getOmegaListPtr(testX)
         allOmegaPtr = SparseUtils.getOmegaListPtr(X)
         logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))        
     
         for i, rho in enumerate(rhos): 
-            maxLocalAuc.rho = rho
+            maxLocalAuc.rho = -rho
             logging.debug(maxLocalAuc)
             U, V, trainObjs, trainAucs, testObjs, testAucs, ind, totalTime = maxLocalAuc.learnModel(trainX, verbose=True)
             
@@ -130,11 +123,6 @@ else:
     plt.ylabel("recall")
     
     plt.show()
-
-print(trainLocalAucs)
-print(trainPrecisions)
-print(trainRecalls)
-print("\n")
 
 print(testLocalAucs)
 print(testPrecisions)
