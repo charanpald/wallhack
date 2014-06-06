@@ -6,20 +6,17 @@ import os
 import errno
 from wallhack.rankingexp.RankingExpHelper import RankingExpHelper
 from sandbox.util.SparseUtils import SparseUtils
+from wallhack.rankingexp.DatasetUtils import DatasetUtils
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.random.seed(21)        
 numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 
 #Create a low rank matrix  
-m = 500
-n = 200
-k = 8 
-u = 20.0/n
+X, U, V = DatasetUtils.syntheticDataset1()
+m, n = X.shape
+u = 20.0/X.shape[1]
 w = 1-u
-X, U, s, V = SparseUtils.generateSparseBinaryMatrix((m,n), k, w, csarray=True, verbose=True, indsPerRow=200)
-logging.debug("Number of non zero elements: " + str(X.nnz))
-logging.debug("Size of X: " + str(X.shape))
 
 # Arguments related to the dataset
 dataArgs = argparse.Namespace()
