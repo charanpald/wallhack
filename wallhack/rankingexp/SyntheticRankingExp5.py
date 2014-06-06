@@ -14,14 +14,25 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 #numpy.random.seed(22)        
 #numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 
-synthetic = True
+if len(sys.argv) > 1:
+    dataset = sys.argv[1]
+else: 
+    dataset = "synthetic"
 
-if synthetic: 
+saveResults = True
+
+if dataset == "synthetic": 
     X, U, V = DatasetUtils.syntheticDataset1()
     outputFile = PathDefaults.getOutputDir() + "ranking/Exp5SyntheticResults.npz" 
-else: 
+elif dataset == "movielens": 
     X = DatasetUtils.movieLens()
     outputFile = PathDefaults.getOutputDir() + "ranking/Exp5MovieLensResults.npz" 
+elif dataset == "flixster": 
+    X = DatasetUtils.flixster()
+    outputFile = PathDefaults.getOutputDir() + "ranking/Exp5FlixsterResults.npz" 
+    X = X[0:1000, :]
+else: 
+    raise ValueError("Unknown dataset: " + dataset)
 
 testSize = 5
 trainTestXs = Sampling.shuffleSplitRows(X, 1, testSize)
@@ -51,7 +62,7 @@ maxLocalAuc.lmbdas = 2.0**-numpy.arange(-1, 6, 0.5)
 newM = X.shape[0]/2
 modelSelectX = trainX[0:newM, :]
 
-saveResults = True
+
 
 if saveResults: 
     meanObjs1, stdObjs1 = maxLocalAuc.modelSelect(X)
@@ -62,7 +73,8 @@ if saveResults:
 else: 
     data = numpy.load(outputFile)
     meanObjs1, meanObjs2, meanObjs3 = data["arr_0"], data["arr_1"], data["arr_2"]
-    
+    import matplotlib 
+    matplotlib.use("GTK3Agg")
     import matplotlib.pyplot as plt 
     plt.figure(0)
     plt.contourf(numpy.log2(maxLocalAuc.lmbdas), numpy.log2(maxLocalAuc.ks), meanObjs1)

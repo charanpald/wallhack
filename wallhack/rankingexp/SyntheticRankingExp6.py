@@ -18,14 +18,25 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 os.system('taskset -p 0xffffffff %d' % os.getpid())
 
 #Create a low rank matrix  
-synthetic = True
+if len(sys.argv) > 1:
+    dataset = sys.argv[1]
+else: 
+    dataset = "synthetic"
 
-if synthetic: 
+saveResults = True
+
+if dataset == "synthetic": 
     X, U, V = DatasetUtils.syntheticDataset1()
     outputFile = PathDefaults.getOutputDir() + "ranking/Exp6SyntheticResults.npz" 
-else: 
+elif dataset == "movielens": 
     X = DatasetUtils.movieLens()
     outputFile = PathDefaults.getOutputDir() + "ranking/Exp6MovieLensResults.npz" 
+elif dataset == "flixster": 
+    X = DatasetUtils.flixster()
+    outputFile = PathDefaults.getOutputDir() + "ranking/Exp6FlixsterResults.npz" 
+    X = X[0:1000, :]
+else: 
+    raise ValueError("Unknown dataset: " + dataset)
 
 testSize = 5
 trainTestXs = Sampling.shuffleSplitRows(X, 1, testSize)
@@ -57,7 +68,7 @@ maxLocalAuc.alphas = 2.0**-numpy.arange(1, 5, 0.5)
 newM = trainX.shape[0]/2
 modelSelectX = trainX[0:newM, :]
 
-saveResults = True
+
 
 if saveResults: 
     meanObjs1 = maxLocalAuc.learningRateSelect(X)
@@ -83,7 +94,6 @@ else:
     plt.ylabel("alpha")
     plt.colorbar()
     
-
     plt.figure(2)    
     plt.contourf(numpy.log10(maxLocalAuc.t0s), numpy.log2(maxLocalAuc.alphas), meanObjs3)
     plt.xlabel("t0")
