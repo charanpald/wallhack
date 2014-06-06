@@ -17,9 +17,9 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "synthetic"
+    dataset = "flixster"
 
-saveResults = True
+saveResults = False
 
 if dataset == "synthetic": 
     X, U, V = DatasetUtils.syntheticDataset1()
@@ -57,12 +57,11 @@ maxLocalAuc.lmbda = 0.01
 maxLocalAuc.metric = "precision"
 maxLocalAuc.ks = 2**numpy.arange(2, 9)
 maxLocalAuc.lmbdas = 2.0**-numpy.arange(-1, 6, 0.5)
+maxLocalAuc.folds = 3
 #maxLocalAuc.numProcesses = 8
 
 newM = X.shape[0]/2
 modelSelectX = trainX[0:newM, :]
-
-
 
 if saveResults: 
     meanObjs1, stdObjs1 = maxLocalAuc.modelSelect(X)
@@ -95,7 +94,6 @@ else:
     plt.colorbar()
     
     plt.show()
-    
     
 print(meanObjs1)
 print(meanObjs2)

@@ -64,6 +64,7 @@ maxLocalAuc.lmbda = 0.1
 #maxLocalAuc.numProcesses = 1
 maxLocalAuc.t0s = 2.0**-numpy.arange(0, 8)
 maxLocalAuc.alphas = 2.0**-numpy.arange(1, 5, 0.5)
+maxLocalAuc.folds = 3
 
 newM = trainX.shape[0]/2
 modelSelectX = trainX[0:newM, :]
