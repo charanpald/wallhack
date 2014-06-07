@@ -1,6 +1,8 @@
 import numpy
 import logging
 import sys
+import multiprocessing 
+import os
 from sandbox.recommendation.MaxLocalAUC import MaxLocalAUC
 from sandbox.util.SparseUtils import SparseUtils
 from sandbox.util.PathDefaults import PathDefaults
@@ -10,19 +12,20 @@ from sandbox.util.Sampling import Sampling
 from wallhack.rankingexp.DatasetUtils import DatasetUtils
 
 """
-Test the effect of  quantile threshold u. 
+Test the effect of quantile threshold u and rank weight rho 
 """
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 #numpy.random.seed(22)        
 #numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
+os.system('taskset -p 0xffffffff %d' % os.getpid())
 
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
     dataset = "synthetic"
 
-saveResults = False
+saveResults = True
 
 if dataset == "synthetic": 
     X, U, V = DatasetUtils.syntheticDataset1()
@@ -38,7 +41,7 @@ else:
     raise ValueError("Unknown dataset: " + dataset)
         
 testSize = 5
-folds = 3
+folds = 2
 trainTestXs = Sampling.shuffleSplitRows(X, folds, testSize)
 
 u = 0.1 
@@ -52,23 +55,31 @@ maxLocalAuc.numAucSamples = 10
 maxLocalAuc.initialAlg = "svd"
 maxLocalAuc.recordStep = 5
 maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 0.5
+maxLocalAuc.alpha = 0.1
 maxLocalAuc.t0 = 10**-2
 maxLocalAuc.lmbda = 0.01
 maxLocalAuc.rho = 1.0
 
 numRecordAucSamples = 200
 maxItems = 10
-us = numpy.linspace(0, 1, 10)
+chunkSize = 1
+us = numpy.linspace(0, 1, 5)
+rhos = numpy.linspace(0, 1, 5)
+
+def computeTestAuc(args): 
+    trainX, maxLocalAuc  = args 
+    numpy.random.seed(21)
+    U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, totalTime = maxLocalAuc.learnModel(trainX, verbose=True)
+    return U, V, trainAucs[-1], testAucs[-1]
 
 if saveResults: 
-    trainLocalAucs = numpy.zeros(us.shape[0])
-    trainPrecisions = numpy.zeros(us.shape[0])
-    trainRecalls = numpy.zeros(us.shape[0])
+    trainLocalAucs = numpy.zeros((us.shape[0], rhos.shape[0]))
+    trainPrecisions = numpy.zeros((us.shape[0], rhos.shape[0]))
+    trainRecalls = numpy.zeros((us.shape[0], rhos.shape[0]))
     
-    testLocalAucs = numpy.zeros(us.shape[0])
-    testPrecisions = numpy.zeros(us.shape[0])
-    testRecalls = numpy.zeros(us.shape[0])
+    testLocalAucs = numpy.zeros((us.shape[0], rhos.shape[0]))
+    testPrecisions = numpy.zeros((us.shape[0], rhos.shape[0]))
+    testRecalls = numpy.zeros((us.shape[0], rhos.shape[0]))
     
     for trainX, testX in trainTestXs: 
         trainOmegaPtr = SparseUtils.getOmegaListPtr(trainX)
@@ -76,20 +87,35 @@ if saveResults:
         allOmegaPtr = SparseUtils.getOmegaListPtr(X)
         logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))        
         
+        paramList = []        
+        
         for i, u in enumerate(us): 
             maxLocalAuc.w = 1-u
-            logging.debug(maxLocalAuc)
-            U, V, trainObjs, trainAucs, testObjs, testAucs, ind, totalTime = maxLocalAuc.learnModel(trainX, verbose=True)
-            
-            trainLocalAucs[i] += trainAucs[-1]
-            trainOrderedItems = MCEvaluator.recommendAtk(U, V, maxItems)    
-            trainPrecisions[i] += MCEvaluator.precisionAtK(trainOmegaPtr, trainOrderedItems, maxItems)
-            trainRecalls[i] += MCEvaluator.recallAtK(trainX, trainOrderedItems, maxItems)
-            
-            testLocalAucs[i] += testAucs[-1]
-            testOrderedItems = MCEvaluatorCython.recommendAtk(U, V, maxItems, trainX)
-            testPrecisions[i] += MCEvaluator.precisionAtK(testX, testOrderedItems, maxItems)
-            testRecalls[i] += MCEvaluator.recallAtK(testX, testOrderedItems, maxItems)
+            for j, rho in enumerate(rhos): 
+                maxLocalAuc.rho = rho
+                logging.debug(maxLocalAuc)
+                
+                learner = maxLocalAuc.copy()
+                
+                paramList.append((trainX, learner))
+
+        pool = multiprocessing.Pool(maxtasksperchild=100, processes=multiprocessing.cpu_count())
+        resultsIterator = pool.imap(computeTestAuc, paramList, chunkSize)
+        
+        for i, u in enumerate(us): 
+            for j, rho in enumerate(rhos): 
+                U, V, trainAuc, testAuc = resultsIterator.next()
+                trainLocalAucs[i, j] += trainAuc
+                trainOrderedItems = MCEvaluator.recommendAtk(U, V, maxItems)    
+                trainPrecisions[i, j] += MCEvaluator.precisionAtK(trainOmegaPtr, trainOrderedItems, maxItems)
+                trainRecalls[i, j] += MCEvaluator.recallAtK(trainX, trainOrderedItems, maxItems)
+                
+                testLocalAucs[i, j] += testAuc
+                testOrderedItems = MCEvaluatorCython.recommendAtk(U, V, maxItems, trainX)
+                testPrecisions[i, j] += MCEvaluator.precisionAtK(testX, testOrderedItems, maxItems)
+                testRecalls[i, j] += MCEvaluator.recallAtK(testX, testOrderedItems, maxItems)
+        
+        pool.terminate()        
         
     testLocalAucs /= folds 
     testPrecisions /= folds 
@@ -102,28 +128,26 @@ else:
     import matplotlib 
     matplotlib.use("GTK3Agg")
     import matplotlib.pyplot as plt 
-    
+   
     plt.figure(0)
-    plt.plot(us, testLocalAucs)
+    plt.contourf(us, rhos, testLocalAucs)
     plt.xlabel("u")
-    plt.ylabel("local AUC")
+    plt.ylabel("rho")
+    plt.colorbar()
     
     plt.figure(1)
-    plt.plot(us, testPrecisions)
+    plt.contourf(us, rhos, testPrecisions)
     plt.xlabel("u")
-    plt.ylabel("precision")
+    plt.ylabel("rho")
+    plt.colorbar()
     
-    plt.figure(2)
-    plt.plot(us, testRecalls)
+    plt.figure(2)    
+    plt.contourf(us, rhos, testRecalls)
     plt.xlabel("u")
-    plt.ylabel("recall")
-    
+    plt.ylabel("rho")
+    plt.colorbar()   
+   
     plt.show()
-
-#print(trainLocalAucs)
-#print(trainPrecisions)
-#print(trainRecalls)
-#print("\n")
 
 print(testLocalAucs)
 print(testPrecisions)
