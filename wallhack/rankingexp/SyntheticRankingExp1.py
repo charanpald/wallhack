@@ -58,11 +58,11 @@ if dataset == "synthetic":
     logging.debug("Test local AUC:" + str(MCEvaluator.localAUCApprox(testOmegaPtr, U, V, w, numRecordAucSamples, allArray=allOmegaPtr)))
 
 #w = 1.0
-k2 = 8
-u2 = 5.0/n
+k2 = 64
+u2 = 10.0/n
 w2 = 1-u2
 eps = 10**-6
-lmbda = 0.01
+lmbda = 2**-5
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbda=lmbda, stochastic=True)
 maxLocalAuc.maxIterations = 100
 maxLocalAuc.numRowSamples = 10
@@ -74,7 +74,7 @@ maxLocalAuc.rate = "optimal"
 maxLocalAuc.alpha = 0.2
 maxLocalAuc.t0 = 0.5
 maxLocalAuc.folds = 2
-maxLocalAuc.rho = -0.1
+maxLocalAuc.rho = 0.1
 maxLocalAuc.ks = numpy.array([k2])
 maxLocalAuc.validationSize = 3
 maxLocalAuc.lmbdas = 2.0**-numpy.arange(0, 10, 2)
