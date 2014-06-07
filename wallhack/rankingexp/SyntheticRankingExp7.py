@@ -63,8 +63,8 @@ maxLocalAuc.rho = 1.0
 numRecordAucSamples = 200
 maxItems = 10
 chunkSize = 1
-us = numpy.linspace(0, 1, 5)
-rhos = numpy.linspace(0, 1, 5)
+us = numpy.linspace(0, 1, 10)
+rhos = numpy.linspace(0, 1, 10)
 
 def computeTestAuc(args): 
     trainX, maxLocalAuc  = args 
@@ -133,20 +133,20 @@ else:
    
     plt.figure(0)
     plt.contourf(us, rhos, testLocalAucs)
-    plt.xlabel("u")
-    plt.ylabel("rho")
+    plt.xlabel("rho")
+    plt.ylabel("u")
     plt.colorbar()
     
     plt.figure(1)
     plt.contourf(us, rhos, testPrecisions)
-    plt.xlabel("u")
-    plt.ylabel("rho")
+    plt.xlabel("rho")
+    plt.ylabel("u")
     plt.colorbar()
     
     plt.figure(2)    
     plt.contourf(us, rhos, testRecalls)
-    plt.xlabel("u")
-    plt.ylabel("rho")
+    plt.xlabel("rho")
+    plt.ylabel("u")
     plt.colorbar()   
    
     plt.show()
