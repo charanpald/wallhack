@@ -46,7 +46,7 @@ trainTestXs = Sampling.shuffleSplitRows(X, folds, testSize)
 
 u = 0.1 
 w2 = 1-u 
-k = 8
+k = 16
 eps = 10**-6
 maxLocalAuc = MaxLocalAUC(k, w2, eps=eps, stochastic=True)
 maxLocalAuc.maxIterations = 100
@@ -55,8 +55,8 @@ maxLocalAuc.numAucSamples = 10
 maxLocalAuc.initialAlg = "svd"
 maxLocalAuc.recordStep = 5
 maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 0.1
-maxLocalAuc.t0 = 10**-2
+maxLocalAuc.alpha = 0.5
+maxLocalAuc.t0 = 10**-1
 maxLocalAuc.lmbda = 0.01
 maxLocalAuc.rho = 1.0
 
@@ -81,13 +81,15 @@ if saveResults:
     testPrecisions = numpy.zeros((us.shape[0], rhos.shape[0]))
     testRecalls = numpy.zeros((us.shape[0], rhos.shape[0]))
     
+    maxLocalAuc.learningRateSelect(X)    
+    
     for trainX, testX in trainTestXs: 
         trainOmegaPtr = SparseUtils.getOmegaListPtr(trainX)
         testOmegaPtr = SparseUtils.getOmegaListPtr(testX)
         allOmegaPtr = SparseUtils.getOmegaListPtr(X)
         logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))        
         
-        paramList = []        
+        paramList = []      
         
         for i, u in enumerate(us): 
             maxLocalAuc.w = 1-u
