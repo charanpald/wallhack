@@ -23,7 +23,7 @@ os.system('taskset -p 0xffffffff %d' % os.getpid())
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "synthetic"
+    dataset = "movielens"
 
 saveResults = True
 
@@ -49,7 +49,7 @@ w2 = 1-u
 k = 8
 eps = 10**-6
 maxLocalAuc = MaxLocalAUC(k, w2, eps=eps, stochastic=True)
-maxLocalAuc.maxIterations = 50
+maxLocalAuc.maxIterations = 100
 maxLocalAuc.numRowSamples = 10
 maxLocalAuc.numAucSamples = 10
 maxLocalAuc.initialAlg = "svd"
