@@ -23,7 +23,20 @@ class DatasetUtils(object):
         U = U*s
         
         return X, U, V
-       
+    
+    @staticmethod
+    def syntheticDataset2(): 
+        m = 100
+        n = 50
+        k = 8 
+        u = 20.0/n
+        w = 1-u
+        X, U, s, V = SparseUtils.generateSparseBinaryMatrix((m,n), k, w, csarray=True, verbose=True, indsPerRow=200)
+        logging.debug("Non zero elements: " + str(X.nnz) + " shape: " + str(X.shape))
+        U = U*s
+        
+        return X, U, V    
+    
     @staticmethod
     def movieLens(): 
         matrixFileName = PathDefaults.getDataDir() + "movielens/ml-100k/u.data" 
