@@ -42,7 +42,7 @@ class RankingExpHelper(object):
     
     #General algorithm parameters 
     defaultAlgoArgs.folds = 3
-    defaultAlgoArgs.k = 8 
+    defaultAlgoArgs.k = 32 
     defaultAlgoArgs.ks = 2**numpy.arange(3, 7)
     defaultAlgoArgs.learningRateSelect = False
     defaultAlgoArgs.modelSelect = False
@@ -81,7 +81,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.epsMlauc = 10**-5    
     defaultAlgoArgs.fullGradient = False
     defaultAlgoArgs.initialAlg = "svd"
-    defaultAlgoArgs.lmbdaMlauc = 0
+    defaultAlgoArgs.lmbdaMlauc = 0.1
     defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(-1, 14, 2)
     defaultAlgoArgs.maxIterations = 100
     defaultAlgoArgs.numAucSamples = 10
