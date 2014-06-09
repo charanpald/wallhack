@@ -83,7 +83,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.initialAlg = "svd"
     defaultAlgoArgs.lmbdaMlauc = 1.0
     #defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(-1, 14, 2)
-    defaultAlgoArgs.lmbdasMlauc = 2.0**numpy.arange(-1, 2, 0.5)
+    defaultAlgoArgs.lmbdasMlauc = 2.0**numpy.arange(-1, 3, 0.5)
     defaultAlgoArgs.maxIterations = 100
     defaultAlgoArgs.numAucSamples = 10
     defaultAlgoArgs.numRowSamples = 10
@@ -93,7 +93,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.rhoMlauc = 1.0
     defaultAlgoArgs.rhosMlauc = 2.0**-numpy.arange(-1, 10, 2)
     defaultAlgoArgs.t0 = 10**-3 
-    defaultAlgoArgs.t0s = 2.0**-numpy.arange(0.0, 6.0)
+    defaultAlgoArgs.t0s = 2.0**-numpy.arange(-1.0, 6.0)
     
     #Parameters for SoftImpute 
     defaultAlgoArgs.epsSi = 10**-14
