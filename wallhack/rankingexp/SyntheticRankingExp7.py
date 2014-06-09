@@ -23,9 +23,9 @@ os.system('taskset -p 0xffffffff %d' % os.getpid())
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "movielens"
+    dataset = "synthetic"
 
-saveResults = True
+saveResults = False
 
 if dataset == "synthetic": 
     X, U, V = DatasetUtils.syntheticDataset1()
@@ -57,19 +57,19 @@ maxLocalAuc.recordStep = 5
 maxLocalAuc.rate = "optimal"
 maxLocalAuc.alpha = 0.5
 maxLocalAuc.t0 = 10**-1
-maxLocalAuc.lmbda = 0.01
+maxLocalAuc.lmbda = 5
 maxLocalAuc.rho = 1.0
 
 numRecordAucSamples = 200
 maxItems = 10
 chunkSize = 1
-us = numpy.linspace(0, 1, 10)
-rhos = numpy.linspace(0, 1, 10)
+us = numpy.linspace(0, 2, 10)
+rhos = numpy.linspace(0, 2, 10)
 
 def computeTestAuc(args): 
     trainX, maxLocalAuc  = args 
     numpy.random.seed(21)
-    U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, totalTime = maxLocalAuc.learnModel(trainX, verbose=True)
+    U, V, trainObjs, trainAucs, testObjs, testAucs, precisions, iterations, totalTime = maxLocalAuc.learnModel(trainX, verbose=True)
     return U, V, trainAucs[-1], testAucs[-1]
 
 if saveResults: 
