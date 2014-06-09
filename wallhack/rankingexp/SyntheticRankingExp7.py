@@ -23,7 +23,7 @@ os.system('taskset -p 0xffffffff %d' % os.getpid())
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "synthetic"
+    dataset = "movielens"
 
 saveResults = False
 

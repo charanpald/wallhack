@@ -17,9 +17,9 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "flixster"
+    dataset = "movielens"
 
-saveResults = False
+saveResults = True
 
 if dataset == "synthetic": 
     X, U, V = DatasetUtils.syntheticDataset1()
@@ -48,15 +48,15 @@ maxLocalAuc = MaxLocalAUC(k2, w, eps=eps, stochastic=True)
 maxLocalAuc.maxIterations = 10
 maxLocalAuc.numRowSamples = 10
 maxLocalAuc.numAucSamples = 10
-maxLocalAuc.initialAlg = "svd"
+maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.recordStep = 5
 maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 0.5
-maxLocalAuc.t0 = 0.01
-maxLocalAuc.lmbda = 0.01
+maxLocalAuc.alpha = 1.0
+maxLocalAuc.t0 = 0.1
+maxLocalAuc.lmbda = 1.0
 maxLocalAuc.metric = "precision"
 maxLocalAuc.ks = 2**numpy.arange(2, 9)
-maxLocalAuc.lmbdas = 2.0**-numpy.arange(-1, 6, 0.5)
+maxLocalAuc.lmbdas = 2.0**-numpy.arange(-2, 2, 0.5)
 maxLocalAuc.folds = 3
 #maxLocalAuc.numProcesses = 8
 
