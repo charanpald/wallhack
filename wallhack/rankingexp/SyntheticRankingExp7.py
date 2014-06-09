@@ -25,7 +25,7 @@ if len(sys.argv) > 1:
 else: 
     dataset = "movielens"
 
-saveResults = False
+saveResults = True
 
 if dataset == "synthetic": 
     X, U, V = DatasetUtils.syntheticDataset1()
@@ -44,7 +44,7 @@ testSize = 5
 folds = 2
 trainTestXs = Sampling.shuffleSplitRows(X, folds, testSize)
 
-u = 0.1 
+u = 0.1
 w2 = 1-u 
 k = 16
 eps = 10**-6
@@ -52,12 +52,12 @@ maxLocalAuc = MaxLocalAUC(k, w2, eps=eps, stochastic=True)
 maxLocalAuc.maxIterations = 100
 maxLocalAuc.numRowSamples = 10
 maxLocalAuc.numAucSamples = 10
-maxLocalAuc.initialAlg = "svd"
+maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.recordStep = 5
 maxLocalAuc.rate = "optimal"
 maxLocalAuc.alpha = 0.5
 maxLocalAuc.t0 = 10**-1
-maxLocalAuc.lmbda = 5
+maxLocalAuc.lmbda = 1
 maxLocalAuc.rho = 1.0
 
 numRecordAucSamples = 200
