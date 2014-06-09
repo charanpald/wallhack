@@ -25,7 +25,7 @@ if len(sys.argv) > 1:
 else: 
     dataset = "synthetic"
 
-saveResults = True
+saveResults = False
 
 if dataset == "synthetic": 
     X, U, V = DatasetUtils.syntheticDataset1()
@@ -132,19 +132,19 @@ else:
     import matplotlib.pyplot as plt 
    
     plt.figure(0)
-    plt.contourf(us, rhos, testLocalAucs)
+    plt.contourf(rhos, us, testLocalAucs)
     plt.xlabel("rho")
     plt.ylabel("u")
     plt.colorbar()
     
     plt.figure(1)
-    plt.contourf(us, rhos, testPrecisions)
+    plt.contourf(rhos, us, testPrecisions)
     plt.xlabel("rho")
     plt.ylabel("u")
     plt.colorbar()
     
     plt.figure(2)    
-    plt.contourf(us, rhos, testRecalls)
+    plt.contourf(rhos, us, testRecalls)
     plt.xlabel("rho")
     plt.ylabel("u")
     plt.colorbar()   

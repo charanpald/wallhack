@@ -15,7 +15,7 @@ numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 #Create a low rank matrix  
 X, U, V = DatasetUtils.syntheticDataset1()
 m, n = X.shape
-u = 20.0/X.shape[1]
+u = 5.0/X.shape[1]
 w = 1-u
 
 # Arguments related to the dataset
