@@ -29,6 +29,9 @@ saveResults = True
 if dataset == "synthetic": 
     X, U, V = DatasetUtils.syntheticDataset1()
     outputFile = PathDefaults.getOutputDir() + "ranking/Exp9SyntheticResults.npz" 
+elif dataset == "synthetic2": 
+    X, U, V = DatasetUtils.syntheticDataset2()
+    outputFile = PathDefaults.getOutputDir() + "ranking/Exp9SyntheticResults.npz" 
 elif dataset == "movielens": 
     X = DatasetUtils.movieLens()
     outputFile = PathDefaults.getOutputDir() + "ranking/Exp9MovieLensResults.npz" 
@@ -57,33 +60,34 @@ if dataset == "synthetic":
     logging.debug("Train local AUC:" + str(MCEvaluator.localAUCApprox(trainOmegaPtr, U, V, w, numRecordAucSamples, allArray=allOmegaPtr)))
     logging.debug("Test local AUC:" + str(MCEvaluator.localAUCApprox(testOmegaPtr, U, V, w, numRecordAucSamples, allArray=allOmegaPtr)))
 
+
 #w = 1.0
-k2 = 64
-u2 = 10.0/n
+k2 = 32
+u2 = 5.0/n
 w2 = 1-u2
 eps = 10**-6
-lmbda = 2**-5
+lmbda = 1.0
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbda=lmbda, stochastic=True)
 maxLocalAuc.maxIterations = 100
 maxLocalAuc.numRowSamples = 10
 maxLocalAuc.numAucSamples = 10
-maxLocalAuc.numRecordAucSamples = 200
-maxLocalAuc.recordStep = 5
+maxLocalAuc.numRecordAucSamples = 100
+maxLocalAuc.recordStep = 1
 maxLocalAuc.initialAlg = "svd"
 maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 0.2
-maxLocalAuc.t0 = 0.5
+maxLocalAuc.alpha = 0.1
+maxLocalAuc.t0 = 0.03125
 maxLocalAuc.folds = 2
-maxLocalAuc.rho = 0.1
+maxLocalAuc.rho = 0.0
 maxLocalAuc.ks = numpy.array([k2])
 maxLocalAuc.validationSize = 3
 maxLocalAuc.lmbdas = 2.0**-numpy.arange(0, 10, 2)
+maxLocalAuc.normalise = True
 #maxLocalAuc.numProcesses = 1
 #maxLocalAuc.alphas = 2.0**-numpy.arange(0, 5, 1)
 #maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
 maxLocalAuc.alphas = numpy.array([0.5, 0.25])
 maxLocalAuc.t0s = numpy.array([0.0001, 0.001])
-maxLocalAuc.normalise = True
 maxLocalAuc.metric = "precision"
 maxLocalAuc.sampling = "uniform"
 #maxLocalAuc.numProcesses = 1
@@ -98,7 +102,7 @@ logging.debug(maxLocalAuc)
 #maxLocalAuc.modelSelect(trainX)
 #ProfileUtils.profile('U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=testX, verbose=True)', globals(), locals())
 
-U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, verbose=True)
+U, V, trainObjs, trainAucs, testObjs, testAucs, precisions, iterations, time = maxLocalAuc.learnModel(trainX, verbose=True)
 
 p = 5
 
@@ -122,6 +126,12 @@ plt.plot(trainAucs, label="train")
 plt.plot(testAucs, label="test")
 plt.xlabel("iteration")
 plt.ylabel("local AUC")
+plt.legend()
+
+plt.figure(2)
+plt.plot(precisions)
+plt.xlabel("iteration")
+plt.ylabel("precision")
 plt.legend()
 
 #fprTrain, tprTrain = MCEvaluator.averageRocCurve(trainX, U, V)
