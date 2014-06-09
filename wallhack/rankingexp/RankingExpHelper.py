@@ -80,7 +80,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.alphas = 2.0**-numpy.arange(1.0, 7.0)
     defaultAlgoArgs.epsMlauc = 10**-6    
     defaultAlgoArgs.fullGradient = False
-    defaultAlgoArgs.initialAlg = "svd"
+    defaultAlgoArgs.initialAlg = "rand"
     defaultAlgoArgs.lmbdaMlauc = 1.0
     #defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(-1, 14, 2)
     defaultAlgoArgs.lmbdasMlauc = 2.0**numpy.arange(-1, 3, 0.5)
