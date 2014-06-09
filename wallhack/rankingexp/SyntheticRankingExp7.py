@@ -25,7 +25,7 @@ if len(sys.argv) > 1:
 else: 
     dataset = "synthetic"
 
-saveResults = False
+saveResults = True
 
 if dataset == "synthetic": 
     X, U, V = DatasetUtils.syntheticDataset1()
