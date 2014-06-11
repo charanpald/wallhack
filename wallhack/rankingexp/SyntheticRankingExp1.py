@@ -22,7 +22,7 @@ numpy.set_printoptions(precision=4, suppress=True, linewidth=150)
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "movielens"
+    dataset = "synthetic"
 
 saveResults = True
 
@@ -62,11 +62,11 @@ if dataset == "synthetic":
 
 
 #w = 1.0
-k2 = 32
-u2 = 5.0/n
+k2 = 16
+u2 = 0.5
 w2 = 1-u2
 eps = 10**-8
-lmbda = 1.2
+lmbda = 1.0
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbda=lmbda, stochastic=True)
 maxLocalAuc.maxIterations = 200
 maxLocalAuc.numRowSamples = 20
@@ -78,7 +78,7 @@ maxLocalAuc.rate = "optimal"
 maxLocalAuc.alpha = 0.5
 maxLocalAuc.t0 = 0.5
 maxLocalAuc.folds = 2
-maxLocalAuc.rho = 1.0
+maxLocalAuc.rho = 1.5
 maxLocalAuc.ks = numpy.array([k2])
 maxLocalAuc.validationSize = 3
 maxLocalAuc.lmbdas = numpy.linspace(0.5, 2.0, 7)
