@@ -18,33 +18,38 @@ from wallhack.rankingexp.DatasetUtils import DatasetUtils
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.random.seed(21)        
 numpy.set_printoptions(precision=4, suppress=True, linewidth=150)
+numpy.seterr(all="raise")
 
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "synthetic"
+    dataset = "synthetic2"
 
 saveResults = True
 
 if dataset == "synthetic": 
     X, U, V = DatasetUtils.syntheticDataset1()
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp9SyntheticResults.npz" 
+    outputFile = PathDefaults.getOutputDir() + "ranking/Exp1SyntheticResults.npz" 
 elif dataset == "synthetic2": 
     X, U, V = DatasetUtils.syntheticDataset2()
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp9SyntheticResults.npz" 
+    outputFile = PathDefaults.getOutputDir() + "ranking/Exp1SyntheticResults.npz" 
+elif dataset == "synthetic3": 
+    X, U, V = DatasetUtils.syntheticDataset3()
+    outputFile = PathDefaults.getOutputDir() + "ranking/Exp1SyntheticResults.npz" 
 elif dataset == "movielens": 
     X = DatasetUtils.movieLens()
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp9MovieLensResults.npz" 
+    outputFile = PathDefaults.getOutputDir() + "ranking/Exp1MovieLensResults.npz" 
 elif dataset == "flixster": 
     X = DatasetUtils.flixster()
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp9FlixsterResults.npz" 
-    X = X[0:1000, :]
+    outputFile = PathDefaults.getOutputDir() + "ranking/Exp1FlixsterResults.npz" 
+    X = Sampling.sampleUsers(X, 1000)
 else: 
     raise ValueError("Unknown dataset: " + dataset)
 
 m,n = X.shape
 u = 0.1 
 w = 1-u
+
 
 testSize = 5
 trainTestXs = Sampling.shuffleSplitRows(X, 1, testSize)
@@ -62,13 +67,13 @@ if dataset == "synthetic":
 
 
 #w = 1.0
-k2 = 16
+k2 = 5
 u2 = 0.5
 w2 = 1-u2
 eps = 10**-8
-lmbda = 1.0
+lmbda = 2.0
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbda=lmbda, stochastic=True)
-maxLocalAuc.maxIterations = 200
+maxLocalAuc.maxIterations = 100
 maxLocalAuc.numRowSamples = 20
 maxLocalAuc.numAucSamples = 10
 maxLocalAuc.numRecordAucSamples = 100
@@ -78,7 +83,7 @@ maxLocalAuc.rate = "optimal"
 maxLocalAuc.alpha = 0.5
 maxLocalAuc.t0 = 0.5
 maxLocalAuc.folds = 2
-maxLocalAuc.rho = 1.5
+maxLocalAuc.rho = 1.0
 maxLocalAuc.ks = numpy.array([k2])
 maxLocalAuc.validationSize = 3
 maxLocalAuc.lmbdas = numpy.linspace(0.5, 2.0, 7)
@@ -97,7 +102,7 @@ logging.debug(maxLocalAuc)
 
 #modelSelectX = trainX[0:100, :]
 #maxLocalAuc.learningRateSelect(trainX)
-#maxLocalAuc.modelSelect(trainX)
+maxLocalAuc.modelSelect(trainX)
 #ProfileUtils.profile('U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=testX, verbose=True)', globals(), locals())
 
 U, V, trainObjs, trainAucs, testObjs, testAucs, precisions, iterations, time = maxLocalAuc.learnModel(trainX, verbose=True)
@@ -132,10 +137,29 @@ plt.xlabel("iteration")
 plt.ylabel("precision")
 plt.legend()
 
+#Look at distrubution of U and V 
+Z = U.dot(V.T)
+
+plt.figure(3)
+hist, edges = numpy.histogram(Z.flatten(), bins=50, normed=True)
+xvals = (edges[0:-1]+edges[1:])/2
+plt.plot(xvals, hist, label="all")
+
+trainVals = Z[trainX.nonzero()].flatten()
+hist, e = numpy.histogram(trainVals, bins=edges, normed=True)
+xvals = (edges[0:-1]+edges[1:])/2
+plt.plot(xvals, hist, label="train")
+
+testVals = Z[testX.nonzero()].flatten()
+hist, e = numpy.histogram(testVals, bins=edges, normed=True)
+xvals = (edges[0:-1]+edges[1:])/2
+plt.plot(xvals, hist, label="test")
+plt.legend()
+
 #fprTrain, tprTrain = MCEvaluator.averageRocCurve(trainX, U, V)
 #fprTest, tprTest = MCEvaluator.averageRocCurve(testX, U, V)
 #
-#plt.figure(2)
+#plt.figure(4)
 #plt.plot(fprTrain, tprTrain, label="train")
 #plt.plot(fprTest, tprTest, label="test")
 #plt.xlabel("mean false positive rate")
