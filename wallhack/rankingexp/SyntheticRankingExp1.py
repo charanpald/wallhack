@@ -23,7 +23,7 @@ numpy.seterr(all="raise")
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "synthetic2"
+    dataset = "movielens"
 
 saveResults = True
 
@@ -71,7 +71,7 @@ k2 = 5
 u2 = 0.5
 w2 = 1-u2
 eps = 10**-8
-lmbda = 2.0
+lmbda = 1.0
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbda=lmbda, stochastic=True)
 maxLocalAuc.maxIterations = 100
 maxLocalAuc.numRowSamples = 20
@@ -102,17 +102,17 @@ logging.debug(maxLocalAuc)
 
 #modelSelectX = trainX[0:100, :]
 #maxLocalAuc.learningRateSelect(trainX)
-maxLocalAuc.modelSelect(trainX)
+#maxLocalAuc.modelSelect(trainX)
 #ProfileUtils.profile('U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=testX, verbose=True)', globals(), locals())
 
 U, V, trainObjs, trainAucs, testObjs, testAucs, precisions, iterations, time = maxLocalAuc.learnModel(trainX, verbose=True)
 
-p = 5
+p = 10
 
 trainOrderedItems = MCEvaluator.recommendAtk(U, V, p)
 testOrderedItems = MCEvaluatorCython.recommendAtk(U, V, p, trainX)
 
-for p in [1, 3, 5]: 
+for p in [1, 3, 5, 10]: 
     logging.debug("Train precision@" + str(p) + "=" + str(MCEvaluator.precisionAtK(trainOmegaPtr, trainOrderedItems, p))) 
     logging.debug("Test precision@" + str(p) + "=" + str(MCEvaluator.precisionAtK(testOmegaPtr, testOrderedItems, p))) 
 
@@ -141,7 +141,8 @@ plt.legend()
 Z = U.dot(V.T)
 
 plt.figure(3)
-hist, edges = numpy.histogram(Z.flatten(), bins=50, normed=True)
+Z2 = Z[X.toarray() == 0]
+hist, edges = numpy.histogram(Z2.flatten(), bins=50, normed=True)
 xvals = (edges[0:-1]+edges[1:])/2
 plt.plot(xvals, hist, label="all")
 
