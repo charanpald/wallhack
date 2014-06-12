@@ -25,7 +25,7 @@ if len(sys.argv) > 1:
 else: 
     dataset = "movielens"
 
-saveResults = True
+saveResults = False
 
 if dataset == "synthetic": 
     X, U, V = DatasetUtils.syntheticDataset1()
@@ -36,7 +36,7 @@ elif dataset == "movielens":
 elif dataset == "flixster": 
     X = DatasetUtils.flixster()
     outputFile = PathDefaults.getOutputDir() + "ranking/Exp7FlixsterResults.npz" 
-    X = X[0:1000, :]
+    Sampling.sampleUsers(X, 1000)
 else: 
     raise ValueError("Unknown dataset: " + dataset)
         

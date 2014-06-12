@@ -34,7 +34,7 @@ elif dataset == "movielens":
 elif dataset == "flixster": 
     X = DatasetUtils.flixster()
     outputFile = PathDefaults.getOutputDir() + "ranking/Exp6FlixsterResults.npz" 
-    X = X[0:1000, :]
+    X = Sampling.sampleUsers(X, 1000)
 else: 
     raise ValueError("Unknown dataset: " + dataset)
 
@@ -67,7 +67,7 @@ maxLocalAuc.alphas = 2.0**-numpy.arange(1, 5, 0.5)
 maxLocalAuc.folds = 3
 
 newM = trainX.shape[0]/2
-modelSelectX = trainX[0:newM, :]
+modelSelectX = Sampling.sampleUsers(X, newM)
 
 
 
