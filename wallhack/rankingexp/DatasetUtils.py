@@ -36,6 +36,19 @@ class DatasetUtils(object):
         U = U*s
         
         return X, U, V    
+
+    @staticmethod
+    def syntheticDataset3(): 
+        m = 5
+        n = 20
+        k = 8 
+        u = 10.0/n
+        w = 1-u
+        X, U, s, V = SparseUtils.generateSparseBinaryMatrix((m,n), k, w, csarray=True, verbose=True, indsPerRow=200)
+        logging.debug("Non zero elements: " + str(X.nnz) + " shape: " + str(X.shape))
+        U = U*s
+        
+        return X, U, V    
     
     @staticmethod
     def movieLens(): 
