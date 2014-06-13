@@ -25,12 +25,12 @@ if len(sys.argv) > 1:
 else: 
     dataset = "synthetic2"
 
-saveResults = True
+saveResults = False
 
 if dataset == "synthetic": 
     X, U, V = DatasetUtils.syntheticDataset1()
     outputFile = PathDefaults.getOutputDir() + "ranking/Exp7SyntheticResults.npz" 
-if dataset == "synthetic2": 
+elif dataset == "synthetic2": 
     X, U, V = DatasetUtils.syntheticDataset1(u=0.5)
     outputFile = PathDefaults.getOutputDir() + "ranking/Exp7Synthetic2Results.npz" 
 elif dataset == "movielens": 
