@@ -23,7 +23,7 @@ numpy.seterr(all="raise")
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "movielens"
+    dataset = "synthetic3"
 
 saveResults = True
 
@@ -31,11 +31,11 @@ if dataset == "synthetic":
     X, U, V = DatasetUtils.syntheticDataset1()
     outputFile = PathDefaults.getOutputDir() + "ranking/Exp1SyntheticResults.npz" 
 elif dataset == "synthetic2": 
-    X, U, V = DatasetUtils.syntheticDataset2()
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp1SyntheticResults.npz" 
+    X, U, V = DatasetUtils.syntheticDataset1(u=0.5)
+    outputFile = PathDefaults.getOutputDir() + "ranking/Exp1Synthetic2Results.npz" 
 elif dataset == "synthetic3": 
-    X, U, V = DatasetUtils.syntheticDataset3()
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp1SyntheticResults.npz" 
+    X, U, V = DatasetUtils.syntheticDataset1(u=0.2, sd=0.2)
+    outputFile = PathDefaults.getOutputDir() + "ranking/Exp1Synthetic3Results.npz" 
 elif dataset == "movielens": 
     X = DatasetUtils.movieLens()
     outputFile = PathDefaults.getOutputDir() + "ranking/Exp1MovieLensResults.npz" 
@@ -144,7 +144,7 @@ plt.figure(3)
 Z2 = Z[X.toarray() == 0]
 hist, edges = numpy.histogram(Z2.flatten(), bins=50, normed=True)
 xvals = (edges[0:-1]+edges[1:])/2
-plt.plot(xvals, hist, label="all")
+plt.plot(xvals, hist, label="zero")
 
 trainVals = Z[trainX.nonzero()].flatten()
 hist, e = numpy.histogram(trainVals, bins=edges, normed=True)
