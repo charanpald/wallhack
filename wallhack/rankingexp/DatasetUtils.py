@@ -12,18 +12,16 @@ class DatasetUtils(object):
     """
     
     @staticmethod
-    def syntheticDataset1(m=500, n=200, k=8, u=0.1): 
+    def syntheticDataset1(m=500, n=200, k=8, u=0.1, sd=0): 
         """
         Create a simple synthetic dataset 
         """
         w = 1-u
-        X, U, s, V = SparseUtils.generateSparseBinaryMatrix((m,n), k, w, csarray=True, verbose=True, indsPerRow=200)
+        X, U, s, V, wv = SparseUtils.generateSparseBinaryMatrix((m,n), k, w, sd=sd, csarray=True, verbose=True, indsPerRow=200)
         logging.debug("Non zero elements: " + str(X.nnz) + " shape: " + str(X.shape))
         U = U*s
         
         return X, U, V
-    
-
     
     @staticmethod
     def movieLens(): 
