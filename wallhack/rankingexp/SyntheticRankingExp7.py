@@ -23,7 +23,7 @@ os.system('taskset -p 0xffffffff %d' % os.getpid())
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "synthetic3"
+    dataset = "synthetic2"
 
 saveResults = True
 
@@ -35,7 +35,7 @@ elif dataset == "synthetic2":
     outputFile = PathDefaults.getOutputDir() + "ranking/Exp7Synthetic2Results.npz" 
 elif dataset == "synthetic3": 
     X, U, V = DatasetUtils.syntheticDataset1(u=0.2, sd=0.2)
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp7Synthetic2Results.npz" 
+    outputFile = PathDefaults.getOutputDir() + "ranking/Exp7Synthetic3Results.npz" 
 elif dataset == "movielens": 
     X = DatasetUtils.movieLens()
     outputFile = PathDefaults.getOutputDir() + "ranking/Exp7MovieLensResults.npz" 
