@@ -23,7 +23,7 @@ numpy.seterr(all="raise")
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "synthetic3"
+    dataset = "synthetic"
 
 saveResults = True
 
@@ -67,23 +67,23 @@ if dataset == "synthetic":
 
 
 #w = 1.0
-k2 = 5
+k2 = 8
 u2 = 0.5
 w2 = 1-u2
 eps = 10**-8
-lmbda = 1.0
+lmbda = 0.8
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbda=lmbda, stochastic=True)
-maxLocalAuc.maxIterations = 100
+maxLocalAuc.maxIterations = 200
 maxLocalAuc.numRowSamples = 20
 maxLocalAuc.numAucSamples = 10
 maxLocalAuc.numRecordAucSamples = 100
 maxLocalAuc.recordStep = 5
 maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 0.5
+maxLocalAuc.alpha = 1.0
 maxLocalAuc.t0 = 0.5
 maxLocalAuc.folds = 2
-maxLocalAuc.rho = 1.0
+maxLocalAuc.rho = 2.0
 maxLocalAuc.ks = numpy.array([k2])
 maxLocalAuc.validationSize = 3
 maxLocalAuc.lmbdas = numpy.linspace(0.5, 2.0, 7)
