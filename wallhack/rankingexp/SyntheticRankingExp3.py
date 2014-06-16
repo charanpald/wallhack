@@ -13,9 +13,9 @@ numpy.random.seed(21)
 numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 
 #Create a low rank matrix  
-X, U, V = DatasetUtils.syntheticDataset1()
+X, U, V = DatasetUtils.syntheticDataset1(u=0.2, sd=0.2)
 m, n = X.shape
-u = 5.0/X.shape[1]
+u = 5.0/n
 w = 1-u
 
 # Arguments related to the dataset
@@ -23,7 +23,6 @@ dataArgs = argparse.Namespace()
 
 # Arguments related to the algorithm
 defaultAlgoArgs = argparse.Namespace()
-defaultAlgoArgs.ks = numpy.array([8, 16, 32, 64])
 defaultAlgoArgs.u = 5/float(n) 
 
 # data args parser #

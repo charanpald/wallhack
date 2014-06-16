@@ -18,6 +18,8 @@ class DatasetUtils(object):
         """
         w = 1-u
         X, U, s, V, wv = SparseUtils.generateSparseBinaryMatrix((m,n), k, w, sd=sd, csarray=True, verbose=True, indsPerRow=200)
+        X.prune()
+        X = SparseUtils.pruneMatrixRows(X, minNnzRows=10)
         logging.debug("Non zero elements: " + str(X.nnz) + " shape: " + str(X.shape))
         U = U*s
         
