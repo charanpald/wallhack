@@ -82,7 +82,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.fullGradient = False
     defaultAlgoArgs.initialAlg = "rand"
     defaultAlgoArgs.lmbdaMlauc = 1.0
-    defaultAlgoArgs.lmbdasMlauc = numpy.linspace(0.5, 2.0, 7)
+    defaultAlgoArgs.lmbdasMlauc = numpy.array([0.6, 0.8, 1.0, 1.2, 1.4])
     defaultAlgoArgs.maxIterations = 200
     defaultAlgoArgs.numAucSamples = 10
     defaultAlgoArgs.numRowSamples = 20
