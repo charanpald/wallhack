@@ -1,6 +1,7 @@
 import numpy 
 import logging
 import sppy 
+import sppy.io
 import array 
 from sandbox.util.SparseUtils import SparseUtils
 from sandbox.util.PathDefaults import PathDefaults 
@@ -67,6 +68,17 @@ class DatasetUtils(object):
         X.prune()
         X = SparseUtils.pruneMatrixRows(X, minNnzRows=10)
         logging.debug("Read file: " + matrixFileName)
+        logging.debug("Non zero elements: " + str(X.nnz) + " shape: " + str(X.shape))
+        
+        return X 
+
+    @staticmethod         
+    def mendeley():
+        authorAuthorFileName = PathDefaults.getDataDir() + "reference/authorAuthorMatrix.mtx" 
+        logging.debug("Reading file: " + authorAuthorFileName)
+        X = sppy.io.mmread(authorAuthorFileName, storagetype="row")
+        (m, n) = X.shape
+        logging.debug("Read file: " + authorAuthorFileName)
         logging.debug("Non zero elements: " + str(X.nnz) + " shape: " + str(X.shape))
         
         return X 
