@@ -90,7 +90,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.recordStep = 5
     defaultAlgoArgs.sampling = "uniform"
     defaultAlgoArgs.rhoMlauc = 1.0
-    defaultAlgoArgs.rhosMlauc = 2.0**-numpy.arange(-1, 10, 2)
+    defaultAlgoArgs.rhosMlauc = numpy.array([0, 0.1, 0.5, 1.0])
     defaultAlgoArgs.t0 = 10**-3 
     defaultAlgoArgs.t0s = 2.0**-numpy.arange(-1.0, 6.0)
     
