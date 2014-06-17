@@ -4,7 +4,7 @@ import sys
 import argparse 
 import os
 import errno
-from sandbox.util.PathDefaults import PathDefaults 
+from wallhack.rankingexp.DatasetUtils import DatasetUtils 
 from wallhack.rankingexp.RankingExpHelper import RankingExpHelper
 import sppy 
 import sppy.io
@@ -28,12 +28,8 @@ if dataArgs.help:
     exit()
 
 #Load/create the dataset 
-authorAuthorFileName = PathDefaults.getDataDir() + "reference/authorAuthorMatrix.mtx" 
-logging.debug("Reading file: " + authorAuthorFileName)
-X = sppy.io.mmread(authorAuthorFileName, storagetype="row")
-(m, n) = X.shape
-logging.debug("Size of X: " + str(X.shape))
-logging.debug("Number of non zeros: " + str(X.nnz))
+X = DatasetUtils.mendeley()
+m, n = X.shape
 
 defaultAlgoArgs.u = 5/float(n) 
 
