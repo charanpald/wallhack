@@ -70,7 +70,7 @@ numRecordAucSamples = 200
 maxItems = 10
 chunkSize = 1
 us = numpy.linspace(0, 1, 10)
-rhos = numpy.linspace(0, 2, 10)
+rhos = numpy.linspace(-1, 2, 10)
 
 def computeTestAuc(args): 
     trainX, maxLocalAuc  = args 
