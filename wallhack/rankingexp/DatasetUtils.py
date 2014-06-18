@@ -6,6 +6,7 @@ import array
 from sandbox.util.SparseUtils import SparseUtils
 from sandbox.util.PathDefaults import PathDefaults 
 from sandbox.util.IdIndexer import IdIndexer 
+from sandbox.util.Sampling import Sampling 
 
 class DatasetUtils(object): 
     """
@@ -69,6 +70,8 @@ class DatasetUtils(object):
         X = SparseUtils.pruneMatrixRows(X, minNnzRows=10)
         logging.debug("Read file: " + matrixFileName)
         logging.debug("Non zero elements: " + str(X.nnz) + " shape: " + str(X.shape))
+        
+        X = Sampling.sampleUsers(X, 1000)
         
         return X 
 
