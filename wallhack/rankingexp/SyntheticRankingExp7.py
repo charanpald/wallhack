@@ -52,7 +52,7 @@ trainTestXs = Sampling.shuffleSplitRows(X, folds, testSize)
 
 u = 0.1
 w2 = 1-u 
-k = 16
+k = 64
 eps = 10**-6
 maxLocalAuc = MaxLocalAUC(k, w2, eps=eps, stochastic=True)
 maxLocalAuc.maxIterations = 100
@@ -64,7 +64,7 @@ maxLocalAuc.rate = "optimal"
 maxLocalAuc.alpha = 0.5
 maxLocalAuc.t0 = 10**-1
 maxLocalAuc.lmbda = 1
-maxLocalAuc.rho = 1.0
+maxLocalAuc.rho = 0.1
 
 numRecordAucSamples = 200
 maxItems = 10
