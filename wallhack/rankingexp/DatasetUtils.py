@@ -4,6 +4,7 @@ import sppy
 import sppy.io
 import array 
 from sandbox.util.SparseUtils import SparseUtils
+from sandbox.util.SparseUtilsCython import SparseUtilsCython
 from sandbox.util.PathDefaults import PathDefaults 
 from sandbox.util.IdIndexer import IdIndexer 
 from sandbox.util.Sampling import Sampling 
@@ -33,6 +34,8 @@ class DatasetUtils(object):
         data = numpy.loadtxt(matrixFileName)
         X = sppy.csarray((numpy.max(data[:, 0]), numpy.max(data[:, 1])), storagetype="row", dtype=numpy.int)
         X.put(numpy.array(data[:, 2]>3, numpy.int), numpy.array(data[:, 0]-1, numpy.int32), numpy.array(data[:, 1]-1, numpy.int32), init=True)
+        #X = SparseUtilsCython.centerRowsCsarray(X)   
+        #X[X.nonzero()] = X.values()>0
         X.prune()
         X = SparseUtils.pruneMatrixRows(X, minNnzRows=10)
         logging.debug("Read file: " + matrixFileName)
