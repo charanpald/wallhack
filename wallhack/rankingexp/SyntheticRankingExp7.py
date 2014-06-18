@@ -56,10 +56,10 @@ k = 16
 eps = 10**-6
 maxLocalAuc = MaxLocalAUC(k, w2, eps=eps, stochastic=True)
 maxLocalAuc.maxIterations = 100
-maxLocalAuc.numRowSamples = 10
+maxLocalAuc.numRowSamples = 30
 maxLocalAuc.numAucSamples = 10
 maxLocalAuc.initialAlg = "rand"
-maxLocalAuc.recordStep = 5
+maxLocalAuc.recordStep = 20
 maxLocalAuc.rate = "optimal"
 maxLocalAuc.alpha = 0.5
 maxLocalAuc.t0 = 10**-1
