@@ -13,6 +13,7 @@ from sandbox.util.MCEvaluator import MCEvaluator
 from sandbox.util.PathDefaults import PathDefaults
 from sandbox.util.Sampling import Sampling
 from sandbox.util.MCEvaluatorCython import MCEvaluatorCython
+from sandbox.util.SparseUtilsCython import SparseUtilsCython
 from wallhack.rankingexp.DatasetUtils import DatasetUtils
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
@@ -50,6 +51,7 @@ m,n = X.shape
 u = 0.1 
 w = 1-u
 
+print(numpy.histogram(X.sum(0)))
 
 testSize = 5
 trainTestXs = Sampling.shuffleSplitRows(X, 1, testSize)
@@ -74,13 +76,13 @@ eps = 10**-8
 lmbda = 1.0
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbda=lmbda, stochastic=True)
 maxLocalAuc.maxIterations = 200
-maxLocalAuc.numRowSamples = 50
-maxLocalAuc.numAucSamples = 10
+maxLocalAuc.numRowSamples = 30
+maxLocalAuc.numAucSamples = 5
 maxLocalAuc.numRecordAucSamples = 100
 maxLocalAuc.recordStep = 5
 maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 1.0
+maxLocalAuc.alpha = 0
 maxLocalAuc.t0 = 0.5
 maxLocalAuc.folds = 2
 maxLocalAuc.rho = 0.1
@@ -112,6 +114,13 @@ p = 10
 trainOrderedItems = MCEvaluator.recommendAtk(U, V, p)
 testOrderedItems = MCEvaluatorCython.recommendAtk(U, V, p, trainX)
 
+r = SparseUtilsCython.computeR(U, V, maxLocalAuc.w, maxLocalAuc.numRecordAucSamples)
+trainObjVec = maxLocalAuc.objectiveApprox(trainOmegaPtr, U, V, r, full=True)
+testObjVec = maxLocalAuc.objectiveApprox(testOmegaPtr, U, V, r, allArray=allOmegaPtr, full=True)
+
+print(trainObjVec)
+print(testObjVec)
+
 for p in [1, 3, 5, 10]: 
     logging.debug("Train precision@" + str(p) + "=" + str(MCEvaluator.precisionAtK(trainOmegaPtr, trainOrderedItems, p))) 
     logging.debug("Test precision@" + str(p) + "=" + str(MCEvaluator.precisionAtK(testOmegaPtr, testOrderedItems, p))) 
@@ -137,6 +146,7 @@ plt.xlabel("iteration")
 plt.ylabel("precision")
 plt.legend()
 
+
 #Look at distrubution of U and V 
 Z = U.dot(V.T)
 
@@ -156,6 +166,21 @@ hist, e = numpy.histogram(testVals, bins=edges, normed=True)
 xvals = (edges[0:-1]+edges[1:])/2
 plt.plot(xvals, hist, label="test")
 plt.legend()
+
+
+#Look at distribution of train and test objectives 
+plt.figure(4)
+hist, edges = numpy.histogram(trainObjVec, bins=50, normed=True)
+xvals = (edges[0:-1]+edges[1:])/2
+plt.plot(xvals, hist, label="train")
+
+hist, e = numpy.histogram(testObjVec, bins=edges, normed=True)
+xvals = (edges[0:-1]+edges[1:])/2
+plt.plot(xvals, hist, label="test")
+plt.legend()
+
+plt.figure(5)
+plt.scatter(trainObjVec, trainX.sum(1))
 
 #fprTrain, tprTrain = MCEvaluator.averageRocCurve(trainX, U, V)
 #fprTest, tprTest = MCEvaluator.averageRocCurve(testX, U, V)
