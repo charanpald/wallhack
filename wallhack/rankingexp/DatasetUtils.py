@@ -39,6 +39,7 @@ class DatasetUtils(object):
         #X = SparseUtilsCython.centerRowsCsarray(X)   
         #X[X.nonzero()] = X.values()>0
         X.prune()
+        X = SparseUtils.pruneMatrixCols(X, maxNnzCols=100)
         X = SparseUtils.pruneMatrixRows(X, minNnzRows=10)
         logging.debug("Read file: " + matrixFileName)
         logging.debug("Non zero elements: " + str(X.nnz) + " shape: " + str(X.shape))
