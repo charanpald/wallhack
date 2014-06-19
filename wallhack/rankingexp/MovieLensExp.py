@@ -6,6 +6,7 @@ import os
 import errno
 import sppy 
 from wallhack.rankingexp.RankingExpHelper import RankingExpHelper
+from wallhack.rankingexp.DatasetUtils import DatasetUtils
 from sandbox.util.PathDefaults import PathDefaults
 from sandbox.util.SparseUtils import SparseUtils
 
@@ -29,15 +30,7 @@ if dataArgs.help:
     exit()
 
 #Load/create the dataset 
-matrixFileName = PathDefaults.getDataDir() + "movielens/ml-100k/u.data" 
-data = numpy.loadtxt(matrixFileName)
-X = sppy.csarray((numpy.max(data[:, 0]), numpy.max(data[:, 1])), storagetype="row", dtype=numpy.int)
-X.put(numpy.array(data[:, 2]>3, numpy.int), numpy.array(data[:, 0]-1, numpy.int32), numpy.array(data[:, 1]-1, numpy.int32), init=True)
-X.prune()
-X = SparseUtils.pruneMatrixRows(X, minNnzRows=10)
-logging.debug("Read file: " + matrixFileName)
-logging.debug("Shape of data: " + str(X.shape))
-logging.debug("Number of non zeros " + str(X.nnz))
+X = DatasetUtils.movieLens()
 (m, n) = X.shape
 
 defaultAlgoArgs.u = 5/float(n) 
