@@ -69,7 +69,7 @@ if dataset == "synthetic":
 
 
 #w = 1.0
-k2 = 64
+k2 = 128
 u2 = 0.1
 w2 = 1-u2
 eps = 10**-8
@@ -85,7 +85,7 @@ maxLocalAuc.rate = "optimal"
 maxLocalAuc.alpha = 1.0
 maxLocalAuc.t0 = 0.5
 maxLocalAuc.folds = 2
-maxLocalAuc.rho = 0.1
+maxLocalAuc.rho = 0.0
 maxLocalAuc.ks = numpy.array([k2])
 maxLocalAuc.validationSize = 3
 maxLocalAuc.lmbdas = numpy.linspace(0.5, 2.0, 7)
@@ -115,8 +115,8 @@ trainOrderedItems = MCEvaluator.recommendAtk(U, V, p)
 testOrderedItems = MCEvaluatorCython.recommendAtk(U, V, p, trainX)
 
 r = SparseUtilsCython.computeR(U, V, maxLocalAuc.w, maxLocalAuc.numRecordAucSamples)
-trainObjVec = maxLocalAuc.objectiveApprox(trainOmegaPtr, U, V, r, full=True)
-testObjVec = maxLocalAuc.objectiveApprox(testOmegaPtr, U, V, r, allArray=allOmegaPtr, full=True)
+trainObjVec = maxLocalAuc.objectiveApprox(trainOmegaPtr, U, V, r, maxLocalAuc.c, full=True)
+testObjVec = maxLocalAuc.objectiveApprox(testOmegaPtr, U, V, r, maxLocalAuc.c, allArray=allOmegaPtr, full=True)
 
 print(trainObjVec)
 print(testObjVec)
