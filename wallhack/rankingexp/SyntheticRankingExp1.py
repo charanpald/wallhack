@@ -59,7 +59,7 @@ numRecordAucSamples = 200
 logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))
 
 #w = 1.0
-k2 = 32
+k2 = 16
 u2 = 5/float(n)
 w2 = 1-u2
 eps = 10**-8
@@ -75,7 +75,7 @@ maxLocalAuc.rate = "optimal"
 maxLocalAuc.alpha = 1.0
 maxLocalAuc.t0 = 0.5
 maxLocalAuc.folds = 2
-maxLocalAuc.rho = 1.0
+maxLocalAuc.rho = 0.0
 maxLocalAuc.ks = numpy.array([k2])
 maxLocalAuc.validationSize = 3
 maxLocalAuc.z = 10
@@ -145,7 +145,7 @@ Z = U.dot(V.T)
 
 plt.figure(4)
 Z2 = Z[X.toarray() == 0]
-hist, edges = numpy.histogram(Z2.flatten(), bins=50, normed=True)
+hist, edges = numpy.histogram(Z2.flatten(), bins=50, range=(-maxLocalAuc.lmbda, maxLocalAuc.lmbda) , normed=True)
 xvals = (edges[0:-1]+edges[1:])/2
 plt.plot(xvals, hist, label="zero")
 
@@ -155,6 +155,7 @@ xvals = (edges[0:-1]+edges[1:])/2
 plt.plot(xvals, hist, label="train")
 
 testVals = Z[testX.nonzero()].flatten()
+print(numpy.max(testVals))
 hist, e = numpy.histogram(testVals, bins=edges, normed=True)
 xvals = (edges[0:-1]+edges[1:])/2
 plt.plot(xvals, hist, label="test")
@@ -178,7 +179,7 @@ plt.scatter(trainObjVec, trainX.sum(1))
 #fprTrain, tprTrain = MCEvaluator.averageRocCurve(trainX, U, V)
 #fprTest, tprTest = MCEvaluator.averageRocCurve(testX, U, V)
 #
-#plt.figure(4)
+#plt.figure(7)
 #plt.plot(fprTrain, tprTrain, label="train")
 #plt.plot(fprTest, tprTest, label="test")
 #plt.xlabel("mean false positive rate")
