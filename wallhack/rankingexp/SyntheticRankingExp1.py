@@ -29,12 +29,6 @@ else:
 saveResults = True
 
 if dataset == "synthetic": 
-    X, U, V = DatasetUtils.syntheticDataset1()
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp1SyntheticResults.npz" 
-elif dataset == "synthetic2": 
-    X, U, V = DatasetUtils.syntheticDataset1(u=0.5)
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp1Synthetic2Results.npz" 
-elif dataset == "synthetic3": 
     X, U, V = DatasetUtils.syntheticDataset1(u=0.2, sd=0.2)
     outputFile = PathDefaults.getOutputDir() + "ranking/Exp1Synthetic3Results.npz" 
 elif dataset == "movielens": 
@@ -47,7 +41,7 @@ elif dataset == "flixster":
 else: 
     raise ValueError("Unknown dataset: " + dataset)
 
-m,n = X.shape
+m, n = X.shape
 u = 0.1 
 w = 1-u
 
@@ -63,10 +57,6 @@ allOmegaPtr = SparseUtils.getOmegaListPtr(X)
 numRecordAucSamples = 200
 
 logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))
-if dataset == "synthetic": 
-    logging.debug("Train local AUC:" + str(MCEvaluator.localAUCApprox(trainOmegaPtr, U, V, w, numRecordAucSamples, allArray=allOmegaPtr)))
-    logging.debug("Test local AUC:" + str(MCEvaluator.localAUCApprox(testOmegaPtr, U, V, w, numRecordAucSamples, allArray=allOmegaPtr)))
-
 
 #w = 1.0
 k2 = 32
@@ -82,7 +72,7 @@ maxLocalAuc.numRecordAucSamples = 100
 maxLocalAuc.recordStep = 10
 maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 2.0
+maxLocalAuc.alpha = 1.0
 maxLocalAuc.t0 = 0.5
 maxLocalAuc.folds = 2
 maxLocalAuc.rho = 1.0
