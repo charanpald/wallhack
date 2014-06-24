@@ -15,6 +15,7 @@ from sandbox.util.Sampling import Sampling
 from sandbox.util.MCEvaluatorCython import MCEvaluatorCython
 from sandbox.util.SparseUtilsCython import SparseUtilsCython
 from wallhack.rankingexp.DatasetUtils import DatasetUtils
+from collections import Counter
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.random.seed(21)        
@@ -63,7 +64,7 @@ k2 = 16
 u2 = 5/float(n)
 w2 = 1-u2
 eps = 10**-8
-lmbda = 1.0
+lmbda = 2.0
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbda=lmbda, stochastic=True)
 maxLocalAuc.maxIterations = 100
 maxLocalAuc.numRowSamples = 30
@@ -75,7 +76,7 @@ maxLocalAuc.rate = "optimal"
 maxLocalAuc.alpha = 1.0
 maxLocalAuc.t0 = 0.5
 maxLocalAuc.folds = 2
-maxLocalAuc.rho = 0.0
+maxLocalAuc.rho = 1.0
 maxLocalAuc.ks = numpy.array([k2])
 maxLocalAuc.validationSize = 3
 maxLocalAuc.z = 10
@@ -176,6 +177,15 @@ plt.legend()
 plt.figure(6)
 plt.scatter(trainObjVec, trainX.sum(1))
 
+#See precisions 
+precisions, orderedItems = MCEvaluator.precisionAtK(testOmegaPtr, testOrderedItems, 5, verbose=True)
+uniqp, inverse = numpy.unique(precisions, return_inverse=True)
+print(uniqp, numpy.bincount(inverse))
+
+recalls, orderedItems = MCEvaluator.recallAtK(testOmegaPtr, testOrderedItems, 5, verbose=True)
+uniqp, inverse = numpy.unique(recalls, return_inverse=True)
+print(uniqp, numpy.bincount(inverse))
+
 #fprTrain, tprTrain = MCEvaluator.averageRocCurve(trainX, U, V)
 #fprTest, tprTest = MCEvaluator.averageRocCurve(testX, U, V)
 #
@@ -186,4 +196,3 @@ plt.scatter(trainObjVec, trainX.sum(1))
 #plt.ylabel("mean true positive rate")
 #plt.legend()
 plt.show()
-

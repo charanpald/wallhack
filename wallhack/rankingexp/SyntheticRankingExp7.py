@@ -55,7 +55,7 @@ w2 = 1-u
 k = 64
 eps = 10**-6
 maxLocalAuc = MaxLocalAUC(k, w2, eps=eps, stochastic=True)
-maxLocalAuc.maxIterations = 100
+maxLocalAuc.maxIterations = 10
 maxLocalAuc.numRowSamples = 30
 maxLocalAuc.numAucSamples = 10
 maxLocalAuc.initialAlg = "rand"
@@ -75,8 +75,8 @@ rhos = numpy.linspace(-1, 2, 10)
 def computeTestAuc(args): 
     trainX, maxLocalAuc  = args 
     numpy.random.seed(21)
-    U, V, trainObjs, trainAucs, testObjs, testAucs, precisions, iterations, totalTime = maxLocalAuc.learnModel(trainX, verbose=True)
-    return U, V, trainAucs[-1], testAucs[-1]
+    U, V, trainMeasures, testMeasures, iterations, totalTime = maxLocalAuc.learnModel(trainX, verbose=True)
+    return U, V, trainMeasures[-1, 1], testMeasures[-1, 1]
 
 if saveResults: 
     trainLocalAucs = numpy.zeros((us.shape[0], rhos.shape[0]))
