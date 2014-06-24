@@ -84,6 +84,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.lmbdaMlauc = 1.0
     defaultAlgoArgs.lmbdasMlauc = numpy.array([0.6, 0.8, 1.0, 1.2, 1.4])
     defaultAlgoArgs.maxIterations = 200
+    defaultAlgoArgs.metric = "f1"
     defaultAlgoArgs.numAucSamples = 10
     defaultAlgoArgs.numRowSamples = 30
     defaultAlgoArgs.rate = "optimal"
@@ -361,7 +362,7 @@ class RankingExpHelper(object):
                     learner.validationSize = self.algoArgs.validationSize
                     learner.alphas = self.algoArgs.alphas
                     learner.t0s = self.algoArgs.t0s
-                    learner.metric = "precision"
+                    learner.metric = self.algoArgs.metric 
                     learner.sampling = self.algoArgs.sampling 
                     learner.z = self.algoArgs.z
 

@@ -82,10 +82,10 @@ maxLocalAuc.validationSize = 3
 maxLocalAuc.z = 10
 maxLocalAuc.lmbdas = numpy.linspace(0.5, 2.0, 7)
 maxLocalAuc.normalise = True
-#maxLocalAuc.numProcesses = 1
+maxLocalAuc.numProcesses = 1
 maxLocalAuc.alphas = 2.0**-numpy.arange(0, 5, 1)
 maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
-maxLocalAuc.metric = "precision"
+maxLocalAuc.metric = "f1"
 maxLocalAuc.sampling = "uniform"
 
 os.system('taskset -p 0xffffffff %d' % os.getpid())
@@ -95,7 +95,7 @@ logging.debug(maxLocalAuc)
 
 #modelSelectX = trainX[0:100, :]
 #maxLocalAuc.learningRateSelect(trainX)
-#maxLocalAuc.modelSelect(trainX)
+maxLocalAuc.modelSelect(trainX)
 #ProfileUtils.profile('U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=testX, verbose=True)', globals(), locals())
 
 U, V, trainMeasures, testMeasures, iterations, time = maxLocalAuc.learnModel(trainX, verbose=True)
