@@ -24,7 +24,7 @@ numpy.seterr(all="raise")
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "movielens"
+    dataset = "synthetic"
 
 saveResults = True
 
@@ -51,9 +51,9 @@ m,n = X.shape
 u = 0.1 
 w = 1-u
 
-print(numpy.histogram(X.sum(0)))
+logging.debug(numpy.histogram(X.sum(0)))
 
-testSize = 5
+testSize = 3
 trainTestXs = Sampling.shuffleSplitRows(X, 1, testSize)
 trainX, testX = trainTestXs[0]
 
@@ -69,25 +69,26 @@ if dataset == "synthetic":
 
 
 #w = 1.0
-k2 = 128
-u2 = 0.1
+k2 = 32
+u2 = 5/float(n)
 w2 = 1-u2
 eps = 10**-8
 lmbda = 1.0
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbda=lmbda, stochastic=True)
-maxLocalAuc.maxIterations = 200
+maxLocalAuc.maxIterations = 100
 maxLocalAuc.numRowSamples = 30
-maxLocalAuc.numAucSamples = 5
+maxLocalAuc.numAucSamples = 10
 maxLocalAuc.numRecordAucSamples = 100
-maxLocalAuc.recordStep = 5
+maxLocalAuc.recordStep = 10
 maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 1.0
+maxLocalAuc.alpha = 2.0
 maxLocalAuc.t0 = 0.5
 maxLocalAuc.folds = 2
-maxLocalAuc.rho = 0.0
+maxLocalAuc.rho = 1.0
 maxLocalAuc.ks = numpy.array([k2])
 maxLocalAuc.validationSize = 3
+maxLocalAuc.z = 10
 maxLocalAuc.lmbdas = numpy.linspace(0.5, 2.0, 7)
 maxLocalAuc.normalise = True
 #maxLocalAuc.numProcesses = 1
@@ -95,7 +96,6 @@ maxLocalAuc.alphas = 2.0**-numpy.arange(0, 5, 1)
 maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
 maxLocalAuc.metric = "precision"
 maxLocalAuc.sampling = "uniform"
-#maxLocalAuc.numProcesses = 1
 
 os.system('taskset -p 0xffffffff %d' % os.getpid())
 
@@ -107,7 +107,7 @@ logging.debug(maxLocalAuc)
 #maxLocalAuc.modelSelect(trainX)
 #ProfileUtils.profile('U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=testX, verbose=True)', globals(), locals())
 
-U, V, trainObjs, trainAucs, testObjs, testAucs, precisions, iterations, time = maxLocalAuc.learnModel(trainX, verbose=True)
+U, V, trainMeasures, testMeasures, iterations, time = maxLocalAuc.learnModel(trainX, verbose=True)
 
 p = 10
 
@@ -118,39 +118,42 @@ r = SparseUtilsCython.computeR(U, V, maxLocalAuc.w, maxLocalAuc.numRecordAucSamp
 trainObjVec = maxLocalAuc.objectiveApprox(trainOmegaPtr, U, V, r, maxLocalAuc.c, full=True)
 testObjVec = maxLocalAuc.objectiveApprox(testOmegaPtr, U, V, r, maxLocalAuc.c, allArray=allOmegaPtr, full=True)
 
-print(trainObjVec)
-print(testObjVec)
 
 for p in [1, 3, 5, 10]: 
     logging.debug("Train precision@" + str(p) + "=" + str(MCEvaluator.precisionAtK(trainOmegaPtr, trainOrderedItems, p))) 
     logging.debug("Test precision@" + str(p) + "=" + str(MCEvaluator.precisionAtK(testOmegaPtr, testOrderedItems, p))) 
 
 plt.figure(0)
-plt.plot(trainObjs, label="train")
-plt.plot(testObjs, label="test") 
+plt.plot(trainMeasures[:, 0], label="train")
+plt.plot(testMeasures[:, 0], label="test") 
 plt.xlabel("iteration")
 plt.ylabel("objective")
 plt.legend()
 
 
 plt.figure(1)
-plt.plot(trainAucs, label="train")
-plt.plot(testAucs, label="test")
+plt.plot(trainMeasures[:, 1], label="train")
+plt.plot(testMeasures[:, 1], label="test")
 plt.xlabel("iteration")
 plt.ylabel("local AUC")
 plt.legend()
 
 plt.figure(2)
-plt.plot(precisions)
+plt.plot(testMeasures[:, 2])
 plt.xlabel("iteration")
 plt.ylabel("precision")
 plt.legend()
 
+plt.figure(3)
+plt.plot(testMeasures[:, 3])
+plt.xlabel("iteration")
+plt.ylabel("mrr")
+plt.legend()
 
 #Look at distrubution of U and V 
 Z = U.dot(V.T)
 
-plt.figure(3)
+plt.figure(4)
 Z2 = Z[X.toarray() == 0]
 hist, edges = numpy.histogram(Z2.flatten(), bins=50, normed=True)
 xvals = (edges[0:-1]+edges[1:])/2
@@ -169,7 +172,7 @@ plt.legend()
 
 
 #Look at distribution of train and test objectives 
-plt.figure(4)
+plt.figure(5)
 hist, edges = numpy.histogram(trainObjVec, bins=50, normed=True)
 xvals = (edges[0:-1]+edges[1:])/2
 plt.plot(xvals, hist, label="train")
@@ -179,7 +182,7 @@ xvals = (edges[0:-1]+edges[1:])/2
 plt.plot(xvals, hist, label="test")
 plt.legend()
 
-plt.figure(5)
+plt.figure(6)
 plt.scatter(trainObjVec, trainX.sum(1))
 
 #fprTrain, tprTrain = MCEvaluator.averageRocCurve(trainX, U, V)

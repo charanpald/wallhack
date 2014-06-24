@@ -93,6 +93,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.rhosMlauc = numpy.array([0, 0.1, 0.5, 1.0])
     defaultAlgoArgs.t0 = 10**-3 
     defaultAlgoArgs.t0s = 2.0**-numpy.arange(-1.0, 6.0)
+    defaultAlgoArgs.z = 10
     
     #Parameters for SoftImpute 
     defaultAlgoArgs.epsSi = 10**-14
@@ -362,6 +363,7 @@ class RankingExpHelper(object):
                     learner.t0s = self.algoArgs.t0s
                     learner.metric = "precision"
                     learner.sampling = self.algoArgs.sampling 
+                    learner.z = self.algoArgs.z
 
                     if self.algoArgs.learningRateSelect:
                         logging.debug("Performing learning rate selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
