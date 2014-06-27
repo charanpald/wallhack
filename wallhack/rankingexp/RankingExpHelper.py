@@ -107,7 +107,7 @@ class RankingExpHelper(object):
     #Parameters for WrMf 
     defaultAlgoArgs.alphaWrMf = 1
     defaultAlgoArgs.lmbdasWrMf = 2.0**-numpy.arange(1, 12, 2)
-    defaultAlgoArgs.numIterationsWrMf = 20     
+    defaultAlgoArgs.maxIterationsWrMf = 20     
         
     def __init__(self, cmdLine=None, defaultAlgoArgs = None, dirName=""):
         """ priority for default args
@@ -447,7 +447,7 @@ class RankingExpHelper(object):
                     trainX = trainX.toScipyCsr()
                     testX = testX.toScipyCsr()
 
-                    learner = WeightedMf(self.algoArgs.k, alpha=self.algoArgs.alphaWrMf, lmbda=self.algoArgs.lmbdasWrMf[0], numIterations=self.algoArgs.numIterationsWrMf, w=1-self.algoArgs.u)
+                    learner = WeightedMf(self.algoArgs.k, alpha=self.algoArgs.alphaWrMf, lmbda=self.algoArgs.lmbdasWrMf[0], maxIterations=self.algoArgs.maxIterationsWrMf, w=1-self.algoArgs.u)
                     learner.ks = self.algoArgs.ks
                     learner.lmbdas = self.algoArgs.lmbdasWrMf 
                     learner.numProcesses = self.algoArgs.processes
