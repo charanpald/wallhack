@@ -58,7 +58,7 @@ maxLocalAuc.rate = "optimal"
 maxLocalAuc.alpha = 1.0
 maxLocalAuc.t0 = 0.5
 maxLocalAuc.lmbda = 1
-maxLocalAuc.rho = 0.0
+maxLocalAuc.rho = 0.1
 
 numRecordAucSamples = 200
 maxItems = 10
