@@ -81,7 +81,7 @@ if saveResults:
     testPrecisions = numpy.zeros((us.shape[0], itemExps.shape[0]))
     testRecalls = numpy.zeros((us.shape[0], itemExps.shape[0]))
     
-    maxLocalAuc.learningRateSelect(X)    
+    #maxLocalAuc.learningRateSelect(X)    
     
     for trainX, testX in trainTestXs: 
         trainOmegaPtr = SparseUtils.getOmegaListPtr(trainX)
