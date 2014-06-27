@@ -45,6 +45,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.k = 32 
     defaultAlgoArgs.ks = 2**numpy.arange(3, 8)
     defaultAlgoArgs.learningRateSelect = False
+    defaultAlgoArgs.metric = "f1"
     defaultAlgoArgs.modelSelect = False
     defaultAlgoArgs.modelSelectSamples = 1000
     defaultAlgoArgs.numRecordAucSamples = 500
@@ -84,7 +85,6 @@ class RankingExpHelper(object):
     defaultAlgoArgs.lmbdaMlauc = 1.0
     defaultAlgoArgs.lmbdasMlauc = numpy.array([0.6, 0.8, 1.0, 1.2, 1.4])
     defaultAlgoArgs.maxIterations = 200
-    defaultAlgoArgs.metric = "f1"
     defaultAlgoArgs.numAucSamples = 10
     defaultAlgoArgs.numRowSamples = 30
     defaultAlgoArgs.rate = "optimal"
@@ -312,7 +312,7 @@ class RankingExpHelper(object):
                     learner = IterativeSoftImpute(self.algoArgs.rhoSi, eps=self.algoArgs.epsSi, k=self.algoArgs.k, svdAlg=self.algoArgs.svdAlg, postProcess=self.algoArgs.postProcess)
                     learner.numProcesses = self.algoArgs.processes
                     learner.folds = self.algoArgs.folds
-                    learner.metric = "precision"
+                    learner.metric = self.algoArgs.metric
                     learner.validationSize = self.algoArgs.validationSize
                     
                     if self.algoArgs.modelSelect: 
@@ -447,13 +447,14 @@ class RankingExpHelper(object):
                     trainX = trainX.toScipyCsr()
                     testX = testX.toScipyCsr()
 
-                    learner = WeightedMf(self.algoArgs.k, alpha=self.algoArgs.alphaWrMf, lmbda=self.algoArgs.lmbdasWrMf[0], maxIterations=self.algoArgs.maxIterationsWrMf, w=1-self.algoArgs.u)
+                    learner = WeightedMf(self.algoArgs.k, alpha=self.algoArgs.alphaWrMf, lmbda=self.algoArgs.lmbdasWrMf[0], maxIterations=self.algoArgs.maxIterationsWrMf)
                     learner.ks = self.algoArgs.ks
                     learner.lmbdas = self.algoArgs.lmbdasWrMf 
                     learner.numProcesses = self.algoArgs.processes
                     learner.validationSize = self.algoArgs.validationSize
                     learner.folds = self.algoArgs.folds
                     learner.numRecordAucSamples = self.algoArgs.numRecordAucSamples
+                    learner.metric = self.algoArgs.metric 
                     
                     if self.algoArgs.modelSelect: 
                         logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
@@ -486,7 +487,7 @@ class RankingExpHelper(object):
                     trainX = trainX.toScipyCsr()
                     testX = testX.toScipyCsr()
 
-                    learner = BprRecommender(self.algoArgs.k, lmbdaUser=self.algoArgs.lmbdaUser, lmbdaPos=self.algoArgs.lmbdaPos, lmbdaNeg=self.algoArgs.lmbdaNeg, gamma=self.algoArgs.gammaBpr, w=1-self.algoArgs.u)
+                    learner = BprRecommender(self.algoArgs.k, lmbdaUser=self.algoArgs.lmbdaUser, lmbdaPos=self.algoArgs.lmbdaPos, lmbdaNeg=self.algoArgs.lmbdaNeg, gamma=self.algoArgs.gammaBpr)
                     learner.ks = self.algoArgs.ks
                     learner.numProcesses = self.algoArgs.processes
                     learner.validationSize = self.algoArgs.validationSize
@@ -494,6 +495,7 @@ class RankingExpHelper(object):
                     learner.lmbdaUsers = self.algoArgs.lmbdaUsers
                     learner.lmbdaItems = self.algoArgs.lmbdaItems
                     learner.gammasBpr = self.algoArgs.gammasBpr
+                    learner.metric = self.algoArgs.metric 
                     learner.maxIterations = self.algoArgs.maxIterationsBpr
                     
                     if self.algoArgs.modelSelect: 
@@ -560,11 +562,11 @@ class RankingExpHelper(object):
                     learner.gammas = self.algoArgs.gammasCLiMF
                     learner.lmbdas = self.algoArgs.lmbdasCLiMF
                     learner.numRecordAucSamples = self.algoArgs.numRecordAucSamples
-                    learner.w = 1-self.algoArgs.u
                     learner.folds = self.algoArgs.folds  
                     learner.validationSize = self.algoArgs.validationSize
                     learner.numProcesses = self.algoArgs.processes 
                     learner.verbose = self.algoArgs.verbose
+                    learner.metric = self.algoArgs.metric 
 
                     if self.algoArgs.modelSelect: 
                         logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
