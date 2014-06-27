@@ -23,9 +23,9 @@ os.system('taskset -p 0xffffffff %d' % os.getpid())
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "synthetic"
+    dataset = "movielens"
 
-saveResults = True
+saveResults = False
 
 if dataset == "synthetic": 
     X, U, V = DatasetUtils.syntheticDataset1()
@@ -133,19 +133,19 @@ else:
    
     plt.figure(0)
     plt.contourf(itemExps, us, testLocalAucs)
-    plt.xlabel("rho")
+    plt.xlabel("itemExp")
     plt.ylabel("u")
     plt.colorbar()
     
     plt.figure(1)
     plt.contourf(itemExps, us, testPrecisions)
-    plt.xlabel("rho")
+    plt.xlabel("itemExp")
     plt.ylabel("u")
     plt.colorbar()
     
     plt.figure(2)    
     plt.contourf(itemExps, us, testRecalls)
-    plt.xlabel("rho")
+    plt.xlabel("itemExp")
     plt.ylabel("u")
     plt.colorbar()   
    
@@ -154,3 +154,5 @@ else:
 print(testLocalAucs)
 print(testPrecisions)
 print(testRecalls)
+
+#When rho=0 get slight improvement when itemExp = 0.3 
