@@ -105,7 +105,7 @@ if saveResults:
         resultsIterator = pool.imap(computeTestAuc, paramList, chunkSize)
         
         for i, u in enumerate(us): 
-            for j, itemExp in enumerate(itemExp): 
+            for j, itemExp in enumerate(itemExps): 
                 U, V, trainAuc, testAuc = resultsIterator.next()
                 trainLocalAucs[i, j] += trainAuc
                 trainOrderedItems = MCEvaluator.recommendAtk(U, V, maxItems)    
