@@ -31,7 +31,7 @@ class DatasetUtils(object):
         return X, U, V
     
     @staticmethod
-    def movieLens(): 
+    def movieLens(minNnzRows=10): 
         matrixFileName = PathDefaults.getDataDir() + "movielens/ml-100k/u.data" 
         data = numpy.loadtxt(matrixFileName)
         X = sppy.csarray((numpy.max(data[:, 0]), numpy.max(data[:, 1])), storagetype="row", dtype=numpy.int)
@@ -40,7 +40,7 @@ class DatasetUtils(object):
         #X[X.nonzero()] = X.values()>0
         X.prune()
         #X = SparseUtils.pruneMatrixCols(X, maxNnzCols=100)
-        X = SparseUtils.pruneMatrixRows(X, minNnzRows=10)
+        X = SparseUtils.pruneMatrixRows(X, minNnzRows=minNnzRows)
         logging.debug("Read file: " + matrixFileName)
         logging.debug("Non zero elements: " + str(X.nnz) + " shape: " + str(X.shape))
 

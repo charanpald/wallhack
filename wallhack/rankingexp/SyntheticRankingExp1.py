@@ -25,7 +25,7 @@ numpy.seterr(all="raise")
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "synthetic"
+    dataset = "movielens"
 
 saveResults = True
 
@@ -33,7 +33,7 @@ if dataset == "synthetic":
     X, U, V = DatasetUtils.syntheticDataset1(u=0.2, sd=0.2)
     outputFile = PathDefaults.getOutputDir() + "ranking/Exp1Synthetic3Results.npz" 
 elif dataset == "movielens": 
-    X = DatasetUtils.movieLens()
+    X = DatasetUtils.movieLens(minNnzRows=20)
     outputFile = PathDefaults.getOutputDir() + "ranking/Exp1MovieLensResults.npz" 
 elif dataset == "flixster": 
     X = DatasetUtils.flixster()
@@ -48,7 +48,7 @@ w = 1-u
 
 logging.debug(numpy.histogram(X.sum(0)))
 
-testSize = 3
+testSize = 5
 trainTestXs = Sampling.shuffleSplitRows(X, 1, testSize)
 trainX, testX = trainTestXs[0]
 
@@ -60,11 +60,11 @@ numRecordAucSamples = 200
 logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))
 
 #w = 1.0
-k2 = 16
+k2 = 128
 u2 = 5/float(n)
 w2 = 1-u2
 eps = 10**-8
-lmbda = 2.0
+lmbda = 1.0
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbda=lmbda, stochastic=True)
 maxLocalAuc.maxIterations = 100
 maxLocalAuc.numRowSamples = 30
@@ -73,10 +73,10 @@ maxLocalAuc.numRecordAucSamples = 100
 maxLocalAuc.recordStep = 10
 maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 1.0
+maxLocalAuc.alpha = 4.0
 maxLocalAuc.t0 = 0.5
 maxLocalAuc.folds = 2
-maxLocalAuc.rho = 1.0
+maxLocalAuc.rho = 0.0
 maxLocalAuc.ks = numpy.array([k2])
 maxLocalAuc.validationSize = 3
 maxLocalAuc.z = 10
@@ -87,6 +87,7 @@ maxLocalAuc.alphas = 2.0**-numpy.arange(0, 5, 1)
 maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
 maxLocalAuc.metric = "f1"
 maxLocalAuc.sampling = "uniform"
+maxLocalAuc.itemExp = 0
 
 os.system('taskset -p 0xffffffff %d' % os.getpid())
 
@@ -95,7 +96,7 @@ logging.debug(maxLocalAuc)
 
 #modelSelectX = trainX[0:100, :]
 #maxLocalAuc.learningRateSelect(trainX)
-maxLocalAuc.modelSelect(trainX)
+#maxLocalAuc.modelSelect(trainX)
 #ProfileUtils.profile('U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=testX, verbose=True)', globals(), locals())
 
 U, V, trainMeasures, testMeasures, iterations, time = maxLocalAuc.learnModel(trainX, verbose=True)
@@ -178,13 +179,14 @@ plt.figure(6)
 plt.scatter(trainObjVec, trainX.sum(1))
 
 #See precisions 
-precisions, orderedItems = MCEvaluator.precisionAtK(testOmegaPtr, testOrderedItems, 5, verbose=True)
-uniqp, inverse = numpy.unique(precisions, return_inverse=True)
+f1s, orderedItems = MCEvaluator.f1AtK(testOmegaPtr, testOrderedItems, maxLocalAuc.recommendSize, verbose=True)
+uniqp, inverse = numpy.unique(f1s, return_inverse=True)
 print(uniqp, numpy.bincount(inverse))
 
-recalls, orderedItems = MCEvaluator.recallAtK(testOmegaPtr, testOrderedItems, 5, verbose=True)
-uniqp, inverse = numpy.unique(recalls, return_inverse=True)
-print(uniqp, numpy.bincount(inverse))
+numItems = trainX.sum(1)
+print(numpy.corrcoef(numItems, f1s))
+print(numpy.corrcoef(trainObjVec, f1s))
+print(numpy.corrcoef(testObjVec, f1s))
 
 #fprTrain, tprTrain = MCEvaluator.averageRocCurve(trainX, U, V)
 #fprTest, tprTest = MCEvaluator.averageRocCurve(testX, U, V)
