@@ -15,7 +15,6 @@ from sandbox.util.Sampling import Sampling
 from sandbox.util.MCEvaluatorCython import MCEvaluatorCython
 from sandbox.util.SparseUtilsCython import SparseUtilsCython
 from wallhack.rankingexp.DatasetUtils import DatasetUtils
-from collections import Counter
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.random.seed(21)        
@@ -64,7 +63,7 @@ k2 = 128
 u2 = 5/float(n)
 w2 = 1-u2
 eps = 10**-8
-lmbda = 1.0
+lmbda = 0.9
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbda=lmbda, stochastic=True)
 maxLocalAuc.maxIterations = 100
 maxLocalAuc.numRowSamples = 30
