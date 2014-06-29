@@ -74,9 +74,11 @@ class DatasetUtils(object):
         X = sppy.csarray((len(userIndexer.getIdDict()), len(movieIndexer.getIdDict())), storagetype="row", dtype=numpy.int)
         X.put(numpy.array(ratings>3, numpy.int), numpy.array(rowInds, numpy.int32), numpy.array(colInds, numpy.int32), init=True)
         X.prune()
+        
         maxNnz = numpy.percentile(X.sum(0), 90)
         X = SparseUtils.pruneMatrixCols(X, minNnz=10, maxNnz=maxNnz)
         X = SparseUtils.pruneMatrixRows(X, minNnzRows=10)
+        
         logging.debug("Read file: " + matrixFileName)
         logging.debug("Non zero elements: " + str(X.nnz) + " shape: " + str(X.shape))
         
@@ -89,7 +91,11 @@ class DatasetUtils(object):
         authorAuthorFileName = PathDefaults.getDataDir() + "reference/authorAuthorMatrix.mtx" 
         logging.debug("Reading file: " + authorAuthorFileName)
         X = sppy.io.mmread(authorAuthorFileName, storagetype="row")
-        (m, n) = X.shape
+        
+        maxNnz = numpy.percentile(X.sum(0), 90)
+        X = SparseUtils.pruneMatrixCols(X, minNnz=10, maxNnz=maxNnz)
+        X = SparseUtils.pruneMatrixRows(X, minNnzRows=10)        
+        
         logging.debug("Read file: " + authorAuthorFileName)
         logging.debug("Non zero elements: " + str(X.nnz) + " shape: " + str(X.shape))
         
