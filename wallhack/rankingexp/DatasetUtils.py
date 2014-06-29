@@ -31,7 +31,7 @@ class DatasetUtils(object):
         return X, U, V
     
     @staticmethod
-    def movieLens(minNnzRows=10): 
+    def movieLens(minNnzRows=10, minNnzCols=10, quantile=90): 
         matrixFileName = PathDefaults.getDataDir() + "movielens/ml-100k/u.data" 
         data = numpy.loadtxt(matrixFileName)
         X = sppy.csarray((numpy.max(data[:, 0]), numpy.max(data[:, 1])), storagetype="row", dtype=numpy.int)
@@ -39,8 +39,8 @@ class DatasetUtils(object):
         #X = SparseUtilsCython.centerRowsCsarray(X)   
         #X[X.nonzero()] = X.values()>0
         X.prune()
-        maxNnz = numpy.percentile(X.sum(0), 90)
-        X = SparseUtils.pruneMatrixCols(X, minNnz=10, maxNnz=maxNnz)
+        maxNnz = numpy.percentile(X.sum(0), quantile)
+        X = SparseUtils.pruneMatrixCols(X, minNnz=minNnzCols, maxNnz=maxNnz)
         X = SparseUtils.pruneMatrixRows(X, minNnzRows=minNnzRows)
         logging.debug("Read file: " + matrixFileName)
         logging.debug("Non zero elements: " + str(X.nnz) + " shape: " + str(X.shape))
@@ -48,7 +48,7 @@ class DatasetUtils(object):
         return X
         
     @staticmethod 
-    def flixster(): 
+    def flixster(minNnzRows=10, minNnzCols=10, quantile=90): 
         matrixFileName = PathDefaults.getDataDir() + "flixster/Ratings.timed.txt" 
         matrixFile = open(matrixFileName)
         matrixFile.readline()
@@ -75,26 +75,26 @@ class DatasetUtils(object):
         X.put(numpy.array(ratings>3, numpy.int), numpy.array(rowInds, numpy.int32), numpy.array(colInds, numpy.int32), init=True)
         X.prune()
         
-        maxNnz = numpy.percentile(X.sum(0), 90)
-        X = SparseUtils.pruneMatrixCols(X, minNnz=10, maxNnz=maxNnz)
-        X = SparseUtils.pruneMatrixRows(X, minNnzRows=10)
+        maxNnz = numpy.percentile(X.sum(0), quantile)
+        X = SparseUtils.pruneMatrixCols(X, minNnz=minNnzCols, maxNnz=maxNnz)
+        X = SparseUtils.pruneMatrixRows(X, minNnzRows=minNnzRows)
         
         logging.debug("Read file: " + matrixFileName)
         logging.debug("Non zero elements: " + str(X.nnz) + " shape: " + str(X.shape))
         
-        X = Sampling.sampleUsers(X, 1000)
+        #X = Sampling.sampleUsers(X, 1000)
         
         return X 
 
     @staticmethod         
-    def mendeley():
+    def mendeley(minNnzRows=10, minNnzCols=10, quantile=90):
         authorAuthorFileName = PathDefaults.getDataDir() + "reference/authorAuthorMatrix.mtx" 
         logging.debug("Reading file: " + authorAuthorFileName)
         X = sppy.io.mmread(authorAuthorFileName, storagetype="row")
         
-        maxNnz = numpy.percentile(X.sum(0), 90)
-        X = SparseUtils.pruneMatrixCols(X, minNnz=10, maxNnz=maxNnz)
-        X = SparseUtils.pruneMatrixRows(X, minNnzRows=10)        
+        maxNnz = numpy.percentile(X.sum(0), quantile)
+        X = SparseUtils.pruneMatrixCols(X, minNnz=minNnzCols, maxNnz=maxNnz)
+        X = SparseUtils.pruneMatrixRows(X, minNnzRows=minNnzRows)     
         
         logging.debug("Read file: " + authorAuthorFileName)
         logging.debug("Non zero elements: " + str(X.nnz) + " shape: " + str(X.shape))
