@@ -11,24 +11,28 @@ Do some basic analysis on the recommendation datasets.
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
+#X, U, V = DatasetUtils.syntheticDataset1()
+X = DatasetUtils.syntheticDataset2()
 #X = DatasetUtils.movieLens(quantile=100)
-#X = DatasetUtils.mendeley(quantile=100)
-X = DatasetUtils.flixster(quantile=100)
+#X = DatasetUtils.mendeley(quantile=50)
+#X = DatasetUtils.flixster(quantile=100)
 print(X.shape)
 
 userCounts = X.sum(1)
 itemCounts = X.sum(0)
 
-p = numpy.percentile(itemCounts, 90)
+u = 5 
+p = numpy.percentile(itemCounts, 100-u)
 
 popItems = itemCounts > p
 unpopItems = itemCounts <= p
 
+print(popItems.sum(), unpopItems.sum())
 print(itemCounts[popItems].sum())
 print(itemCounts[unpopItems].sum())
 
 plt.figure(0)
-plt.hist(itemCounts)
+plt.hist(itemCounts, bins=20)
 plt.xlabel("num users")
 plt.ylabel("frequency")
 
