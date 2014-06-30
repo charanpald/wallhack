@@ -91,12 +91,15 @@ class DatasetUtils(object):
         authorAuthorFileName = PathDefaults.getDataDir() + "reference/authorAuthorMatrix.mtx" 
         logging.debug("Reading file: " + authorAuthorFileName)
         X = sppy.io.mmread(authorAuthorFileName, storagetype="row")
+        X[X.nonzero()] = 1
+        X.prune()
+        logging.debug("Raw non-zero elements: " + str(X.nnz) + " shape: " + str(X.shape))
         
         maxNnz = numpy.percentile(X.sum(0), quantile)
         X = SparseUtils.pruneMatrixCols(X, minNnz=minNnzCols, maxNnz=maxNnz)
         X = SparseUtils.pruneMatrixRows(X, minNnzRows=minNnzRows)     
         
         logging.debug("Read file: " + authorAuthorFileName)
-        logging.debug("Non zero elements: " + str(X.nnz) + " shape: " + str(X.shape))
+        logging.debug("Non-zero elements: " + str(X.nnz) + " shape: " + str(X.shape))
         
         return X 

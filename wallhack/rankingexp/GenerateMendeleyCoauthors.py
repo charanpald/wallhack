@@ -70,7 +70,7 @@ def writeAuthorAuthorMatrix():
         Z = sppy.diag(invNorms, storagetype="row")
         Y = Z.dot(Y)
         
-        sigma = 0.1
+        sigma = 0.05
         blocksize = 500
         
         numBlocks = int(ceil(Y.shape[0]/float(blocksize)))
