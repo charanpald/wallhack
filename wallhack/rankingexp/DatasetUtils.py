@@ -31,6 +31,18 @@ class DatasetUtils(object):
         return X, U, V
     
     @staticmethod
+    def syntheticDataset2(): 
+        """
+        Create a simple synthetic dataset using a power law distribution on users and items 
+        """
+        resultsDir = PathDefaults.getDataDir() + "syntheticRanking/"
+        matrixFileName = resultsDir + "dataset1.mtx" 
+        
+        X = sppy.io.mmread(matrixFileName, storagetype="row")
+        
+        return X   
+    
+    @staticmethod
     def movieLens(minNnzRows=10, minNnzCols=10, quantile=90): 
         matrixFileName = PathDefaults.getDataDir() + "movielens/ml-100k/u.data" 
         data = numpy.loadtxt(matrixFileName)
