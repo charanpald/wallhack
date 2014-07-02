@@ -24,13 +24,16 @@ numpy.seterr(all="raise")
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "movielens"
+    dataset = "synthetic2"
 
 saveResults = True
 
 if dataset == "synthetic": 
     X, U, V = DatasetUtils.syntheticDataset1(u=0.2, sd=0.2)
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp1Synthetic3Results.npz" 
+    outputFile = PathDefaults.getOutputDir() + "ranking/Exp1Synthetic1Results.npz" 
+if dataset == "synthetic2": 
+    X = DatasetUtils.syntheticDataset2()
+    outputFile = PathDefaults.getOutputDir() + "ranking/Exp1Synthetic2Results.npz" 
 elif dataset == "movielens": 
     X = DatasetUtils.movieLens(minNnzRows=20)
     outputFile = PathDefaults.getOutputDir() + "ranking/Exp1MovieLensResults.npz" 
@@ -45,6 +48,7 @@ m, n = X.shape
 u = 0.1 
 w = 1-u
 
+logging.debug(numpy.histogram(X.sum(1)))
 logging.debug(numpy.histogram(X.sum(0)))
 
 testSize = 5
@@ -59,11 +63,11 @@ numRecordAucSamples = 200
 logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))
 
 #w = 1.0
-k2 = 128
+k2 = 64
 u2 = 5/float(n)
 w2 = 1-u2
 eps = 10**-8
-lmbda = 0.9
+lmbda = 0.8
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbda=lmbda, stochastic=True)
 maxLocalAuc.maxIterations = 100
 maxLocalAuc.numRowSamples = 30
@@ -86,7 +90,7 @@ maxLocalAuc.alphas = 2.0**-numpy.arange(0, 5, 1)
 maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
 maxLocalAuc.metric = "f1"
 maxLocalAuc.sampling = "uniform"
-maxLocalAuc.itemExp = 0
+maxLocalAuc.itemExp = 0.5
 
 os.system('taskset -p 0xffffffff %d' % os.getpid())
 
@@ -109,10 +113,19 @@ r = SparseUtilsCython.computeR(U, V, maxLocalAuc.w, maxLocalAuc.numRecordAucSamp
 trainObjVec = maxLocalAuc.objectiveApprox(trainOmegaPtr, U, V, r, maxLocalAuc.c, full=True)
 testObjVec = maxLocalAuc.objectiveApprox(testOmegaPtr, U, V, r, maxLocalAuc.c, allArray=allOmegaPtr, full=True)
 
+itemCounts = numpy.array(X.sum(0)+1, numpy.int32)
+beta = 0.5
 
-for p in [1, 3, 5, 10]: 
-    logging.debug("Train precision@" + str(p) + "=" + str(MCEvaluator.precisionAtK(trainOmegaPtr, trainOrderedItems, p))) 
-    logging.debug("Test precision@" + str(p) + "=" + str(MCEvaluator.precisionAtK(testOmegaPtr, testOrderedItems, p))) 
+for p in [1, 3, 5, 10]:
+    trainPrecision = MCEvaluator.precisionAtK(trainOmegaPtr, trainOrderedItems, p)
+    testPrecision = MCEvaluator.precisionAtK(testOmegaPtr, testOrderedItems, p)
+    logging.debug("Train/test precision@" + str(p) + "=" + str(trainPrecision) + "/" + str(testPrecision)) 
+    
+for p in [1, 3, 5, 10]:
+    trainRecall = MCEvaluator.stratifiedRecallAtK(trainOmegaPtr, trainOrderedItems, p, itemCounts, beta)
+    testRecall = MCEvaluator.stratifiedRecallAtK(testOmegaPtr, testOrderedItems, p, itemCounts, beta)    
+    logging.debug("Train/test recall@" + str(p) + "=" + str(trainRecall) + "/" + str(testRecall))
+    
 
 plt.figure(0)
 plt.plot(trainMeasures[:, 0], label="train")
