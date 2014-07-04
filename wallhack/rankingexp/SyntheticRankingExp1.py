@@ -69,7 +69,7 @@ w2 = 1-u2
 eps = 10**-8
 lmbda = 0.8
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbda=lmbda, stochastic=True)
-maxLocalAuc.maxIterations = 100
+maxLocalAuc.maxIterations = 10
 maxLocalAuc.numRowSamples = 30
 maxLocalAuc.numAucSamples = 10
 maxLocalAuc.numRecordAucSamples = 100
@@ -110,8 +110,8 @@ trainOrderedItems = MCEvaluator.recommendAtk(U, V, p)
 testOrderedItems = MCEvaluatorCython.recommendAtk(U, V, p, trainX)
 
 r = SparseUtilsCython.computeR(U, V, maxLocalAuc.w, maxLocalAuc.numRecordAucSamples)
-trainObjVec = maxLocalAuc.objectiveApprox(trainOmegaPtr, U, V, r, maxLocalAuc.c, full=True)
-testObjVec = maxLocalAuc.objectiveApprox(testOmegaPtr, U, V, r, maxLocalAuc.c, allArray=allOmegaPtr, full=True)
+trainObjVec = maxLocalAuc.objectiveApprox(trainOmegaPtr, U, V, r, maxLocalAuc.gi, maxLocalAuc.gp, maxLocalAuc.gq, full=True)
+testObjVec = maxLocalAuc.objectiveApprox(testOmegaPtr, U, V, r, maxLocalAuc.gi, maxLocalAuc.gp, maxLocalAuc.gq, allArray=allOmegaPtr, full=True)
 
 itemCounts = numpy.array(X.sum(0)+1, numpy.int32)
 beta = 0.5
