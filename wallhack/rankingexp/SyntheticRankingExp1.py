@@ -24,14 +24,14 @@ numpy.seterr(all="raise")
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "synthetic2"
+    dataset = "synthetic"
 
 saveResults = True
 
 if dataset == "synthetic": 
     X, U, V = DatasetUtils.syntheticDataset1(u=0.2, sd=0.2)
     outputFile = PathDefaults.getOutputDir() + "ranking/Exp1Synthetic1Results.npz" 
-if dataset == "synthetic2": 
+elif dataset == "synthetic2": 
     X = DatasetUtils.syntheticDataset2()
     outputFile = PathDefaults.getOutputDir() + "ranking/Exp1Synthetic2Results.npz" 
 elif dataset == "movielens": 
@@ -67,9 +67,9 @@ k2 = 64
 u2 = 5/float(n)
 w2 = 1-u2
 eps = 10**-8
-lmbda = 0.8
+lmbda = 1.0
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbda=lmbda, stochastic=True)
-maxLocalAuc.maxIterations = 10
+maxLocalAuc.maxIterations = 100
 maxLocalAuc.numRowSamples = 30
 maxLocalAuc.numAucSamples = 10
 maxLocalAuc.numRecordAucSamples = 100
@@ -90,7 +90,7 @@ maxLocalAuc.alphas = 2.0**-numpy.arange(0, 5, 1)
 maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
 maxLocalAuc.metric = "f1"
 maxLocalAuc.sampling = "uniform"
-maxLocalAuc.itemExp = 0.5
+maxLocalAuc.itemExp = 0.0
 
 os.system('taskset -p 0xffffffff %d' % os.getpid())
 
