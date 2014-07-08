@@ -14,7 +14,7 @@ numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 #Create a low rank matrix  
 X = DatasetUtils.syntheticDataset2()
 m, n = X.shape
-u = 5.0/n
+u = 5/float(n)
 w = 1-u
 
 # Arguments related to the dataset
@@ -22,7 +22,7 @@ dataArgs = argparse.Namespace()
 
 # Arguments related to the algorithm
 defaultAlgoArgs = argparse.Namespace()
-defaultAlgoArgs.u = 5/float(n) 
+defaultAlgoArgs.u = u
 
 # data args parser #
 dataParser = argparse.ArgumentParser(description="", add_help=False)
