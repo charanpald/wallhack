@@ -24,12 +24,12 @@ numpy.seterr(all="raise")
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "synthetic"
+    dataset = "synthetic2"
 
 saveResults = True
 
 if dataset == "synthetic": 
-    X, U, V = DatasetUtils.syntheticDataset1(u=0.2, sd=0.2)
+    X, U, V = DatasetUtils.syntheticDataset1()
     outputFile = PathDefaults.getOutputDir() + "ranking/Exp1Synthetic1Results.npz" 
 elif dataset == "synthetic2": 
     X = DatasetUtils.syntheticDataset2()
@@ -63,7 +63,7 @@ numRecordAucSamples = 200
 logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))
 
 #w = 1.0
-k2 = 64
+k2 = 128
 u2 = 5/float(n)
 w2 = 1-u2
 eps = 10**-8
@@ -73,11 +73,11 @@ maxLocalAuc.maxIterations = 100
 maxLocalAuc.numRowSamples = 30
 maxLocalAuc.numAucSamples = 10
 maxLocalAuc.numRecordAucSamples = 100
-maxLocalAuc.recordStep = 10
+maxLocalAuc.recordStep = 20
 maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.rate = "optimal"
 maxLocalAuc.alpha = 4.0
-maxLocalAuc.t0 = 0.5
+maxLocalAuc.t0 = 1.0
 maxLocalAuc.folds = 2
 maxLocalAuc.rho = 0.0
 maxLocalAuc.ks = numpy.array([k2])
@@ -90,7 +90,7 @@ maxLocalAuc.alphas = 2.0**-numpy.arange(0, 5, 1)
 maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
 maxLocalAuc.metric = "f1"
 maxLocalAuc.sampling = "uniform"
-maxLocalAuc.itemExp = 0.0
+maxLocalAuc.itemExp = 0.5
 
 os.system('taskset -p 0xffffffff %d' % os.getpid())
 
@@ -124,7 +124,7 @@ for p in [1, 3, 5, 10]:
 for p in [1, 3, 5, 10]:
     trainRecall = MCEvaluator.stratifiedRecallAtK(trainOmegaPtr, trainOrderedItems, p, itemCounts, beta)
     testRecall = MCEvaluator.stratifiedRecallAtK(testOmegaPtr, testOrderedItems, p, itemCounts, beta)    
-    logging.debug("Train/test recall@" + str(p) + "=" + str(trainRecall) + "/" + str(testRecall))
+    logging.debug("Train/test stratified recall@" + str(p) + "=" + str(trainRecall) + "/" + str(testRecall))
     
 
 plt.figure(0)
