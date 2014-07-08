@@ -57,9 +57,8 @@ class RankingExpHelper(object):
     defaultAlgoArgs.verbose = False
     
     #parameters for Bpr
-    defaultAlgoArgs.lmbdaUser = 0.1
-    defaultAlgoArgs.lmbdaPos = 0.1
-    defaultAlgoArgs.lmbdaNeg = 0.1
+    defaultAlgoArgs.lmbdaUserBpr = 0.1
+    defaultAlgoArgs.lmbdaItemBpr = 0.1
     defaultAlgoArgs.lmbdaUsers = 2.0**-numpy.arange(0, 10, 2)
     defaultAlgoArgs.lmbdaItems = 2.0**-numpy.arange(2, 7, 1)
     defaultAlgoArgs.maxIterationsBpr = 50
@@ -162,9 +161,12 @@ class RankingExpHelper(object):
         algoParser.add_argument("--gamma", type=float, help="Regularisation parameter (gamma) for CLiMF (default: %(default)s)", default=defaultAlgoArgs.gamma)     
         algoParser.add_argument("--folds", type=int, help="Folds/repetitions for model selection (default: %(default)s)", default=defaultAlgoArgs.folds)   
         algoParser.add_argument("--initialAlg", type=str, help="Initial setup for U and V for max local AUC: either rand or svd (default: %(default)s)", default=defaultAlgoArgs.initialAlg)
-        algoParser.add_argument("--ks", type=int, nargs="+", help="Max number of singular values/vectors (default: %(default)s)", default=defaultAlgoArgs.ks)
+        algoParser.add_argument("--k", type=int, help="Max number of factors (default: %(default)s)", default=defaultAlgoArgs.k)
+        algoParser.add_argument("--ks", type=int, nargs="+", help="Max number of factors (default: %(default)s)", default=defaultAlgoArgs.ks)
         algoParser.add_argument("--lmbdasCLiMF", type=float, nargs="+", help="Regularisation parameters (lambda) for CLiMF (default: %(default)s)", default=defaultAlgoArgs.lmbdasCLiMF)        
         algoParser.add_argument("--lmbdasMlauc", type=float, nargs="+", help="Regularisation parameters for max local AUC (default: %(default)s)", default=defaultAlgoArgs.lmbdasMlauc)        
+        algoParser.add_argument("--lmbdaUserBpr", type=float, help="Regularisation parameters for BPR (default: %(default)s)", default=defaultAlgoArgs.lmbdaUserBpr) 
+        algoParser.add_argument("--lmbdaItemBpr", type=float, help="Regularisation parameters for BPR (default: %(default)s)", default=defaultAlgoArgs.lmbdaItemBpr)         
         algoParser.add_argument("--learningRateSelect", action="store_true", help="Whether to do learning rate selection (default: %(default)s)", default=defaultAlgoArgs.learningRateSelect)
         algoParser.add_argument("--maxIterations", type=int, help="Maximal number of iterations (default: %(default)s)", default=defaultAlgoArgs.maxIterations)
         algoParser.add_argument("--maxIterCLiMF", type=int, help="Maximal number of iterations for CLiMF algorithm (default: %(default)s)", default=defaultAlgoArgs.maxIterCLiMF)
@@ -488,7 +490,7 @@ class RankingExpHelper(object):
                     trainX = trainX.toScipyCsr()
                     testX = testX.toScipyCsr()
 
-                    learner = BprRecommender(self.algoArgs.k, lmbdaUser=self.algoArgs.lmbdaUser, lmbdaPos=self.algoArgs.lmbdaPos, lmbdaNeg=self.algoArgs.lmbdaNeg, gamma=self.algoArgs.gammaBpr)
+                    learner = BprRecommender(self.algoArgs.k, lmbdaUser=self.algoArgs.lmbdaUserBpr, lmbdaPos=self.algoArgs.lmbdaItemBpr, lmbdaNeg=self.algoArgs.lmbdaItemBpr, gamma=self.algoArgs.gammaBpr)
                     learner.ks = self.algoArgs.ks
                     learner.numProcesses = self.algoArgs.processes
                     learner.validationSize = self.algoArgs.validationSize
