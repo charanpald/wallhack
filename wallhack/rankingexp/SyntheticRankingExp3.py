@@ -55,7 +55,7 @@ w2 = 1-u2
 eps = 10**-8
 lmbda = 0.8
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbda=lmbda, stochastic=True)
-maxLocalAuc.maxIterations = 10
+maxLocalAuc.maxIterations = 100
 maxLocalAuc.numRowSamples = 30
 maxLocalAuc.numAucSamples = 10
 maxLocalAuc.numRecordAucSamples = 100
@@ -79,8 +79,8 @@ maxLocalAuc.sampling = "uniform"
 
 maxItems = 3
 chunkSize = 1
-itemExpPs = numpy.array([-1, 0.5, 0.0, 0.5, 1.0])
-itemExpQs = numpy.array([-1, 0.5, 0.0, 0.5, 1.0])
+itemExpPs = numpy.array([-1, 0.5, 0.0, 0.5, 1.0, 1.5])
+itemExpQs = numpy.array([-1, 0.5, 0.0, 0.5, 1.0, 1.5])
 
 def computeTestAuc(args): 
     trainX, maxLocalAuc  = args 
@@ -131,7 +131,7 @@ if saveResults:
     numpy.savez(outputFile, testPrecisions, testRecalls)
 else: 
     data = numpy.load(outputFile)
-    testPrecisions, testRecalls = data["arr_1"], data["arr_2"]
+    testPrecisions, testRecalls = data["arr_0"], data["arr_1"]
     import matplotlib 
     matplotlib.use("GTK3Agg")
     import matplotlib.pyplot as plt 
