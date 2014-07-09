@@ -13,7 +13,7 @@ numpy.set_printoptions(suppress=True, precision=3, linewidth=100)
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 ps = [1, 3, 5]
-dirNames = ["SyntheticDataset1", "MovieLens", "Flixster", "MendeleyCoauthors"]
+dirNames = ["SyntheticDataset1", "SyntheticDataset2", "MovieLens", "Flixster", "MendeleyCoauthors"]
 
 verbose = False
 generateRecommendations = False
