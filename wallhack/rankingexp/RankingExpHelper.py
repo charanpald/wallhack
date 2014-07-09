@@ -76,7 +76,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.kns = numpy.array([20]) 
     
     #Parameters for MlAuc
-    defaultAlgoArgs.alpha = 0.5  
+    defaultAlgoArgs.alpha = 4.0 
     defaultAlgoArgs.alphas = 2.0**-numpy.arange(-2.0, 5.0)
     defaultAlgoArgs.epsMlauc = 10**-6    
     defaultAlgoArgs.fullGradient = False
@@ -91,7 +91,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.sampling = "uniform"
     defaultAlgoArgs.rhoMlauc = 1.0
     defaultAlgoArgs.rhosMlauc = numpy.array([0, 0.1, 0.5, 1.0])
-    defaultAlgoArgs.t0 = 10**-3 
+    defaultAlgoArgs.t0 = 1.0 
     defaultAlgoArgs.t0s = 2.0**-numpy.arange(-1.0, 6.0)
     defaultAlgoArgs.z = 10
     

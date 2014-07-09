@@ -22,7 +22,7 @@ numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 
 #Create a low rank matrix  
 X, U, V = DatasetUtils.syntheticDataset1()
-outputFile = PathDefaults.getOutputDir() + "ranking/Exp9SyntheticResults.npz" 
+outputFile = PathDefaults.getOutputDir() + "ranking/Exp2SyntheticResults.npz" 
 m, n = X.shape
 
 testSize = 5

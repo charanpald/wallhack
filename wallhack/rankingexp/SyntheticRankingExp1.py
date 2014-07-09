@@ -63,11 +63,11 @@ numRecordAucSamples = 200
 logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))
 
 #w = 1.0
-k2 = 128
+k2 = 32
 u2 = 5/float(n)
 w2 = 1-u2
 eps = 10**-8
-lmbda = 1.0
+lmbda = 0.8
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbda=lmbda, stochastic=True)
 maxLocalAuc.maxIterations = 100
 maxLocalAuc.numRowSamples = 30
@@ -79,7 +79,7 @@ maxLocalAuc.rate = "optimal"
 maxLocalAuc.alpha = 4.0
 maxLocalAuc.t0 = 1.0
 maxLocalAuc.folds = 2
-maxLocalAuc.rho = 0.0
+maxLocalAuc.rho = 1.0
 maxLocalAuc.ks = numpy.array([k2])
 maxLocalAuc.validationSize = 3
 maxLocalAuc.z = 10
