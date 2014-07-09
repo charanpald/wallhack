@@ -51,8 +51,8 @@ class DatasetUtils(object):
         #X = SparseUtilsCython.centerRowsCsarray(X)   
         #X[X.nonzero()] = X.values()>0
         X.prune()
-        maxNnz = numpy.percentile(X.sum(0), quantile)
-        X = SparseUtils.pruneMatrixCols(X, minNnz=minNnzCols, maxNnz=maxNnz)
+        #maxNnz = numpy.percentile(X.sum(0), quantile)
+        #X = SparseUtils.pruneMatrixCols(X, minNnz=minNnzCols, maxNnz=maxNnz)
         X = SparseUtils.pruneMatrixRows(X, minNnzRows=minNnzRows)
         logging.debug("Read file: " + matrixFileName)
         logging.debug("Non zero elements: " + str(X.nnz) + " shape: " + str(X.shape))
@@ -87,8 +87,8 @@ class DatasetUtils(object):
         X.put(numpy.array(ratings>3, numpy.int), numpy.array(rowInds, numpy.int32), numpy.array(colInds, numpy.int32), init=True)
         X.prune()
         
-        maxNnz = numpy.percentile(X.sum(0), quantile)
-        X = SparseUtils.pruneMatrixCols(X, minNnz=minNnzCols, maxNnz=maxNnz)
+        #maxNnz = numpy.percentile(X.sum(0), quantile)
+        #X = SparseUtils.pruneMatrixCols(X, minNnz=minNnzCols, maxNnz=maxNnz)
         X = SparseUtils.pruneMatrixRows(X, minNnzRows=minNnzRows)
         
         logging.debug("Read file: " + matrixFileName)
@@ -107,8 +107,8 @@ class DatasetUtils(object):
         X.prune()
         logging.debug("Raw non-zero elements: " + str(X.nnz) + " shape: " + str(X.shape))
         
-        maxNnz = numpy.percentile(X.sum(0), quantile)
-        X = SparseUtils.pruneMatrixCols(X, minNnz=minNnzCols, maxNnz=maxNnz)
+        #maxNnz = numpy.percentile(X.sum(0), quantile)
+        #X = SparseUtils.pruneMatrixCols(X, minNnz=minNnzCols, maxNnz=maxNnz)
         X = SparseUtils.pruneMatrixRows(X, minNnzRows=minNnzRows)     
         
         logging.debug("Read file: " + authorAuthorFileName)
