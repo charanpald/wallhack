@@ -23,7 +23,7 @@ os.system('taskset -p 0xffffffff %d' % os.getpid())
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "movielens"
+    dataset = "flixster"
 
 saveResults = True
 
@@ -80,7 +80,7 @@ maxLocalAuc.sampling = "uniform"
 maxItems = 3
 chunkSize = 1
 itemExpPs = numpy.array([-1, -0.5, 0.0, 0.5, 1.0, 1.5])
-itemExpQs = numpy.array([-1, -0.5, 0.0, 0.5, 1.0, 1.5])
+itemExpQs = numpy.array([-1, -0.5, 0.0, 0.5, 1.0, 1.5, 2.5])
 
 def computeTestAuc(args): 
     trainX, maxLocalAuc  = args 
