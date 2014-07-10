@@ -23,7 +23,7 @@ os.system('taskset -p 0xffffffff %d' % os.getpid())
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "synthetic2"
+    dataset = "movielens"
 
 saveResults = True
 
@@ -39,7 +39,7 @@ elif dataset == "movielens":
 elif dataset == "flixster": 
     X = DatasetUtils.flixster()
     outputFile = PathDefaults.getOutputDir() + "ranking/Exp3FlixsterResults.npz" 
-    Sampling.sampleUsers(X, 1000)
+    X = Sampling.sampleUsers(X, 1000)
 else: 
     raise ValueError("Unknown dataset: " + dataset)
 
@@ -49,11 +49,11 @@ folds = 2
 trainTestXs = Sampling.shuffleSplitRows(X, folds, testSize)
 
 #w = 1.0
-k2 = 32
+k2 = 128
 u2 = 5/float(n)
 w2 = 1-u2
 eps = 10**-8
-lmbda = 0.8
+lmbda = 1.2
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbda=lmbda, stochastic=True)
 maxLocalAuc.maxIterations = 100
 maxLocalAuc.numRowSamples = 30
@@ -65,7 +65,7 @@ maxLocalAuc.rate = "optimal"
 maxLocalAuc.alpha = 4.0
 maxLocalAuc.t0 = 1.0
 maxLocalAuc.folds = 2
-maxLocalAuc.rho = 1.0
+maxLocalAuc.rho = 0.5
 maxLocalAuc.ks = numpy.array([k2])
 maxLocalAuc.validationSize = 3
 maxLocalAuc.z = 10
