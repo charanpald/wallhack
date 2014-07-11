@@ -68,7 +68,7 @@ u2 = 5/float(n)
 w2 = 1-u2
 eps = 10**-8
 lmbda = 0.8
-maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbda=lmbda, stochastic=True)
+maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbdaV=lmbda, stochastic=True)
 maxLocalAuc.maxIterations = 50
 maxLocalAuc.numRowSamples = 30
 maxLocalAuc.numAucSamples = 10
@@ -160,7 +160,7 @@ Z = U.dot(V.T)
 
 plt.figure(4)
 Z2 = Z[X.toarray() == 0]
-hist, edges = numpy.histogram(Z2.flatten(), bins=50, range=(-maxLocalAuc.lmbda, maxLocalAuc.lmbda) , normed=True)
+hist, edges = numpy.histogram(Z2.flatten(), bins=50, range=(-maxLocalAuc.lmbdaV, maxLocalAuc.lmbdaV) , normed=True)
 xvals = (edges[0:-1]+edges[1:])/2
 plt.plot(xvals, hist, label="zero")
 
