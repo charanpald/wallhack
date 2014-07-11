@@ -90,7 +90,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.recordStep = 20
     defaultAlgoArgs.sampling = "uniform"
     defaultAlgoArgs.rhoMlauc = 1.0
-    defaultAlgoArgs.rhosMlauc = numpy.array([0, 0.1, 0.5, 1.0])
+    defaultAlgoArgs.rhosMlauc = numpy.array([0, 0.5, 1.0])
     defaultAlgoArgs.t0 = 1.0 
     defaultAlgoArgs.t0s = 2.0**-numpy.arange(-1.0, 6.0)
     defaultAlgoArgs.z = 10
@@ -345,7 +345,7 @@ class RankingExpHelper(object):
                 fileLock.lock()
                 
                 try: 
-                    learner = MaxLocalAUC(self.algoArgs.k, 1-self.algoArgs.u, lmbda=self.algoArgs.lmbdaMlauc, eps=self.algoArgs.epsMlauc, stochastic=not self.algoArgs.fullGradient)
+                    learner = MaxLocalAUC(self.algoArgs.k, 1-self.algoArgs.u, lmbdaU=self.algoArgs.lmbdaMlauc, lmbdaV=self.algoArgs.lmbdaMlauc, eps=self.algoArgs.epsMlauc, stochastic=not self.algoArgs.fullGradient)
                     
                     learner.numRowSamples = self.algoArgs.numRowSamples
                     learner.numAucSamples = self.algoArgs.numAucSamples
