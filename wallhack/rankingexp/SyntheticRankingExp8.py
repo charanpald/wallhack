@@ -52,7 +52,7 @@ w2 = 1-u
 k = 128
 eps = 10**-8
 maxLocalAuc = MaxLocalAUC(k, w2, eps=eps, stochastic=True)
-maxLocalAuc.maxIterations = 2
+maxLocalAuc.maxIterations = 50
 maxLocalAuc.numRowSamples = 30
 maxLocalAuc.numAucSamples = 10
 maxLocalAuc.initialAlg = "rand"
