@@ -12,7 +12,7 @@ from sandbox.util.Sampling import Sampling
 from wallhack.rankingexp.DatasetUtils import DatasetUtils
 
 """
-Test the effect of quantile threshold u and rank weight rho 
+Test the effect of bound on rows of U and V 
 """
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
@@ -25,11 +25,14 @@ if len(sys.argv) > 1:
 else: 
     dataset = "movielens"
 
-saveResults = False
+saveResults = True
 
 if dataset == "synthetic": 
     X, U, V = DatasetUtils.syntheticDataset1()
     outputFile = PathDefaults.getOutputDir() + "ranking/Exp8SyntheticResults.npz" 
+elif dataset == "synthetic2": 
+    X, U, V = DatasetUtils.syntheticDataset2()
+    outputFile = PathDefaults.getOutputDir() + "ranking/Exp8Synthetic2Results.npz" 
 elif dataset == "movielens": 
     X = DatasetUtils.movieLens()
     outputFile = PathDefaults.getOutputDir() + "ranking/Exp8MovieLensResults.npz" 
@@ -49,7 +52,7 @@ w2 = 1-u
 k = 128
 eps = 10**-8
 maxLocalAuc = MaxLocalAUC(k, w2, eps=eps, stochastic=True)
-maxLocalAuc.maxIterations = 200
+maxLocalAuc.maxIterations = 2
 maxLocalAuc.numRowSamples = 30
 maxLocalAuc.numAucSamples = 10
 maxLocalAuc.initialAlg = "rand"
@@ -60,11 +63,10 @@ maxLocalAuc.t0 = 0.5
 maxLocalAuc.lmbda = 1
 maxLocalAuc.rho = 0.0
 
-numRecordAucSamples = 200
 maxItems = 10
 chunkSize = 1
-us = numpy.linspace(0, 1, 4)
-itemExps = numpy.linspace(0, 1, 10)
+lmbdaUs = numpy.array([0.6, 0.8, 1.0, 1.2, 1.4])
+lmbdaVs = numpy.array([0.6, 0.8, 1.0, 1.2, 1.4])
 
 def computeTestAuc(args): 
     trainX, maxLocalAuc  = args 
@@ -72,14 +74,10 @@ def computeTestAuc(args):
     U, V, trainMeasures, testMeasures, iterations, totalTime = maxLocalAuc.learnModel(trainX, verbose=True)
     return U, V, trainMeasures[-1, 1], testMeasures[-1, 1]
 
-if saveResults: 
-    trainLocalAucs = numpy.zeros((us.shape[0], itemExps.shape[0]))
-    trainPrecisions = numpy.zeros((us.shape[0], itemExps.shape[0]))
-    trainRecalls = numpy.zeros((us.shape[0], itemExps.shape[0]))
-    
-    testLocalAucs = numpy.zeros((us.shape[0], itemExps.shape[0]))
-    testPrecisions = numpy.zeros((us.shape[0], itemExps.shape[0]))
-    testRecalls = numpy.zeros((us.shape[0], itemExps.shape[0]))
+if saveResults:     
+    testLocalAucs = numpy.zeros((lmbdaUs.shape[0], lmbdaVs.shape[0]))
+    testPrecisions = numpy.zeros((lmbdaUs.shape[0], lmbdaVs.shape[0]))
+    testRecalls = numpy.zeros((lmbdaUs.shape[0], lmbdaVs.shape[0]))
     
     #maxLocalAuc.learningRateSelect(X)    
     
@@ -91,26 +89,21 @@ if saveResults:
         
         paramList = []      
         
-        for i, u in enumerate(us): 
-            maxLocalAuc.w = 1-u
-            for j, itemExp in enumerate(itemExps): 
-                maxLocalAuc.itemExp = itemExp
+        for i, lmdbaU in enumerate(lmbdaUs): 
+            maxLocalAuc.lmbdaU = lmdbaU
+            for j, lmbdaV in enumerate(lmbdaVs): 
+                maxLocalAuc.lmbdaV = lmbdaV
                 logging.debug(maxLocalAuc)
                 
                 learner = maxLocalAuc.copy()
-                
                 paramList.append((trainX, learner))
-
+                
         pool = multiprocessing.Pool(maxtasksperchild=100, processes=multiprocessing.cpu_count())
         resultsIterator = pool.imap(computeTestAuc, paramList, chunkSize)
         
-        for i, u in enumerate(us): 
-            for j, itemExp in enumerate(itemExps): 
+        for i, lmdbaU in enumerate(lmbdaUs): 
+            for j, lmbdaV in enumerate(lmbdaVs): 
                 U, V, trainAuc, testAuc = resultsIterator.next()
-                trainLocalAucs[i, j] += trainAuc
-                trainOrderedItems = MCEvaluator.recommendAtk(U, V, maxItems)    
-                trainPrecisions[i, j] += MCEvaluator.precisionAtK(trainOmegaPtr, trainOrderedItems, maxItems)
-                trainRecalls[i, j] += MCEvaluator.recallAtK(trainX, trainOrderedItems, maxItems)
                 
                 testLocalAucs[i, j] += testAuc
                 testOrderedItems = MCEvaluatorCython.recommendAtk(U, V, maxItems, trainX)
@@ -132,21 +125,21 @@ else:
     import matplotlib.pyplot as plt 
    
     plt.figure(0)
-    plt.contourf(itemExps, us, testLocalAucs)
-    plt.xlabel("itemExp")
-    plt.ylabel("u")
+    plt.contourf(lmbdaUs, lmbdaVs, testLocalAucs)
+    plt.xlabel("lmbdaUs")
+    plt.ylabel("lmbdaVs")
     plt.colorbar()
     
     plt.figure(1)
-    plt.contourf(itemExps, us, testPrecisions)
-    plt.xlabel("itemExp")
-    plt.ylabel("u")
+    plt.contourf(lmbdaUs, lmbdaVs, testPrecisions)
+    plt.xlabel("lmbdaUs")
+    plt.ylabel("lmbdaVs")
     plt.colorbar()
     
     plt.figure(2)    
-    plt.contourf(itemExps, us, testRecalls)
-    plt.xlabel("itemExp")
-    plt.ylabel("u")
+    plt.contourf(lmbdaUs, lmbdaVs, testRecalls)
+    plt.xlabel("lmbdaUs")
+    plt.ylabel("lmbdaVs")
     plt.colorbar()   
    
     plt.show()
