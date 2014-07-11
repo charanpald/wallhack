@@ -65,8 +65,8 @@ maxLocalAuc.rho = 0.0
 
 maxItems = 10
 chunkSize = 1
-lmbdaUs = numpy.array([0.6, 0.8, 1.0, 1.2, 1.4])
-lmbdaVs = numpy.array([0.6, 0.8, 1.0, 1.2, 1.4])
+lmbdaUs = numpy.array([0.8, 1.0, 1.2, 1.4, 1.6])
+lmbdaVs = numpy.array([0.8, 1.0, 1.2, 1.4, 1.6])
 
 def computeTestAuc(args): 
     trainX, maxLocalAuc  = args 
