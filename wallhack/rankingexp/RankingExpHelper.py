@@ -87,7 +87,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.numAucSamples = 10
     defaultAlgoArgs.numRowSamples = 30
     defaultAlgoArgs.rate = "optimal"
-    defaultAlgoArgs.recordStep = 20
+    defaultAlgoArgs.recordStep = 10
     defaultAlgoArgs.sampling = "uniform"
     defaultAlgoArgs.rhoMlauc = 1.0
     defaultAlgoArgs.rhosMlauc = numpy.array([0, 0.5, 1.0])

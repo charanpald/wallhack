@@ -32,6 +32,8 @@ X = DatasetUtils.mendeley()
 m, n = X.shape
 
 defaultAlgoArgs.u = 5/float(n) 
+defaultAlgoArgs.maxIterations = 30 
+defaultAlgoArgs.numRowSamples = 20 
 
 dataArgs.extendedDirName = ""
 dataArgs.extendedDirName += "MendeleyCoauthors"
