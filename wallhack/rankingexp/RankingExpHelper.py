@@ -44,6 +44,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.folds = 3
     defaultAlgoArgs.k = 32 
     defaultAlgoArgs.ks = 2**numpy.arange(3, 8)
+    defaultAlgoArgs.itemExp = 0.5
     defaultAlgoArgs.learningRateSelect = False
     defaultAlgoArgs.metric = "f1"
     defaultAlgoArgs.modelSelect = False
@@ -70,7 +71,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.gammasCLiMF = 2.0**-numpy.arange(5, 13, 2)
     defaultAlgoArgs.lmbdaCLiMF = 0.03
     defaultAlgoArgs.lmbdasCLiMF = 2.0**-numpy.arange(-1, 6, 2)
-    defaultAlgoArgs.maxIterCLiMF = 100    
+    defaultAlgoArgs.maxIterCLiMF = 50    
     
     #Parameters for KNN
     defaultAlgoArgs.kns = numpy.array([20]) 
@@ -292,6 +293,9 @@ class RankingExpHelper(object):
         Run the selected ranking experiments and save results
         """
         logging.debug("Splitting into train and test sets")
+        m, n = X.shape
+        colProbs = (X.sum(0)+1)/float(n)
+        colProbs = colProbs**self.algoArgs.itemExp 
         trainTestXs = Sampling.shuffleSplitRows(X, 1, self.algoArgs.testSize)
         trainX, testX = trainTestXs[0]
         logging.debug("Train X shape and nnz: " + str(trainX.shape) + " " + str(trainX.nnz))    
@@ -321,7 +325,7 @@ class RankingExpHelper(object):
                         logging.debug("Performing model selection, taking subsample of entries of size " + str(self.sampleSize))
                         
                         cvInds = Sampling.randCrossValidation(self.algoArgs.folds, modelSelectX.nnz)
-                        meanErrors, stdErrors = learner.modelSelect2(modelSelectX, self.algoArgs.rhosSi, self.algoArgs.ks, cvInds)
+                        meanErrors, stdErrors = learner.modelSelect2(modelSelectX, self.algoArgs.rhosSi, self.algoArgs.ks, cvInds, colProbs=colProbs)
                         
                         modelSelectFileName = resultsFileName.replace("Results", "ModelSelect") 
                         numpy.savez(modelSelectFileName, meanErrors, stdErrors)
@@ -383,13 +387,12 @@ class RankingExpHelper(object):
                         logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
                         modelSelectX = Sampling.sampleUsers(trainX, self.algoArgs.modelSelectSamples)
                         
-                        meanAucs, stdAucs = learner.modelSelect(modelSelectX)
+                        meanAucs, stdAucs = learner.modelSelect(modelSelectX, colProbs=colProbs)
                         
                         modelSelectFileName = resultsFileName.replace("Results", "ModelSelect") 
                         numpy.savez(modelSelectFileName, meanAucs, stdAucs)
                         logging.debug("Saved model selection grid as " + modelSelectFileName)                            
                     
-                    learner.maxIterations = self.algoArgs.maxIterations*2 
                     logging.debug(learner)                
 
                     self.recordResults(X, trainX, testX, learner, resultsFileName)
@@ -463,7 +466,7 @@ class RankingExpHelper(object):
                         logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
                         modelSelectX = trainX[0:min(trainX.shape[0], self.algoArgs.modelSelectSamples), :]
                         
-                        meanAucs, stdAucs = learner.modelSelect(modelSelectX)
+                        meanAucs, stdAucs = learner.modelSelect(modelSelectX, colProbs=colProbs)
                         
                         modelSelectFileName = resultsFileName.replace("Results", "ModelSelect") 
                         numpy.savez(modelSelectFileName, meanAucs, stdAucs)
@@ -505,7 +508,7 @@ class RankingExpHelper(object):
                         logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
                         modelSelectX = trainX[0:min(trainX.shape[0], self.algoArgs.modelSelectSamples), :]
                         
-                        meanAucs, stdAucs = learner.modelSelect(modelSelectX)
+                        meanAucs, stdAucs = learner.modelSelect(modelSelectX, colProbs=colProbs)
                         
                         modelSelectFileName = resultsFileName.replace("Results", "ModelSelect") 
                         numpy.savez(modelSelectFileName, meanAucs, stdAucs)
@@ -574,7 +577,7 @@ class RankingExpHelper(object):
                     if self.algoArgs.modelSelect: 
                         logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
 
-                        meanObjs, stdObjs = learner.modelSelect(modelSelectX)
+                        meanObjs, stdObjs = learner.modelSelect(modelSelectX, colProbs=colProbs)
                         
                         modelSelectFileName = resultsFileName.replace("Results", "ModelSelect") 
                         numpy.savez(modelSelectFileName, meanObjs, stdObjs)
