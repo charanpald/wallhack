@@ -16,7 +16,7 @@ dataArgs = argparse.Namespace()
 
 # Arguments related to the algorithm
 defaultAlgoArgs = argparse.Namespace()
-defaultAlgoArgs.ks = 2**numpy.arange(3, 7)
+defaultAlgoArgs.ks = 2**numpy.arange(4, 8)
 
 # data args parser #
 dataParser = argparse.ArgumentParser(description="", add_help=False)

@@ -77,12 +77,12 @@ class RankingExpHelper(object):
     defaultAlgoArgs.kns = numpy.array([20]) 
     
     #Parameters for MlAuc
-    defaultAlgoArgs.alpha = 4.0 
-    defaultAlgoArgs.alphas = 2.0**-numpy.arange(-2.0, 5.0)
+    defaultAlgoArgs.alpha = 0.5 
+    defaultAlgoArgs.alphas = 2.0**-numpy.arange(-2.0, 4.0)
     defaultAlgoArgs.epsMlauc = 10**-6    
     defaultAlgoArgs.fullGradient = False
     defaultAlgoArgs.initialAlg = "rand"
-    defaultAlgoArgs.lmbdaMlauc = 1.0
+    defaultAlgoArgs.lmbdaMlauc = 10**-4
     #defaultAlgoArgs.lmbdasMlauc = numpy.array([1.0, 1.2, 1.4, 1.6])
     defaultAlgoArgs.lmbdasMlauc = numpy.array([10**-4, 2*10**-4, 5*10**-4, 10**-3])
     defaultAlgoArgs.maxIterations = 50
@@ -91,18 +91,20 @@ class RankingExpHelper(object):
     defaultAlgoArgs.rate = "optimal"
     defaultAlgoArgs.recordStep = 10
     defaultAlgoArgs.sampling = "uniform"
-    defaultAlgoArgs.rhoMlauc = 1.0
+    defaultAlgoArgs.rhoMlauc = 0.5
     defaultAlgoArgs.rhosMlauc = numpy.array([0, 0.5, 1.0])
-    defaultAlgoArgs.t0 = 1.0 
-    defaultAlgoArgs.t0s = 2.0**-numpy.arange(-1.0, 6.0)
+    defaultAlgoArgs.t0 = 0.1 
+    defaultAlgoArgs.t0s = 2.0**-numpy.arange(-1.0, 5.0)
     defaultAlgoArgs.z = 10
     
     #Parameters for SoftImpute 
     defaultAlgoArgs.epsSi = 10**-14
     defaultAlgoArgs.gamma = 0.0001
+    defaultAlgoArgs.pSi = 50
+    defaultAlgoArgs.qSi = 3
     defaultAlgoArgs.postProcess = False 
     defaultAlgoArgs.rhoSi = 0.1
-    defaultAlgoArgs.rhosSi = numpy.linspace(0.5, 0.0, 6) 
+    defaultAlgoArgs.rhosSi = numpy.linspace(1.0, 0.0, 6) 
     defaultAlgoArgs.svdAlg = "rsvd"
     
     #Parameters for WrMf 
@@ -317,7 +319,7 @@ class RankingExpHelper(object):
                 testX = testX.toScipyCsr().tocsc()
                                 
                 try: 
-                    learner = IterativeSoftImpute(self.algoArgs.rhoSi, eps=self.algoArgs.epsSi, k=self.algoArgs.k, svdAlg=self.algoArgs.svdAlg, postProcess=self.algoArgs.postProcess)
+                    learner = IterativeSoftImpute(self.algoArgs.rhoSi, eps=self.algoArgs.epsSi, k=self.algoArgs.k, svdAlg=self.algoArgs.svdAlg, postProcess=self.algoArgs.postProcess, p=self.algoArgs.pSi, q=self.algoArgs.qSi)
                     learner.numProcesses = self.algoArgs.processes
                     learner.folds = self.algoArgs.folds
                     learner.metric = self.algoArgs.metric
