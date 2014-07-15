@@ -45,7 +45,10 @@ else:
 
 m, n = X.shape        
 testSize = 5
+itemExp = 0.5
 folds = 2
+colProbs = (X.sum(0)+1)/float(m+1)
+colProbs = colProbs**-itemExp 
 trainTestXs = Sampling.shuffleSplitRows(X, folds, testSize)
 
 #w = 1.0
@@ -62,8 +65,8 @@ maxLocalAuc.numRecordAucSamples = 100
 maxLocalAuc.recordStep = 20
 maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 4.0
-maxLocalAuc.t0 = 1.0
+maxLocalAuc.alpha = 0.5
+maxLocalAuc.t0 = 0.1
 maxLocalAuc.folds = 2
 maxLocalAuc.rho = 0.5
 maxLocalAuc.ks = numpy.array([k2])
