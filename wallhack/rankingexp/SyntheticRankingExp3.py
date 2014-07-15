@@ -82,8 +82,8 @@ maxLocalAuc.sampling = "uniform"
 
 maxItems = 3
 chunkSize = 1
-itemExpPs = numpy.array([-1, -0.5, 0.0, 0.5, 1.0, 1.5])
-itemExpQs = numpy.array([-1, -0.5, 0.0, 0.5, 1.0, 1.5, 2.5])
+itemExpPs = numpy.array([0.0, 0.3, 0.6, 1.0])
+itemExpQs = numpy.array([0.0, 0.3, 0.6, 1.0])
 
 def computeTestAuc(args): 
     trainX, maxLocalAuc  = args 
