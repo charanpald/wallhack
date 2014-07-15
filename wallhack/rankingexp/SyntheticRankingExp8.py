@@ -23,7 +23,7 @@ os.system('taskset -p 0xffffffff %d' % os.getpid())
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "synthetic"
+    dataset = "synthetic2"
 
 saveResults = True
 
@@ -58,15 +58,18 @@ maxLocalAuc.numAucSamples = 10
 maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.recordStep = 20
 maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 1.0
-maxLocalAuc.t0 = 0.5
+maxLocalAuc.alpha = 0.5
+maxLocalAuc.t0 = 0.1
 maxLocalAuc.lmbda = 1
-maxLocalAuc.rho = 0.0
+maxLocalAuc.rho = 0.5
 
 maxItems = 10
 chunkSize = 1
-lmbdaUs = numpy.array([0.8, 1.0, 1.2, 1.4, 1.6])
-lmbdaVs = numpy.array([0.8, 1.0, 1.2, 1.4, 1.6])
+#lmbdaUs = numpy.array([0.8, 1.0, 1.1, 1.2, 1.3])
+#lmbdaVs = numpy.array([0.8, 1.0, 1.1, 1.2, 1.3])
+#lmbdaUs = numpy.array([10**-4, 2*10**-4, 5*10**-4, 10**-3])
+lmbdaUs = numpy.array([10**-3])
+lmbdaVs = numpy.array([10**-4, 2*10**-4, 5*10**-4, 10**-3])
 
 def computeTestAuc(args): 
     trainX, maxLocalAuc  = args 
