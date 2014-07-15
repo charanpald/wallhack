@@ -295,7 +295,7 @@ class RankingExpHelper(object):
         logging.debug("Splitting into train and test sets")
         m, n = X.shape
         colProbs = (X.sum(0)+1)/float(n)
-        colProbs = colProbs**self.algoArgs.itemExp 
+        colProbs = colProbs**-self.algoArgs.itemExp 
         trainTestXs = Sampling.shuffleSplitRows(X, 1, self.algoArgs.testSize, colProbs=colProbs)
         trainX, testX = trainTestXs[0]
         logging.debug("Train X shape and nnz: " + str(trainX.shape) + " " + str(trainX.nnz))    
