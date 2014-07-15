@@ -297,8 +297,8 @@ class RankingExpHelper(object):
         m, n = X.shape
         #colProbs = (X.sum(0)+1)/float(m+1)
         #colProbs = colProbs**-self.algoArgs.itemExp 
-        colProbs = numpy.ones(n)/float(n)        
-        trainTestXs = Sampling.shuffleSplitRows(X, 1, self.algoArgs.testSize, colProbs=colProbs)
+        #colProbs = numpy.ones(n)/float(n)        
+        trainTestXs = Sampling.shuffleSplitRows(X, 1, self.algoArgs.testSize)
         trainX, testX = trainTestXs[0]
         logging.debug("Train X shape and nnz: " + str(trainX.shape) + " " + str(trainX.nnz))    
         logging.debug("Test X shape and nnz: " + str(testX.shape) + " " + str(testX.nnz))
@@ -327,7 +327,7 @@ class RankingExpHelper(object):
                         logging.debug("Performing model selection, taking subsample of entries of size " + str(self.sampleSize))
                         
                         cvInds = Sampling.randCrossValidation(self.algoArgs.folds, modelSelectX.nnz)
-                        meanErrors, stdErrors = learner.modelSelect2(modelSelectX, self.algoArgs.rhosSi, self.algoArgs.ks, cvInds, colProbs=colProbs)
+                        meanErrors, stdErrors = learner.modelSelect2(modelSelectX, self.algoArgs.rhosSi, self.algoArgs.ks, cvInds)
                         
                         modelSelectFileName = resultsFileName.replace("Results", "ModelSelect") 
                         numpy.savez(modelSelectFileName, meanErrors, stdErrors)
@@ -389,7 +389,7 @@ class RankingExpHelper(object):
                         logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
                         modelSelectX = Sampling.sampleUsers(trainX, self.algoArgs.modelSelectSamples)
                         
-                        meanAucs, stdAucs = learner.modelSelect(modelSelectX, colProbs=colProbs)
+                        meanAucs, stdAucs = learner.modelSelect(modelSelectX)
                         
                         modelSelectFileName = resultsFileName.replace("Results", "ModelSelect") 
                         numpy.savez(modelSelectFileName, meanAucs, stdAucs)
@@ -468,7 +468,7 @@ class RankingExpHelper(object):
                         logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
                         modelSelectX = trainX[0:min(trainX.shape[0], self.algoArgs.modelSelectSamples), :]
                         
-                        meanAucs, stdAucs = learner.modelSelect(modelSelectX, colProbs=colProbs)
+                        meanAucs, stdAucs = learner.modelSelect(modelSelectX)
                         
                         modelSelectFileName = resultsFileName.replace("Results", "ModelSelect") 
                         numpy.savez(modelSelectFileName, meanAucs, stdAucs)
@@ -510,7 +510,7 @@ class RankingExpHelper(object):
                         logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
                         modelSelectX = trainX[0:min(trainX.shape[0], self.algoArgs.modelSelectSamples), :]
                         
-                        meanAucs, stdAucs = learner.modelSelect(modelSelectX, colProbs=colProbs)
+                        meanAucs, stdAucs = learner.modelSelect(modelSelectX)
                         
                         modelSelectFileName = resultsFileName.replace("Results", "ModelSelect") 
                         numpy.savez(modelSelectFileName, meanAucs, stdAucs)
@@ -579,7 +579,7 @@ class RankingExpHelper(object):
                     if self.algoArgs.modelSelect: 
                         logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
 
-                        meanObjs, stdObjs = learner.modelSelect(modelSelectX, colProbs=colProbs)
+                        meanObjs, stdObjs = learner.modelSelect(modelSelectX)
                         
                         modelSelectFileName = resultsFileName.replace("Results", "ModelSelect") 
                         numpy.savez(modelSelectFileName, meanObjs, stdObjs)
