@@ -33,7 +33,7 @@ m, n = X.shape
 
 defaultAlgoArgs.u = 5/float(n) 
 defaultAlgoArgs.maxIterations = 30 
-defaultAlgoArgs.numRowSamples = 20 
+defaultAlgoArgs.numRowSamples = 10 
 
 dataArgs.extendedDirName = ""
 dataArgs.extendedDirName += "MendeleyCoauthors"
