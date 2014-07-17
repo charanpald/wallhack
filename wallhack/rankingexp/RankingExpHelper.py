@@ -366,6 +366,7 @@ class RankingExpHelper(object):
                     learner.ks = self.algoArgs.ks 
                     learner.folds = self.algoArgs.folds  
                     learner.numProcesses = self.algoArgs.processes 
+                    learner.parallelSGD = False
                     learner.lmbdas = self.algoArgs.lmbdasMlauc
                     learner.itemExp = 0.5
                     learner.rho = self.algoArgs.rhoMlauc
