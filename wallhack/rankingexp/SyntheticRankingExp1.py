@@ -67,7 +67,7 @@ k2 = 32
 u2 = 5/float(n)
 w2 = 1-u2
 eps = 10**-8
-lmbda = 0.8
+lmbda = 10**-3
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbdaV=lmbda, stochastic=True)
 maxLocalAuc.maxIterations = 50
 maxLocalAuc.numRowSamples = 30
