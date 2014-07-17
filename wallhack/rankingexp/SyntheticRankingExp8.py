@@ -68,8 +68,8 @@ chunkSize = 1
 #lmbdaUs = numpy.array([0.8, 1.0, 1.1, 1.2, 1.3])
 #lmbdaVs = numpy.array([0.8, 1.0, 1.1, 1.2, 1.3])
 #lmbdaUs = numpy.array([10**-4, 2*10**-4, 5*10**-4, 10**-3])
-lmbdaUs = numpy.array([10**-4, 2*10**-4, 5*10**-4, 10**-3])
-lmbdaVs = numpy.array([10**-4, 2*10**-4, 5*10**-4, 10**-3])
+lmbdaUs = 10.0**numpy.arange(-5, -1, 0.5)
+lmbdaVs = 10.0**numpy.arange(-5, -1, 0.5)
 
 def computeTestAuc(args): 
     trainX, maxLocalAuc  = args 
