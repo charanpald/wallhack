@@ -23,7 +23,7 @@ os.system('taskset -p 0xffffffff %d' % os.getpid())
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "synthetic"
+    dataset = "synthetic2"
 
 saveResults = True
 
@@ -128,19 +128,19 @@ else:
     import matplotlib.pyplot as plt 
    
     plt.figure(0)
-    plt.contourf(lmbdaUs, lmbdaVs, testLocalAucs)
+    plt.contourf(numpy.log10(lmbdaUs), numpy.log10(lmbdaVs), testLocalAucs)
     plt.xlabel("lmbdaUs")
     plt.ylabel("lmbdaVs")
     plt.colorbar()
     
     plt.figure(1)
-    plt.contourf(lmbdaUs, lmbdaVs, testPrecisions)
+    plt.contourf(numpy.log10(lmbdaUs), numpy.log10(lmbdaVs), testPrecisions)
     plt.xlabel("lmbdaUs")
     plt.ylabel("lmbdaVs")
     plt.colorbar()
     
     plt.figure(2)    
-    plt.contourf(lmbdaUs, lmbdaVs, testRecalls)
+    plt.contourf(numpy.log10(lmbdaUs), numpy.log10(lmbdaVs), testRecalls)
     plt.xlabel("lmbdaUs")
     plt.ylabel("lmbdaVs")
     plt.colorbar()   
