@@ -9,21 +9,15 @@ from sandbox.util.IdIndexer import IdIndexer
 from math import ceil 
 import sppy 
 import sppy.io
-from sandbox.util.ProfileUtils import ProfileUtils 
-from math import sqrt
 import os.path
 import pickle
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
-authorDocFileName = PathDefaults.getDataDir() + "reference/authorDocumentMatrix.mtx"
-
-def writeAuthorDocMatrix(): 
-    fileName = PathDefaults.getDataDir() + "reference/author_document_count"
-    authorIndexerFilename = PathDefaults.getDataDir() + "reference/authorIndexer.pkl"
+def writeAuthorXMatrix(inputFileName, authorIndexerFilename, authorXFileName, reverse=False): 
     
-    if not os.path.isfile(authorDocFileName): 
-        fileObj = open(fileName)
+    if not os.path.isfile(authorXFileName): 
+        fileObj = open(inputFileName)
         
         authorIndex = IdIndexer()
         docIndex = IdIndexer()
@@ -35,12 +29,15 @@ def writeAuthorDocMatrix():
             vals = line.split()
             #logging.debug(vals[0], vals[1], vals[2])
             
-            authorIndex.append(vals[1])
-            docIndex.append(vals[0])
-            
+            if reverse: 
+                authorIndex.append(vals[1])
+                docIndex.append(vals[0])
+            else: 
+                authorIndex.append(vals[0])
+                docIndex.append(vals[1])
+                
             score = int(vals[2])
-            scores.append(int(sqrt(score)))
-        
+            scores.append(int(score))
         
         rowInds = numpy.array(authorIndex.getArray())
         colInds = numpy.array(docIndex.getArray())
@@ -50,17 +47,16 @@ def writeAuthorDocMatrix():
         authorIndexerFile = open(authorIndexerFilename, "wb")
         pickle.dump(authorIndex, authorIndexerFile)
         authorIndexerFile.close()
-        scipy.io.mmwrite(authorDocFileName, Y)
-        logging.debug("Saved matrix to " + authorDocFileName)
+        scipy.io.mmwrite(authorXFileName, Y)
+        logging.debug("Saved matrix to " + authorXFileName)
     else: 
-        logging.debug("File exists: " + authorDocFileName)
+        logging.debug("File exists: " + authorXFileName)
     
-def writeAuthorAuthorMatrix(): 
-    authorAuthorFileName = PathDefaults.getDataDir() + "reference/authorAuthorMatrix.mtx" 
+def writeAuthorAuthorMatrix(authorXFileName, authorAuthorFileName): 
     
     if not os.path.isfile(authorAuthorFileName): 
-        Y = sppy.io.mmread(authorDocFileName, storagetype="row")
-        logging.debug("Read file: " + authorDocFileName)
+        Y = sppy.io.mmread(authorXFileName, storagetype="row")
+        logging.debug("Read file: " + authorXFileName)
         logging.debug("Size of input: " + str(Y.shape))
     
         Y = sppy.csarray(Y, dtype=numpy.float, storagetype="row")
@@ -110,8 +106,20 @@ def writeAuthorAuthorMatrix():
     else: 
         logging.debug("File exists: " + authorAuthorFileName)    
     
-    
-    
-writeAuthorDocMatrix()
-writeAuthorAuthorMatrix()
-#ProfileUtils.profile("writeAuthorAuthorMatrix()", globals(), locals())   
+dataDir = PathDefaults.getDataDir()
+
+#Write out author-author from documents 
+inputFileName = dataDir + "reference/author_document_count"
+authorXFileName = dataDir + "reference/authorDocumentMatrix.mtx"  
+authorIndexerFilename = dataDir + "reference/authorIndexerDoc.pkl"    
+authorAuthorFileName = dataDir + "reference/authorAuthorDocMatrix.mtx" 
+writeAuthorXMatrix(inputFileName, authorIndexerFilename, authorXFileName, reverse=True)
+writeAuthorAuthorMatrix(authorXFileName, authorAuthorFileName)
+
+#Write out author-author from keywords
+inputFileName = dataDir + "reference/author_keyword_count"
+authorXFileName = dataDir + "reference/authorKeywordMatrix.mtx"    
+authorIndexerFilename = dataDir + "reference/authorIndexerKeyword.pkl"    
+authorAuthorFileName = dataDir + "reference/authorAuthorKeywordMatrix.mtx" 
+writeAuthorXMatrix(inputFileName, authorIndexerFilename, authorXFileName, reverse=False)
+writeAuthorAuthorMatrix(authorXFileName, authorAuthorFileName)
