@@ -67,7 +67,7 @@ def writeAuthorAuthorMatrix(authorXFileName, authorAuthorFileName):
         Y = Z.dot(Y)
         
         sigma = 0.05
-        blocksize = 500
+        blocksize = 100
         
         numBlocks = int(ceil(Y.shape[0]/float(blocksize)))
         logging.debug("Number of blocks " + str(numBlocks))
