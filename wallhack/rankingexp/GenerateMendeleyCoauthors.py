@@ -121,5 +121,5 @@ inputFileName = dataDir + "reference/author_keyword_count"
 authorXFileName = dataDir + "reference/authorKeywordMatrix.mtx"    
 authorIndexerFilename = dataDir + "reference/authorIndexerKeyword.pkl"    
 authorAuthorFileName = dataDir + "reference/authorAuthorKeywordMatrix.mtx" 
-writeAuthorXMatrix(inputFileName, authorIndexerFilename, authorXFileName, reverse=False)
+writeAuthorXMatrix(inputFileName, authorIndexerFilename, authorXFileName, reverse=True)
 writeAuthorAuthorMatrix(authorXFileName, authorAuthorFileName)
