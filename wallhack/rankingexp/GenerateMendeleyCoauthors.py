@@ -57,7 +57,7 @@ def writeAuthorAuthorMatrix(authorXFileName, authorAuthorFileName, sigma=0.05):
     if not os.path.isfile(authorAuthorFileName): 
         Y = sppy.io.mmread(authorXFileName, storagetype="row")
         logging.debug("Read file: " + authorXFileName)
-        logging.debug("Size of input: " + str(Y.shape))
+        logging.debug("Size of input: " + str(Y.shape) + " with " + str(Y.nnz) + " nonzeros")
     
         Y = sppy.csarray(Y, dtype=numpy.float, storagetype="row")
         #Y = Y[0:1000, :]
@@ -123,4 +123,4 @@ authorXFileName = dataDir + "reference/authorKeywordMatrix.mtx"
 authorIndexerFilename = dataDir + "reference/authorIndexerKeyword.pkl"    
 authorAuthorFileName = dataDir + "reference/authorAuthorKeywordMatrix.mtx" 
 writeAuthorXMatrix(inputFileName, authorIndexerFilename, authorXFileName, reverse=True)
-writeAuthorAuthorMatrix(authorXFileName, authorAuthorFileName, sigma=0.1)
+writeAuthorAuthorMatrix(authorXFileName, authorAuthorFileName, sigma=0.5)
