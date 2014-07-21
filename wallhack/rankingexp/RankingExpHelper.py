@@ -82,7 +82,9 @@ class RankingExpHelper(object):
     defaultAlgoArgs.epsMlauc = 10**-6    
     defaultAlgoArgs.fullGradient = False
     defaultAlgoArgs.initialAlg = "rand"
-    defaultAlgoArgs.lmbdaMlauc = 10**-4
+    defaultAlgoArgs.itemExpP = 0.0 
+    defaultAlgoArgs.itemExpQ = 0.5
+    defaultAlgoArgs.lmbdaMlauc = 0.1
     defaultAlgoArgs.lmbdasMlauc = 10.0**numpy.arange(-0.5, 1.5, 0.25)
     #defaultAlgoArgs.lmbdasMlauc = numpy.array([10**-4, 2*10**-4, 4*10**-4, 6*10**-4, 8*10**-4, 10**-3])
     defaultAlgoArgs.maxIterations = 50
@@ -368,7 +370,8 @@ class RankingExpHelper(object):
                     learner.numProcesses = self.algoArgs.processes 
                     learner.parallelSGD = False
                     learner.lmbdas = self.algoArgs.lmbdasMlauc
-                    learner.itemExp = 0.5
+                    learner.itemExpP = self.algoArgs.itemExpP
+                    learner.itemExpQ = self.algoArgs.itemExpQ
                     learner.rho = self.algoArgs.rhoMlauc
                     learner.rhos = self.algoArgs.rhosMlauc
                     learner.validationSize = self.algoArgs.validationSize
