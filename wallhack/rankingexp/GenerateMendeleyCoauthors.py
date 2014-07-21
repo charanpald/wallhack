@@ -66,7 +66,7 @@ def writeAuthorAuthorMatrix(authorXFileName, authorAuthorFileName, sigma=0.05):
         Z = sppy.diag(invNorms, storagetype="row")
         Y = Z.dot(Y)
         
-        blocksize = 100
+        blocksize = 500
         
         numBlocks = int(ceil(Y.shape[0]/float(blocksize)))
         logging.debug("Number of blocks " + str(numBlocks))
@@ -123,4 +123,4 @@ authorXFileName = dataDir + "reference/authorKeywordMatrix.mtx"
 authorIndexerFilename = dataDir + "reference/authorIndexerKeyword.pkl"    
 authorAuthorFileName = dataDir + "reference/authorAuthorKeywordMatrix.mtx" 
 writeAuthorXMatrix(inputFileName, authorIndexerFilename, authorXFileName, reverse=True)
-writeAuthorAuthorMatrix(authorXFileName, authorAuthorFileName, sigma=0.6)
+writeAuthorAuthorMatrix(authorXFileName, authorAuthorFileName, sigma=0.8)
