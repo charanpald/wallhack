@@ -85,6 +85,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.initialAlg = "rand"
     defaultAlgoArgs.itemExpP = 0.0 
     defaultAlgoArgs.itemExpQ = 0.5
+    defaultAlgoArgs.itemFactors = False
     defaultAlgoArgs.lmbdaUMlauc = 0.0
     defaultAlgoArgs.lmbdaVMlauc = 0.1
     defaultAlgoArgs.lmbdasMlauc = 10.0**numpy.arange(-0.5, 1.5, 0.25)
@@ -177,6 +178,7 @@ class RankingExpHelper(object):
         algoParser.add_argument("--gamma", type=float, help="Regularisation parameter (gamma) for CLiMF (default: %(default)s)", default=defaultAlgoArgs.gamma)     
         algoParser.add_argument("--folds", type=int, help="Folds/repetitions for model selection (default: %(default)s)", default=defaultAlgoArgs.folds)   
         algoParser.add_argument("--initialAlg", type=str, help="Initial setup for U and V for max local AUC: either rand or svd (default: %(default)s)", default=defaultAlgoArgs.initialAlg)
+        algoParser.add_argument("--itemFactors", action="store_true", help="Whether to use only item factors (default: %(default)s)", default=defaultAlgoArgs.itemFactors)        
         algoParser.add_argument("--k", type=int, help="Max number of factors (default: %(default)s)", default=defaultAlgoArgs.k)
         algoParser.add_argument("--ks", type=int, nargs="+", help="Max number of factors (default: %(default)s)", default=defaultAlgoArgs.ks)
         algoParser.add_argument("--lmbdasCLiMF", type=float, nargs="+", help="Regularisation parameters (lambda) for CLiMF (default: %(default)s)", default=defaultAlgoArgs.lmbdasCLiMF)        
@@ -382,6 +384,7 @@ class RankingExpHelper(object):
                     learner.lmbdas = self.algoArgs.lmbdasMlauc
                     learner.itemExpP = self.algoArgs.itemExpP
                     learner.itemExpQ = self.algoArgs.itemExpQ
+                    learner.itemFactors = self.algoArgs.itemFactors
                     learner.rho = self.algoArgs.rhoMlauc
                     learner.rhos = self.algoArgs.rhosMlauc
                     learner.validationSize = self.algoArgs.validationSize
