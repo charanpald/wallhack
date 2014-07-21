@@ -91,6 +91,8 @@ def writeAuthorAuthorMatrix(authorXFileName, authorAuthorFileName, sigma=0.05):
             allRowInds = numpy.r_[allRowInds, rowInds]
             allColInds = numpy.r_[allColInds, colInds]
             allValues = numpy.r_[allValues, values]
+            
+            logging.debug(allValues.shape)
     
     
         coords = numpy.c_[allRowInds+1, allColInds+1, allValues] 
