@@ -2,8 +2,6 @@ import numpy
 import logging
 import sys
 import argparse 
-import os
-import errno
 from wallhack.rankingexp.RankingExpHelper import RankingExpHelper
 from wallhack.rankingexp.DatasetUtils import DatasetUtils
 
@@ -47,11 +45,4 @@ for key in keys:
 logging.info("Creating the exp-runner")
 rankingExpHelper = RankingExpHelper(remainingArgs, defaultAlgoArgs, dataArgs.extendedDirName)
 rankingExpHelper.printAlgoArgs()
-#    os.makedirs(resultsDir, exist_ok=True) # for python 3.2
-try:
-    os.makedirs(rankingExpHelper.resultsDir)
-except OSError as err:
-    if err.errno != errno.EEXIST:
-        raise
-
 rankingExpHelper.runExperiment(X)
