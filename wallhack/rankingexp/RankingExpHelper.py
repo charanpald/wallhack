@@ -9,6 +9,7 @@ import numpy
 import scipy.sparse
 import argparse
 import time 
+import errno
 import sppy
 import multiprocessing
 from copy import copy
@@ -133,6 +134,14 @@ class RankingExpHelper(object):
 
         # basic resultsDir
         self.resultsDir = PathDefaults.getOutputDir() + "ranking/" + dirName + "/"
+        
+        #Create the results dir if it does not exist 
+        #    os.makedirs(resultsDir, exist_ok=True) # for python 3.2
+        try:
+            os.makedirs(self.resultsDir)
+        except OSError as err:
+            if err.errno != errno.EEXIST:
+                raise
 
         # update algoParams from command line
         self.readAlgoParams(cmdLine)
