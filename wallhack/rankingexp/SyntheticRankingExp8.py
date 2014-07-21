@@ -26,22 +26,24 @@ else:
     dataset = "synthetic2"
 
 saveResults = False
+expNum = 8
 
 if dataset == "synthetic": 
     X, U, V = DatasetUtils.syntheticDataset1()
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp8SyntheticResults.npz" 
+    outputFile = PathDefaults.getOutputDir() + "ranking/Exp" + str(expNum) + "SyntheticResults.npz" 
 elif dataset == "synthetic2": 
     X = DatasetUtils.syntheticDataset2()
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp8Synthetic2Results.npz" 
+    outputFile = PathDefaults.getOutputDir() + "ranking/Exp" + str(expNum) + "Synthetic2Results.npz" 
 elif dataset == "movielens": 
     X = DatasetUtils.movieLens()
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp8MovieLensResults.npz" 
+    outputFile = PathDefaults.getOutputDir() + "ranking/Exp" + str(expNum) + "MovieLensResults.npz" 
 elif dataset == "flixster": 
     X = DatasetUtils.flixster()
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp8FlixsterResults.npz" 
-    Sampling.sampleUsers(X, 1000)
+    outputFile = PathDefaults.getOutputDir() + "ranking/Exp" + str(expNum) + "FlixsterResults.npz"  
+    X = Sampling.sampleUsers(X, 1000)
 else: 
     raise ValueError("Unknown dataset: " + dataset)
+
         
 testSize = 5
 folds = 2
