@@ -52,7 +52,7 @@ def writeAuthorXMatrix(inputFileName, authorIndexerFilename, authorXFileName, re
     else: 
         logging.debug("File exists: " + authorXFileName)
     
-def writeAuthorAuthorMatrix(authorXFileName, authorAuthorFileName): 
+def writeAuthorAuthorMatrix(authorXFileName, authorAuthorFileName, sigma=0.05): 
     
     if not os.path.isfile(authorAuthorFileName): 
         Y = sppy.io.mmread(authorXFileName, storagetype="row")
@@ -66,7 +66,6 @@ def writeAuthorAuthorMatrix(authorXFileName, authorAuthorFileName):
         Z = sppy.diag(invNorms, storagetype="row")
         Y = Z.dot(Y)
         
-        sigma = 0.05
         blocksize = 100
         
         numBlocks = int(ceil(Y.shape[0]/float(blocksize)))
@@ -122,4 +121,4 @@ authorXFileName = dataDir + "reference/authorKeywordMatrix.mtx"
 authorIndexerFilename = dataDir + "reference/authorIndexerKeyword.pkl"    
 authorAuthorFileName = dataDir + "reference/authorAuthorKeywordMatrix.mtx" 
 writeAuthorXMatrix(inputFileName, authorIndexerFilename, authorXFileName, reverse=True)
-writeAuthorAuthorMatrix(authorXFileName, authorAuthorFileName)
+writeAuthorAuthorMatrix(authorXFileName, authorAuthorFileName, sigma=0.1)
