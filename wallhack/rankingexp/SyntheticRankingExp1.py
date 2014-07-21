@@ -80,6 +80,8 @@ maxLocalAuc.alpha = 0.5
 maxLocalAuc.t0 = 0.1
 maxLocalAuc.folds = 2
 maxLocalAuc.rho = 1.0
+maxLocalAuc.lmbdaU = 0.0
+maxLocalAuc.lmbdaV = 10**-0.5
 maxLocalAuc.ks = numpy.array([k2])
 maxLocalAuc.validationSize = 3
 maxLocalAuc.z = 10
@@ -92,6 +94,7 @@ maxLocalAuc.metric = "f1"
 maxLocalAuc.sampling = "uniform"
 maxLocalAuc.itemExpP = 0.0
 maxLocalAuc.itemExpQ = 0.5
+maxLocalAuc.itemFactors = False
 
 os.system('taskset -p 0xffffffff %d' % os.getpid())
 

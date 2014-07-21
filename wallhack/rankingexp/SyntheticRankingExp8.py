@@ -25,7 +25,7 @@ if len(sys.argv) > 1:
 else: 
     dataset = "synthetic2"
 
-saveResults = True
+saveResults = False
 
 if dataset == "synthetic": 
     X, U, V = DatasetUtils.syntheticDataset1()
@@ -151,4 +151,3 @@ print(testLocalAucs)
 print(testPrecisions)
 print(testRecalls)
 
-#When rho=0 get slight improvement when itemExp = 0.3 
