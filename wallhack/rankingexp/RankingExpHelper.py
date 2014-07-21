@@ -79,12 +79,12 @@ class RankingExpHelper(object):
     
     #Parameters for MlAuc
     defaultAlgoArgs.alpha = 0.5 
-    defaultAlgoArgs.alphas = 2.0**-numpy.arange(-2.0, 4.0)
+    defaultAlgoArgs.alphas = 2.0**-numpy.arange(-1.0, 4.0)
     defaultAlgoArgs.epsMlauc = 10**-6    
     defaultAlgoArgs.fullGradient = False
     defaultAlgoArgs.initialAlg = "rand"
     defaultAlgoArgs.itemExpP = 0.0 
-    defaultAlgoArgs.itemExpQ = 0.5
+    defaultAlgoArgs.itemExpQ = 0.0
     defaultAlgoArgs.itemFactors = False
     defaultAlgoArgs.lmbdaUMlauc = 0.0
     defaultAlgoArgs.lmbdaVMlauc = 0.1
@@ -99,7 +99,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.rhoMlauc = 0.5
     defaultAlgoArgs.rhosMlauc = numpy.array([0, 0.5, 1.0])
     defaultAlgoArgs.t0 = 0.1 
-    defaultAlgoArgs.t0s = 2.0**-numpy.arange(-1.0, 5.0)
+    defaultAlgoArgs.t0s = 2.0**-numpy.arange(0.0, 5.0)
     defaultAlgoArgs.z = 10
     
     #Parameters for SoftImpute 

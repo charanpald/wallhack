@@ -24,7 +24,7 @@ numpy.seterr(all="raise")
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "synthetic2"
+    dataset = "synthetic"
 
 saveResults = True
 
@@ -63,7 +63,7 @@ numRecordAucSamples = 200
 logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))
 
 #w = 1.0
-k2 = 32
+k2 = 64
 u2 = 5/float(n)
 w2 = 1-u2
 eps = 10**-8
@@ -76,12 +76,12 @@ maxLocalAuc.numRecordAucSamples = 100
 maxLocalAuc.recordStep = 10
 maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 0.5
-maxLocalAuc.t0 = 0.1
+maxLocalAuc.alpha = 4.0
+maxLocalAuc.t0 = 0.20
 maxLocalAuc.folds = 2
-maxLocalAuc.rho = 1.0
+maxLocalAuc.rho = 0.0
 maxLocalAuc.lmbdaU = 0.0
-maxLocalAuc.lmbdaV = 10**-0.5
+maxLocalAuc.lmbdaV = 10.0
 maxLocalAuc.ks = numpy.array([k2])
 maxLocalAuc.validationSize = 3
 maxLocalAuc.z = 10
@@ -93,8 +93,9 @@ maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
 maxLocalAuc.metric = "f1"
 maxLocalAuc.sampling = "uniform"
 maxLocalAuc.itemExpP = 0.0
-maxLocalAuc.itemExpQ = 0.5
+maxLocalAuc.itemExpQ = 0.0
 maxLocalAuc.itemFactors = False
+#maxLocalAuc.parallelSGD = True
 
 os.system('taskset -p 0xffffffff %d' % os.getpid())
 
