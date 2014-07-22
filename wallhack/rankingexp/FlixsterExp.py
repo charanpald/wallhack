@@ -30,7 +30,7 @@ X = DatasetUtils.flixster()
 (m, n) = X.shape
 
 
-defaultAlgoArgs.u = 5/float(n) 
+defaultAlgoArgs.u = 0.1
 
 dataArgs.extendedDirName = ""
 dataArgs.extendedDirName += "Flixster"

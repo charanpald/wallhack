@@ -2,13 +2,8 @@ import numpy
 import logging
 import sys
 import argparse 
-import os
-import errno
-import sppy 
 from wallhack.rankingexp.RankingExpHelper import RankingExpHelper
 from wallhack.rankingexp.DatasetUtils import DatasetUtils
-from sandbox.util.PathDefaults import PathDefaults
-from sandbox.util.SparseUtils import SparseUtils
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.random.seed(21)        
@@ -33,7 +28,7 @@ if dataArgs.help:
 X = DatasetUtils.movieLens()
 (m, n) = X.shape
 
-defaultAlgoArgs.u = 5/float(n) 
+defaultAlgoArgs.u = 0.1
 
 dataArgs.extendedDirName = ""
 dataArgs.extendedDirName += "MovieLens"

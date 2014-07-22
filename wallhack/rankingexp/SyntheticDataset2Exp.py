@@ -12,7 +12,7 @@ numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 #Create a low rank matrix  
 X = DatasetUtils.syntheticDataset2()
 m, n = X.shape
-u = 5/float(n)
+u = 0.1
 w = 1-u
 
 # Arguments related to the dataset

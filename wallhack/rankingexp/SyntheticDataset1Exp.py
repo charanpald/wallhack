@@ -3,7 +3,6 @@ import logging
 import sys
 import argparse 
 from wallhack.rankingexp.RankingExpHelper import RankingExpHelper
-from sandbox.util.SparseUtils import SparseUtils
 from wallhack.rankingexp.DatasetUtils import DatasetUtils
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
@@ -13,7 +12,7 @@ numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 #Create a low rank matrix  
 X, U, V = DatasetUtils.syntheticDataset1(u=0.2, sd=0.2)
 m, n = X.shape
-u = 5.0/n
+u = 0.1
 w = 1-u
 
 # Arguments related to the dataset
