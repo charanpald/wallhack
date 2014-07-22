@@ -42,7 +42,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.runWrMf = False
     
     #General algorithm parameters 
-    defaultAlgoArgs.folds = 3
+    defaultAlgoArgs.folds = 2
     defaultAlgoArgs.k = 32 
     defaultAlgoArgs.ks = 2**numpy.arange(3, 8)
     defaultAlgoArgs.itemExp = 0.5
@@ -87,7 +87,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.itemExpQ = 0.0
     defaultAlgoArgs.itemFactors = False
     defaultAlgoArgs.lmbdaUMlauc = 0.0
-    defaultAlgoArgs.lmbdaVMlauc = 0.1
+    defaultAlgoArgs.lmbdaVMlauc = 1.0
     defaultAlgoArgs.lmbdasMlauc = 10.0**numpy.arange(-0.5, 1.5, 0.25)
     #defaultAlgoArgs.lmbdasMlauc = numpy.array([10**-4, 2*10**-4, 4*10**-4, 6*10**-4, 8*10**-4, 10**-3])
     defaultAlgoArgs.maxIterations = 50

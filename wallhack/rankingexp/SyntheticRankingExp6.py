@@ -67,8 +67,8 @@ maxLocalAuc.t0 = 0.1
 maxLocalAuc.lmbdaU = 0.0
 maxLocalAuc.lmbdaV = 1.0
 #maxLocalAuc.numProcesses = 1
-maxLocalAuc.t0s = 2.0**-numpy.arange(0, 8)
-maxLocalAuc.alphas = 2.0**-numpy.arange(1, 5, 0.5)
+maxLocalAuc.t0s = 2.0**-numpy.arange(0, 6)
+maxLocalAuc.alphas = 2.0**-numpy.arange(-1,3.5, 0.5)
 maxLocalAuc.folds = 3
 
 newM = trainX.shape[0]/2
@@ -87,21 +87,24 @@ else:
     meanObjs1, meanObjs2, meanObjs3 = data["arr_0"], data["arr_1"], data["arr_2"]
     
     import matplotlib.pyplot as plt 
+    
+    print(maxLocalAuc.t0s)
+    print(maxLocalAuc.alphas)
 
     plt.figure(0)
-    plt.contourf(numpy.log10(maxLocalAuc.t0s), numpy.log2(maxLocalAuc.alphas), meanObjs1)
+    plt.contourf(numpy.log2(maxLocalAuc.t0s), numpy.log2(maxLocalAuc.alphas), meanObjs1)
     plt.xlabel("t0")
     plt.ylabel("alpha")
     plt.colorbar()
     
     plt.figure(1)
-    plt.contourf(numpy.log10(maxLocalAuc.t0s), numpy.log2(maxLocalAuc.alphas), meanObjs2)
+    plt.contourf(numpy.log2(maxLocalAuc.t0s), numpy.log2(maxLocalAuc.alphas), meanObjs2)
     plt.xlabel("t0")
     plt.ylabel("alpha")
     plt.colorbar()
     
     plt.figure(2)    
-    plt.contourf(numpy.log10(maxLocalAuc.t0s), numpy.log2(maxLocalAuc.alphas), meanObjs3)
+    plt.contourf(numpy.log2(maxLocalAuc.t0s), numpy.log2(maxLocalAuc.alphas), meanObjs3)
     plt.xlabel("t0")
     plt.ylabel("alpha")
     plt.colorbar()
