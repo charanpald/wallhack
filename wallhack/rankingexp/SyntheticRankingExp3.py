@@ -56,17 +56,17 @@ k2 = 128
 u2 = 5/float(n)
 w2 = 1-u2
 eps = 10**-8
-lmbda = 1.2
-maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbdaV=lmbda, stochastic=True)
+lmbda = 1.0
+maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbdaU=0.0, lmbdaV=lmbda, stochastic=True)
 maxLocalAuc.maxIterations = 50
 maxLocalAuc.numRowSamples = 30
 maxLocalAuc.numAucSamples = 10
 maxLocalAuc.numRecordAucSamples = 100
-maxLocalAuc.recordStep = 20
+maxLocalAuc.recordStep = 10
 maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 0.5
-maxLocalAuc.t0 = 0.1
+maxLocalAuc.alpha = 4.0
+maxLocalAuc.t0 = 0.20
 maxLocalAuc.folds = 2
 maxLocalAuc.rho = 0.5
 maxLocalAuc.ks = numpy.array([k2])
@@ -77,13 +77,13 @@ maxLocalAuc.normalise = True
 maxLocalAuc.numProcesses = 1
 maxLocalAuc.alphas = 2.0**-numpy.arange(0, 5, 1)
 maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
-maxLocalAuc.metric = "f1"
+maxLocalAuc.metric = "mrr"
 maxLocalAuc.sampling = "uniform"
 
 maxItems = 3
 chunkSize = 1
-itemExpPs = numpy.array([0.0, 0.3, 0.6, 1.0])
-itemExpQs = numpy.array([0.0, 0.3, 0.6, 1.0])
+itemExpPs = numpy.array([0.0, 0.2, 0.4, 0.6, 0.8, 1.0])
+itemExpQs = numpy.array([0.0, 0.2, 0.4, 0.6, 0.8, 1.0])
 
 def computeTestAuc(args): 
     trainX, maxLocalAuc  = args 

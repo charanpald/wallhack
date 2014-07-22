@@ -90,7 +90,7 @@ maxLocalAuc.normalise = True
 #maxLocalAuc.numProcesses = 1
 maxLocalAuc.alphas = 2.0**-numpy.arange(0, 5, 1)
 maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
-maxLocalAuc.metric = "f1"
+maxLocalAuc.metric = "mrr"
 maxLocalAuc.sampling = "uniform"
 maxLocalAuc.itemExpP = 0.0
 maxLocalAuc.itemExpQ = 0.0
@@ -104,7 +104,7 @@ logging.debug(maxLocalAuc)
 
 #modelSelectX = trainX[0:100, :]
 #maxLocalAuc.learningRateSelect(trainX)
-#maxLocalAuc.modelSelect(trainX)
+maxLocalAuc.modelSelect(trainX)
 #ProfileUtils.profile('U, V, trainObjs, trainAucs, testObjs, testAucs, iterations, time = maxLocalAuc.learnModel(trainX, testX=testX, verbose=True)', globals(), locals())
 
 U, V, trainMeasures, testMeasures, iterations, time = maxLocalAuc.learnModel(trainX, verbose=True)
