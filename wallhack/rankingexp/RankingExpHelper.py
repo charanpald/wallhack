@@ -47,7 +47,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.ks = 2**numpy.arange(3, 8)
     defaultAlgoArgs.itemExp = 0.5
     defaultAlgoArgs.learningRateSelect = False
-    defaultAlgoArgs.metric = "f1"
+    defaultAlgoArgs.metric = "mrr"
     defaultAlgoArgs.modelSelect = False
     defaultAlgoArgs.modelSelectSamples = 1000
     defaultAlgoArgs.numRecordAucSamples = 500
