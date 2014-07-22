@@ -281,6 +281,11 @@ class RankingExpHelper(object):
             
             logging.debug("recall@" + str(p) + " (train/test):" + str(trainMeasures[-1]) + str("/") + str(testMeasures[-1]))
             
+        for p in ps: 
+            trainMeasures.append(MCEvaluator.mrrAtK(trainOmegaPtr, trainOrderedItems, p))
+            testMeasures.append(MCEvaluator.mrrAtK(testOmegaPtr, testOrderedItems, p))
+            
+            logging.debug("mrr@" + str(p) + " (train/test):" + str(trainMeasures[-1]) + str("/") + str(testMeasures[-1]))
 
         try: 
             r = SparseUtilsCython.computeR(U, V, w, self.algoArgs.numRecordAucSamples)
