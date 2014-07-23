@@ -15,10 +15,10 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 ps = [1, 3, 5]
 dirNames = ["SyntheticDataset1", "SyntheticDataset2", "MovieLens", "Flixster", "MendeleyCoauthors"]
 
-verbose = False
+verbose = True
 generateRecommendations = False
 
-algs = ["Bpr", "CLiMF", "MaxLocalAUC", "SoftImpute", "WrMf"]
+algs = ["Bpr", "CLiMF", "MaxLocalAUCUser", "SoftImpute", "WrMf"]
 names = ["BPR", "CLiMF", "MLAUC",  "SoftImpute", "WrMf"]
 
 for dirName in dirNames:
