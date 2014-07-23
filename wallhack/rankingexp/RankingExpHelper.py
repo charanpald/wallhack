@@ -69,7 +69,7 @@ class RankingExpHelper(object):
     
     #parameters for CLiMF
     defaultAlgoArgs.gammaCLiMF = 0.002
-    defaultAlgoArgs.gammasCLiMF = 2.0**-numpy.arange(5, 13, 2)
+    defaultAlgoArgs.gammasCLiMF = 2.0**-numpy.arange(5, 11, 2)
     defaultAlgoArgs.lmbdaCLiMF = 0.03
     defaultAlgoArgs.lmbdasCLiMF = 2.0**-numpy.arange(-1, 6, 2)
     defaultAlgoArgs.maxIterCLiMF = 50    
