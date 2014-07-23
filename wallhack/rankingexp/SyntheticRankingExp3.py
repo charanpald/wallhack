@@ -78,7 +78,6 @@ maxLocalAuc.numProcesses = 1
 maxLocalAuc.alphas = 2.0**-numpy.arange(0, 5, 1)
 maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
 maxLocalAuc.metric = "mrr"
-maxLocalAuc.sampling = "uniform"
 
 maxItems = 3
 chunkSize = 1
