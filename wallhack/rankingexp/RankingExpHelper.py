@@ -100,6 +100,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.rhosMlauc = numpy.array([0, 0.5, 1.0])
     defaultAlgoArgs.t0 = 0.1 
     defaultAlgoArgs.t0s = 2.0**-numpy.arange(0.0, 6.0)
+    defaultAlgoArgs.validationUsers = 0.1
     defaultAlgoArgs.z = 10
     
     #Parameters for SoftImpute 
@@ -396,6 +397,7 @@ class RankingExpHelper(object):
                     learner.rho = self.algoArgs.rhoMlauc
                     learner.rhos = self.algoArgs.rhosMlauc
                     learner.validationSize = self.algoArgs.validationSize
+                    learner.validationUsers = self.algoArgs.validationUsers
                     learner.alphas = self.algoArgs.alphas
                     learner.t0s = self.algoArgs.t0s
                     learner.metric = self.algoArgs.metric 

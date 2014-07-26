@@ -29,6 +29,7 @@ X = DatasetUtils.movieLens()
 (m, n) = X.shape
 
 defaultAlgoArgs.u = 0.1
+defaultAlgoArgs.validationUsers = 0.0
 
 dataArgs.extendedDirName = ""
 dataArgs.extendedDirName += "MovieLens"

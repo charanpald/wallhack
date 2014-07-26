@@ -21,6 +21,7 @@ dataArgs = argparse.Namespace()
 # Arguments related to the algorithm
 defaultAlgoArgs = argparse.Namespace()
 defaultAlgoArgs.u = u
+defaultAlgoArgs.validationUsers = 0.0
 
 # data args parser #
 dataParser = argparse.ArgumentParser(description="", add_help=False)
