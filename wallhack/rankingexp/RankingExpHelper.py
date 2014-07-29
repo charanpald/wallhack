@@ -408,7 +408,7 @@ class RankingExpHelper(object):
                         logging.debug("Performing learning rate selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
                         modelSelectX = Sampling.sampleUsers(trainX, self.algoArgs.modelSelectSamples)
                         logging.debug("Done")
-                        objectives = learner.learningRateSelect(modelSelectX)        
+                        objectives = learner.learningRateSelect(X)        
                         
                         rateSelectFileName = resultsFileName.replace("Results", "LearningRateSelect")
                         numpy.savez(rateSelectFileName, objectives)
@@ -418,7 +418,7 @@ class RankingExpHelper(object):
                         logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
                         modelSelectX = Sampling.sampleUsers(trainX, self.algoArgs.modelSelectSamples)
                         
-                        meanAucs, stdAucs = learner.modelSelect(modelSelectX)
+                        meanAucs, stdAucs = learner.modelSelect(X)
                         
                         modelSelectFileName = resultsFileName.replace("Results", "ModelSelect") 
                         numpy.savez(modelSelectFileName, meanAucs, stdAucs)
