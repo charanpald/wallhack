@@ -5,6 +5,7 @@ import multiprocessing
 import os
 from sandbox.recommendation.MaxLocalAUC import MaxLocalAUC
 from sandbox.util.SparseUtils import SparseUtils
+from sandbox.util.SparseUtilsCython import SparseUtilsCython
 from sandbox.util.PathDefaults import PathDefaults
 from sandbox.util.Sampling import Sampling
 from wallhack.rankingexp.DatasetUtils import DatasetUtils
@@ -103,7 +104,7 @@ if saveResults:
             for j, lmbdaV in enumerate(maxLocalAuc.lmbdas):
                 U, V, trainObj, testObj = resultsIterator.next()
                 
-                trainObjectives[j, i, 0] += trainObj
+                trainObjectives[i, j, 0] += trainObj
                 testOrderedItems = MCEvaluatorCython.recommendAtk(U, V, maxItems, trainX)
                 testF1s[i, j, 0] += MCEvaluator.f1AtK(testX, testOrderedItems, maxItems)
         
@@ -118,10 +119,11 @@ if saveResults:
                 maxLocalAuc.lmbdaV = lmbdaV
                 logging.debug(maxLocalAuc)
                 
-                U, V, trainMeasures, testMeasures, iterations, totalTime = maxLocalAuc.learnModel(trainX, verbose=True)
-                trainObj = trainMeasures[-1, 0]
+                U, V, iterations, totalTime = maxLocalAuc.learnModel(trainX, verbose=True)
+                r = SparseUtilsCython.computeR(U, V, maxLocalAuc.w)
+                trainObj = maxLocalAuc.objectiveApprox(trainOmegaPtr, U, V, r, maxLocalAuc.gi, maxLocalAuc.gp, maxLocalAuc.gq)
                 
-                trainObjectives[j, i,1] += trainObj
+                trainObjectives[i, j, 1] += trainObj
                 testOrderedItems = MCEvaluatorCython.recommendAtk(U, V, maxItems, trainX)
                 testF1s[i, j, 1] += MCEvaluator.f1AtK(testX, testOrderedItems, maxItems)
         
