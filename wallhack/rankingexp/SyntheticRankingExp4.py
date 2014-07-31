@@ -20,7 +20,7 @@ if len(sys.argv) > 1:
 else: 
     dataset = "synthetic"
 
-saveResults = True
+saveResults = False
 expNum = 4
 
 if dataset == "synthetic": 
@@ -88,14 +88,18 @@ else:
     matplotlib.use("GTK3Agg")
     import matplotlib.pyplot as plt 
     
+    print(optimalAlphas.shape)
+    print(ks.shape)
+    print(lmbdas.shape)
+    
     plt.figure(0)
-    plt.contourf(numpy.log2(ks), numpy.log2(lmbdas), optimalAlphas)
+    plt.contourf(numpy.log2(lmbdas), numpy.log2(ks), optimalAlphas)
     plt.xlabel("lambda")
     plt.ylabel("k")
     plt.colorbar()
     
     plt.figure(1)
-    plt.contourf(numpy.log2(ks), numpy.log2(lmbdas), optimalt0s)
+    plt.contourf(numpy.log2(lmbdas), numpy.log2(ks), optimalt0s)
     plt.xlabel("lambda")
     plt.ylabel("k")
     plt.colorbar()
