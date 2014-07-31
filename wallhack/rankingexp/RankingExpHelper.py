@@ -83,8 +83,8 @@ class RankingExpHelper(object):
     defaultAlgoArgs.epsMlauc = 10**-6    
     defaultAlgoArgs.fullGradient = False
     defaultAlgoArgs.initialAlg = "rand"
-    defaultAlgoArgs.itemExpP = 1.0 
-    defaultAlgoArgs.itemExpQ = 1.0
+    defaultAlgoArgs.itemExpP = 0.0 
+    defaultAlgoArgs.itemExpQ = 0.5
     defaultAlgoArgs.itemFactors = False
     defaultAlgoArgs.lmbdaUMlauc = 0.0
     defaultAlgoArgs.lmbdaVMlauc = 1.0
@@ -182,13 +182,15 @@ class RankingExpHelper(object):
         algoParser.add_argument("--itemFactors", action="store_true", help="Whether to use only item factors (default: %(default)s)", default=defaultAlgoArgs.itemFactors)        
         algoParser.add_argument("--k", type=int, help="Max number of factors (default: %(default)s)", default=defaultAlgoArgs.k)
         algoParser.add_argument("--ks", type=int, nargs="+", help="Max number of factors (default: %(default)s)", default=defaultAlgoArgs.ks)
-        algoParser.add_argument("--lmbdasCLiMF", type=float, nargs="+", help="Regularisation parameters (lambda) for CLiMF (default: %(default)s)", default=defaultAlgoArgs.lmbdasCLiMF)        
+        algoParser.add_argument("--lmbdasCLiMF", type=float, nargs="+", help="Regularisation parameters (lambda) for CLiMF (default: %(default)s)", default=defaultAlgoArgs.lmbdasCLiMF)  
+        algoParser.add_argument("--lmbdaVMlauc", type=float, help="Regularisation parameters (lambda) for max local AUC (default: %(default)s)", default=defaultAlgoArgs.lmbdaVMlauc)
         algoParser.add_argument("--lmbdasMlauc", type=float, nargs="+", help="Regularisation parameters for max local AUC (default: %(default)s)", default=defaultAlgoArgs.lmbdasMlauc)        
         algoParser.add_argument("--lmbdaUserBpr", type=float, help="Regularisation parameters for BPR (default: %(default)s)", default=defaultAlgoArgs.lmbdaUserBpr) 
         algoParser.add_argument("--lmbdaItemBpr", type=float, help="Regularisation parameters for BPR (default: %(default)s)", default=defaultAlgoArgs.lmbdaItemBpr)         
         algoParser.add_argument("--learningRateSelect", action="store_true", help="Whether to do learning rate selection (default: %(default)s)", default=defaultAlgoArgs.learningRateSelect)
         algoParser.add_argument("--maxIterations", type=int, help="Maximal number of iterations (default: %(default)s)", default=defaultAlgoArgs.maxIterations)
         algoParser.add_argument("--maxIterCLiMF", type=int, help="Maximal number of iterations for CLiMF algorithm (default: %(default)s)", default=defaultAlgoArgs.maxIterCLiMF)
+        algoParser.add_argument("--metric", type=str, help="Validation loss metric (default: %(default)s)", default=defaultAlgoArgs.metric)
         algoParser.add_argument("--modelSelect", action="store_true", help="Whether to do model selection(default: %(default)s)", default=defaultAlgoArgs.modelSelect)
         algoParser.add_argument("--numAucSamples", type=int, help="Number of AUC samples for max local AUC (default: %(default)s)", default=defaultAlgoArgs.numAucSamples)
         algoParser.add_argument("--numRowSamples", type=int, help="Number of row samples for max local AUC (default: %(default)s)", default=defaultAlgoArgs.numRowSamples)
@@ -202,6 +204,7 @@ class RankingExpHelper(object):
         algoParser.add_argument("--rhosMlauc", type=float, nargs="+", help="The rho penalty for max local AUC model selection (default: %(default)s)", default=defaultAlgoArgs.rhosMlauc)
         algoParser.add_argument("--t0", type=float, help="Learning rate decay for max local AUC (default: %(default)s)", default=defaultAlgoArgs.t0)
         algoParser.add_argument("--u", type=float, help="Focus on top proportion of u items (default: %(default)s)", default=defaultAlgoArgs.u)
+        algoParser.add_argument("--validationUsers", type=float, help="Proportion of users to use for validation users (default: %(default)s)", default=defaultAlgoArgs.validationUsers)
         algoParser.add_argument("--verbose", action="store_true", help="Whether to generate verbose algorithmic details(default: %(default)s)", default=defaultAlgoArgs.verbose)
                 
         return(algoParser)
