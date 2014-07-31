@@ -5,9 +5,6 @@ from sandbox.recommendation.MaxLocalAUC import MaxLocalAUC
 from wallhack.rankingexp.DatasetUtils import DatasetUtils
 from sandbox.util.PathDefaults import PathDefaults 
 from sandbox.util.Sampling import Sampling
-import matplotlib 
-matplotlib.use("GTK3Agg")
-import matplotlib.pyplot as plt
 
 """
 Look at the optimal learning rate parameters for values of k, lambda 
