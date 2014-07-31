@@ -96,7 +96,7 @@ if saveResults:
                 
                 learner = maxLocalAuc.copy()
                 paramList.append((trainX, testX, learner))
-                
+        """         
         pool = multiprocessing.Pool(maxtasksperchild=100, processes=multiprocessing.cpu_count())
         resultsIterator = pool.imap(computeTestObj, paramList, chunkSize)
     
@@ -108,10 +108,14 @@ if saveResults:
                 testOrderedItems = MCEvaluatorCython.recommendAtk(U, V, maxItems, trainX)
                 testF1s[i, j, 0] += MCEvaluator.f1AtK(testX, testOrderedItems, maxItems)
         
-        pool.terminate()   
+        pool.terminate()  
+        """
         
         #Now learn using parallel SGD 
-        maxLocalAuc.parallelSGD = True       
+        maxLocalAuc.parallelSGD = True    
+        maxLocalAuc.processes = 1
+        print(maxLocalAuc.ks)
+        print(maxLocalAuc.lmbdas)
         
         for i, k in enumerate(maxLocalAuc.ks): 
             for j, lmbdaV in enumerate(maxLocalAuc.lmbdas):
@@ -120,6 +124,7 @@ if saveResults:
                 logging.debug(maxLocalAuc)
                 
                 U, V, iterations, totalTime = maxLocalAuc.learnModel(trainX, verbose=True)
+
                 r = SparseUtilsCython.computeR(U, V, maxLocalAuc.w)
                 trainObj = maxLocalAuc.objectiveApprox(trainOmegaPtr, U, V, r, maxLocalAuc.gi, maxLocalAuc.gp, maxLocalAuc.gq)
                 
