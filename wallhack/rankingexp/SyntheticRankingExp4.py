@@ -61,8 +61,8 @@ maxLocalAuc.rate = "optimal"
 maxLocalAuc.rho = 0.5
 maxLocalAuc.folds = 1
 
-ks = numpy.array([8, 16, 32])
-lmbdas = numpy.array([0.5, 1.0, 2.0, 4.0])
+ks = numpy.array([8, 16, 32, 64])
+lmbdas = numpy.array([0.5, 1.0, 2.0, 4.0, 8.0])
 
 optimalAlphas = numpy.zeros((ks.shape[0],lmbdas.shape[0]))
 optimalt0s = numpy.zeros((ks.shape[0], lmbdas.shape[0]))
