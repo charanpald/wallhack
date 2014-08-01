@@ -18,7 +18,7 @@ numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "synthetic2"
+    dataset = "movielens"
 
 saveResults = True
 fixt0 = True
@@ -63,7 +63,7 @@ maxLocalAuc.rate = "optimal"
 maxLocalAuc.rho = 0.5
 maxLocalAuc.folds = 1
 
-ks = numpy.array([8, 16, 32, 64])
+ks = numpy.array([8, 16, 32, 64, 128])
 lmbdas = numpy.array([0.5, 1.0, 2.0, 4.0, 8.0])
 
 optimalAlphas = numpy.zeros((ks.shape[0],lmbdas.shape[0]))
