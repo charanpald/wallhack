@@ -74,10 +74,10 @@ maxLocalAuc.numRowSamples = 30
 maxLocalAuc.numAucSamples = 10
 maxLocalAuc.numRecordAucSamples = 100
 maxLocalAuc.recordStep = 10
-maxLocalAuc.initialAlg = "rand"
+maxLocalAuc.initialAlg = "svd"
 maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 4.0
-maxLocalAuc.t0 = 0.20
+maxLocalAuc.alpha = 0.2
+maxLocalAuc.t0 = 1.0
 maxLocalAuc.folds = 2
 maxLocalAuc.rho = 0.0
 maxLocalAuc.lmbdaU = 0.0
@@ -95,7 +95,8 @@ maxLocalAuc.sampling = "uniform"
 maxLocalAuc.itemExpP = 0.0
 maxLocalAuc.itemExpQ = 0.0
 maxLocalAuc.itemFactors = False
-maxLocalAuc.parallelSGD = False
+maxLocalAuc.parallelSGD = True
+
 
 os.system('taskset -p 0xffffffff %d' % os.getpid())
 
@@ -105,3 +106,24 @@ logging.debug(maxLocalAuc)
 numpy.random.seed(21)
 U, V = maxLocalAuc.learnModel(trainX)
 
+p = 10
+
+trainOrderedItems = MCEvaluator.recommendAtk(U, V, p)
+testOrderedItems = MCEvaluatorCython.recommendAtk(U, V, p, trainX)
+
+r = SparseUtilsCython.computeR(U, V, maxLocalAuc.w, maxLocalAuc.numRecordAucSamples)
+trainObjVec = maxLocalAuc.objectiveApprox(trainOmegaPtr, U, V, r, maxLocalAuc.gi, maxLocalAuc.gp, maxLocalAuc.gq, full=True)
+testObjVec = maxLocalAuc.objectiveApprox(testOmegaPtr, U, V, r, maxLocalAuc.gi, maxLocalAuc.gp, maxLocalAuc.gq, allArray=allOmegaPtr, full=True)
+
+itemCounts = numpy.array(X.sum(0)+1, numpy.int32)
+beta = 0.5
+
+for p in [1, 3, 5, 10]:
+    trainPrecision = MCEvaluator.precisionAtK(trainOmegaPtr, trainOrderedItems, p)
+    testPrecision = MCEvaluator.precisionAtK(testOmegaPtr, testOrderedItems, p)
+    logging.debug("Train/test precision@" + str(p) + "=" + str(trainPrecision) + "/" + str(testPrecision)) 
+    
+for p in [1, 3, 5, 10]:
+    trainRecall = MCEvaluator.stratifiedRecallAtK(trainOmegaPtr, trainOrderedItems, p, itemCounts, beta)
+    testRecall = MCEvaluator.stratifiedRecallAtK(testOmegaPtr, testOrderedItems, p, itemCounts, beta)    
+    logging.debug("Train/test stratified recall@" + str(p) + "=" + str(trainRecall) + "/" + str(testRecall))
