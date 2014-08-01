@@ -62,6 +62,7 @@ maxLocalAuc.recordStep = 10
 maxLocalAuc.rate = "optimal"
 maxLocalAuc.rho = 0.5
 maxLocalAuc.folds = 1
+maxLocalAuc.alphas = 2.0**-numpy.arange(0.0, 6.0)
 
 ks = numpy.array([8, 16, 32, 64, 128])
 lmbdas = numpy.array([0.5, 1.0, 2.0, 4.0, 8.0])
