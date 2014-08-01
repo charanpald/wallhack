@@ -86,10 +86,10 @@ if saveResults:
             optimalt0s[i, j] = maxLocalAuc.t0
             optimalObjs[i, j] = numpy.min(meanObjs)
 
-    numpy.savez(outputFile, optimalAlphas, optimalt0s)
+    numpy.savez(outputFile, optimalAlphas, optimalt0s, optimalObjs)
 else: 
     data = numpy.load(outputFile)
-    optimalAlphas, optimalt0s = data["arr_0"], data["arr_1"]
+    optimalAlphas, optimalt0s, optimalObjs = data["arr_0"], data["arr_1"], data["arr_2"]
     import matplotlib 
     matplotlib.use("GTK3Agg")
     import matplotlib.pyplot as plt 
