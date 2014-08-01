@@ -65,6 +65,9 @@ maxLocalAuc.lmbdaU = 0.0
 maxLocalAuc.lmbdaV = 1.0
 maxLocalAuc.rho = 0.5
 maxLocalAuc.validationSize = 0.0
+maxLocalAuc.ks = numpy.array([8, 16])
+maxLocalAuc.lmbdas = numpy.array([0.5, 1.0])
+#maxLocalAuc.numProcesses = 1
 
 maxItems = 10
 chunkSize = 1
@@ -77,8 +80,8 @@ def computeTestObj(args):
     return U, V, trainMeasures[-1, 0], testMeasures[-1, 0]
 
 if saveResults:    
-    trainObjectives = numpy.zeros((maxLocalAuc.ks.shape[0], maxLocalAuc.lmbdas.shape[0], 2))
-    testF1s = numpy.zeros((maxLocalAuc.ks.shape[0], maxLocalAuc.lmbdas.shape[0], 2))
+    trainObjectives = numpy.zeros((2, maxLocalAuc.ks.shape[0], maxLocalAuc.lmbdas.shape[0]))
+    testF1s = numpy.zeros((2, maxLocalAuc.ks.shape[0], maxLocalAuc.lmbdas.shape[0]))
     
     for trainX, testX in trainTestXs: 
         trainOmegaPtr = SparseUtils.getOmegaListPtr(trainX)
@@ -96,7 +99,7 @@ if saveResults:
                 
                 learner = maxLocalAuc.copy()
                 paramList.append((trainX, testX, learner))
-        """         
+                 
         pool = multiprocessing.Pool(maxtasksperchild=100, processes=multiprocessing.cpu_count())
         resultsIterator = pool.imap(computeTestObj, paramList, chunkSize)
     
@@ -104,16 +107,16 @@ if saveResults:
             for j, lmbdaV in enumerate(maxLocalAuc.lmbdas):
                 U, V, trainObj, testObj = resultsIterator.next()
                 
-                trainObjectives[i, j, 0] += trainObj
+                trainObjectives[0, i, j] += trainObj
                 testOrderedItems = MCEvaluatorCython.recommendAtk(U, V, maxItems, trainX)
-                testF1s[i, j, 0] += MCEvaluator.f1AtK(testX, testOrderedItems, maxItems)
+                testF1s[0, i, j] += MCEvaluator.f1AtK(testX, testOrderedItems, maxItems)
         
         pool.terminate()  
-        """
+        
         
         #Now learn using parallel SGD 
         maxLocalAuc.parallelSGD = True    
-        maxLocalAuc.processes = 1
+        maxLocalAuc.processes = 8
         print(maxLocalAuc.ks)
         print(maxLocalAuc.lmbdas)
         
@@ -128,9 +131,9 @@ if saveResults:
                 r = SparseUtilsCython.computeR(U, V, maxLocalAuc.w)
                 trainObj = maxLocalAuc.objectiveApprox(trainOmegaPtr, U, V, r, maxLocalAuc.gi, maxLocalAuc.gp, maxLocalAuc.gq)
                 
-                trainObjectives[i, j, 1] += trainObj
+                trainObjectives[1, i, j] += trainObj
                 testOrderedItems = MCEvaluatorCython.recommendAtk(U, V, maxItems, trainX)
-                testF1s[i, j, 1] += MCEvaluator.f1AtK(testX, testOrderedItems, maxItems)
+                testF1s[1, i, j] += MCEvaluator.f1AtK(testX, testOrderedItems, maxItems)
         
     trainObjectives /= folds 
     testF1s /= folds 
@@ -144,19 +147,33 @@ else:
     import matplotlib.pyplot as plt 
     
     plt.figure(0)
-    plt.contourf(maxLocalAuc.ks, maxLocalAuc.lmbdas, trainObjectives)
+    plt.contourf(maxLocalAuc.ks, maxLocalAuc.lmbdas, trainObjectives[0, :, :])
     plt.xlabel("ks")
     plt.ylabel("lambdas")
     plt.colorbar()
     
     plt.figure(1)
-    plt.contourf(maxLocalAuc.ks, maxLocalAuc.lmbdas, testF1s)
+    plt.contourf(maxLocalAuc.ks, maxLocalAuc.lmbdas, testF1s[0, :, :])
     plt.xlabel("ks")
     plt.ylabel("lambdas")
     plt.colorbar()    
+    
+    plt.figure(2)
+    plt.contourf(maxLocalAuc.ks, maxLocalAuc.lmbdas, trainObjectives[1, :, :])
+    plt.xlabel("ks")
+    plt.ylabel("lambdas")
+    plt.colorbar()
+    
+    plt.figure(3)
+    plt.contourf(maxLocalAuc.ks, maxLocalAuc.lmbdas, testF1s[1, :, :])
+    plt.xlabel("ks")
+    plt.ylabel("lambdas")
+    plt.colorbar()  
 
     plt.show()
 
-print(trainObjectives)
-print(testF1s)
-
+print("\n")
+print(trainObjectives[0, :, :])
+print(trainObjectives[1, :, :])
+print(testF1s[0, :, :])
+print(testF1s[1, :, :])
