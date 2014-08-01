@@ -18,23 +18,25 @@ numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "synthetic"
+    dataset = "synthetic2"
 
 saveResults = True
+fixt0 = True
+
 expNum = 4
 
 if dataset == "synthetic": 
     X, U, V = DatasetUtils.syntheticDataset1()
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp" + str(expNum) + "SyntheticResults.npz" 
+    outputFile = PathDefaults.getOutputDir() + "ranking/Exp" + str(expNum) + "SyntheticResults_" + str(fixt0) + ".npz" 
 elif dataset == "synthetic2": 
     X = DatasetUtils.syntheticDataset2()
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp" + str(expNum) + "Synthetic2Results.npz" 
+    outputFile = PathDefaults.getOutputDir() + "ranking/Exp" + str(expNum) + "Synthetic2Results_"  + str(fixt0) +  ".npz" 
 elif dataset == "movielens": 
     X = DatasetUtils.movieLens()
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp" + str(expNum) + "MovieLensResults.npz" 
+    outputFile = PathDefaults.getOutputDir() + "ranking/Exp" + str(expNum) + "MovieLensResults_"  + str(fixt0) +  ".npz" 
 elif dataset == "flixster": 
     X = DatasetUtils.flixster()
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp" + str(expNum) + "FlixsterResults.npz"  
+    outputFile = PathDefaults.getOutputDir() + "ranking/Exp" + str(expNum) + "FlixsterResults_"  + str(fixt0) +  ".npz"  
     X = Sampling.sampleUsers(X, 1000)
 else: 
     raise ValueError("Unknown dataset: " + dataset)
@@ -66,6 +68,7 @@ lmbdas = numpy.array([0.5, 1.0, 2.0, 4.0, 8.0])
 
 optimalAlphas = numpy.zeros((ks.shape[0],lmbdas.shape[0]))
 optimalt0s = numpy.zeros((ks.shape[0], lmbdas.shape[0]))
+optimalObjs = numpy.zeros((ks.shape[0], lmbdas.shape[0])) 
 
 if saveResults:
     
@@ -74,11 +77,14 @@ if saveResults:
             maxLocalAuc.k = k 
             maxLocalAuc.lmbdaV = lmbda             
             
+            if fixt0:
+                maxLocalAuc.t0s = numpy.array([lmbda])
+                
             meanObjs = maxLocalAuc.learningRateSelect(X)
             
             optimalAlphas[i, j] = maxLocalAuc.alpha
             optimalt0s[i, j] = maxLocalAuc.t0
-
+            optimalObjs[i, j] = numpy.min(meanObjs)
 
     numpy.savez(outputFile, optimalAlphas, optimalt0s)
 else: 
@@ -108,3 +114,4 @@ else:
     
 print(optimalAlphas)
 print(optimalt0s)
+print(optimalObjs)
