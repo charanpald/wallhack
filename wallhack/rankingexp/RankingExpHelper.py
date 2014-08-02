@@ -79,7 +79,7 @@ class RankingExpHelper(object):
     
     #Parameters for MlAuc
     defaultAlgoArgs.alpha = 0.5 
-    defaultAlgoArgs.alphas = 2.0**-numpy.arange(-4.0, 5.0)
+    defaultAlgoArgs.alphas = 2.0**-numpy.arange(-3, 3)
     defaultAlgoArgs.epsMlauc = 10**-6    
     defaultAlgoArgs.fullGradient = False
     defaultAlgoArgs.initialAlg = "rand"
@@ -407,6 +407,7 @@ class RankingExpHelper(object):
                     learner.sampling = self.algoArgs.sampling 
                     learner.z = self.algoArgs.z
 
+                    """
                     if self.algoArgs.learningRateSelect:
                         logging.debug("Performing learning rate selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
                         modelSelectX = Sampling.sampleUsers(trainX, self.algoArgs.modelSelectSamples)
@@ -416,6 +417,7 @@ class RankingExpHelper(object):
                         rateSelectFileName = resultsFileName.replace("Results", "LearningRateSelect")
                         numpy.savez(rateSelectFileName, objectives)
                         logging.debug("Saved learning rate selection grid as " + rateSelectFileName) 
+                    """
                     
                     if self.algoArgs.modelSelect: 
                         logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
