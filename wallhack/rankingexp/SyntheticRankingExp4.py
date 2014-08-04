@@ -21,7 +21,7 @@ else:
     dataset = "movielens"
 
 saveResults = True
-fixt0 = True
+fixt0 = False
 
 expNum = 4
 
