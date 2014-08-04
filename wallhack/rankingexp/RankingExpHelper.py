@@ -98,7 +98,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.sampling = "uniform"
     defaultAlgoArgs.rhoMlauc = 0.5
     defaultAlgoArgs.rhosMlauc = numpy.array([0, 0.5, 1.0])
-    defaultAlgoArgs.t0 = 0.1 
+    defaultAlgoArgs.t0 = 0.5 
     defaultAlgoArgs.t0s = 2.0**-numpy.arange(0.0, 6.0)
     defaultAlgoArgs.validationUsers = 0.1
     defaultAlgoArgs.z = 10
