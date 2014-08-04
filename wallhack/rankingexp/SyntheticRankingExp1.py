@@ -2,13 +2,11 @@ import numpy
 import logging
 import sys
 import os
-import sppy
 from sandbox.recommendation.MaxLocalAUC import MaxLocalAUC
 from sandbox.util.SparseUtils import SparseUtils
 import matplotlib 
 matplotlib.use("GTK3Agg")
 import matplotlib.pyplot as plt 
-from sandbox.util.ProfileUtils import ProfileUtils
 from sandbox.util.MCEvaluator import MCEvaluator
 from sandbox.util.PathDefaults import PathDefaults
 from sandbox.util.Sampling import Sampling
