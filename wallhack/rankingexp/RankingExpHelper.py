@@ -55,7 +55,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.processes = multiprocessing.cpu_count()
     defaultAlgoArgs.testSize = 5
     defaultAlgoArgs.u = 0.1
-    defaultAlgoArgs.validationSize = 3
+    defaultAlgoArgs.validationSize = 5
     defaultAlgoArgs.verbose = False
     
     #parameters for Bpr
@@ -96,6 +96,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.rate = "optimal"
     defaultAlgoArgs.recordStep = 5
     defaultAlgoArgs.sampling = "uniform"
+    defaultAlgoArgs.recommendSize = 5 
     defaultAlgoArgs.rhoMlauc = 0.5
     defaultAlgoArgs.rhosMlauc = numpy.array([0, 0.5, 1.0])
     defaultAlgoArgs.t0 = 1.0
@@ -397,6 +398,7 @@ class RankingExpHelper(object):
                     learner.itemExpP = self.algoArgs.itemExpP
                     learner.itemExpQ = self.algoArgs.itemExpQ
                     learner.itemFactors = self.algoArgs.itemFactors
+                    learner.recommendSize = self.algoArgs.recommendSize
                     learner.rho = self.algoArgs.rhoMlauc
                     learner.rhos = self.algoArgs.rhosMlauc
                     learner.validationSize = self.algoArgs.validationSize
