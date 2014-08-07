@@ -93,6 +93,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.maxIterations = 50
     defaultAlgoArgs.numAucSamples = 10
     defaultAlgoArgs.numRowSamples = 30
+    defaultAlgoArgs.parallelSGD = False
     defaultAlgoArgs.rate = "optimal"
     defaultAlgoArgs.recordStep = 5
     defaultAlgoArgs.sampling = "uniform"
@@ -196,6 +197,7 @@ class RankingExpHelper(object):
         algoParser.add_argument("--numAucSamples", type=int, help="Number of AUC samples for max local AUC (default: %(default)s)", default=defaultAlgoArgs.numAucSamples)
         algoParser.add_argument("--numRowSamples", type=int, help="Number of row samples for max local AUC (default: %(default)s)", default=defaultAlgoArgs.numRowSamples)
         algoParser.add_argument("--overwrite", action="store_true", help="Whether to overwrite results even if already computed (default: %(default)s)", default=defaultAlgoArgs.overwrite)
+        algoParser.add_argument("--parallelSGD", action="store_true", help="Use parallel version of SGD (default: %(default)s)", default=defaultAlgoArgs.parallelSGD)
         algoParser.add_argument("--postProcess", action="store_true", help="Whether to do post processing for soft impute (default: %(default)s)", default=defaultAlgoArgs.postProcess)
         algoParser.add_argument("--processes", type=int, help="Number of CPU cores to use (default: %(default)s)", default=defaultAlgoArgs.processes)
         algoParser.add_argument("--rate", type=str, help="Learning rate type: either constant or optimal (default: %(default)s)", default=defaultAlgoArgs.rate)
@@ -393,7 +395,7 @@ class RankingExpHelper(object):
                     learner.ks = self.algoArgs.ks 
                     learner.folds = self.algoArgs.folds  
                     learner.numProcesses = self.algoArgs.processes 
-                    learner.parallelSGD = False
+                    learner.parallelSGD = self.algoArgs.parallelSGD
                     learner.lmbdas = self.algoArgs.lmbdasMlauc
                     learner.itemExpP = self.algoArgs.itemExpP
                     learner.itemExpQ = self.algoArgs.itemExpQ
