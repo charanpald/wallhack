@@ -23,9 +23,9 @@ os.system('taskset -p 0xffffffff %d' % os.getpid())
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "synthetic2"
+    dataset = "synthetic"
 
-saveResults = False
+saveResults = True
 expNum = 8
 
 if dataset == "synthetic": 
@@ -54,16 +54,27 @@ w2 = 1-u
 k = 128
 eps = 10**-8
 maxLocalAuc = MaxLocalAUC(k, w2, eps=eps, stochastic=True)
-maxLocalAuc.maxIterations = 50
-maxLocalAuc.numRowSamples = 30
-maxLocalAuc.numAucSamples = 10
+maxLocalAuc.alpha = 4.0
+maxLocalAuc.alphas = 2.0**-numpy.arange(0, 5, 1)
+maxLocalAuc.folds = 2
 maxLocalAuc.initialAlg = "rand"
-maxLocalAuc.recordStep = 20
+maxLocalAuc.itemExpP = 1.0
+maxLocalAuc.itemExpQ = 1.0
+maxLocalAuc.lmbdas = numpy.linspace(0.5, 2.0, 7)
+maxLocalAuc.maxIterations = 100
+maxLocalAuc.metric = "f1"
+maxLocalAuc.normalise = True
+maxLocalAuc.numAucSamples = 10
+#maxLocalAuc.numProcesses = 1
+maxLocalAuc.numRecordAucSamples = 100
+maxLocalAuc.numRowSamples = 30
 maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 0.5
-maxLocalAuc.t0 = 0.1
-maxLocalAuc.lmbda = 1
+maxLocalAuc.recommendSize = 5
+maxLocalAuc.recordStep = 10
 maxLocalAuc.rho = 0.5
+maxLocalAuc.t0 = 1.0
+maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
+maxLocalAuc.validationSize = 5
 
 maxItems = 10
 chunkSize = 1
