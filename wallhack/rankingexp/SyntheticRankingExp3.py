@@ -53,7 +53,7 @@ trainTestXs = Sampling.shuffleSplitRows(X, folds, testSize)
 
 #w = 1.0
 k2 = 128
-u2 = 5/float(n)
+u2 = 0.1
 w2 = 1-u2
 eps = 10**-8
 lmbda = 1.0
@@ -66,7 +66,7 @@ maxLocalAuc.recordStep = 10
 maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.rate = "optimal"
 maxLocalAuc.alpha = 4.0
-maxLocalAuc.t0 = 0.20
+maxLocalAuc.t0 = 1.0
 maxLocalAuc.folds = 2
 maxLocalAuc.rho = 0.5
 maxLocalAuc.ks = numpy.array([k2])
@@ -77,7 +77,7 @@ maxLocalAuc.normalise = True
 maxLocalAuc.numProcesses = 1
 maxLocalAuc.alphas = 2.0**-numpy.arange(0, 5, 1)
 maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
-maxLocalAuc.metric = "mrr"
+maxLocalAuc.metric = "f1"
 
 maxItems = 3
 chunkSize = 1
