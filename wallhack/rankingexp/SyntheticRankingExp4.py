@@ -61,7 +61,6 @@ maxLocalAuc.folds = 2
 maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.itemExpP = 1.0
 maxLocalAuc.itemExpQ = 1.0
-maxLocalAuc.ks = numpy.array([k2])
 maxLocalAuc.lmbdas = numpy.linspace(0.5, 2.0, 7)
 maxLocalAuc.maxIterations = 100
 maxLocalAuc.metric = "f1"
