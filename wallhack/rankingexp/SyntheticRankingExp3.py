@@ -23,9 +23,9 @@ os.system('taskset -p 0xffffffff %d' % os.getpid())
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "synthetic2"
+    dataset = "movielens"
 
-saveResults = True
+saveResults = False
 
 if dataset == "synthetic": 
     X, U, V = DatasetUtils.syntheticDataset1()
@@ -58,26 +58,28 @@ w2 = 1-u2
 eps = 10**-8
 lmbda = 1.0
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbdaU=0.0, lmbdaV=lmbda, stochastic=True)
-maxLocalAuc.maxIterations = 100
-maxLocalAuc.numRowSamples = 30
-maxLocalAuc.numAucSamples = 10
-maxLocalAuc.numRecordAucSamples = 100
-maxLocalAuc.recordStep = 10
-maxLocalAuc.initialAlg = "rand"
-maxLocalAuc.rate = "optimal"
 maxLocalAuc.alpha = 4.0
-maxLocalAuc.t0 = 1.0
-maxLocalAuc.folds = 2
-maxLocalAuc.rho = 0.5
-maxLocalAuc.ks = numpy.array([k2])
-maxLocalAuc.validationSize = 3
-maxLocalAuc.z = 10
-maxLocalAuc.lmbdas = numpy.linspace(0.5, 2.0, 7)
-maxLocalAuc.normalise = True
-maxLocalAuc.numProcesses = 1
 maxLocalAuc.alphas = 2.0**-numpy.arange(0, 5, 1)
-maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
+maxLocalAuc.folds = 2
+maxLocalAuc.initialAlg = "rand"
+maxLocalAuc.itemExpP = 1.0
+maxLocalAuc.itemExpQ = 1.0
+maxLocalAuc.ks = numpy.array([k2])
+maxLocalAuc.lmbdas = numpy.linspace(0.5, 2.0, 7)
+maxLocalAuc.maxIterations = 100
 maxLocalAuc.metric = "f1"
+maxLocalAuc.normalise = True
+maxLocalAuc.numAucSamples = 10
+maxLocalAuc.numProcesses = 1
+maxLocalAuc.numRecordAucSamples = 100
+maxLocalAuc.numRowSamples = 30
+maxLocalAuc.rate = "optimal"
+maxLocalAuc.recommendSize = 5
+maxLocalAuc.recordStep = 10
+maxLocalAuc.rho = 0.5
+maxLocalAuc.t0 = 1.0
+maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
+maxLocalAuc.validationSize = 5
 
 maxItems = 3
 chunkSize = 1
@@ -154,3 +156,7 @@ else:
 
 print(testPrecisions)
 print(testRecalls)
+
+#On sythetic best is 1.0, 1.0 
+# synthetic2 best is 2.0, 2.0 
+#MovieLens best is 1.5, 1.0

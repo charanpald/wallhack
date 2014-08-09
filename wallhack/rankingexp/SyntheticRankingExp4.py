@@ -18,7 +18,7 @@ numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "movielens"
+    dataset = "synthetic"
 
 saveResults = True
 fixt0 = False
@@ -49,20 +49,34 @@ trainX, testX = trainTestXs[0]
 
 logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))
 
-u = 0.1
-w = 1.0 - u
-k2 = 8
-eps = 10**-6
-maxLocalAuc = MaxLocalAUC(k2, w, eps=eps, stochastic=True)
-maxLocalAuc.maxIterations = 50
-maxLocalAuc.numRowSamples = 30
-maxLocalAuc.numAucSamples = 10
+k2 = 128
+u2 = 0.1
+w2 = 1-u2
+eps = 10**-8
+lmbda = 1.0
+maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbdaU=0.0, lmbdaV=lmbda, stochastic=True)
+maxLocalAuc.alpha = 4.0
+maxLocalAuc.alphas = 2.0**-numpy.arange(0, 5, 1)
+maxLocalAuc.folds = 2
 maxLocalAuc.initialAlg = "rand"
-maxLocalAuc.recordStep = 10
+maxLocalAuc.itemExpP = 1.0
+maxLocalAuc.itemExpQ = 1.0
+maxLocalAuc.ks = numpy.array([k2])
+maxLocalAuc.lmbdas = numpy.linspace(0.5, 2.0, 7)
+maxLocalAuc.maxIterations = 100
+maxLocalAuc.metric = "f1"
+maxLocalAuc.normalise = True
+maxLocalAuc.numAucSamples = 10
+maxLocalAuc.numProcesses = 1
+maxLocalAuc.numRecordAucSamples = 100
+maxLocalAuc.numRowSamples = 30
 maxLocalAuc.rate = "optimal"
+maxLocalAuc.recommendSize = 5
+maxLocalAuc.recordStep = 10
 maxLocalAuc.rho = 0.5
-maxLocalAuc.folds = 1
-maxLocalAuc.alphas = 2.0**-numpy.arange(-4, 3)
+maxLocalAuc.t0 = 1.0
+maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
+maxLocalAuc.validationSize = 5
 
 ks = numpy.array([8, 16, 32, 64, 128])
 lmbdas = numpy.array([0.5, 1.0, 2.0, 4.0, 8.0])
@@ -94,10 +108,6 @@ else:
     import matplotlib 
     matplotlib.use("GTK3Agg")
     import matplotlib.pyplot as plt 
-    
-    print(optimalAlphas.shape)
-    print(ks.shape)
-    print(lmbdas.shape)
     
     plt.figure(0)
     plt.contourf(numpy.log2(lmbdas), numpy.log2(ks), optimalAlphas)
