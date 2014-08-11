@@ -84,6 +84,9 @@ chunkSize = 1
 lmbdaUs = 10.0**numpy.arange(-2, 2, 0.5)
 lmbdaVs = 10.0**numpy.arange(-2, 2, 0.5)
 
+print(lmbdaUs)
+print(lmbdaVs)
+
 def computeTestAuc(args): 
     trainX, maxLocalAuc  = args 
     numpy.random.seed(21)

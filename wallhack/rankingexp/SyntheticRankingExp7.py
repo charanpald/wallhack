@@ -87,6 +87,9 @@ def computeTestAuc(args):
     U, V, trainMeasures, testMeasures, iterations, totalTime = maxLocalAuc.learnModel(trainX, verbose=True)
     return U, V, trainMeasures[-1, 1], testMeasures[-1, 1]
 
+print(us)
+print(rhos)
+
 if saveResults: 
     trainLocalAucs = numpy.zeros((us.shape[0], rhos.shape[0]))
     trainPrecisions = numpy.zeros((us.shape[0], rhos.shape[0]))
