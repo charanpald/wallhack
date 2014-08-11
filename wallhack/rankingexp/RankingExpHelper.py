@@ -55,7 +55,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.processes = multiprocessing.cpu_count()
     defaultAlgoArgs.testSize = 5
     defaultAlgoArgs.u = 0.1
-    defaultAlgoArgs.validationSize = 5
+    defaultAlgoArgs.validationSize = 3
     defaultAlgoArgs.verbose = False
     
     #parameters for Bpr
@@ -102,7 +102,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.rhosMlauc = numpy.array([0, 0.5, 1.0])
     defaultAlgoArgs.t0 = 1.0
     defaultAlgoArgs.t0s = numpy.array([0.5, 1.0])
-    defaultAlgoArgs.validationUsers = 1.0
+    defaultAlgoArgs.validationUsers = 0.2
     defaultAlgoArgs.z = 10
     
     #Parameters for SoftImpute 
@@ -207,6 +207,7 @@ class RankingExpHelper(object):
         algoParser.add_argument("--rhosMlauc", type=float, nargs="+", help="The rho penalty for max local AUC model selection (default: %(default)s)", default=defaultAlgoArgs.rhosMlauc)
         algoParser.add_argument("--t0", type=float, help="Learning rate decay for max local AUC (default: %(default)s)", default=defaultAlgoArgs.t0)
         algoParser.add_argument("--u", type=float, help="Focus on top proportion of u items (default: %(default)s)", default=defaultAlgoArgs.u)
+        algoParser.add_argument("--validationSize", type=int, help="Number of items to use for validation users (default: %(default)s)", default=defaultAlgoArgs.validationSize)
         algoParser.add_argument("--validationUsers", type=float, help="Proportion of users to use for validation users (default: %(default)s)", default=defaultAlgoArgs.validationUsers)
         algoParser.add_argument("--verbose", action="store_true", help="Whether to generate verbose algorithmic details(default: %(default)s)", default=defaultAlgoArgs.verbose)
                 
