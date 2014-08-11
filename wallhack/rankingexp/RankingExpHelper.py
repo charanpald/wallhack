@@ -102,7 +102,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.rhosMlauc = numpy.array([0, 0.5, 1.0])
     defaultAlgoArgs.t0 = 1.0
     defaultAlgoArgs.t0s = numpy.array([0.5, 1.0])
-    defaultAlgoArgs.validationUsers = 0.1
+    defaultAlgoArgs.validationUsers = 1.0
     defaultAlgoArgs.z = 10
     
     #Parameters for SoftImpute 
@@ -276,7 +276,6 @@ class RankingExpHelper(object):
         trainMeasures = []
         testMeasures = []
         for p in ps: 
-            
             trainMeasures.append(MCEvaluator.precisionAtK(trainOmegaPtr, trainOrderedItems, p))
             testMeasures.append(MCEvaluator.precisionAtK(testOmegaPtr, testOrderedItems, p))
             
@@ -287,7 +286,13 @@ class RankingExpHelper(object):
             testMeasures.append(MCEvaluator.recallAtK(testOmegaPtr, testOrderedItems, p))
             
             logging.debug("recall@" + str(p) + " (train/test):" + str(trainMeasures[-1]) + str("/") + str(testMeasures[-1]))
+           
+        for p in ps: 
+            trainMeasures.append(MCEvaluator.f1AtK(trainOmegaPtr, trainOrderedItems, p))
+            testMeasures.append(MCEvaluator.f1AtK(testOmegaPtr, testOrderedItems, p))
             
+            logging.debug("f1@" + str(p) + " (train/test):" + str(trainMeasures[-1]) + str("/") + str(testMeasures[-1]))           
+           
         for p in ps: 
             trainMeasures.append(MCEvaluator.mrrAtK(trainOmegaPtr, trainOrderedItems, p))
             testMeasures.append(MCEvaluator.mrrAtK(testOmegaPtr, testOrderedItems, p))
