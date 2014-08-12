@@ -27,16 +27,16 @@ expNum = 13
 
 if dataset == "synthetic": 
     X, U, V = DatasetUtils.syntheticDataset1()
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp" + str(expNum) + "SyntheticResults_" + str(fixt0) + ".npz" 
+    outputFile = PathDefaults.getOutputDir() + "ranking/Exp" + str(expNum) + "SyntheticResults.npz" 
 elif dataset == "synthetic2": 
     X = DatasetUtils.syntheticDataset2()
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp" + str(expNum) + "Synthetic2Results_"  + str(fixt0) +  ".npz" 
+    outputFile = PathDefaults.getOutputDir() + "ranking/Exp" + str(expNum) + "Synthetic2Results.npz" 
 elif dataset == "movielens": 
     X = DatasetUtils.movieLens()
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp" + str(expNum) + "MovieLensResults_"  + str(fixt0) +  ".npz" 
+    outputFile = PathDefaults.getOutputDir() + "ranking/Exp" + str(expNum) + "MovieLensResults.npz" 
 elif dataset == "flixster": 
     X = DatasetUtils.flixster()
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp" + str(expNum) + "FlixsterResults_"  + str(fixt0) +  ".npz"  
+    outputFile = PathDefaults.getOutputDir() + "ranking/Exp" + str(expNum) + "FlixsterResults.npz"  
     X = Sampling.sampleUsers(X, 1000)
 else: 
     raise ValueError("Unknown dataset: " + dataset)
