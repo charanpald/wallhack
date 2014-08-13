@@ -81,10 +81,10 @@ maxLocalAuc.validationSize = 5
 if saveResults:
     maxLocalAuc.initialAlg = "svd"
     meanObjs, stdObjs = maxLocalAuc.learningRateSelect(X)
-    numpy.savez(outputFile, meanObjs, stdObjs)
     
     maxLocalAuc.initialAlg = "rand"
     meanObjs2, stdObjs2 = maxLocalAuc.learningRateSelect(X)
+    
     numpy.savez(outputFile, meanObjs, stdObjs, meanObjs2, stdObjs2)
 else: 
     data = numpy.load(outputFile)
