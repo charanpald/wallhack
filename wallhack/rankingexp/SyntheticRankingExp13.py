@@ -79,11 +79,16 @@ maxLocalAuc.validationSize = 5
 
 
 if saveResults:
+    maxLocalAuc.initialAlg = "svd"
     meanObjs, stdObjs = maxLocalAuc.learningRateSelect(X)
     numpy.savez(outputFile, meanObjs, stdObjs)
+    
+    maxLocalAuc.initialAlg = "rand"
+    meanObjs2, stdObjs2 = maxLocalAuc.learningRateSelect(X)
+    numpy.savez(outputFile, meanObjs, stdObjs, meanObjs2, stdObjs2)
 else: 
     data = numpy.load(outputFile)
-    optimalAlphas, optimalt0s, optimalObjs = data["arr_0"], data["arr_1"], data["arr_2"]
+    meanObjs, stdObjs, meanObjs2, stdObjs2 = data["arr_0"], data["arr_1"], data["arr_2"], data["arr_3"]
     import matplotlib 
     matplotlib.use("GTK3Agg")
     import matplotlib.pyplot as plt 
@@ -104,3 +109,6 @@ else:
     
 print(meanObjs)
 print(stdObjs)
+
+print(meanObjs2)
+print(stdObjs2)
