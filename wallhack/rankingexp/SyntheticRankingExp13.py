@@ -74,14 +74,16 @@ maxLocalAuc.recommendSize = 5
 maxLocalAuc.recordStep = 10
 maxLocalAuc.rho = 0.5
 maxLocalAuc.t0 = 1.0
-maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
+maxLocalAuc.t0s = 2.0**-numpy.arange(-1, 6, 1)
 maxLocalAuc.validationSize = 5
 
 
 if saveResults:
+    maxLocalAuc.t0s = 2.0**-numpy.arange(1, 8, 1)
     maxLocalAuc.initialAlg = "svd"
     meanObjs, stdObjs = maxLocalAuc.learningRateSelect(X)
     
+    maxLocalAuc.t0s = 2.0**-numpy.arange(-1, 6, 1)
     maxLocalAuc.initialAlg = "rand"
     meanObjs2, stdObjs2 = maxLocalAuc.learningRateSelect(X)
     
