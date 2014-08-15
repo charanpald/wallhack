@@ -42,7 +42,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.runWrMf = False
     
     #General algorithm parameters 
-    defaultAlgoArgs.folds = 2
+    defaultAlgoArgs.folds = 3
     defaultAlgoArgs.k = 32 
     defaultAlgoArgs.ks = 2**numpy.arange(4, 8)
     defaultAlgoArgs.itemExp = 0.5
@@ -79,10 +79,10 @@ class RankingExpHelper(object):
     
     #Parameters for MlAuc
     defaultAlgoArgs.alpha = 0.5 
-    defaultAlgoArgs.alphas = 2.0**-numpy.arange(-3, 4)
+    defaultAlgoArgs.alphas = 2.0**-numpy.arange(0, 5, 1)
     defaultAlgoArgs.epsMlauc = 10**-6    
     defaultAlgoArgs.fullGradient = False
-    defaultAlgoArgs.initialAlg = "rand"
+    defaultAlgoArgs.initialAlg = "svd"
     defaultAlgoArgs.itemExpP = 1.0 
     defaultAlgoArgs.itemExpQ = 1.0
     defaultAlgoArgs.itemFactors = False
@@ -101,7 +101,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.rhoMlauc = 0.5
     defaultAlgoArgs.rhosMlauc = numpy.array([0, 0.5, 1.0])
     defaultAlgoArgs.t0 = 1.0
-    defaultAlgoArgs.t0s = numpy.array([0.5, 1.0])
+    defaultAlgoArgs.t0s = 2.0**-numpy.arange(-1, 2, 1)
     defaultAlgoArgs.validationUsers = 0.2
     defaultAlgoArgs.z = 10
     
