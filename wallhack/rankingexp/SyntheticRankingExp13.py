@@ -13,7 +13,7 @@ Look at ways to reduce random variability of algorithm.
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 #numpy.random.seed(22)        
-numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
+numpy.set_printoptions(precision=4, suppress=True, linewidth=150)
 
 #Create a low rank matrix  
 if len(sys.argv) > 1:
@@ -21,7 +21,7 @@ if len(sys.argv) > 1:
 else: 
     dataset = "synthetic"
 
-saveResults = True
+saveResults = False
 
 expNum = 13
 
@@ -77,13 +77,16 @@ maxLocalAuc.t0 = 1.0
 maxLocalAuc.t0s = 2.0**-numpy.arange(-1, 6, 1)
 maxLocalAuc.validationSize = 5
 
+t0s1 = 2.0**-numpy.arange(1, 8, 1)
+t0s2 = 2.0**-numpy.arange(-1, 6, 1)
+
 
 if saveResults:
-    maxLocalAuc.t0s = 2.0**-numpy.arange(1, 8, 1)
+    maxLocalAuc.t0s = t0s1
     maxLocalAuc.initialAlg = "svd"
     meanObjs, stdObjs = maxLocalAuc.learningRateSelect(X)
     
-    maxLocalAuc.t0s = 2.0**-numpy.arange(-1, 6, 1)
+    maxLocalAuc.t0s = t0s2
     maxLocalAuc.initialAlg = "rand"
     meanObjs2, stdObjs2 = maxLocalAuc.learningRateSelect(X)
     
@@ -95,17 +98,30 @@ else:
     matplotlib.use("GTK3Agg")
     import matplotlib.pyplot as plt 
     
+    
     plt.figure(0)
-    plt.contourf(numpy.log2(maxLocalAuc.t0s), numpy.log2(maxLocalAuc.alphas), meanObjs)
+    plt.contourf(numpy.log2(maxLocalAuc.alphas), numpy.log2(t0s1), meanObjs)
     plt.xlabel("t0")
     plt.ylabel("alpha")
     plt.colorbar()
     
     plt.figure(1)
-    plt.contourf(numpy.log2(maxLocalAuc.t0s), numpy.log2(maxLocalAuc.alphas), meanObjs)
+    plt.contourf(numpy.log2(maxLocalAuc.alphas), numpy.log2(t0s1), stdObjs)
     plt.xlabel("t0")
     plt.ylabel("alpha")
     plt.colorbar()
+    
+    plt.figure(2)
+    plt.contourf(numpy.log2(maxLocalAuc.alphas), numpy.log2(t0s2), meanObjs2)
+    plt.xlabel("t0")
+    plt.ylabel("alpha")
+    plt.colorbar()
+    
+    plt.figure(3)
+    plt.contourf(numpy.log2(maxLocalAuc.alphas), numpy.log2(t0s2), stdObjs2)
+    plt.xlabel("t0")
+    plt.ylabel("alpha")
+    plt.colorbar()    
     
     plt.show()
     
