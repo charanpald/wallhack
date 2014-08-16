@@ -45,7 +45,6 @@ class RankingExpHelper(object):
     defaultAlgoArgs.folds = 3
     defaultAlgoArgs.k = 32 
     defaultAlgoArgs.ks = 2**numpy.arange(4, 8)
-    defaultAlgoArgs.itemExp = 0.5
     defaultAlgoArgs.learningRateSelect = False
     defaultAlgoArgs.metric = "f1"
     defaultAlgoArgs.modelSelect = False
@@ -98,7 +97,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.recordStep = 5
     defaultAlgoArgs.sampling = "uniform"
     defaultAlgoArgs.recommendSize = 5 
-    defaultAlgoArgs.rhoMlauc = 0.5
+    defaultAlgoArgs.rhoMlauc = 0.0
     defaultAlgoArgs.rhosMlauc = numpy.array([0, 0.5, 1.0])
     defaultAlgoArgs.t0 = 1.0
     defaultAlgoArgs.t0s = 2.0**-numpy.arange(-1, 2, 1)

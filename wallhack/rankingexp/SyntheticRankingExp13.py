@@ -130,3 +130,5 @@ print(stdObjs)
 
 print(meanObjs2)
 print(stdObjs2)
+
+#Results SVD results in lower objective and lower standard deviation 
