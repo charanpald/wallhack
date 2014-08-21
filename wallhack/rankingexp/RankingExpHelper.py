@@ -82,8 +82,8 @@ class RankingExpHelper(object):
     defaultAlgoArgs.epsMlauc = 10**-6    
     defaultAlgoArgs.fullGradient = False
     defaultAlgoArgs.initialAlg = "svd"
-    defaultAlgoArgs.itemExpP = 1.0 
-    defaultAlgoArgs.itemExpQ = 1.0
+    defaultAlgoArgs.itemExpP = 0.0 
+    defaultAlgoArgs.itemExpQ = 0.0
     defaultAlgoArgs.itemFactors = False
     defaultAlgoArgs.lmbdaUMlauc = 0.0
     defaultAlgoArgs.lmbdaVMlauc = 1.0
