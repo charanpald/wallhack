@@ -253,8 +253,8 @@ class RankingExpHelper(object):
                 U, s, V = ZList.next()
                 U = U*s
                 
-                trainX = sppy.csarray(trainX)
-                testX = sppy.csarray(testX)
+                #trainX = sppy.csarray(trainX)
+                #testX = sppy.csarray(testX)
                 U = numpy.ascontiguousarray(U)
                 V = numpy.ascontiguousarray(V)
             else: 
