@@ -52,6 +52,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.numRecordAucSamples = 500
     defaultAlgoArgs.overwrite = False 
     defaultAlgoArgs.processes = multiprocessing.cpu_count()
+    defaultAlgoArgs.recordFolds = 3
     defaultAlgoArgs.testSize = 5
     defaultAlgoArgs.u = 0.1
     defaultAlgoArgs.validationSize = 3
@@ -129,8 +130,8 @@ class RankingExpHelper(object):
         # Obtained merging default parameters from the class with those from the user
         self.algoArgs = RankingExpHelper.newAlgoParams(defaultAlgoArgs)
         
-        #How often to print output 
-        self.logStep = 10
+
+        self.ps = [1, 3, 5]
         
         #The max number of observations to use for model selection
         self.sampleSize = 5*10**6
@@ -235,91 +236,110 @@ class RankingExpHelper(object):
         """
         Save results for a particular recommendation 
         """
-        metaData = []
-        w = 1-self.algoArgs.u
-        logging.debug("Computing recommendation errors")
-        ps = [1, 3, 5]
-        maxItems = ps[-1]
+        allTrainMeasures = [] 
+        allTestMeasures = []
+        allMetaData = []        
         
-
-        start = time.time()
-        if type(learner) == IterativeSoftImpute:
-            trainIterator = iter([trainX])
-            ZList = learner.learnModel(trainIterator)    
-            U, s, V = ZList.next()
-            U = U*s
+        for i in range(self.algoArgs.recordFolds):         
+            metaData = []
+            w = 1-self.algoArgs.u
+            logging.debug("Computing recommendation errors")
+            maxItems = self.ps[-1]
             
-            trainX = sppy.csarray(trainX)
-            testX = sppy.csarray(testX)
-            U = numpy.ascontiguousarray(U)
-            V = numpy.ascontiguousarray(V)
-        else: 
-            learner.learnModel(trainX)
-            U = learner.U 
-            V = learner.V 
-            
-        learnTime = time.time()-start 
-        metaData.append(learnTime)
-
-        logging.debug("Getting all omega")
-        allOmegaPtr = SparseUtils.getOmegaListPtr(X)
-        logging.debug("Getting train omega")
-        trainOmegaPtr = SparseUtils.getOmegaListPtr(trainX)
-        logging.debug("Getting test omega")
-        testOmegaPtr = SparseUtils.getOmegaListPtr(testX)
-        logging.debug("Getting recommendations")
+            start = time.time()
+            if type(learner) == IterativeSoftImpute:
+                trainIterator = iter([trainX])
+                ZList = learner.learnModel(trainIterator)    
+                U, s, V = ZList.next()
+                U = U*s
                 
-        trainOrderedItems = MCEvaluator.recommendAtk(U, V, maxItems)
-        testOrderedItems = MCEvaluatorCython.recommendAtk(U, V, maxItems, trainX)
+                trainX = sppy.csarray(trainX)
+                testX = sppy.csarray(testX)
+                U = numpy.ascontiguousarray(U)
+                V = numpy.ascontiguousarray(V)
+            else: 
+                learner.learnModel(trainX)
+                U = learner.U 
+                V = learner.V 
+                
+            learnTime = time.time()-start 
+            metaData.append(learnTime)
+    
+            logging.debug("Getting all omega")
+            allOmegaPtr = SparseUtils.getOmegaListPtr(X)
+            logging.debug("Getting train omega")
+            trainOmegaPtr = SparseUtils.getOmegaListPtr(trainX)
+            logging.debug("Getting test omega")
+            testOmegaPtr = SparseUtils.getOmegaListPtr(testX)
+            logging.debug("Getting recommendations")
+                    
+            trainOrderedItems = MCEvaluator.recommendAtk(U, V, maxItems)
+            testOrderedItems = MCEvaluatorCython.recommendAtk(U, V, maxItems, trainX)
+    
+            colNames = []
+            trainMeasures = []
+            testMeasures = []
+            for p in self.ps: 
+                trainMeasures.append(MCEvaluator.precisionAtK(trainOmegaPtr, trainOrderedItems, p))
+                testMeasures.append(MCEvaluator.precisionAtK(testOmegaPtr, testOrderedItems, p))
+                
+                colNames.append("precision@" + str('%.4f' % p))
+                
+            for p in self.ps: 
+                trainMeasures.append(MCEvaluator.recallAtK(trainOmegaPtr, trainOrderedItems, p))
+                testMeasures.append(MCEvaluator.recallAtK(testOmegaPtr, testOrderedItems, p))
+                
+                colNames.append("recall@" + str('%.4f' % p))
+               
+            for p in self.ps: 
+                trainMeasures.append(MCEvaluator.f1AtK(trainOmegaPtr, trainOrderedItems, p))
+                testMeasures.append(MCEvaluator.f1AtK(testOmegaPtr, testOrderedItems, p))
+                
+                colNames.append("f1@" + str('%.4f' % p))           
+               
+            for p in self.ps: 
+                trainMeasures.append(MCEvaluator.mrrAtK(trainOmegaPtr, trainOrderedItems, p))
+                testMeasures.append(MCEvaluator.mrrAtK(testOmegaPtr, testOrderedItems, p))
+                
+                colNames.append("mrr@" + str('%.4f' % p))
+    
+            try: 
+                r = SparseUtilsCython.computeR(U, V, w, self.algoArgs.numRecordAucSamples)
+                trainMeasures.append(MCEvaluator.localAUCApprox(trainOmegaPtr, U, V, w, self.algoArgs.numRecordAucSamples, r=r))            
+                testMeasures.append(MCEvaluator.localAUCApprox(testOmegaPtr, U, V, w, self.algoArgs.numRecordAucSamples, allArray=allOmegaPtr, r=r))
+                
+                w = 0.0            
+                r = SparseUtilsCython.computeR(U, V, w, self.algoArgs.numRecordAucSamples)
+                trainMeasures.append(MCEvaluator.localAUCApprox(trainOmegaPtr, U, V, w, self.algoArgs.numRecordAucSamples, r=r))
+                testMeasures.append(MCEvaluator.localAUCApprox(testOmegaPtr, U, V, w, self.algoArgs.numRecordAucSamples, allArray=allOmegaPtr, r=r))
+                
+                colNames.append("LAUC@" + str(self.algoArgs.u))
+                colNames.append("AUC")
+            except:
+                logging.debug("Could not compute AUCs")
+                raise
 
-
-        trainMeasures = []
-        testMeasures = []
-        for p in ps: 
-            trainMeasures.append(MCEvaluator.precisionAtK(trainOmegaPtr, trainOrderedItems, p))
-            testMeasures.append(MCEvaluator.precisionAtK(testOmegaPtr, testOrderedItems, p))
+            trainMeasures = numpy.array(trainMeasures)
+            testMeasures = numpy.array(testMeasures)
+            metaData = numpy.array(metaData)
             
-            logging.debug("precision@" + str(p) + " (train/test):" + str(trainMeasures[-1]) + str("/") + str(testMeasures[-1]))
+            allTrainMeasures.append(trainMeasures)
+            allTestMeasures.append(testMeasures)
+            allMetaData.append(metaData)
             
-        for p in ps: 
-            trainMeasures.append(MCEvaluator.recallAtK(trainOmegaPtr, trainOrderedItems, p))
-            testMeasures.append(MCEvaluator.recallAtK(testOmegaPtr, testOrderedItems, p))
-            
-            logging.debug("recall@" + str(p) + " (train/test):" + str(trainMeasures[-1]) + str("/") + str(testMeasures[-1]))
-           
-        for p in ps: 
-            trainMeasures.append(MCEvaluator.f1AtK(trainOmegaPtr, trainOrderedItems, p))
-            testMeasures.append(MCEvaluator.f1AtK(testOmegaPtr, testOrderedItems, p))
-            
-            logging.debug("f1@" + str(p) + " (train/test):" + str(trainMeasures[-1]) + str("/") + str(testMeasures[-1]))           
-           
-        for p in ps: 
-            trainMeasures.append(MCEvaluator.mrrAtK(trainOmegaPtr, trainOrderedItems, p))
-            testMeasures.append(MCEvaluator.mrrAtK(testOmegaPtr, testOrderedItems, p))
-            
-            logging.debug("mrr@" + str(p) + " (train/test):" + str(trainMeasures[-1]) + str("/") + str(testMeasures[-1]))
-
-        try: 
-            r = SparseUtilsCython.computeR(U, V, w, self.algoArgs.numRecordAucSamples)
-            trainMeasures.append(MCEvaluator.localAUCApprox(trainOmegaPtr, U, V, w, self.algoArgs.numRecordAucSamples, r=r))            
-            testMeasures.append(MCEvaluator.localAUCApprox(testOmegaPtr, U, V, w, self.algoArgs.numRecordAucSamples, allArray=allOmegaPtr, r=r))
-            
-            w = 0.0            
-            r = SparseUtilsCython.computeR(U, V, w, self.algoArgs.numRecordAucSamples)
-            trainMeasures.append(MCEvaluator.localAUCApprox(trainOmegaPtr, U, V, w, self.algoArgs.numRecordAucSamples, r=r))
-            testMeasures.append(MCEvaluator.localAUCApprox(testOmegaPtr, U, V, w, self.algoArgs.numRecordAucSamples, allArray=allOmegaPtr, r=r))
-            
-            logging.debug("Local AUC@" + str(self.algoArgs.u) +  " (train/all):" + str(trainMeasures[-2]) + str("/") + str(testMeasures[-2]))
-            logging.debug("AUC (train/test):" + str(trainMeasures[-1]) + str("/") + str(testMeasures[-1]))
-        except:
-            logging.debug("Could not compute AUCs")
-            raise
-
-        trainMeasures = numpy.array(trainMeasures)
-        testMeasures = numpy.array(testMeasures)
-        metaData = numpy.array(metaData)
+        allTrainMeasures = numpy.array(allTrainMeasures)
+        allTestMeasures = numpy.array(allTestMeasures)
+        allMetaData = numpy.array(allMetaData)
         
-        numpy.savez(fileName, trainMeasures, testMeasures, metaData, trainOrderedItems, testOrderedItems)
+        meanTrainMeasures = numpy.mean(allTrainMeasures, 0)
+        meanTestMeasures = numpy.mean(allTestMeasures, 0)
+        meanMetaData = numpy.mean(allMetaData, 0)
+        
+        logging.debug("Mean metrics")
+        for i, colName in enumerate(colNames): 
+            logging.debug(colName + ":" + str(meanTrainMeasures[i]) + "/" + str(meanTestMeasures[i]))
+        
+        numpy.savez(fileName, meanTrainMeasures, meanTestMeasures, meanMetaData, trainOrderedItems, testOrderedItems)
         logging.debug("Saved file as " + fileName)
 
     def runExperiment(self, X):
@@ -327,6 +347,8 @@ class RankingExpHelper(object):
         Run the selected ranking experiments and save results
         """
         logging.debug("Splitting into train and test sets")
+        #Make sure different runs get the same train/test split 
+        numpy.random.seed(21)
         m, n = X.shape
         #colProbs = (X.sum(0)+1)/float(m+1)
         #colProbs = colProbs**-self.algoArgs.itemExp 
