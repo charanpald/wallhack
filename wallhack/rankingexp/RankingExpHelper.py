@@ -44,7 +44,7 @@ class RankingExpHelper(object):
     #General algorithm parameters 
     defaultAlgoArgs.folds = 3
     defaultAlgoArgs.k = 32 
-    defaultAlgoArgs.ks = 2**numpy.arange(4, 8)
+    defaultAlgoArgs.ks = 2**numpy.arange(3, 8)
     defaultAlgoArgs.learningRateSelect = False
     defaultAlgoArgs.metric = "f1"
     defaultAlgoArgs.modelSelect = False
@@ -283,25 +283,25 @@ class RankingExpHelper(object):
                 trainMeasures.append(MCEvaluator.precisionAtK(trainOmegaPtr, trainOrderedItems, p))
                 testMeasures.append(MCEvaluator.precisionAtK(testOmegaPtr, testOrderedItems, p))
                 
-                colNames.append("precision@" + str('%.4f' % p))
+                colNames.append("precision@" + str(p))
                 
             for p in self.ps: 
                 trainMeasures.append(MCEvaluator.recallAtK(trainOmegaPtr, trainOrderedItems, p))
                 testMeasures.append(MCEvaluator.recallAtK(testOmegaPtr, testOrderedItems, p))
                 
-                colNames.append("recall@" + str('%.4f' % p))
+                colNames.append("recall@" + str(p))
                
             for p in self.ps: 
                 trainMeasures.append(MCEvaluator.f1AtK(trainOmegaPtr, trainOrderedItems, p))
                 testMeasures.append(MCEvaluator.f1AtK(testOmegaPtr, testOrderedItems, p))
                 
-                colNames.append("f1@" + str('%.4f' % p))           
+                colNames.append("f1@" + str(p))           
                
             for p in self.ps: 
                 trainMeasures.append(MCEvaluator.mrrAtK(trainOmegaPtr, trainOrderedItems, p))
                 testMeasures.append(MCEvaluator.mrrAtK(testOmegaPtr, testOrderedItems, p))
                 
-                colNames.append("mrr@" + str('%.4f' % p))
+                colNames.append("mrr@" + str(p))
     
             try: 
                 r = SparseUtilsCython.computeR(U, V, w, self.algoArgs.numRecordAucSamples)
@@ -337,7 +337,7 @@ class RankingExpHelper(object):
         
         logging.debug("Mean metrics")
         for i, colName in enumerate(colNames): 
-            logging.debug(colName + ":" + str(meanTrainMeasures[i]) + "/" + str(meanTestMeasures[i]))
+            logging.debug(colName + ":" + str('%.4f' % meanTrainMeasures[i]) + "/" + str('%.4f' % meanTestMeasures[i]))
         
         numpy.savez(fileName, meanTrainMeasures, meanTestMeasures, meanMetaData, trainOrderedItems, testOrderedItems)
         logging.debug("Saved file as " + fileName)
