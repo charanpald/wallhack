@@ -52,7 +52,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.numRecordAucSamples = 500
     defaultAlgoArgs.overwrite = False 
     defaultAlgoArgs.processes = multiprocessing.cpu_count()
-    defaultAlgoArgs.recordFolds = 3
+    defaultAlgoArgs.recordFolds = 5
     defaultAlgoArgs.testSize = 5
     defaultAlgoArgs.u = 0.1
     defaultAlgoArgs.validationSize = 3
