@@ -82,7 +82,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.alphas = 2.0**-numpy.arange(-3, 5, 1)
     defaultAlgoArgs.epsMlauc = 10**-6    
     defaultAlgoArgs.fullGradient = False
-    defaultAlgoArgs.initialAlg = "svd"
+    defaultAlgoArgs.initialAlg = "rand"
     defaultAlgoArgs.itemExpP = 0.0 
     defaultAlgoArgs.itemExpQ = 0.0
     defaultAlgoArgs.itemFactors = False
