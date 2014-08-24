@@ -60,7 +60,7 @@ lmbda = 1.0
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbdaU=0.0, lmbdaV=lmbda, stochastic=True)
 maxLocalAuc.alpha = 4.0
 maxLocalAuc.alphas = 2.0**-numpy.arange(0, 5, 1)
-maxLocalAuc.folds = 2
+maxLocalAuc.folds = 5
 maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.itemExpP = 1.0
 maxLocalAuc.itemExpQ = 1.0
