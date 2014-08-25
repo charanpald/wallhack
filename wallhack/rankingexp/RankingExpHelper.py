@@ -82,7 +82,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.alphas = 2.0**-numpy.arange(-3, 5, 1)
     defaultAlgoArgs.epsMlauc = 10**-6    
     defaultAlgoArgs.fullGradient = False
-    defaultAlgoArgs.initialAlg = "svd"
+    defaultAlgoArgs.initialAlg = "rand"
     defaultAlgoArgs.itemExpP = 1.0 
     defaultAlgoArgs.itemExpQ = 1.0
     defaultAlgoArgs.itemFactors = False
@@ -90,11 +90,11 @@ class RankingExpHelper(object):
     defaultAlgoArgs.lmbdaVMlauc = 1.0
     defaultAlgoArgs.lmbdasMlauc = 2.0**numpy.arange(-3, 5, 0.5)
     defaultAlgoArgs.maxIterations = 100
-    defaultAlgoArgs.normalise = False
+    defaultAlgoArgs.normalise = True
     defaultAlgoArgs.numAucSamples = 10
     defaultAlgoArgs.numRowSamples = 30
     defaultAlgoArgs.parallelSGD = False
-    defaultAlgoArgs.rate = "constant"
+    defaultAlgoArgs.rate = "optimal"
     defaultAlgoArgs.recordStep = 5
     defaultAlgoArgs.sampling = "uniform"
     defaultAlgoArgs.recommendSize = 5 
