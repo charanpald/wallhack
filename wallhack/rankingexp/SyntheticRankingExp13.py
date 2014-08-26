@@ -57,7 +57,7 @@ eps = 10**-8
 lmbda = 1.0
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbdaU=0.0, lmbdaV=lmbda, stochastic=True)
 maxLocalAuc.alpha = 1.0
-maxLocalAuc.alphas = 2.0**-numpy.arange(-1, 5, 1)
+maxLocalAuc.alphas = 2.0**-numpy.arange(-4, 5, 1)
 maxLocalAuc.folds = 5
 maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.itemExpP = 1.0
@@ -125,30 +125,41 @@ else:
     import matplotlib.pyplot as plt 
     
     plotInd = 0 
-    for i, meanObjs in enumerate(meanObjsList): 
-        stdObjs = stdObjsList[i]
-        
-        plt.figure(plotInd)
-        plt.contourf(numpy.log2(maxLocalAuc.alphas), numpy.log2(t0s1), meanObjs)
-        plt.xlabel("t0")
-        plt.ylabel("alpha")
-        plt.colorbar()
-        plotInd += 1
-        
-        plt.figure(plotInd)
-        plt.contourf(numpy.log2(maxLocalAuc.alphas), numpy.log2(t0s1), stdObjs)
-        plt.xlabel("t0")
-        plt.ylabel("alpha")
-        plt.colorbar()
+    for stochastic in [False, True]: 
+        for normalise in [False, True]: 
+            for initialAlg in initialAlgs: 
+                print("stochastic=" + str(stochastic) + " normalise=" + str(normalise) + " initialAlg=" + str(initialAlg))
+                meanObjs = meanObjsList[plotInd]
+                stdObjs = stdObjsList[plotInd]
+            
+                plt.figure(plotInd)
+                plt.contourf(numpy.log2(maxLocalAuc.alphas), numpy.log2(t0s1), meanObjs)
+                plt.xlabel("t0")
+                plt.ylabel("alpha")
+                plt.colorbar()
+                plotInd += 1
+                
+                plt.figure(plotInd)
+                plt.contourf(numpy.log2(maxLocalAuc.alphas), numpy.log2(t0s1), stdObjs)
+                plt.xlabel("t0")
+                plt.ylabel("alpha")
+                plt.colorbar()
         
         plotInd += 1
     
     plt.show()
     
-    
-for i, meanObjs in enumerate(meanObjsList): 
-    stdObjs = stdObjsList[i]
-    print(meanObjs)
-    print(stdObjs)
+
+i = 0    
+
+for stochastic in [False, True]: 
+    for normalise in [False, True]: 
+        for initialAlg in initialAlgs: 
+            print("stochastic=" + str(stochastic) + " normalise=" + str(normalise) + " initialAlg=" + str(initialAlg))
+            meanObjs = meanObjsList[i]
+            stdObjs = stdObjsList[i]
+            print(meanObjs)
+            print(stdObjs)
+            i += 1
 
 #Results SVD results in lower objective and lower standard deviation 
