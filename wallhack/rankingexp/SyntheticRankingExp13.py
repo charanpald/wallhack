@@ -2,6 +2,7 @@
 import numpy
 import logging
 import sys
+import pickle 
 from sandbox.recommendation.MaxLocalAUC import MaxLocalAUC
 from wallhack.rankingexp.DatasetUtils import DatasetUtils
 from sandbox.util.PathDefaults import PathDefaults 
@@ -21,12 +22,12 @@ if len(sys.argv) > 1:
 else: 
     dataset = "synthetic"
 
-saveResults = False
+saveResults = True
 
 expNum = 13
 
 if dataset == "synthetic": 
-    X, U, V = DatasetUtils.syntheticDataset1()
+    X, U, V = DatasetUtils.syntheticDataset1(m=100, n=50)
     outputFile = PathDefaults.getOutputDir() + "ranking/Exp" + str(expNum) + "SyntheticResults.npz" 
 elif dataset == "synthetic2": 
     X = DatasetUtils.syntheticDataset2()
@@ -49,14 +50,14 @@ trainX, testX = trainTestXs[0]
 
 logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))
 
-k2 = 64
+k2 = 32
 u2 = 0.1
 w2 = 1-u2
 eps = 10**-8
 lmbda = 1.0
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbdaU=0.0, lmbdaV=lmbda, stochastic=True)
-maxLocalAuc.alpha = 4.0
-maxLocalAuc.alphas = 2.0**-numpy.arange(0, 5, 1)
+maxLocalAuc.alpha = 1.0
+maxLocalAuc.alphas = 2.0**-numpy.arange(-1, 5, 1)
 maxLocalAuc.folds = 5
 maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.itemExpP = 1.0
@@ -71,64 +72,83 @@ maxLocalAuc.numRecordAucSamples = 100
 maxLocalAuc.numRowSamples = 30
 maxLocalAuc.rate = "optimal"
 maxLocalAuc.recommendSize = 5
-maxLocalAuc.recordStep = 10
-maxLocalAuc.rho = 0.5
+maxLocalAuc.recordStep = 1
+maxLocalAuc.rho = 0.0
 maxLocalAuc.t0 = 1.0
 maxLocalAuc.t0s = 2.0**-numpy.arange(-1, 6, 1)
 maxLocalAuc.validationSize = 5
+maxLocalAuc.validationUsers = 0 
 
 t0s1 = 2.0**-numpy.arange(1, 8, 1)
 t0s2 = 2.0**-numpy.arange(-1, 6, 1)
 
+#maxLocalAuc.maxIterations = 1
+#maxLocalAuc.numProcesses = 1
+
+meanObjsList = []
+stdObjsList = []
+
+initialAlgs = ["rand", "svd"]
 
 if saveResults:
-    maxLocalAuc.t0s = t0s1
-    maxLocalAuc.initialAlg = "svd"
-    meanObjs, stdObjs = maxLocalAuc.learningRateSelect(X)
+    #Run through all types of gradient descent to figure out which optimises the best 
+    for stochastic in [False, True]: 
+        for normalise in [False, True]: 
+            for initialAlg in initialAlgs: 
+                
+                maxLocalAuc.stochastic = stochastic
+                maxLocalAuc.initialAlg = initialAlg
+                
+                if initialAlg == "rand": 
+                    maxLocalAuc.t0s = t0s1
+                else: 
+                    maxLocalAuc.t0s = t0s2
+                
+                if normalise: 
+                    maxLocalAuc.normalise = True
+                    maxLocalAuc.rate = "optimal"
+                else:
+                    maxLocalAuc.normalise = False
+                    maxLocalAuc.rate = "constant"
+                    
+                meanObjs, stdObjs = maxLocalAuc.learningRateSelect(X)
+                
+                meanObjsList.append(meanObjs)
+                stdObjsList.append(stdObjs)
     
-    maxLocalAuc.t0s = t0s2
-    maxLocalAuc.initialAlg = "rand"
-    meanObjs2, stdObjs2 = maxLocalAuc.learningRateSelect(X)
-    
-    numpy.savez(outputFile, meanObjs, stdObjs, meanObjs2, stdObjs2)
+    pickle.dump((meanObjsList, stdObjsList), open(outputFile, "w"))
 else: 
     data = numpy.load(outputFile)
-    meanObjs, stdObjs, meanObjs2, stdObjs2 = data["arr_0"], data["arr_1"], data["arr_2"], data["arr_3"]
+    meanObjsList, stdObjsList = pickle.load(open(outputFile))
     import matplotlib 
     matplotlib.use("GTK3Agg")
     import matplotlib.pyplot as plt 
     
-    
-    plt.figure(0)
-    plt.contourf(numpy.log2(maxLocalAuc.alphas), numpy.log2(t0s1), meanObjs)
-    plt.xlabel("t0")
-    plt.ylabel("alpha")
-    plt.colorbar()
-    
-    plt.figure(1)
-    plt.contourf(numpy.log2(maxLocalAuc.alphas), numpy.log2(t0s1), stdObjs)
-    plt.xlabel("t0")
-    plt.ylabel("alpha")
-    plt.colorbar()
-    
-    plt.figure(2)
-    plt.contourf(numpy.log2(maxLocalAuc.alphas), numpy.log2(t0s2), meanObjs2)
-    plt.xlabel("t0")
-    plt.ylabel("alpha")
-    plt.colorbar()
-    
-    plt.figure(3)
-    plt.contourf(numpy.log2(maxLocalAuc.alphas), numpy.log2(t0s2), stdObjs2)
-    plt.xlabel("t0")
-    plt.ylabel("alpha")
-    plt.colorbar()    
+    plotInd = 0 
+    for i, meanObjs in enumerate(meanObjsList): 
+        stdObjs = stdObjsList[i]
+        
+        plt.figure(plotInd)
+        plt.contourf(numpy.log2(maxLocalAuc.alphas), numpy.log2(t0s1), meanObjs)
+        plt.xlabel("t0")
+        plt.ylabel("alpha")
+        plt.colorbar()
+        plotInd += 1
+        
+        plt.figure(plotInd)
+        plt.contourf(numpy.log2(maxLocalAuc.alphas), numpy.log2(t0s1), stdObjs)
+        plt.xlabel("t0")
+        plt.ylabel("alpha")
+        plt.colorbar()
+        
+        plotInd += 1
     
     plt.show()
     
-print(meanObjs)
-print(stdObjs)
-
-print(meanObjs2)
-print(stdObjs2)
+    
+for i, meanObjs in enumerate(meanObjsList): 
+    stdObjs = stdObjsList[i]
+    print(meanObjs)
+    print(stdObjs)
 
 #Results SVD results in lower objective and lower standard deviation 
