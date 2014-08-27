@@ -22,7 +22,7 @@ if len(sys.argv) > 1:
 else: 
     dataset = "synthetic"
 
-saveResults = False
+saveResults = True
 
 expNum = 13
 
