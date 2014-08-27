@@ -22,7 +22,7 @@ if len(sys.argv) > 1:
 else: 
     dataset = "synthetic"
 
-saveResults = True
+saveResults = False
 
 expNum = 13
 
@@ -57,7 +57,7 @@ eps = 10**-8
 lmbda = 1.0
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbdaU=0.0, lmbdaV=lmbda, stochastic=True)
 maxLocalAuc.alpha = 1.0
-maxLocalAuc.alphas = 2.0**-numpy.arange(-4, 5, 1)
+maxLocalAuc.alphas = 2.0**-numpy.arange(-10, 5, 1)
 maxLocalAuc.folds = 5
 maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.itemExpP = 1.0
@@ -79,8 +79,7 @@ maxLocalAuc.t0s = 2.0**-numpy.arange(-1, 6, 1)
 maxLocalAuc.validationSize = 5
 maxLocalAuc.validationUsers = 0 
 
-t0s1 = 2.0**-numpy.arange(1, 8, 1)
-t0s2 = 2.0**-numpy.arange(-1, 6, 1)
+t0s = 2.0**-numpy.arange(-2, 8, 1)
 
 #maxLocalAuc.maxIterations = 1
 #maxLocalAuc.numProcesses = 1
@@ -100,9 +99,9 @@ if saveResults:
                 maxLocalAuc.initialAlg = initialAlg
                 
                 if initialAlg == "rand": 
-                    maxLocalAuc.t0s = t0s1
+                    maxLocalAuc.t0s = t0s
                 else: 
-                    maxLocalAuc.t0s = t0s2
+                    maxLocalAuc.t0s = t0s
                 
                 if normalise: 
                     maxLocalAuc.normalise = True
@@ -123,7 +122,7 @@ else:
     import matplotlib 
     matplotlib.use("GTK3Agg")
     import matplotlib.pyplot as plt 
-    
+    """
     plotInd = 0 
     for stochastic in [False, True]: 
         for normalise in [False, True]: 
@@ -131,21 +130,27 @@ else:
                 print("stochastic=" + str(stochastic) + " normalise=" + str(normalise) + " initialAlg=" + str(initialAlg))
                 meanObjs = meanObjsList[plotInd]
                 stdObjs = stdObjsList[plotInd]
+                
+                if initialAlg == "rand": 
+                    t0s = t0s2
+                else: 
+                    t0s = t0s1                
             
                 plt.figure(plotInd)
-                plt.contourf(numpy.log2(maxLocalAuc.alphas), numpy.log2(t0s1), meanObjs)
+                plt.contourf(numpy.log2(maxLocalAuc.alphas), numpy.log2(t0s), meanObjs)
                 plt.xlabel("t0")
                 plt.ylabel("alpha")
                 plt.colorbar()
                 plotInd += 1
                 
                 plt.figure(plotInd)
-                plt.contourf(numpy.log2(maxLocalAuc.alphas), numpy.log2(t0s1), stdObjs)
+                plt.contourf(numpy.log2(maxLocalAuc.alphas), numpy.log2(t0s), stdObjs)
                 plt.xlabel("t0")
                 plt.ylabel("alpha")
                 plt.colorbar()
         
         plotInd += 1
+    """
     
     plt.show()
     
@@ -159,6 +164,7 @@ for stochastic in [False, True]:
             meanObjs = meanObjsList[i]
             stdObjs = stdObjsList[i]
             print(meanObjs)
+            print(numpy.min(meanObjs))
             print(stdObjs)
             i += 1
 
