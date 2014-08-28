@@ -57,7 +57,7 @@ eps = 10**-8
 lmbda = 1.0
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbdaU=0.0, lmbdaV=lmbda, stochastic=True)
 maxLocalAuc.alpha = 1.0
-maxLocalAuc.alphas = 2.0**-numpy.arange(-10, 5, 1)
+maxLocalAuc.alphas = 2.0**-numpy.arange(-5, 5, 1)
 maxLocalAuc.folds = 5
 maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.itemExpP = 1.0
@@ -88,32 +88,30 @@ meanObjsList = []
 stdObjsList = []
 
 initialAlgs = ["rand", "svd"]
+rates = ["optimal", "constant"]
 
 if saveResults:
     #Run through all types of gradient descent to figure out which optimises the best 
     for stochastic in [False, True]: 
         for normalise in [False, True]: 
             for initialAlg in initialAlgs: 
+                for rate in rates: 
                 
-                maxLocalAuc.stochastic = stochastic
-                maxLocalAuc.initialAlg = initialAlg
-                
-                if initialAlg == "rand": 
-                    maxLocalAuc.t0s = t0s
-                else: 
-                    maxLocalAuc.t0s = t0s
-                
-                if normalise: 
-                    maxLocalAuc.normalise = True
-                    maxLocalAuc.rate = "optimal"
-                else:
-                    maxLocalAuc.normalise = False
-                    maxLocalAuc.rate = "constant"
+                    maxLocalAuc.stochastic = stochastic
+                    maxLocalAuc.initialAlg = initialAlg
                     
-                meanObjs, stdObjs = maxLocalAuc.learningRateSelect(X)
-                
-                meanObjsList.append(meanObjs)
-                stdObjsList.append(stdObjs)
+                    if initialAlg == "rand": 
+                        maxLocalAuc.t0s = t0s
+                    else: 
+                        maxLocalAuc.t0s = t0s
+                    
+                    maxLocalAuc.normalise = normalise
+                    maxLocalAuc.rate = rate
+                        
+                    meanObjs, stdObjs = maxLocalAuc.learningRateSelect(X)
+                    
+                    meanObjsList.append(meanObjs)
+                    stdObjsList.append(stdObjs)
     
     pickle.dump((meanObjsList, stdObjsList), open(outputFile, "w"))
 else: 
@@ -160,12 +158,15 @@ i = 0
 for stochastic in [False, True]: 
     for normalise in [False, True]: 
         for initialAlg in initialAlgs: 
-            print("stochastic=" + str(stochastic) + " normalise=" + str(normalise) + " initialAlg=" + str(initialAlg))
-            meanObjs = meanObjsList[i]
-            stdObjs = stdObjsList[i]
-            print(meanObjs)
-            print(numpy.min(meanObjs))
-            print(stdObjs)
-            i += 1
+            for rate in rates: 
+                meanObjs = meanObjsList[i]
+                stdObjs = stdObjsList[i]            
+                
+                print("stochastic=" + str(stochastic) + " normalise=" + str(normalise) + " initialAlg=" + str(initialAlg) + " rate=" + str(rate) + " min obj=" + str(numpy.min(meanObjs[numpy.isfinite(meanObjs)])))
+    
+                #print(meanObjs)
+                #print(numpy.min(meanObjs[numpy.isfinite(meanObjs)]))
+                #print(stdObjs)
+                i += 1
 
 #Results SVD results in lower objective and lower standard deviation 
