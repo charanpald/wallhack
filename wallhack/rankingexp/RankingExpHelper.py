@@ -79,7 +79,7 @@ class RankingExpHelper(object):
     
     #Parameters for MlAuc
     defaultAlgoArgs.alpha = 0.5 
-    defaultAlgoArgs.alphas = 2.0**-numpy.arange(-1, 5, 0.5)
+    defaultAlgoArgs.alphas = 2.0**-numpy.arange(-1, 4, 0.5)
     defaultAlgoArgs.epsMlauc = 10**-6    
     defaultAlgoArgs.fullGradient = False
     defaultAlgoArgs.initialAlg = "svd"
@@ -456,8 +456,8 @@ class RankingExpHelper(object):
                         logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
                         modelSelectX = Sampling.sampleUsers(trainX, self.algoArgs.modelSelectSamples)
                         
-                        #meanAucs, stdAucs = learner.modelSelect(modelSelectX)
-                        meanAucs, stdAucs = learner.modelSelectRandom(modelSelectX)
+                        meanAucs, stdAucs = learner.modelSelect(modelSelectX)
+                        #meanAucs, stdAucs = learner.modelSelectRandom(modelSelectX)
                         
                         modelSelectFileName = resultsFileName.replace("Results", "ModelSelect") 
                         numpy.savez(modelSelectFileName, meanAucs, stdAucs)
