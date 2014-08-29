@@ -22,7 +22,7 @@ if len(sys.argv) > 1:
 else: 
     dataset = "synthetic"
 
-saveResults = True
+saveResults = False
 
 expNum = 13
 
@@ -170,3 +170,6 @@ for stochastic in [False, True]:
                 i += 1
 
 #Results SVD results in lower objective and lower standard deviation 
+#GD is better than SGD 
+# Normalising improves objective 
+# Constant rate is better for GD but worse for SGD only when normalising 
