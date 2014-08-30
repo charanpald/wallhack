@@ -22,22 +22,22 @@ if len(sys.argv) > 1:
 else: 
     dataset = "synthetic"
 
-saveResults = False
+saveResults = True
 
 expNum = 13
 
 if dataset == "synthetic": 
     X, U, V = DatasetUtils.syntheticDataset1(m=100, n=50)
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp" + str(expNum) + "SyntheticResults.npz" 
+    outputFile = PathDefaults.getOutputDir() + "ranking/Exp" + str(expNum) + "SyntheticResults.pkl" 
 elif dataset == "synthetic2": 
     X = DatasetUtils.syntheticDataset2()
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp" + str(expNum) + "Synthetic2Results.npz" 
+    outputFile = PathDefaults.getOutputDir() + "ranking/Exp" + str(expNum) + "Synthetic2Results.pkl" 
 elif dataset == "movielens": 
     X = DatasetUtils.movieLens()
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp" + str(expNum) + "MovieLensResults.npz" 
+    outputFile = PathDefaults.getOutputDir() + "ranking/Exp" + str(expNum) + "MovieLensResults.pkl" 
 elif dataset == "flixster": 
     X = DatasetUtils.flixster()
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp" + str(expNum) + "FlixsterResults.npz"  
+    outputFile = PathDefaults.getOutputDir() + "ranking/Exp" + str(expNum) + "FlixsterResults.pkl"  
     X = Sampling.sampleUsers(X, 1000)
 else: 
     raise ValueError("Unknown dataset: " + dataset)
@@ -73,7 +73,7 @@ maxLocalAuc.numRowSamples = 30
 maxLocalAuc.rate = "optimal"
 maxLocalAuc.recommendSize = 5
 maxLocalAuc.recordStep = 1
-maxLocalAuc.rho = 0.0
+maxLocalAuc.rho = 1.0
 maxLocalAuc.t0 = 1.0
 maxLocalAuc.t0s = 2.0**-numpy.arange(-1, 6, 1)
 maxLocalAuc.validationSize = 5
