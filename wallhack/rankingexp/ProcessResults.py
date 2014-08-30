@@ -15,18 +15,18 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 ps = [1, 3, 5]
 dirNames = ["SyntheticDataset1", "SyntheticDataset2", "MovieLens", "Flixster", "MendeleyCoauthors"]
 
-verbose = True
+verbose = False
 generateRecommendations = False
 
 algs = ["Bpr", "CLiMF", "MaxLocalAUCUser", "SoftImpute", "WrMf"]
-names = ["BPR", "CLiMF", "MLAUC",  "SoftImpute", "WrMf"]
+names = ["BPR\t", "CLiMF\t", "MLAUC\t",  "SoftImpute\t", "WrMf\t"]
 
 for dirName in dirNames:
     resultsDir = PathDefaults.getOutputDir() + "ranking/" + dirName + "/"
     print("="*30 + dirName + "="*30)
     
-    trainResultsTable = numpy.zeros((len(algs), len(ps)*2+2))
-    testResultsTable = numpy.zeros((len(algs), len(ps)*2+2))
+    trainResultsTable = numpy.zeros((len(algs), len(ps)*4+2))
+    testResultsTable = numpy.zeros((len(algs), len(ps)*4+2))
     figInd = 0    
     for s, alg in enumerate(algs): 
         resultsFileName = resultsDir + "Results" + alg + ".npz"
@@ -88,14 +88,18 @@ for dirName in dirNames:
         colNames.append("p@" + str(p)) 
     for i, p in enumerate(ps): 
         colNames.append("r@" + str(p)) 
+    for i, p in enumerate(ps): 
+        colNames.append("f1@" + str(p)) 
+    for i, p in enumerate(ps): 
+        colNames.append("mrr@" + str(p)) 
     colNames.extend(["localAUC@u", "AUC"])
     
     print("")
     print("-"*20 + "Train metrics" + "-"*20)
-    print(Latex.listToRow(colNames))
+    print("\t" + Latex.listToRow(colNames))
     print(Latex.addRowNames(names, Latex.array2DToRows(trainResultsTable)))
     
     
     print("-"*20 + "Test metrics" + "-"*20)
-    print(Latex.listToRow(colNames))
+    print("\t" +  Latex.listToRow(colNames))
     print(Latex.addRowNames(names, Latex.array2DToRows(testResultsTable)))
