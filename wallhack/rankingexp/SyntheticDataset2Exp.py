@@ -22,6 +22,7 @@ dataArgs = argparse.Namespace()
 defaultAlgoArgs = argparse.Namespace()
 defaultAlgoArgs.u = u
 #defaultAlgoArgs.validationUsers = 0.0
+defaultAlgoArgs.ks = numpy.array([8])
 
 # data args parser #
 dataParser = argparse.ArgumentParser(description="", add_help=False)
