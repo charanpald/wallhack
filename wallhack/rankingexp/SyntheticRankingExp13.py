@@ -169,7 +169,31 @@ for stochastic in [False, True]:
                 #print(stdObjs)
                 i += 1
 
-#Results SVD results in lower objective and lower standard deviation 
-#GD is better than SGD 
-# Normalising improves objective 
-# Constant rate is better for GD but worse for SGD only when normalising 
+""""
+Results SVD results in lower objective and lower standard deviation 
+GD is better than SGD 
+Normalising improves objective 
+Constant rate is better for GD but worse for SGD only when normalising 
+"""
+
+
+
+"""
+#Results with rho=1.0 
+stochastic=False normalise=False initialAlg=rand rate=optimal min obj=0.225322905646
+stochastic=False normalise=False initialAlg=rand rate=constant min obj=0.144345535568
+stochastic=False normalise=False initialAlg=svd rate=optimal min obj=0.116050209464
+stochastic=False normalise=False initialAlg=svd rate=constant min obj=0.101745590554
+stochastic=False normalise=True initialAlg=rand rate=optimal min obj=0.0233563291435
+stochastic=False normalise=True initialAlg=rand rate=constant min obj=0.0409450270899
+stochastic=False normalise=True initialAlg=svd rate=optimal min obj=0.021783559312
+stochastic=False normalise=True initialAlg=svd rate=constant min obj=0.0337811598271
+stochastic=True normalise=False initialAlg=rand rate=optimal min obj=0.243667173883
+stochastic=True normalise=False initialAlg=rand rate=constant min obj=0.156706677103
+stochastic=True normalise=False initialAlg=svd rate=optimal min obj=0.118554146078
+stochastic=True normalise=False initialAlg=svd rate=constant min obj=0.111315489086
+stochastic=True normalise=True initialAlg=rand rate=optimal min obj=0.0483915109993
+stochastic=True normalise=True initialAlg=rand rate=constant min obj=0.0620550966661
+stochastic=True normalise=True initialAlg=svd rate=optimal min obj=0.0403380630114
+stochastic=True normalise=True initialAlg=svd rate=constant min obj=0.0477605570661
+"""
