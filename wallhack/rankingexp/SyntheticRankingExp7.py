@@ -23,7 +23,7 @@ os.system('taskset -p 0xffffffff %d' % os.getpid())
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "synthetic"
+    dataset = "synthetic2"
 
 saveResults = True
 expNum = 7
@@ -45,21 +45,23 @@ else:
     raise ValueError("Unknown dataset: " + dataset)
         
 testSize = 5
-folds = 2
+folds = 5
 trainTestXs = Sampling.shuffleSplitRows(X, folds, testSize)
 
 u = 0.1
 w2 = 1-u 
-k = 64
+k = 8
 eps = 10**-6
 maxLocalAuc = MaxLocalAUC(k, w2, eps=eps, stochastic=True)
-maxLocalAuc.alpha = 4.0
-maxLocalAuc.alphas = 2.0**-numpy.arange(0, 5, 1)
-maxLocalAuc.folds = 2
-maxLocalAuc.initialAlg = "rand"
+maxLocalAuc.alpha = 1.0
+maxLocalAuc.alphas = 2.0**-numpy.arange(1, 7, 0.5)
+maxLocalAuc.folds = 3
+maxLocalAuc.initialAlg = "svd"
 maxLocalAuc.itemExpP = 1.0
 maxLocalAuc.itemExpQ = 1.0
 maxLocalAuc.lmbdas = numpy.linspace(0.5, 2.0, 7)
+maxLocalAuc.lmbdaU = 0.125 
+maxLocalAuc.lmbdaU = 0.125 
 maxLocalAuc.maxIterations = 100
 maxLocalAuc.metric = "f1"
 maxLocalAuc.normalise = True
@@ -67,7 +69,7 @@ maxLocalAuc.numAucSamples = 10
 #maxLocalAuc.numProcesses = 1
 maxLocalAuc.numRecordAucSamples = 100
 maxLocalAuc.numRowSamples = 30
-maxLocalAuc.rate = "optimal"
+maxLocalAuc.rate = "constant"
 maxLocalAuc.recommendSize = 5
 maxLocalAuc.recordStep = 10
 maxLocalAuc.rho = 0.5
