@@ -61,25 +61,23 @@ numRecordAucSamples = 200
 logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))
 
 #w = 1.0
-k2 = 64
+k2 = 8
 u2 = 5/float(n)
 w2 = 1-u2
 eps = 10**-8
-lmbda = 10**-3
-maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbdaV=lmbda, stochastic=True)
-maxLocalAuc.maxIterations = 50
+lmbda = 0.125
+maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbdaU=lmbda, lmbdaV=lmbda, stochastic=True)
+maxLocalAuc.maxIterations = 100
 maxLocalAuc.numRowSamples = 30
-maxLocalAuc.numAucSamples = 10
+maxLocalAuc.numAucSamples = 5
 maxLocalAuc.numRecordAucSamples = 100
 maxLocalAuc.recordStep = 10
-maxLocalAuc.initialAlg = "rand"
-maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 4.0
+maxLocalAuc.initialAlg = "svd"
+maxLocalAuc.rate = "constant"
+maxLocalAuc.alpha = 0.1
 maxLocalAuc.t0 = 1.0
 maxLocalAuc.folds = 2
-maxLocalAuc.rho = 0.0
-maxLocalAuc.lmbdaU = 0.0
-maxLocalAuc.lmbdaV = 10.0
+maxLocalAuc.rho = 1.0
 maxLocalAuc.ks = numpy.array([k2])
 maxLocalAuc.validationSize = 3
 maxLocalAuc.z = 10
@@ -88,10 +86,10 @@ maxLocalAuc.normalise = True
 #maxLocalAuc.numProcesses = 1
 maxLocalAuc.alphas = 2.0**-numpy.arange(0, 5, 1)
 maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
-maxLocalAuc.metric = "mrr"
+maxLocalAuc.metric = "f1"
 maxLocalAuc.sampling = "uniform"
-maxLocalAuc.itemExpP = 0.0
-maxLocalAuc.itemExpQ = 0.0
+maxLocalAuc.itemExpP = 1.0
+maxLocalAuc.itemExpQ = 1.0
 maxLocalAuc.itemFactors = False
 #maxLocalAuc.parallelSGD = True
 
