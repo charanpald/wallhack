@@ -23,9 +23,9 @@ os.system('taskset -p 0xffffffff %d' % os.getpid())
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "movielens"
+    dataset = "synthetic"
 
-saveResults = False
+saveResults = True
 
 if dataset == "synthetic": 
     X, U, V = DatasetUtils.syntheticDataset1()
@@ -52,16 +52,16 @@ colProbs = colProbs**-itemExp
 trainTestXs = Sampling.shuffleSplitRows(X, folds, testSize)
 
 #w = 1.0
-k2 = 128
+k2 = 8
 u2 = 0.1
 w2 = 1-u2
 eps = 10**-8
 lmbda = 1.0
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbdaU=0.0, lmbdaV=lmbda, stochastic=True)
-maxLocalAuc.alpha = 4.0
-maxLocalAuc.alphas = 2.0**-numpy.arange(0, 5, 1)
+maxLocalAuc.alpha = 0.1
+maxLocalAuc.alphas = 2.0**-numpy.arange(1, 7, 0.5)
 maxLocalAuc.folds = 5
-maxLocalAuc.initialAlg = "rand"
+maxLocalAuc.initialAlg = "svd"
 maxLocalAuc.itemExpP = 1.0
 maxLocalAuc.itemExpQ = 1.0
 maxLocalAuc.ks = numpy.array([k2])
@@ -73,7 +73,7 @@ maxLocalAuc.numAucSamples = 10
 maxLocalAuc.numProcesses = 1
 maxLocalAuc.numRecordAucSamples = 100
 maxLocalAuc.numRowSamples = 30
-maxLocalAuc.rate = "optimal"
+maxLocalAuc.rate = "constant"
 maxLocalAuc.recommendSize = 5
 maxLocalAuc.recordStep = 10
 maxLocalAuc.rho = 0.5
@@ -96,7 +96,7 @@ if saveResults:
     testPrecisions = numpy.zeros((itemExpPs.shape[0], itemExpQs.shape[0]))
     testRecalls = numpy.zeros((itemExpPs.shape[0], itemExpQs.shape[0]))
     
-    #maxLocalAuc.learningRateSelect(X)    
+    maxLocalAuc.learningRateSelect(X)    
     
     for trainX, testX in trainTestXs: 
         trainOmegaPtr = SparseUtils.getOmegaListPtr(trainX)
