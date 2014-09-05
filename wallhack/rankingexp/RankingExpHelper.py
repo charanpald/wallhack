@@ -562,8 +562,8 @@ class RankingExpHelper(object):
                 fileLock.lock()
                 
                 try: 
-                    trainX = trainX.toScipyCsr()
-                    testX = testX.toScipyCsr()
+                    #trainX = trainX.toScipyCsr()
+                    #testX = testX.toScipyCsr()
 
                     learner = BprRecommender(self.algoArgs.k, lmbdaUser=self.algoArgs.lmbdaUserBpr, lmbdaPos=self.algoArgs.lmbdaItemBpr, lmbdaNeg=self.algoArgs.lmbdaItemBpr, gamma=self.algoArgs.gammaBpr)
                     learner.folds = self.algoArgs.folds
