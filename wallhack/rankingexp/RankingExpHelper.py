@@ -44,7 +44,7 @@ class RankingExpHelper(object):
     #General algorithm parameters 
     defaultAlgoArgs.folds = 3
     defaultAlgoArgs.k = 32 
-    defaultAlgoArgs.ks = 2**numpy.arange(3, 8)
+    defaultAlgoArgs.ks = 2**numpy.arange(4, 8)
     defaultAlgoArgs.learningRateSelect = False
     defaultAlgoArgs.metric = "f1"
     defaultAlgoArgs.modelSelect = False
