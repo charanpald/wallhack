@@ -94,12 +94,15 @@ for dirName in dirNames:
         colNames.append("mrr@" + str(p)) 
     colNames.extend(["localAUC@u", "AUC"])
     
+    #Restrict output to precision, recall and AUC 
+    colInds = [0, 1, 2, 3, 4, 5, 13] 
+    
     print("")
     print("-"*20 + "Train metrics" + "-"*20)
     print("\t" + Latex.listToRow(colNames))
-    print(Latex.addRowNames(names, Latex.array2DToRows(trainResultsTable)))
+    print(Latex.addRowNames(names, Latex.array2DToRows(trainResultsTable[:, colInds])))
     
     
     print("-"*20 + "Test metrics" + "-"*20)
     print("\t" +  Latex.listToRow(colNames))
-    print(Latex.addRowNames(names, Latex.array2DToRows(testResultsTable)))
+    print(Latex.addRowNames(names, Latex.array2DToRows(testResultsTable[:, colInds])))
