@@ -63,7 +63,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.lmbdaItemBpr = 0.1
     defaultAlgoArgs.lmbdaUsers = 2.0**-numpy.arange(-2, 10, 2)
     defaultAlgoArgs.lmbdaItems = 2.0**-numpy.arange(3, 9, 1)
-    defaultAlgoArgs.maxIterationsBpr = 30
+    defaultAlgoArgs.maxIterationsBpr = 50
     defaultAlgoArgs.gammasBpr = 2.0**-numpy.arange(3, 7, 1)
     defaultAlgoArgs.gammaBpr = 0.01
     
