@@ -61,7 +61,7 @@ class RankingExpHelper(object):
     #parameters for Bpr
     defaultAlgoArgs.lmbdaUserBpr = 0.1
     defaultAlgoArgs.lmbdaItemBpr = 0.1
-    defaultAlgoArgs.lmbdaUsers = 2.0**-numpy.arange(-2, 10, 2)
+    defaultAlgoArgs.lmbdaUsers = 2.0**-numpy.arange(1, 10, 2)
     defaultAlgoArgs.lmbdaItems = 2.0**-numpy.arange(3, 9, 1)
     defaultAlgoArgs.maxIterationsBpr = 50
     defaultAlgoArgs.gammasBpr = 2.0**-numpy.arange(3, 7, 1)
@@ -79,17 +79,17 @@ class RankingExpHelper(object):
     
     #Parameters for MlAuc
     defaultAlgoArgs.alpha = 0.5 
-    defaultAlgoArgs.alphas = 2.0**-numpy.arange(1, 7, 0.5)
+    defaultAlgoArgs.alphas = 2.0**-numpy.arange(1, 8)
     defaultAlgoArgs.epsMlauc = 10**-6    
     defaultAlgoArgs.fullGradient = False
     defaultAlgoArgs.initialAlg = "svd"
     defaultAlgoArgs.itemExpP = 0.0 
     defaultAlgoArgs.itemExpQ = 0.0
     defaultAlgoArgs.itemFactors = False
-    defaultAlgoArgs.lmbdaUMlauc = 0.0
-    defaultAlgoArgs.lmbdaVMlauc = 1.0
-    defaultAlgoArgs.lmbdasMlauc = 2.0**numpy.arange(-5, 3)
-    defaultAlgoArgs.maxIterations = 100
+    defaultAlgoArgs.lmbdaUMlauc = 0.1
+    defaultAlgoArgs.lmbdaVMlauc = 0.1
+    defaultAlgoArgs.lmbdasMlauc = 2.0**numpy.arange(-5, 1)
+    defaultAlgoArgs.maxIterations = 50
     defaultAlgoArgs.normalise = True
     defaultAlgoArgs.numAucSamples = 10
     defaultAlgoArgs.numRowSamples = 30
