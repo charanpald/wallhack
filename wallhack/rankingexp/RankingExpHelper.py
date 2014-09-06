@@ -79,7 +79,7 @@ class RankingExpHelper(object):
     
     #Parameters for MlAuc
     defaultAlgoArgs.alpha = 0.5 
-    defaultAlgoArgs.alphas = 2.0**-numpy.arange(1, 8)
+    defaultAlgoArgs.alphas = 2.0**-numpy.arange(1, 9)
     defaultAlgoArgs.epsMlauc = 10**-6    
     defaultAlgoArgs.fullGradient = False
     defaultAlgoArgs.initialAlg = "svd"
@@ -567,7 +567,7 @@ class RankingExpHelper(object):
 
                     learner = BprRecommender(self.algoArgs.k, lmbdaUser=self.algoArgs.lmbdaUserBpr, lmbdaPos=self.algoArgs.lmbdaItemBpr, lmbdaNeg=self.algoArgs.lmbdaItemBpr, gamma=self.algoArgs.gammaBpr)
                     learner.folds = self.algoArgs.folds
-                    learner.gammasBpr = self.algoArgs.gammasBpr
+                    learner.gammas = self.algoArgs.gammasBpr
                     learner.ks = self.algoArgs.ks
                     learner.lmbdaItems = self.algoArgs.lmbdaItems
                     learner.lmbdaUsers = self.algoArgs.lmbdaUsers
