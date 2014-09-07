@@ -18,8 +18,11 @@ dirNames = ["SyntheticDataset1", "SyntheticDataset2", "MovieLens", "Flixster", "
 verbose = False
 generateRecommendations = False
 
-algs = ["Bpr", "CLiMF", "MaxLocalAUCUser", "SoftImpute", "WrMf"]
-names = ["BPR\t", "CLiMF\t", "MLAUC\t",  "SoftImpute\t", "WrMf\t"]
+#algs = ["Bpr", "CLiMF", "MaxLocalAUCUser", "SoftImpute", "WrMf"]
+#names = ["BPR\t", "CLiMF\t", "MLAUC\t",  "SoftImpute\t", "WrMf\t"]
+
+algs = ["Bpr", "MaxLocalAUCUser", "SoftImpute", "WrMf"]
+names = ["BPR\t", "MLAUC\t",  "SoftImpute\t", "WrMf\t"]
 
 for dirName in dirNames:
     resultsDir = PathDefaults.getOutputDir() + "ranking/" + dirName + "/"
