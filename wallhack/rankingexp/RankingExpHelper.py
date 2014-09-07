@@ -61,10 +61,10 @@ class RankingExpHelper(object):
     #parameters for Bpr
     defaultAlgoArgs.lmbdaUserBpr = 0.1
     defaultAlgoArgs.lmbdaItemBpr = 0.1
-    defaultAlgoArgs.lmbdaUsers = 2.0**-numpy.arange(1, 10, 2)
-    defaultAlgoArgs.lmbdaItems = 2.0**-numpy.arange(3, 9, 1)
-    defaultAlgoArgs.maxIterationsBpr = 50
-    defaultAlgoArgs.gammasBpr = 2.0**-numpy.arange(3, 7, 1)
+    defaultAlgoArgs.lmbdaUsers = 2.0**-numpy.arange(1, 5, 1)
+    defaultAlgoArgs.lmbdaItems = 2.0**-numpy.arange(4, 10, 1)
+    defaultAlgoArgs.maxIterationsBpr = 100
+    defaultAlgoArgs.gammasBpr = 2.0**-numpy.arange(4, 8, 1)
     defaultAlgoArgs.gammaBpr = 0.01
     
     #parameters for CLiMF
@@ -83,13 +83,13 @@ class RankingExpHelper(object):
     defaultAlgoArgs.epsMlauc = 10**-6    
     defaultAlgoArgs.fullGradient = False
     defaultAlgoArgs.initialAlg = "svd"
-    defaultAlgoArgs.itemExpP = 0.0 
-    defaultAlgoArgs.itemExpQ = 0.0
+    defaultAlgoArgs.itemExpP = 0.5 
+    defaultAlgoArgs.itemExpQ = 0.5
     defaultAlgoArgs.itemFactors = False
     defaultAlgoArgs.lmbdaUMlauc = 0.1
     defaultAlgoArgs.lmbdaVMlauc = 0.1
     defaultAlgoArgs.lmbdasMlauc = 2.0**numpy.arange(-5, 1)
-    defaultAlgoArgs.maxIterations = 50
+    defaultAlgoArgs.maxIterations = 100
     defaultAlgoArgs.normalise = True
     defaultAlgoArgs.numAucSamples = 10
     defaultAlgoArgs.numRowSamples = 30
