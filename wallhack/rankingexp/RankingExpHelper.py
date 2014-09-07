@@ -48,7 +48,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.learningRateSelect = False
     defaultAlgoArgs.metric = "f1"
     defaultAlgoArgs.modelSelect = False
-    defaultAlgoArgs.modelSelectSamples = 1000
+    defaultAlgoArgs.modelSelectSamples = 500
     defaultAlgoArgs.numRecordAucSamples = 500
     defaultAlgoArgs.overwrite = False 
     defaultAlgoArgs.processes = multiprocessing.cpu_count()
