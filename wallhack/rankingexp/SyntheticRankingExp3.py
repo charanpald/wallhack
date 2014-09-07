@@ -86,6 +86,9 @@ chunkSize = 1
 itemExpPs = numpy.linspace(0, 2, 6)
 itemExpQs = numpy.linspace(0, 2, 6)
 
+
+print(itemExpPs)
+
 def computeTestAuc(args): 
     trainX, maxLocalAuc  = args 
     numpy.random.seed(21)
@@ -157,6 +160,6 @@ else:
 print(testPrecisions)
 print(testRecalls)
 
-#On sythetic best is 1.0, 1.0 
-# synthetic2 best is 2.0, 2.0 
-#MovieLens best is 1.5, 1.0
+#On sythetic best is 0.8, 1.2 
+# synthetic2 best is 1.2, 1.2 
+#MovieLens best is 
