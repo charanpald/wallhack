@@ -79,7 +79,7 @@ class RankingExpHelper(object):
     
     #Parameters for MlAuc
     defaultAlgoArgs.alpha = 0.5 
-    defaultAlgoArgs.alphas = 2.0**-numpy.arange(1, 9)
+    defaultAlgoArgs.alphas = 2.0**-numpy.arange(3, 9)
     defaultAlgoArgs.epsMlauc = 10**-6    
     defaultAlgoArgs.fullGradient = False
     defaultAlgoArgs.initialAlg = "svd"
@@ -88,7 +88,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.itemFactors = False
     defaultAlgoArgs.lmbdaUMlauc = 0.1
     defaultAlgoArgs.lmbdaVMlauc = 0.1
-    defaultAlgoArgs.lmbdasMlauc = 2.0**numpy.arange(-5, 1)
+    defaultAlgoArgs.lmbdasMlauc = 2.0**numpy.arange(-5, -1)
     defaultAlgoArgs.maxIterations = 100
     defaultAlgoArgs.normalise = True
     defaultAlgoArgs.numAucSamples = 10
