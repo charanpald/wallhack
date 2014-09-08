@@ -24,7 +24,7 @@ numpy.seterr(all="raise")
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "movielens"
+    dataset = "synthetic"
 
 saveResults = True
 
@@ -69,19 +69,19 @@ w2 = 1-u2
 eps = 10**-8
 lmbda = 10**-3
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbdaV=lmbda, stochastic=True)
-maxLocalAuc.maxIterations = 5
+maxLocalAuc.maxIterations = 100
 maxLocalAuc.numRowSamples = 30
 maxLocalAuc.numAucSamples = 10
 maxLocalAuc.numRecordAucSamples = 100
 maxLocalAuc.recordStep = 5
 maxLocalAuc.parallelStep = 1
-maxLocalAuc.initialAlg = "rand"
-maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 2.0
+maxLocalAuc.initialAlg = "svd"
+maxLocalAuc.rate = "constant"
+maxLocalAuc.alpha = 0.1
 maxLocalAuc.t0 = 0.1
 maxLocalAuc.folds = 4
 maxLocalAuc.rho = 0.0
-maxLocalAuc.lmbdaU = 0.0
+maxLocalAuc.lmbdaU = 1.0
 maxLocalAuc.lmbdaV = 1.0
 maxLocalAuc.ks = numpy.array([k2])
 maxLocalAuc.validationSize = 3
@@ -93,8 +93,8 @@ maxLocalAuc.alphas = 2.0**-numpy.arange(0, 5, 1)
 maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
 maxLocalAuc.metric = "f1"
 maxLocalAuc.sampling = "uniform"
-maxLocalAuc.itemExpP = 0.0
-maxLocalAuc.itemExpQ = 0.0
+maxLocalAuc.itemExpP = 0.5
+maxLocalAuc.itemExpQ = 0.5
 maxLocalAuc.itemFactors = False
 maxLocalAuc.parallelSGD = True
 maxLocalAuc.startAverage = 30
@@ -107,7 +107,7 @@ logging.debug(maxLocalAuc)
 #maxLocalAuc.modelSelect(X)
 
 numpy.random.seed(21)
-U, V = maxLocalAuc.initUV(X)
+U, V = maxLocalAuc.initUV(trainX)
 U, V = maxLocalAuc.learnModel(trainX, U=U, V=V)  
 
 p = 10
