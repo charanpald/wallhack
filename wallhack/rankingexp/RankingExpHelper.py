@@ -427,7 +427,6 @@ class RankingExpHelper(object):
                     learner.numAucSamples = self.algoArgs.numAucSamples
                     learner.numProcesses = self.algoArgs.processes 
                     learner.numRowSamples = self.algoArgs.numRowSamples
-                    learner.parallelSGD = self.algoArgs.parallelSGD
                     learner.rate = self.algoArgs.rate
                     learner.recommendSize = self.algoArgs.recommendSize
                     learner.recordStep = self.algoArgs.recordStep
@@ -464,6 +463,9 @@ class RankingExpHelper(object):
                         logging.debug("Saved model selection grid as " + modelSelectFileName)                            
                     
                     logging.debug(learner)                
+
+                    #Turn on (optionally) parallel SGD only at the final learning stage 
+                    learner.parallelSGD = self.algoArgs.parallelSGD
 
                     self.recordResults(X, trainX, testX, learner, resultsFileName)
                 finally: 
