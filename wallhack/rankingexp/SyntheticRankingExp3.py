@@ -161,5 +161,6 @@ print(testPrecisions)
 print(testRecalls)
 
 #On sythetic best is 0.8, 1.2 
-# synthetic2 best is 1.2, 1.2 
-#MovieLens best is 
+#Synthetic2 best is 1.2, 1.2 
+#MovieLens best is 0.4, 0.4 
+#Trends are not obvious though 
