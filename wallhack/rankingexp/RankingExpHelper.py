@@ -88,7 +88,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.itemFactors = False
     defaultAlgoArgs.lmbdaUMlauc = 0.1
     defaultAlgoArgs.lmbdaVMlauc = 0.1
-    defaultAlgoArgs.lmbdasMlauc = 2.0**numpy.arange(-5, -1)
+    defaultAlgoArgs.lmbdasMlauc = 2.0**numpy.arange(-6, -1)
     defaultAlgoArgs.maxIterations = 100
     defaultAlgoArgs.normalise = True
     defaultAlgoArgs.numAucSamples = 10
@@ -117,8 +117,8 @@ class RankingExpHelper(object):
     
     #Parameters for WrMf 
     defaultAlgoArgs.alphaWrMf = 1
-    defaultAlgoArgs.lmbdasWrMf = 2.0**-numpy.arange(1, 12, 2)
-    defaultAlgoArgs.maxIterationsWrMf = 20     
+    defaultAlgoArgs.lmbdasWrMf = 2.0**-numpy.arange(-1, 12, 2)
+    defaultAlgoArgs.maxIterationsWrMf = 30     
         
     def __init__(self, cmdLine=None, defaultAlgoArgs = None, dirName=""):
         """ priority for default args
