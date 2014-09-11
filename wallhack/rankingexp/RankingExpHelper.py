@@ -118,7 +118,7 @@ class RankingExpHelper(object):
     #Parameters for WrMf 
     defaultAlgoArgs.alphaWrMf = 1
     defaultAlgoArgs.lmbdasWrMf = 2.0**-numpy.arange(-1, 12, 2)
-    defaultAlgoArgs.maxIterationsWrMf = 30     
+    defaultAlgoArgs.maxIterationsWrMf = 100     
         
     def __init__(self, cmdLine=None, defaultAlgoArgs = None, dirName=""):
         """ priority for default args
