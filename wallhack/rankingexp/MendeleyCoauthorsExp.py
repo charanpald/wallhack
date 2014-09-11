@@ -44,7 +44,7 @@ logging.info("Creating the exp-runner")
 #Load/create the dataset - sample at most a million nnzs
 X = DatasetUtils.mendeley(dataset=dataArgs.dataset)
 numpy.random.seed(21)
-X, userInds = Sampling.sampleUsers2(X, 10**6)
+X, userInds = Sampling.sampleUsers2(X, 10**6, prune=True)
 m, n = X.shape
 
 dataArgs.extendedDirName = ""
