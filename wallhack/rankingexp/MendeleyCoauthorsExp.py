@@ -2,6 +2,7 @@ import numpy
 import logging
 import sys
 import argparse 
+from sandbox.util.Sampling import Sampling 
 from wallhack.rankingexp.DatasetUtils import DatasetUtils 
 from wallhack.rankingexp.RankingExpHelper import RankingExpHelper
 
@@ -14,6 +15,7 @@ dataArgs = argparse.Namespace()
 defaultAlgoArgs = argparse.Namespace()
 defaultAlgoArgs.ks = numpy.array([64])
 defaultAlgoArgs.parallelSGD = True
+defaultAlgoArgs.recordFolds = 1
 
 # data args parser #
 dataParser = argparse.ArgumentParser(description="", add_help=False)
@@ -39,8 +41,9 @@ for key in keys:
 
 logging.info("Creating the exp-runner")
 
-#Load/create the dataset 
+#Load/create the dataset - sample at most a million nnzs
 X = DatasetUtils.mendeley(dataset=dataArgs.dataset)
+X, userInds = Sampling.sampleUsers2(X, 10**6)
 m, n = X.shape
 
 dataArgs.extendedDirName = ""
