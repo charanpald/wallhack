@@ -358,6 +358,10 @@ class RankingExpHelper(object):
         logging.debug("Train X shape and nnz: " + str(trainX.shape) + " " + str(trainX.nnz))    
         logging.debug("Test X shape and nnz: " + str(testX.shape) + " " + str(testX.nnz))
         
+        #Have scipy versions of each array 
+        trainXScipy = trainX.toScipyCsc()
+        testXScipy = testX.toScipyCsc()
+        
         if self.algoArgs.runSoftImpute:
             logging.debug("Running soft impute")
             resultsFileName = self.resultsDir + "ResultsSoftImpute.npz"
@@ -367,10 +371,7 @@ class RankingExpHelper(object):
             if not (fileLock.isLocked() or fileLock.fileExists()) or self.algoArgs.overwrite:
                 fileLock.lock()
                 logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
-                modelSelectX, userInds = Sampling.sampleUsers2(trainX, self.algoArgs.modelSelectSamples)
-                modelSelectX = modelSelectX.toScipyCsr().tocsc()
-                trainX = trainX.toScipyCsr().tocsc()
-                testX = testX.toScipyCsr().tocsc()
+                modelSelectX, userInds = Sampling.sampleUsers2(trainXScipy, self.algoArgs.modelSelectSamples)
                                 
                 try: 
                     learner = IterativeSoftImpute(self.algoArgs.rhoSi, eps=self.algoArgs.epsSi, k=self.algoArgs.k, svdAlg=self.algoArgs.svdAlg, postProcess=self.algoArgs.postProcess, p=self.algoArgs.pSi, q=self.algoArgs.qSi)
@@ -392,7 +393,7 @@ class RankingExpHelper(object):
                         
                     logging.debug(learner)                
 
-                    self.recordResults(X, trainX, testX, learner, resultsFileName)
+                    self.recordResults(X, trainXScipy, testXScipy, learner, resultsFileName)
                 finally: 
                     fileLock.unlock()
             else: 
@@ -484,9 +485,6 @@ class RankingExpHelper(object):
                 fileLock.lock()
                 
                 try: 
-                    trainX = trainX.toScipyCsr()
-                    testX = testX.toScipyCsr()
-
                     learner = WarpMf(self.algoArgs.k, self.algoArgs.lmbdas[0], u=self.algoArgs.u)
                     learner.ks = self.algoArgs.ks
                     learner.numProcesses = self.algoArgs.processes
@@ -496,7 +494,7 @@ class RankingExpHelper(object):
                     if self.algoArgs.modelSelect: 
                         logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
                         logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
-                        modelSelectX, userInds = Sampling.sampleUsers2(trainX, self.algoArgs.modelSelectSamples)
+                        modelSelectX, userInds = Sampling.sampleUsers2(trainXScipy, self.algoArgs.modelSelectSamples)
                         
                         meanAucs, stdAucs = learner.modelSelect(modelSelectX)
                         
@@ -509,7 +507,7 @@ class RankingExpHelper(object):
                     
                     logging.debug(learner)   
                     
-                    self.recordResults(X, trainX, testX, learner, resultsFileName)
+                    self.recordResults(X, trainXScipy, testXScipy, learner, resultsFileName)
                 finally: 
                     fileLock.unlock()
             else: 
@@ -524,10 +522,10 @@ class RankingExpHelper(object):
             if not (fileLock.isLocked() or fileLock.fileExists()) or self.algoArgs.overwrite: 
                 fileLock.lock()
                 
+                trainXScipy = trainXScipy.tocsr()
+                testXScipy = testXScipy.tocsr()
+                
                 try: 
-                    trainX = trainX.toScipyCsr()
-                    testX = testX.toScipyCsr()
-
                     learner = WeightedMf(self.algoArgs.k, alpha=self.algoArgs.alphaWrMf, lmbda=self.algoArgs.lmbdasWrMf[0], maxIterations=self.algoArgs.maxIterationsWrMf)
                     learner.folds = self.algoArgs.folds
                     learner.ks = self.algoArgs.ks
@@ -540,7 +538,7 @@ class RankingExpHelper(object):
                     
                     if self.algoArgs.modelSelect: 
                         logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
-                        modelSelectX, userInds = Sampling.sampleUsers2(trainX, self.algoArgs.modelSelectSamples)
+                        modelSelectX, userInds = Sampling.sampleUsers2(trainXScipy, self.algoArgs.modelSelectSamples)
                         
                         meanAucs, stdAucs = learner.modelSelect(modelSelectX)
                         
@@ -550,7 +548,7 @@ class RankingExpHelper(object):
                     
                     logging.debug(learner)   
                     
-                    self.recordResults(X, trainX, testX, learner, resultsFileName)
+                    self.recordResults(X, trainXScipy, testXScipy, learner, resultsFileName)
                 finally: 
                     fileLock.unlock()
             else: 
