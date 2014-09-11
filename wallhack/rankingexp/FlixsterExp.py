@@ -16,7 +16,6 @@ dataArgs = argparse.Namespace()
 defaultAlgoArgs = argparse.Namespace()
 defaultAlgoArgs.ks = numpy.array([64])
 defaultAlgoArgs.parallelSGD = True
-defaultAlgoArgs.modelSelectSamples = 200
 
 # data args parser #
 dataParser = argparse.ArgumentParser(description="", add_help=False)

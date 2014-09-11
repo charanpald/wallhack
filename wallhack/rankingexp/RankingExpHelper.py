@@ -48,7 +48,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.learningRateSelect = False
     defaultAlgoArgs.metric = "f1"
     defaultAlgoArgs.modelSelect = False
-    defaultAlgoArgs.modelSelectSamples = 500
+    defaultAlgoArgs.modelSelectSamples = 10**5
     defaultAlgoArgs.numRecordAucSamples = 500
     defaultAlgoArgs.overwrite = False 
     defaultAlgoArgs.processes = multiprocessing.cpu_count()
@@ -366,7 +366,8 @@ class RankingExpHelper(object):
             
             if not (fileLock.isLocked() or fileLock.fileExists()) or self.algoArgs.overwrite:
                 fileLock.lock()
-                modelSelectX = Sampling.sampleUsers(trainX, self.algoArgs.modelSelectSamples)
+                logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
+                modelSelectX, userInds = Sampling.sampleUsers2(trainX, self.algoArgs.modelSelectSamples)
                 modelSelectX = modelSelectX.toScipyCsr().tocsc()
                 trainX = trainX.toScipyCsr().tocsc()
                 testX = testX.toScipyCsr().tocsc()
@@ -453,7 +454,7 @@ class RankingExpHelper(object):
                     
                     if self.algoArgs.modelSelect: 
                         logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
-                        modelSelectX = Sampling.sampleUsers(trainX, self.algoArgs.modelSelectSamples)
+                        modelSelectX, userInds = Sampling.sampleUsers2(trainX, self.algoArgs.modelSelectSamples)
                         
                         meanAucs, stdAucs = learner.modelSelect(modelSelectX)
                         #meanAucs, stdAucs = learner.modelSelectRandom(modelSelectX)
@@ -494,7 +495,8 @@ class RankingExpHelper(object):
                                         
                     if self.algoArgs.modelSelect: 
                         logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
-                        modelSelectX = Sampling.sampleUsers(trainX, self.algoArgs.modelSelectSamples)
+                        logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
+                        modelSelectX, userInds = Sampling.sampleUsers2(trainX, self.algoArgs.modelSelectSamples)
                         
                         meanAucs, stdAucs = learner.modelSelect(modelSelectX)
                         
@@ -538,7 +540,7 @@ class RankingExpHelper(object):
                     
                     if self.algoArgs.modelSelect: 
                         logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
-                        modelSelectX = trainX[0:min(trainX.shape[0], self.algoArgs.modelSelectSamples), :]
+                        modelSelectX, userInds = Sampling.sampleUsers2(trainX, self.algoArgs.modelSelectSamples)
                         
                         meanAucs, stdAucs = learner.modelSelect(modelSelectX)
                         
@@ -581,7 +583,7 @@ class RankingExpHelper(object):
                     
                     if self.algoArgs.modelSelect: 
                         logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
-                        modelSelectX = trainX[0:min(trainX.shape[0], self.algoArgs.modelSelectSamples), :]
+                        modelSelectX, userInds = Sampling.sampleUsers2(trainX, self.algoArgs.modelSelectSamples)
                         
                         meanAucs, stdAucs = learner.modelSelect(modelSelectX)
                         
@@ -632,7 +634,8 @@ class RankingExpHelper(object):
                 fileLock.lock()
                 
                 try: 
-                    modelSelectX = Sampling.sampleUsers(trainX, self.algoArgs.modelSelectSamples)
+                    logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
+                    modelSelectX, userInds = Sampling.sampleUsers2(trainX, self.algoArgs.modelSelectSamples)
                     modelSelectX = scipy.sparse.csr_matrix(modelSelectX.toScipyCsr(), dtype=numpy.float64)
                     trainX = scipy.sparse.csr_matrix(trainX.toScipyCsr(), dtype=numpy.float64)
                     testX = testX.toScipyCsr()
