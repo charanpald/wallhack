@@ -2,73 +2,39 @@ import numpy
 import logging
 import sys
 import os
-import sppy
 from sandbox.recommendation.MaxLocalAUC import MaxLocalAUC
-from sandbox.util.SparseUtils import SparseUtils
 import matplotlib 
 matplotlib.use("GTK3Agg")
 import matplotlib.pyplot as plt 
-from sandbox.util.ProfileUtils import ProfileUtils
-from sandbox.util.MCEvaluator import MCEvaluator
-from sandbox.util.PathDefaults import PathDefaults
-from sandbox.util.Sampling import Sampling
-from sandbox.util.MCEvaluatorCython import MCEvaluatorCython
-from sandbox.util.SparseUtilsCython import SparseUtilsCython
 from wallhack.rankingexp.DatasetUtils import DatasetUtils
+
+"""
+Compare parallel versus non-parallel SGD 
+"""
+
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.random.seed(21)        
 numpy.set_printoptions(precision=4, suppress=True, linewidth=150)
 numpy.seterr(all="raise")
 
-if len(sys.argv) > 1:
-    dataset = sys.argv[1]
-else: 
-    dataset = "synthetic"
 
-saveResults = True
+X, U, V = DatasetUtils.syntheticDataset1()
+X2 = DatasetUtils.syntheticDataset2()
 
-if dataset == "synthetic": 
-    X, U, V = DatasetUtils.syntheticDataset1()
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp1Synthetic1Results.npz" 
-elif dataset == "synthetic2": 
-    X = DatasetUtils.syntheticDataset2()
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp1Synthetic2Results.npz" 
-elif dataset == "movielens": 
-    X = DatasetUtils.movieLens(minNnzRows=20)
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp1MovieLensResults.npz" 
-elif dataset == "flixster": 
-    X = DatasetUtils.flixster()
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp1FlixsterResults.npz" 
-    X = Sampling.sampleUsers(X, 1000)
-else: 
-    raise ValueError("Unknown dataset: " + dataset)
 
 m, n = X.shape
 u = 0.1 
 w = 1-u
 
-logging.debug(numpy.histogram(X.sum(1)))
-logging.debug(numpy.histogram(X.sum(0)))
-
-testSize = 5
-trainTestXs = Sampling.shuffleSplitRows(X, 1, testSize)
-trainX, testX = trainTestXs[0]
-
-trainOmegaPtr = SparseUtils.getOmegaListPtr(trainX)
-testOmegaPtr = SparseUtils.getOmegaListPtr(testX)
-allOmegaPtr = SparseUtils.getOmegaListPtr(X)
-numRecordAucSamples = 200
-
-logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))
 
 #w = 1.0
-k2 = 64
-u2 = 5/float(n)
-w2 = 1-u2
+k = 8
+u = 5/float(n)
+w = 1-u
 eps = 10**-8
 lmbda = 10**-3
-maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbdaV=lmbda, stochastic=True)
+maxLocalAuc = MaxLocalAUC(k, w, eps=eps, lmbdaV=lmbda, stochastic=True)
 maxLocalAuc.maxIterations = 100
 maxLocalAuc.numRowSamples = 30
 maxLocalAuc.numAucSamples = 10
@@ -81,9 +47,9 @@ maxLocalAuc.alpha = 0.1
 maxLocalAuc.t0 = 0.1
 maxLocalAuc.folds = 4
 maxLocalAuc.rho = 0.0
-maxLocalAuc.lmbdaU = 1.0
-maxLocalAuc.lmbdaV = 1.0
-maxLocalAuc.ks = numpy.array([k2])
+maxLocalAuc.lmbdaU = 0.1
+maxLocalAuc.lmbdaV = 0.1
+maxLocalAuc.ks = numpy.array([k])
 maxLocalAuc.validationSize = 3
 maxLocalAuc.z = 10
 maxLocalAuc.lmbdas = numpy.linspace(0.5, 2.0, 7)
@@ -106,28 +72,63 @@ logging.debug(maxLocalAuc)
 
 #maxLocalAuc.modelSelect(X)
 
+#First is parallel version 
 numpy.random.seed(21)
-U, V = maxLocalAuc.initUV(trainX)
-U, V = maxLocalAuc.learnModel(trainX, U=U, V=V)  
+initU, initV = maxLocalAuc.initUV(X)
+U, V, trainMeasures, testMeasures, iterations, totalTime = maxLocalAuc.learnModel(X, U=initU, V=initV, verbose=True)  
 
-p = 10
+objs1 = trainMeasures[:, 0]
+times1 = trainMeasures[:, 2]
+print(objs1)
+print(times1)
 
-trainOrderedItems = MCEvaluator.recommendAtk(U, V, p)
-testOrderedItems = MCEvaluatorCython.recommendAtk(U, V, p, trainX)
+#Now, non parallel version 
+maxLocalAuc.parallelSGD = False 
+numpy.random.seed(21)
+U, V, trainMeasures, testMeasures, iterations, totalTime = maxLocalAuc.learnModel(X, U=initU, V=initV, verbose=True)  
 
-r = SparseUtilsCython.computeR(U, V, maxLocalAuc.w, maxLocalAuc.numRecordAucSamples)
-trainObjVec = maxLocalAuc.objectiveApprox(trainOmegaPtr, U, V, r, maxLocalAuc.gi, maxLocalAuc.gp, maxLocalAuc.gq, full=True)
-testObjVec = maxLocalAuc.objectiveApprox(testOmegaPtr, U, V, r, maxLocalAuc.gi, maxLocalAuc.gp, maxLocalAuc.gq, allArray=allOmegaPtr, full=True)
+objs2 = trainMeasures[:, 0]
+times2 = trainMeasures[:, 2]
+print(objs2)
+print(times2)
 
-itemCounts = numpy.array(X.sum(0)+1, numpy.int32)
-beta = 0.5
+#Now look at 2nd dataset 
+numpy.random.seed(21)
+maxLocalAuc.parallelSGD = True 
+initU, initV = maxLocalAuc.initUV(X2)
+U, V, trainMeasures, testMeasures, iterations, totalTime = maxLocalAuc.learnModel(X2, U=initU, V=initV, verbose=True)  
 
-for p in [1, 3, 5, 10]:
-    trainPrecision = MCEvaluator.precisionAtK(trainOmegaPtr, trainOrderedItems, p)
-    testPrecision = MCEvaluator.precisionAtK(testOmegaPtr, testOrderedItems, p)
-    logging.debug("Train/test precision@" + str(p) + "=" + str(trainPrecision) + "/" + str(testPrecision)) 
-    
-for p in [1, 3, 5, 10]:
-    trainRecall = MCEvaluator.stratifiedRecallAtK(trainOmegaPtr, trainOrderedItems, p, itemCounts, beta)
-    testRecall = MCEvaluator.stratifiedRecallAtK(testOmegaPtr, testOrderedItems, p, itemCounts, beta)    
-    logging.debug("Train/test stratified recall@" + str(p) + "=" + str(trainRecall) + "/" + str(testRecall))
+objs3 = trainMeasures[:, 0]
+times3 = trainMeasures[:, 2]
+print(objs3)
+print(times3)
+
+#Now, non parallel version 
+maxLocalAuc.parallelSGD = False 
+numpy.random.seed(21)
+U, V, trainMeasures, testMeasures, iterations, totalTime = maxLocalAuc.learnModel(X2, U=initU, V=initV, verbose=True)  
+
+objs4 = trainMeasures[:, 0]
+times4 = trainMeasures[:, 2]
+print(objs4)
+print(times4)
+
+plt.figure(0)
+plt.plot(numpy.arange(0, maxLocalAuc.maxIterations+1, maxLocalAuc.recordStep), objs1, "k-", label="Synthetic1 parallel SGD")
+plt.plot(numpy.arange(0, maxLocalAuc.maxIterations+1, maxLocalAuc.recordStep), objs2, "k--", label="Synthetic1 SGD")
+plt.plot(numpy.arange(0, maxLocalAuc.maxIterations+1, maxLocalAuc.recordStep), objs3, "k-.", label="Synthetic2 parallel SGD")
+plt.plot(numpy.arange(0, maxLocalAuc.maxIterations+1, maxLocalAuc.recordStep), objs4, "k:", label="Synthetic2 SGD")
+plt.ylabel("objective")
+plt.xlabel("iteration")
+plt.legend()
+
+
+plt.figure(1)
+plt.plot(times1, objs1, "k-", label="Synthetic1 parallel SGD")
+plt.plot(times2, objs2, "k--", label="Synthetic1 SGD")
+plt.plot(times3, objs3, "k-.", label="Synthetic2 parallel SGD")
+plt.plot(times4, objs4, "k:", label="Synthetic2 SGD")
+plt.ylabel("objective")
+plt.xlabel("time (s)")
+plt.legend()
+plt.show()
