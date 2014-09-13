@@ -575,7 +575,7 @@ class RankingExpHelper(object):
                     learner.lmbdaUsers = self.algoArgs.lmbdaUsers
                     learner.maxIterations = self.algoArgs.maxIterationsBpr
                     learner.metric = self.algoArgs.metric 
-                    learner.numAucSamples = self.algoArgs.numAucSamples
+                    #learner.numAucSamples = self.algoArgs.numAucSamples
                     learner.numProcesses = self.algoArgs.processes
                     learner.recommendSize = self.algoArgs.recommendSize
                     learner.recordStep = self.algoArgs.recordStep 
