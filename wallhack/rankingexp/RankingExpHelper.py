@@ -577,6 +577,7 @@ class RankingExpHelper(object):
                     learner.metric = self.algoArgs.metric 
                     learner.numProcesses = self.algoArgs.processes
                     learner.recommendSize = self.algoArgs.recommendSize
+                    learner.recordStep = self.algoArgs.recordStep 
                     learner.validationSize = self.algoArgs.validationSize
                     
                     if self.algoArgs.modelSelect: 
