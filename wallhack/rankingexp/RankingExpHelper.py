@@ -95,7 +95,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.numRowSamples = 30
     defaultAlgoArgs.parallelSGD = False
     defaultAlgoArgs.rate = "constant"
-    defaultAlgoArgs.recordStep = 5
+    defaultAlgoArgs.recordStep = 10
     defaultAlgoArgs.sampling = "uniform"
     defaultAlgoArgs.recommendSize = 5 
     defaultAlgoArgs.rhoMlauc = 0.0
