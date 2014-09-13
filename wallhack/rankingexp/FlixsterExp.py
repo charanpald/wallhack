@@ -17,6 +17,7 @@ defaultAlgoArgs = argparse.Namespace()
 defaultAlgoArgs.ks = numpy.array([64])
 defaultAlgoArgs.parallelSGD = True
 defaultAlgoArgs.recordFolds = 1
+defaultAlgoArgs.numRowSamples = 10
 
 # data args parser #
 dataParser = argparse.ArgumentParser(description="", add_help=False)
