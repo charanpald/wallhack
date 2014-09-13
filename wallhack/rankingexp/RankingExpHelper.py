@@ -61,7 +61,7 @@ class RankingExpHelper(object):
     #parameters for Bpr
     defaultAlgoArgs.lmbdaUserBpr = 0.1
     defaultAlgoArgs.lmbdaItemBpr = 0.1
-    defaultAlgoArgs.lmbdaUsers = 2.0**-numpy.arange(0, 5)
+    defaultAlgoArgs.lmbdaUsers = 2.0**-numpy.arange(1, 11, 2)
     defaultAlgoArgs.lmbdaItems = 2.0**-numpy.arange(1, 11, 2)
     defaultAlgoArgs.maxIterationsBpr = 100
     defaultAlgoArgs.gammasBpr = 2.0**-numpy.arange(3, 8, 1)
@@ -178,7 +178,8 @@ class RankingExpHelper(object):
             algoParser.add_argument("--" + method, action="store_true", default=defaultAlgoArgs.__getattribute__(method))
         algoParser.add_argument("--alpha", type=float, help="Learning rate for max local AUC (default: %(default)s)", default=defaultAlgoArgs.alpha)
         algoParser.add_argument("--fullGradient", action="store_true", help="Whether to compute the full gradient at each iteration (default: %(default)s)", default=defaultAlgoArgs.fullGradient)
-        algoParser.add_argument("--gamma", type=float, help="Regularisation parameter (gamma) for CLiMF (default: %(default)s)", default=defaultAlgoArgs.gamma)     
+        algoParser.add_argument("--gamma", type=float, help="Regularisation parameter (gamma) for CLiMF (default: %(default)s)", default=defaultAlgoArgs.gamma)
+        algoParser.add_argument("--gammaBpr", type=float, help="Regularisation parameter (gamma) for CLiMF (default: %(default)s)", default=defaultAlgoArgs.gammaBpr) 
         algoParser.add_argument("--folds", type=int, help="Folds/repetitions for model selection (default: %(default)s)", default=defaultAlgoArgs.folds)   
         algoParser.add_argument("--initialAlg", type=str, help="Initial setup for U and V for max local AUC: either rand or svd (default: %(default)s)", default=defaultAlgoArgs.initialAlg)
         algoParser.add_argument("--itemFactors", action="store_true", help="Whether to use only item factors (default: %(default)s)", default=defaultAlgoArgs.itemFactors)        
