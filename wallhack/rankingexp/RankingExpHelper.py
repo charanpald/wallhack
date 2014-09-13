@@ -64,7 +64,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.lmbdaUsers = 2.0**-numpy.arange(0, 5)
     defaultAlgoArgs.lmbdaItems = 2.0**-numpy.arange(1, 11, 2)
     defaultAlgoArgs.maxIterationsBpr = 100
-    defaultAlgoArgs.gammasBpr = 2.0**-numpy.arange(4, 8, 1)
+    defaultAlgoArgs.gammasBpr = 2.0**-numpy.arange(3, 8, 1)
     defaultAlgoArgs.gammaBpr = 0.01
     
     #parameters for CLiMF
@@ -575,6 +575,7 @@ class RankingExpHelper(object):
                     learner.lmbdaUsers = self.algoArgs.lmbdaUsers
                     learner.maxIterations = self.algoArgs.maxIterationsBpr
                     learner.metric = self.algoArgs.metric 
+                    learner.numAucSamples = self.algoArgs.numAucSamples
                     learner.numProcesses = self.algoArgs.processes
                     learner.recommendSize = self.algoArgs.recommendSize
                     learner.recordStep = self.algoArgs.recordStep 
