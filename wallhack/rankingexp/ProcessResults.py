@@ -22,7 +22,7 @@ generateRecommendations = False
 #names = ["BPR\t", "CLiMF\t", "MLAUC\t",  "SoftImpute\t", "WrMf\t"]
 
 algs = ["Bpr", "MaxLocalAUCUser", "SoftImpute", "WrMf"]
-names = ["BPR\t", "MLAUC\t",  "SoftImpute\t", "WrMf\t"]
+names = ["BPR\t", "MLAUC\t",  "SoftImpute\t", "WRMF\t"]
 
 for dirName in dirNames:
     resultsDir = PathDefaults.getOutputDir() + "ranking/" + dirName + "/"
