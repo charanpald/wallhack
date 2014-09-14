@@ -88,7 +88,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.itemFactors = False
     defaultAlgoArgs.lmbdaUMlauc = 0.1
     defaultAlgoArgs.lmbdaVMlauc = 0.1
-    defaultAlgoArgs.lmbdasMlauc = 2.0**numpy.arange(-6, -1)
+    defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(2, 7)
     defaultAlgoArgs.maxIterations = 100
     defaultAlgoArgs.normalise = True
     defaultAlgoArgs.numAucSamples = 10
