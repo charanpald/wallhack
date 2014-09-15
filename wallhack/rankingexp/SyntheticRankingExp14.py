@@ -19,8 +19,8 @@ numpy.set_printoptions(precision=4, suppress=True, linewidth=150)
 numpy.seterr(all="raise")
 
 
-#X, U, V = DatasetUtils.syntheticDataset1()
-X = DatasetUtils.syntheticDataset2()
+X, U, V = DatasetUtils.syntheticDataset1()
+#X = DatasetUtils.syntheticDataset2()
 #X = DatasetUtils.movieLens()
 
 expNum = 14
@@ -83,9 +83,9 @@ if saveResults:
     aucs = numpy.zeros((numRecords, numPhis, numRuns)) 
     
 
-    def computeTestMetricss(args): 
+    def computeTestMetrics(args): 
         X, maxLocalAuc  = args
-        a = long(time.time() * 256)
+        a = int(time.time() * 256)
         U, V, trainMeasures, testMeasures, iterations, totalTime = maxLocalAuc.learnModel(X, verbose=True, randSeed=a)
         return testMeasures[:, 1], testMeasures[:, 2:6]
     
@@ -99,7 +99,9 @@ if saveResults:
             paramList.append((X, learner))
             
     pool = multiprocessing.Pool(maxtasksperchild=100, processes=multiprocessing.cpu_count())
-    resultsIterator = pool.imap(computeTestMetricss, paramList, chunkSize)
+    resultsIterator = pool.imap(computeTestMetrics, paramList, chunkSize)
+    #import itertools 
+    #resultsIterator = itertools.imap(computeTestMetrics, paramList)
     
     for phi in [0, 1]: 
         for i in range(numRuns): 
