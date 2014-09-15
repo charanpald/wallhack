@@ -43,9 +43,9 @@ for dirName in dirNames:
             if verbose: 
                 logging.debug(names[s] + " metadata: " + str(metaData))
     
-            if dirName == "MendeleyCoauthors" and generateRecommendations: 
+            if dirName == "MendeleyCoauthorsDoc" and generateRecommendations: 
                 logging.debug("Generating recommendations for authors")
-                authorIndexerFilename = PathDefaults.getDataDir() + "reference/authorIndexer.pkl"
+                authorIndexerFilename = PathDefaults.getDataDir() + "reference/authorIndexerDoc.pkl"
                 authorIndexerFile = open(authorIndexerFilename)
                 authorIndexer = pickle.load(authorIndexerFile)
                 authorIndexerFile.close()
