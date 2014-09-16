@@ -99,8 +99,8 @@ class DatasetUtils(object):
         return X 
 
     @staticmethod         
-    def mendeley(minNnzRows=10, minNnzCols=10, quantile=90, dataset="Doc"):
-        authorAuthorFileName = PathDefaults.getDataDir() + "reference/authorAuthor"+ dataset + "Matrix.mtx" 
+    def mendeley(minNnzRows=10, minNnzCols=10, quantile=90, dataset="Doc", sigma=0.05):
+        authorAuthorFileName = PathDefaults.getDataDir() + "reference/authorAuthor"+ dataset + "Matrix_sigma=" + str(sigma) + ".mtx"
         logging.debug("Reading file: " + authorAuthorFileName)
         X = sppy.io.mmread(authorAuthorFileName, storagetype="row")
         X[X.nonzero()] = 1
