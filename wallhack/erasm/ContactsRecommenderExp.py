@@ -19,7 +19,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 #go through: different values of sigma, different algs, do model selection 
 
-k = 8
+k = 128
 maxItems = 10
 minScore = 0.1
 minContacts = 3
