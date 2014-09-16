@@ -17,7 +17,7 @@ Use Mendeley author-documents and author-keywords to recommend contacts.
 """
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
-#go through: different values of sigma, different algs, do model selection 
+#Do model selection? 
 
 k = 128
 maxItems = 10
@@ -34,27 +34,30 @@ contactsFilename = PathDefaults.getDataDir() + "reference/contacts_anonymised.ts
 interestsFilename = PathDefaults.getDataDir() + "reference/author_interest"
 
 for dataset in datasets: 
+    X = DatasetUtils.mendeley(dataset=dataset)
+    
     for learnerName, learner in learners: 
         
         outputFilename = resultsDir + "Results_" + learnerName + "_" + dataset + ".npz"        
         fileLock = FileLock(outputFilename)  
             
         if not (fileLock.isLocked() or fileLock.fileExists()) or overwrite: 
-            fileLock.lock()        
+            fileLock.lock()       
+            
+            logging.debug(learner)
         
             try: 
-                X = DatasetUtils.mendeley(dataset=dataset)
-                
+                                
                 #Do some recommendation 
                 if type(learner) == IterativeSoftImpute:  
-                    X = X.toScipyCsc()
-                    trainIterator = iter([X])
+                    trainX = X.toScipyCsc()
+                    trainIterator = iter([trainX])
                     ZList = learner.learnModel(trainIterator)    
                     U, s, V = ZList.next()
                     U = U*s
                 else: 
-                    X = X.toScipyCsr()
-                    learner.learnModel(X)
+                    trainX = X.toScipyCsr()
+                    learner.learnModel(trainX)
                     U = learner.U 
                     V = learner.V 
             
@@ -100,15 +103,16 @@ for dataset in datasets:
                 sims = read_similar_authors(similaritiesFileName, minScore)
                 
                 logging.debug('Evaluating against contacts...')
-                precisions, recalls = evaluate_against_contacts(sims, contacts, minContacts)
+                precisions, recalls, f1 = evaluate_against_contacts(sims, contacts, minContacts)
                 
                 #logging.debug('Evaluating against research interests...') 
                 #precisions = evaluate_against_research_interests(sims, research_interests, minAcceptableSims)
                 
                 logging.debug("Precisions: " + str(precisions))
                 logging.debug("Recalls: " + str(recalls))
+                logging.debug("F1: " + str(f1))
                 
-                numpy.savez(outputFilename, precisions, recalls)
+                numpy.savez(outputFilename, precisions, recalls, numpy.array([f1]))
                 logging.debug("Saved precisions/recalls on contacts as " + outputFilename)
         
             finally: 

@@ -110,12 +110,16 @@ def writeAuthorAuthorMatrix(authorXFileName, authorAuthorFileName, sigma=0.05):
 dataDir = PathDefaults.getDataDir()
 
 #Write out author-author from documents 
+sigmas = [0.05, 0.1, 0.2]
+
 inputFileName = dataDir + "reference/author_document_count"
 authorXFileName = dataDir + "reference/authorDocumentMatrix.mtx"  
 authorIndexerFilename = dataDir + "reference/authorIndexerDoc.pkl"    
-authorAuthorFileName = dataDir + "reference/authorAuthorDocMatrix.mtx" 
 writeAuthorXMatrix(inputFileName, authorIndexerFilename, authorXFileName, reverse=True)
-writeAuthorAuthorMatrix(authorXFileName, authorAuthorFileName)
+
+for sigma in sigmas: 
+    authorAuthorFileName = dataDir + "reference/authorAuthorDocMatrix_sigma=" + str(sigma) + ".mtx" 
+    writeAuthorAuthorMatrix(authorXFileName, authorAuthorFileName, sigma=sigma)
 
 #Write out author-author from keywords
 inputFileName = dataDir + "reference/author_keyword_count"
@@ -123,4 +127,9 @@ authorXFileName = dataDir + "reference/authorKeywordMatrix.mtx"
 authorIndexerFilename = dataDir + "reference/authorIndexerKeyword.pkl"    
 authorAuthorFileName = dataDir + "reference/authorAuthorKeywordMatrix.mtx" 
 writeAuthorXMatrix(inputFileName, authorIndexerFilename, authorXFileName, reverse=True)
-writeAuthorAuthorMatrix(authorXFileName, authorAuthorFileName, sigma=0.8)
+
+sigmas = [0.5, 0.8, 0.9]
+
+for sigma in sigmas: 
+    writeAuthorAuthorMatrix(authorXFileName, authorAuthorFileName, sigma=sigma)
+    authorAuthorFileName = dataDir + "reference/authorAuthorKeywordMatrix_sigma=" + str(sigma) + ".mtx" 

@@ -60,7 +60,7 @@ def evaluate_against_contacts(sims, contacts, min_contacts):
     precisions = np.array([prec_1, prec_3, prec_5, prec_10])
     recalls = np.array([recall_1, recall_3, recall_5, recall_10])
     
-    return precisions, recalls 
+    return precisions, recalls, f1 
 
 def evaluate_against_research_interests(sims, research_interests, min_acceptable_sims):
     stats_names = ['# predicted having interests','prec @ 1','prec @ 3','prec @ 5','prec @ 10','prec','jacc @ 10','jacc']
