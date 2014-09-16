@@ -105,8 +105,8 @@ for dataset in datasets:
                 #logging.debug('Evaluating against research interests...') 
                 #precisions = evaluate_against_research_interests(sims, research_interests, minAcceptableSims)
                 
-                logging.debug("Precisions: " + precisions)
-                logging.debug("Recalls: " + recalls)
+                logging.debug("Precisions: " + str(precisions))
+                logging.debug("Recalls: " + str(recalls))
                 
                 numpy.savez(outputFilename, precisions, recalls)
                 logging.debug("Saved precisions/recalls on contacts as " + outputFilename)
