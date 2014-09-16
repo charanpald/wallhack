@@ -21,6 +21,10 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 k = 8
 maxItems = 10
+minScore = 0.1
+minContacts = 3
+minAcceptableSims = 3
+
 overwrite = True
 datasets = ["Keyword", "Doc"]
 learners = [("SoftImpute", IterativeSoftImpute(k=k)), ("WRMF", WeightedMf(k=k))]
@@ -89,10 +93,6 @@ for dataset in datasets:
                 logging.debug("Wrote recommendations to " + similaritiesFileName)
                 
                 #Figure out how good the recommendations are on the contacts network  
-                minScore = 0.1
-                minContacts = 3
-                minAcceptableSims = 3
-                
                 similaritiesFileName = resultsDir + "Recommendations.csv"
                 
                 contacts = read_contacts(contactsFilename)
