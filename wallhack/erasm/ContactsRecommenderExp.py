@@ -29,7 +29,7 @@ alpha = 0.2
 
 
 sigmas1 = [0.05, 0.1, 0.2]
-sigmas2 = [0.5, 0.8, 0.9]
+sigmas2 = [0.5, 0.8]
 
 softImpute = IterativeSoftImpute(k=k, postProcess=True)
 wrmf = WeightedMf(k=k, maxIterations=maxIterations, alpha=alpha)
@@ -121,15 +121,15 @@ for dataset in datasets:
                     logging.debug('Evaluating against contacts...')
                     precisions, recalls, f1 = evaluate_against_contacts(sims, contacts, minContacts)
                     
-                    #logging.debug('Evaluating against research interests...') 
-                    #precisions = evaluate_against_research_interests(sims, research_interests, minAcceptableSims)
+                    logging.debug('Evaluating against research interests...') 
+                    precisions_interests, jaccard_10 = evaluate_against_research_interests(sims, research_interests, minAcceptableSims)
                     
                     logging.debug("Precisions: " + str(precisions))
                     logging.debug("Recalls: " + str(recalls))
                     logging.debug("F1: " + str(f1))
                     
-                    numpy.savez(outputFilename, precisions, recalls, numpy.array([f1]))
-                    logging.debug("Saved precisions/recalls on contacts as " + outputFilename)
+                    numpy.savez(outputFilename, precisions, recalls, numpy.array([f1]), precisions_interests, jaccard_10)
+                    logging.debug("Saved precisions/recalls on contacts/interests as " + outputFilename)
             
                 finally: 
                     fileLock.unlock()

@@ -112,7 +112,7 @@ def evaluate_against_research_interests(sims, research_interests, min_acceptable
         print 'mean {0} = {1:.2g} '.format(stat,np.mean([s[i] for s in stats]))
         
     precisions = np.array([prec_1, prec_3, prec_5, prec_10])
-    return precisions 
+    return precisions, jaccard_10
 
 def read_contacts(filename): 
     # load profile_id->contacts groundtruth: consider sim correct if it's one of these
