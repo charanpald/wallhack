@@ -125,11 +125,11 @@ for sigma in sigmas:
 inputFileName = dataDir + "reference/author_keyword_count"
 authorXFileName = dataDir + "reference/authorKeywordMatrix.mtx"    
 authorIndexerFilename = dataDir + "reference/authorIndexerKeyword.pkl"    
-authorAuthorFileName = dataDir + "reference/authorAuthorKeywordMatrix.mtx" 
 writeAuthorXMatrix(inputFileName, authorIndexerFilename, authorXFileName, reverse=True)
 
 sigmas = [0.5, 0.8, 0.9]
 
 for sigma in sigmas: 
+    authorAuthorFileName = dataDir + "reference/authorAuthorKeywordMatrix_sigma=" + str(sigma) + ".mtx"    
     writeAuthorAuthorMatrix(authorXFileName, authorAuthorFileName, sigma=sigma)
-    authorAuthorFileName = dataDir + "reference/authorAuthorKeywordMatrix_sigma=" + str(sigma) + ".mtx" 
+     
