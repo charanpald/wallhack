@@ -31,7 +31,7 @@ alpha = 0.2
 sigmas1 = [0.05, 0.1, 0.2]
 sigmas2 = [0.5, 0.8]
 
-softImpute = IterativeSoftImpute(k=k, postProcess=True)
+softImpute = IterativeSoftImpute(k=k, postProcess=True, svdAlg="rsvd")
 wrmf = WeightedMf(k=k, maxIterations=maxIterations, alpha=alpha)
 
 overwrite = True
