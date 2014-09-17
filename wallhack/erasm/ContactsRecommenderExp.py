@@ -24,14 +24,19 @@ maxItems = 10
 minScore = 0.1
 minContacts = 3
 minAcceptableSims = 3
+maxIterations = 50 
+alpha = 0.2
 
 
 sigmas1 = [0.05, 0.1, 0.2]
 sigmas2 = [0.5, 0.8, 0.9]
 
+softImpute = IterativeSoftImpute(k=k, postProcess=True)
+wrmf = WeightedMf(k=k, maxIterations=maxIterations, alpha=alpha)
+
 overwrite = True
 datasets = ["Keyword", "Doc"]
-learners = [("SoftImpute", IterativeSoftImpute(k=k)), ("WRMF", WeightedMf(k=k))]
+learners = [("SoftImpute", softImpute), ("WRMF", wrmf)]
 #learners = [("WRMF", WeightedMf(k=k))]
 resultsDir = PathDefaults.getOutputDir() + "coauthors/"
 contactsFilename = PathDefaults.getDataDir() + "reference/contacts_anonymised.tsv"
@@ -49,7 +54,7 @@ for dataset in datasets:
         
         for learnerName, learner in learners: 
             
-            outputFilename = resultsDir + "Results_" + learnerName + "_" + dataset + ".npz"        
+            outputFilename = resultsDir + "Results_" + learnerName + "_" + dataset + "_sigma=" + str(sigma) + ".npz"        
             fileLock = FileLock(outputFilename)  
                 
             if not (fileLock.isLocked() or fileLock.fileExists()) or overwrite: 
