@@ -28,8 +28,8 @@ maxIterations = 50
 alpha = 0.2
 
 
-sigmas1 = [0.05, 0.1, 0.2]
-sigmas2 = [0.5, 0.8]
+sigmas1 = [0.1, 0.15, 0.2]
+sigmas2 =  [0.7, 0.8, 0.9]
 
 softImpute = IterativeSoftImpute(k=k, postProcess=True)
 wrmf = WeightedMf(k=k, maxIterations=maxIterations, alpha=alpha)
@@ -92,7 +92,7 @@ for dataset in datasets:
                     
                     reverseIndexer = authorIndexer.reverseTranslateDict()
                     
-                    similaritiesFileName = resultsDir + "Recommendations.csv"
+                    similaritiesFileName = resultsDir + "Recommendations_" + learnerName + "_" + dataset + "_sigma=" + str(sigma) + ".csv" 
                     outputFile = open(similaritiesFileName, "w")
                     csvFile = csv.writer(outputFile, delimiter='\t')
                     
