@@ -111,9 +111,7 @@ for dataset in datasets:
                     outputFile.close()
                     logging.debug("Wrote recommendations to " + similaritiesFileName)
                     
-                    #Figure out how good the recommendations are on the contacts network  
-                    similaritiesFileName = resultsDir + "Recommendations.csv"
-                    
+                    #Figure out how good the recommendations are on the contacts network                      
                     contacts = read_contacts(contactsFilename)
                     research_interests = read_interests(interestsFilename)
                     sims = read_similar_authors(similaritiesFileName, minScore)
