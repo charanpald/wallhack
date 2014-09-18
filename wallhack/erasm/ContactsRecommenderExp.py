@@ -24,14 +24,14 @@ maxItems = 10
 minScore = 0.1
 minContacts = 3
 minAcceptableSims = 3
-maxIterations = 50 
+maxIterations = 20 
 alpha = 0.2
 
 
 sigmas1 = [0.1, 0.15, 0.2]
 sigmas2 =  [0.7, 0.8, 0.9]
 
-softImpute = IterativeSoftImpute(k=k, postProcess=True)
+softImpute = IterativeSoftImpute(k=k, postProcess=True, svdAlg="arpack", maxIterations=maxIterations)
 wrmf = WeightedMf(k=k, maxIterations=maxIterations, alpha=alpha)
 
 overwrite = False
