@@ -3,6 +3,7 @@ import logging
 import pickle 
 import csv
 import sys 
+import os
 from sandbox.recommendation.IterativeSoftImpute import IterativeSoftImpute
 from sandbox.recommendation.WeightedMf import WeightedMf
 from sandbox.recommendation.MaxLocalAUC import MaxLocalAUC
@@ -41,13 +42,20 @@ maxLocalAuc.numRowSamples = 10
 maxLocalAuc.parallelSGD = True
 maxLocalAuc.initialAlg = "svd"
 
+"""
+To run the parallel version of MLAUC you have to increase the amount of shared memory using 
+sudo sysctl -w kernel.shmmax=2147483648
+"""
+
 overwrite = False
 datasets = ["Keyword", "Doc"]
-#learners = [("SoftImpute", softImpute), ("WRMF", wrmf)]
-learners = [("MLAUC", maxLocalAuc)]
+learners = [("SoftImpute", softImpute), ("WRMF", wrmf)]
+#learners = [("MLAUC", maxLocalAuc)]
 resultsDir = PathDefaults.getOutputDir() + "coauthors/"
 contactsFilename = PathDefaults.getDataDir() + "reference/contacts_anonymised.tsv"
 interestsFilename = PathDefaults.getDataDir() + "reference/author_interest"
+
+os.system('taskset -p 0xffffffff %d' % os.getpid())
 
 for dataset in datasets: 
     
@@ -70,7 +78,7 @@ for dataset in datasets:
                 logging.debug(learner)
             
                 try: 
-                                    
+                                  
                     #Do some recommendation 
                     if type(learner) == IterativeSoftImpute:  
                         trainX = X.toScipyCsc()
@@ -78,12 +86,16 @@ for dataset in datasets:
                         ZList = learner.learnModel(trainIterator)    
                         U, s, V = ZList.next()
                         U = U*s
-                    else: 
+                    elif type(learner) == WeightedMf:  
                         trainX = X.toScipyCsr()
                         learner.learnModel(trainX)
                         U = learner.U 
                         V = learner.V 
-                
+                    else: 
+                        learner.learnModel(X)
+                        U = learner.U 
+                        V = learner.V 
+                        
                     U = numpy.ascontiguousarray(U)
                     V = numpy.ascontiguousarray(V)
                     
