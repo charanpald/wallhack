@@ -5,6 +5,7 @@ import csv
 import sys 
 from sandbox.recommendation.IterativeSoftImpute import IterativeSoftImpute
 from sandbox.recommendation.WeightedMf import WeightedMf
+from sandbox.recommendation.MaxLocalAUC import MaxLocalAUC
 from sandbox.util.MCEvaluator import MCEvaluator 
 from sandbox.util.PathDefaults import PathDefaults 
 from sandbox.util.FileLock import FileLock
@@ -26,6 +27,7 @@ minContacts = 3
 minAcceptableSims = 3
 maxIterations = 20 
 alpha = 0.2
+numProcesses = 2
 
 
 sigmas1 = [0.1, 0.15, 0.2]
@@ -34,11 +36,15 @@ sigmas2 =  [0.7, 0.8, 0.9]
 softImpute = IterativeSoftImpute(k=k, postProcess=True, svdAlg="arpack")
 softImpute.maxIterations = maxIterations 
 wrmf = WeightedMf(k=k, maxIterations=maxIterations, alpha=alpha)
+maxLocalAuc = MaxLocalAUC(k=k, w=0.9, maxIterations=50, lmbdaU=0.1, lmbdaV=0.1, stochastic=True)
+maxLocalAuc.numRowSamples = 10
+maxLocalAuc.parallelSGD = True
+maxLocalAuc.initialAlg = "svd"
 
 overwrite = False
 datasets = ["Keyword", "Doc"]
-learners = [("SoftImpute", softImpute), ("WRMF", wrmf)]
-#learners = [("WRMF", WeightedMf(k=k))]
+#learners = [("SoftImpute", softImpute), ("WRMF", wrmf)]
+learners = [("MLAUC", maxLocalAuc)]
 resultsDir = PathDefaults.getOutputDir() + "coauthors/"
 contactsFilename = PathDefaults.getDataDir() + "reference/contacts_anonymised.tsv"
 interestsFilename = PathDefaults.getDataDir() + "reference/author_interest"
