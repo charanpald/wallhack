@@ -69,13 +69,14 @@ for dataset in datasets:
         
         for learnerName, learner in learners: 
             
-            outputFilename = resultsDir + "Results_" + learnerName + "_" + dataset + "_sigma=" + str(sigma) + ".npz"        
+            outputFilename = resultsDir + "Results_" + learnerName + "_" + dataset + "_sigma=" + str(sigma) + ".npz"  
+            similaritiesFileName = resultsDir + "Recommendations_" + learnerName + "_" + dataset + "_sigma=" + str(sigma) + ".csv" 
             fileLock = FileLock(outputFilename)  
                 
             if not (fileLock.isLocked() or fileLock.fileExists()) or overwrite: 
                 fileLock.lock()       
                 
-                logging.debug(learner)
+                logging.debug(learner)      
             
                 try: 
                                   
@@ -111,7 +112,7 @@ for dataset in datasets:
                     
                     reverseIndexer = authorIndexer.reverseTranslateDict()
                     
-                    similaritiesFileName = resultsDir + "Recommendations_" + learnerName + "_" + dataset + "_sigma=" + str(sigma) + ".csv" 
+                    
                     outputFile = open(similaritiesFileName, "w")
                     csvFile = csv.writer(outputFile, delimiter='\t')
                     
@@ -136,16 +137,15 @@ for dataset in datasets:
                     sims = read_similar_authors(similaritiesFileName, minScore)
                     
                     logging.debug('Evaluating against contacts...')
-                    precisions, recalls, f1 = evaluate_against_contacts(sims, contacts, minContacts)
+                    meanStatsContacts = evaluate_against_contacts(sims, contacts, minContacts)
                     
                     logging.debug('Evaluating against research interests...') 
-                    precisions_interests, jaccard_10 = evaluate_against_research_interests(sims, research_interests, minAcceptableSims)
+                    meanStatsInterests = evaluate_against_research_interests(sims, research_interests, minAcceptableSims)
                     
-                    logging.debug("Precisions: " + str(precisions))
-                    logging.debug("Recalls: " + str(recalls))
-                    logging.debug("F1: " + str(f1))
+                    logging.debug("Mean stats on contacts: " + str(meanStatsContacts))
+                    logging.debug("Mean stats on interests:" + str(meanStatsInterests))
                     
-                    numpy.savez(outputFilename, precisions, recalls, numpy.array([f1]), precisions_interests, jaccard_10)
+                    numpy.savez(outputFilename, meanStatsContacts, meanStatsInterests)
                     logging.debug("Saved precisions/recalls on contacts/interests as " + outputFilename)
             
                 finally: 

@@ -5,6 +5,8 @@ from sandbox.util.PathDefaults import PathDefaults
 """
 Just print the results for the contacts recommender. 
 """
+numpy.set_printoptions(suppress=True, precision=4, linewidth=150)
+
 sigmas1 = [0.1, 0.15, 0.2]
 sigmas2 =  [0.7, 0.8, 0.9]
 datasets = ["Keyword", "Doc"]
@@ -27,10 +29,11 @@ for dataset in datasets:
             try : 
                 data = numpy.load(outputFilename)
                 
-                precisions, recalls, f1, precisionsInterests, jaccardInterests = data["arr_0"], data["arr_1"], data["arr_2"], data["arr_3"], data["arr_4"]
+                meanStatsContacts, meanStatsInterests = data["arr_0"], data["arr_1"]
                 
                 print(outputFilename)
-                print(precisions, recalls, f1, precisionsInterests, jaccardInterests)
+                print(meanStatsContacts)
+                print(meanStatsInterests)
             except: 
                 print("File not found: " + outputFilename)                
                 

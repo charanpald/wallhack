@@ -57,10 +57,9 @@ def evaluate_against_contacts(sims, contacts, min_contacts):
     for i,stat in enumerate(stats_names):
         print 'mean {0} = {1:.2g} '.format(stat,np.mean([s[i] for s in stats]))
         
-    precisions = np.array([prec_1, prec_3, prec_5, prec_10])
-    recalls = np.array([recall_1, recall_3, recall_5, recall_10])
-    
-    return precisions, recalls, f1 
+    meanStats = np.mean(stats, 0)        
+        
+    return meanStats
 
 def evaluate_against_research_interests(sims, research_interests, min_acceptable_sims):
     stats_names = ['# predicted having interests','prec @ 1','prec @ 3','prec @ 5','prec @ 10','prec','jacc @ 10','jacc']
@@ -111,8 +110,9 @@ def evaluate_against_research_interests(sims, research_interests, min_acceptable
     for i,stat in enumerate(stats_names):
         print 'mean {0} = {1:.2g} '.format(stat,np.mean([s[i] for s in stats]))
         
-    precisions = np.array([prec_1, prec_3, prec_5, prec_10])
-    return precisions, jaccard_10
+    meanStats = np.mean(stats, 0)        
+        
+    return meanStats
 
 def read_contacts(filename): 
     # load profile_id->contacts groundtruth: consider sim correct if it's one of these
