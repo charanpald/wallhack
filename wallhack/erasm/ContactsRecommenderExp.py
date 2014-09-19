@@ -21,7 +21,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 k = 128
 maxItems = 10
-minScore = 0.1
+minScore = 0.0
 minContacts = 3
 minAcceptableSims = 3
 maxIterations = 20 
@@ -51,7 +51,7 @@ for dataset in datasets:
         sigmas = sigmas2
     
     for sigma in sigmas: 
-        X = DatasetUtils.mendeley(dataset=dataset, sigma=sigma)
+        X = DatasetUtils.mendeley(minNnzRows=0, dataset=dataset, sigma=sigma)
         
         for learnerName, learner in learners: 
             
