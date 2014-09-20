@@ -10,6 +10,7 @@ from sandbox.recommendation.MaxLocalAUC import MaxLocalAUC
 from sandbox.util.MCEvaluator import MCEvaluator 
 from sandbox.util.PathDefaults import PathDefaults 
 from sandbox.util.FileLock import FileLock
+from sandbox.util.Sampling import Sampling 
 from wallhack.rankingexp.DatasetUtils import DatasetUtils 
 from wallhack.erasm.Evaluator import evaluate_against_contacts, evaluate_against_research_interests, read_contacts, read_interests, read_similar_authors
 
@@ -29,18 +30,28 @@ minAcceptableSims = 3
 maxIterations = 20 
 alpha = 0.2
 numProcesses = 2
+modelSelectSamples = 10**6
 
+folds = 3
+ks = numpy.array([k])
+rhosSi = numpy.linspace(1.0, 0.0, 6)
 
 sigmas1 = [0.1, 0.15, 0.2]
 sigmas2 =  [0.7, 0.8, 0.9]
 
 softImpute = IterativeSoftImpute(k=k, postProcess=True, svdAlg="arpack")
 softImpute.maxIterations = maxIterations 
+
 wrmf = WeightedMf(k=k, maxIterations=maxIterations, alpha=alpha)
+wrmf.ks = ks
+wrmf.folds = folds 
+
 maxLocalAuc = MaxLocalAUC(k=k, w=0.9, maxIterations=50, lmbdaU=0.1, lmbdaV=0.1, stochastic=True)
 maxLocalAuc.numRowSamples = 10
 maxLocalAuc.parallelSGD = True
 maxLocalAuc.initialAlg = "svd"
+maxLocalAuc.ks = ks
+maxLocalAuc.folds = folds
 
 """
 To run the parallel version of MLAUC you have to increase the amount of shared memory using 
@@ -79,20 +90,33 @@ for dataset in datasets:
                 logging.debug(learner)      
             
                 try: 
-                                  
+                                
                     #Do some recommendation 
                     if type(learner) == IterativeSoftImpute:  
                         trainX = X.toScipyCsc()
                         trainIterator = iter([trainX])
+                                 
+                        modelSelectX, userInds = Sampling.sampleUsers2(trainX, modelSelectSamples)
+                        cvInds = Sampling.randCrossValidation(folds, modelSelectX.nnz)
+                        meanMetrics, stdMetrics = learner.modelSelect2(modelSelectX, rhosSi, ks, cvInds)
+                        
                         ZList = learner.learnModel(trainIterator)    
                         U, s, V = ZList.next()
                         U = U*s
                     elif type(learner) == WeightedMf:  
                         trainX = X.toScipyCsr()
+                        
+                        modelSelectX, userInds = Sampling.sampleUsers2(trainX, modelSelectSamples)
+                        meanMetrics, stdMetrics = learner.modelSelect(modelSelectX)                          
+                        
                         learner.learnModel(trainX)
                         U = learner.U 
                         V = learner.V 
                     else: 
+                        trainX = X
+                        modelSelectX, userInds = Sampling.sampleUsers2(trainX, modelSelectSamples)
+                        meanMetrics, stdMetrics = learner.modelSelect(modelSelectX)
+                        
                         learner.learnModel(X)
                         U = learner.U 
                         V = learner.V 
