@@ -40,11 +40,13 @@ sigmas1 = [0.1, 0.15, 0.2]
 sigmas2 =  [0.7, 0.8, 0.9]
 
 softImpute = IterativeSoftImpute(k=k, postProcess=True, svdAlg="arpack")
-softImpute.maxIterations = maxIterations 
+softImpute.maxIterations = maxIterations
+softImpute.metric = "f1" 
 
 wrmf = WeightedMf(k=k, maxIterations=maxIterations, alpha=alpha)
 wrmf.ks = ks
 wrmf.folds = folds 
+wrmf.lmbdas = 2.0**-numpy.arange(-1, 12, 2)
 
 maxLocalAuc = MaxLocalAUC(k=k, w=0.9, maxIterations=50, lmbdaU=0.1, lmbdaV=0.1, stochastic=True)
 maxLocalAuc.numRowSamples = 10
@@ -62,6 +64,7 @@ overwrite = False
 datasets = ["Keyword", "Doc"]
 learners = [("SoftImpute", softImpute), ("WRMF", wrmf)]
 #learners = [("MLAUC", maxLocalAuc)]
+#learners = [("SoftImpute", softImpute)]
 resultsDir = PathDefaults.getOutputDir() + "coauthors/"
 contactsFilename = PathDefaults.getDataDir() + "reference/contacts_anonymised.tsv"
 interestsFilename = PathDefaults.getDataDir() + "reference/author_interest"
