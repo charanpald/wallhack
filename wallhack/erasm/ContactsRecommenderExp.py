@@ -34,14 +34,15 @@ modelSelectSamples = 10**6
 
 folds = 3
 ks = numpy.array([k])
-rhosSi = numpy.linspace(1.0, 0.0, 6)
+rhosSi = numpy.linspace(1.0, 0.0, 5)
 
 sigmas1 = [0.1, 0.15, 0.2]
 sigmas2 =  [0.7, 0.8, 0.9]
 
-softImpute = IterativeSoftImpute(k=k, postProcess=True, svdAlg="arpack")
+softImpute = IterativeSoftImpute(k=k, postProcess=True, svdAlg="rsvd")
 softImpute.maxIterations = maxIterations
 softImpute.metric = "f1" 
+softImpute.q = 3
 
 wrmf = WeightedMf(k=k, maxIterations=maxIterations, alpha=alpha)
 wrmf.ks = ks
@@ -101,8 +102,11 @@ for dataset in datasets:
                         trainX = X.toScipyCsc()
                         trainIterator = iter([trainX])
                                  
-                        modelSelectX, userInds = Sampling.sampleUsers2(trainX, modelSelectSamples)
+                        modelSelectX, userInds = Sampling.sampleUsers2(X, modelSelectSamples)
+                        modelSelectX = modelSelectX.toScipyCsc()                            
+                        
                         cvInds = Sampling.randCrossValidation(folds, modelSelectX.nnz)
+                        logging.debug("Performing model selection")
                         meanMetrics, stdMetrics = learner.modelSelect2(modelSelectX, rhosSi, ks, cvInds)
                         
                         ZList = learner.learnModel(trainIterator)    
@@ -110,6 +114,9 @@ for dataset in datasets:
                         U = U*s
                     elif type(learner) == WeightedMf:  
                         trainX = X.toScipyCsr()
+                        
+                        modelSelectX, userInds = Sampling.sampleUsers2(X, modelSelectSamples)
+                        modelSelectX = modelSelectX.toScipyCsc()  
                         
                         modelSelectX, userInds = Sampling.sampleUsers2(trainX, modelSelectSamples)
                         meanMetrics, stdMetrics = learner.modelSelect(modelSelectX)                          
