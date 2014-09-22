@@ -47,6 +47,7 @@ wrmf = WeightedMf(k=k, maxIterations=maxIterations, alpha=alpha)
 wrmf.ks = ks
 wrmf.folds = folds 
 wrmf.lmbdas = 2.0**-numpy.arange(-1, 12, 2)
+wrmf.metric = "f1" 
 
 maxLocalAuc = MaxLocalAUC(k=k, w=0.9, maxIterations=50, lmbdaU=0.1, lmbdaV=0.1, stochastic=True)
 maxLocalAuc.numRowSamples = 10
@@ -54,6 +55,7 @@ maxLocalAuc.parallelSGD = True
 maxLocalAuc.initialAlg = "svd"
 maxLocalAuc.ks = ks
 maxLocalAuc.folds = folds
+maxLocalAuc.metric = "f1"
 
 """
 To run the parallel version of MLAUC you have to increase the amount of shared memory using 
