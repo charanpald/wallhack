@@ -22,19 +22,19 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 #Do model selection? 
 
-k = 128
+k = 256
 maxItems = 10
 minScore = 0.0
 minContacts = 3
 minAcceptableSims = 3
-maxIterations = 20 
+maxIterations = 30 
 alpha = 0.2
 numProcesses = 2
 modelSelectSamples = 10**6
 
 folds = 3
 ks = numpy.array([k])
-rhosSi = numpy.linspace(1.0, 0.0, 5)
+rhosSi = numpy.linspace(1.25, 0.25, 5)
 
 sigmas1 = [0.1, 0.15, 0.2]
 sigmas2 =  [0.7, 0.8, 0.9]
