@@ -80,17 +80,14 @@ maxLocalAuc.folds = 2
 maxLocalAuc.rho = 1.0
 maxLocalAuc.ks = numpy.array([k2])
 maxLocalAuc.validationSize = 3
-maxLocalAuc.z = 10
 maxLocalAuc.lmbdas = numpy.linspace(0.5, 2.0, 7)
 maxLocalAuc.normalise = True
 #maxLocalAuc.numProcesses = 1
 maxLocalAuc.alphas = 2.0**-numpy.arange(0, 5, 1)
 maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
 maxLocalAuc.metric = "f1"
-maxLocalAuc.sampling = "uniform"
 maxLocalAuc.itemExpP = 1.0
 maxLocalAuc.itemExpQ = 1.0
-maxLocalAuc.itemFactors = False
 #maxLocalAuc.parallelSGD = True
 
 os.system('taskset -p 0xffffffff %d' % os.getpid())
