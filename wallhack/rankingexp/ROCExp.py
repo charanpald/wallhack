@@ -19,7 +19,7 @@ numpy.seterr(all="raise")
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "synthetic"
+    dataset = "movielens"
 
 saveResults = True
 prefix = "ROC"
@@ -31,7 +31,7 @@ if dataset == "synthetic":
 elif dataset == "synthetic2": 
     X = DatasetUtils.syntheticDataset2()
 elif dataset == "movielens": 
-    X = DatasetUtils.movieLens(minNnzRows=20)
+    X = DatasetUtils.movieLens()
 elif dataset == "flixster": 
     X = DatasetUtils.flixster()
     X = Sampling.sampleUsers(X, 1000)
@@ -89,9 +89,7 @@ def computeTestAuc(args):
     
     fprTrain, tprTrain = MCEvaluator.averageRocCurve(trainX, U, V)
     fprTest, tprTest = MCEvaluator.averageRocCurve(testX, U, V)
-    
-    print(fprTrain, tprTrain)
-    
+        
     return fprTrain, tprTrain, fprTest, tprTest
 
 if saveResults: 
@@ -149,23 +147,25 @@ else:
    
     import matplotlib 
     matplotlib.use("GTK3Agg")
-    import matplotlib.pyplot as plt    
+    import matplotlib.pyplot as plt   
+    
+    plotInds = ["k-", "k--", "k-.", "k:"]
     
     for i, loss in enumerate(losses): 
         plt.figure(0)
-        plt.plot(meanFprTrain[i, :], meanTprTrain[i, :], label=loss)
+        plt.plot(meanFprTrain[i, :], meanTprTrain[i, :], plotInds[i], label=loss)
         
         plt.figure(1)    
-        plt.plot(meanFprTest[i, :], meanTprTest[i, :], label=loss)    
+        plt.plot(meanFprTest[i, :], meanTprTest[i, :], plotInds[i], label=loss)    
     
     plt.figure(0)
-    plt.xlabel("mean false positive rate")
-    plt.ylabel("mean true positive rate")
+    plt.xlabel("false positive rate")
+    plt.ylabel("true positive rate")
     plt.legend()
     
     plt.figure(1)
-    plt.xlabel("mean false positive rate")
-    plt.ylabel("mean true positive rate")
+    plt.xlabel("false positive rate")
+    plt.ylabel("true positive rate")
     plt.legend()
     
     plt.show()
