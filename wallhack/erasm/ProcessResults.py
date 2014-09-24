@@ -1,5 +1,6 @@
-
+import logging
 import numpy 
+import sys 
 from sandbox.util.PathDefaults import PathDefaults 
 from sandbox.util.Latex import Latex 
 
@@ -7,6 +8,7 @@ from sandbox.util.Latex import Latex
 """
 Just print the results for the contacts recommender. 
 """
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.set_printoptions(suppress=True, precision=4, linewidth=150)
 
 sigmas1 = [0.1, 0.15, 0.2]
@@ -38,16 +40,17 @@ for dataset in datasets:
                 
                 meanStatsContacts, meanStatsInterests = data["arr_0"], data["arr_1"]
                 
-                print(outputFilename)
+                logging.debug(outputFilename)
                 #print(meanStatsContacts)
-                print(meanStatsInterests)
+                #print(meanStatsInterests)
                 
                 rowNames.append(learnerName + " " + dataset + " $\sigma=" + str(sigma) + "$")
                 contactResults.append(meanStatsContacts[[2, 3, 4, 5, 7, 8, 9, 10, 12]])
                 interestResults.append(meanStatsInterests[[1, 2, 3, 4, 6]])
             except: 
-                print("File not found: " + outputFilename)                
+                logging.debug("File not found: " + outputFilename)                
 
+print("")
 
 contactResults = numpy.array(contactResults)
 interestResults = numpy.array(interestResults)
