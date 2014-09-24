@@ -34,7 +34,7 @@ modelSelectSamples = 10**6
 
 folds = 3
 ks = numpy.array([k])
-rhosSi = numpy.linspace(1.25, 0.25, 5)
+rhosSi = numpy.linspace(1.0, 0.0, 5)
 
 sigmas1 = [0.1, 0.15, 0.2]
 sigmas2 =  [0.7, 0.8, 0.9]
