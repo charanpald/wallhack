@@ -5,7 +5,6 @@ import os
 import multiprocessing
 from sandbox.recommendation.MaxLocalAUC import MaxLocalAUC
 from sandbox.util.SparseUtils import SparseUtils
-
 from sandbox.util.MCEvaluator import MCEvaluator
 from sandbox.util.PathDefaults import PathDefaults
 from sandbox.util.Sampling import Sampling
@@ -19,7 +18,7 @@ numpy.seterr(all="raise")
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "movielens"
+    dataset = "synthetic"
 
 saveResults = True
 prefix = "ROC"
@@ -79,7 +78,7 @@ maxLocalAuc.validationUsers = 0
 os.system('taskset -p 0xffffffff %d' % os.getpid())
 
 logging.debug("Starting training")
-losses = ["tanh", "hinge", "square", "logistic"]
+losses = [("tanh", 0.5), ("tanh", 1.0), ("tanh", 2.0), ("hinge", 1), ("square", 1), ("logistic", 0.5), ("logistic", 1.0), ("logistic", 2.0)]
 
 def computeTestAuc(args): 
     trainX, testX, maxLocalAuc  = args 
@@ -96,12 +95,12 @@ if saveResults:
     paramList = []
     chunkSize = 1
     
-    for loss in losses: 
+    for loss, rho in losses: 
         for trainX, testX in trainTestXs: 
             maxLocalAuc.loss = loss 
-            
+            maxLocalAuc.rho = rho 
             paramList.append((trainX, testX, maxLocalAuc.copy()))
-    
+
     pool = multiprocessing.Pool(maxtasksperchild=100, processes=multiprocessing.cpu_count())
     resultsIterator = pool.imap(computeTestAuc, paramList, chunkSize)
     
@@ -149,14 +148,15 @@ else:
     matplotlib.use("GTK3Agg")
     import matplotlib.pyplot as plt   
     
-    plotInds = ["k-", "k--", "k-.", "k:"]
+    plotInds = ["k-", "k--", "k-.", "r-", "b-", "c-", "c--", "c-."]
     
-    for i, loss in enumerate(losses): 
+    for i, lossTuple in enumerate(losses):
+        loss, rho = lossTuple
         plt.figure(0)
-        plt.plot(meanFprTrain[i, :], meanTprTrain[i, :], plotInds[i], label=loss)
+        plt.plot(meanFprTrain[i, :], meanTprTrain[i, :], plotInds[i], label=loss + " rho=" + str(rho))
         
         plt.figure(1)    
-        plt.plot(meanFprTest[i, :], meanTprTest[i, :], plotInds[i], label=loss)    
+        plt.plot(meanFprTest[i, :], meanTprTest[i, :], plotInds[i], label=loss + " rho=" + str(rho))    
     
     plt.figure(0)
     plt.xlabel("false positive rate")
