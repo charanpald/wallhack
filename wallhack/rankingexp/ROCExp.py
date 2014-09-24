@@ -45,22 +45,16 @@ w = 1-u
 testSize = 5
 folds = 3
 trainTestXs = Sampling.shuffleSplitRows(X, folds, testSize)
-trainX, testX = trainTestXs[0]
 
-trainOmegaPtr = SparseUtils.getOmegaListPtr(trainX)
-testOmegaPtr = SparseUtils.getOmegaListPtr(testX)
-allOmegaPtr = SparseUtils.getOmegaListPtr(X)
 numRecordAucSamples = 200
 
-logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))
-
 k2 = 8
-u2 = 0.1
+u2 = 0.5
 w2 = 1-u2
 eps = 10**-8
 lmbda = 0.1
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbdaU=lmbda, lmbdaV=lmbda, stochastic=True)
-maxLocalAuc.maxIterations = 10
+maxLocalAuc.maxIterations = 100
 maxLocalAuc.numRowSamples = 30
 maxLocalAuc.numAucSamples = 20
 maxLocalAuc.numRecordAucSamples = 100
@@ -96,6 +90,8 @@ def computeTestAuc(args):
     fprTrain, tprTrain = MCEvaluator.averageRocCurve(trainX, U, V)
     fprTest, tprTest = MCEvaluator.averageRocCurve(testX, U, V)
     
+    print(fprTrain, tprTrain)
+    
     return fprTrain, tprTrain, fprTest, tprTest
 
 if saveResults: 
@@ -110,6 +106,14 @@ if saveResults:
     
     pool = multiprocessing.Pool(maxtasksperchild=100, processes=multiprocessing.cpu_count())
     resultsIterator = pool.imap(computeTestAuc, paramList, chunkSize)
+    
+    #import itertools 
+    #resultsIterator = itertools.imap(computeTestAuc, paramList)
+    
+    meanFprTrains = []
+    meanTprTrains = []
+    meanFprTests = []
+    meanTprTests = []
     
     for loss in losses: 
         fprTrains = [] 
@@ -130,9 +134,15 @@ if saveResults:
         meanFprTest = numpy.mean(numpy.array(fprTests), 0) 
         meanTprTest = numpy.mean(numpy.array(tprTests), 0) 
         
-        numpy.savez(outputFile, meanFprTrain, meanTprTrain, meanFprTest, meanTprTest)
+        meanFprTrains.append(meanFprTrain)
+        meanTprTrains.append(meanTprTrain)
+        meanFprTests.append(meanFprTest)
+        meanTprTests.append(meanTprTest)
+        
+    numpy.savez(outputFile, meanFprTrains, meanTprTrains, meanFprTests, meanTprTests)
     
     pool.terminate()   
+    logging.debug("Saved results in " + outputFile)
 else: 
     data = numpy.load(outputFile)
     meanFprTrain, meanTprTrain, meanFprTest, meanTprTest = data["arr_0"], data["arr_1"], data["arr_2"], data["arr_3"]      
@@ -140,12 +150,13 @@ else:
     import matplotlib 
     matplotlib.use("GTK3Agg")
     import matplotlib.pyplot as plt    
-   
-    plt.figure(0)
-    plt.plot(meanFprTrain, meanTprTrain, label=loss)
     
-    plt.figure(1)    
-    plt.plot(meanFprTest, meanTprTest, label=loss)    
+    for i, loss in enumerate(losses): 
+        plt.figure(0)
+        plt.plot(meanFprTrain[i, :], meanTprTrain[i, :], label=loss)
+        
+        plt.figure(1)    
+        plt.plot(meanFprTest[i, :], meanTprTest[i, :], label=loss)    
     
     plt.figure(0)
     plt.xlabel("mean false positive rate")
