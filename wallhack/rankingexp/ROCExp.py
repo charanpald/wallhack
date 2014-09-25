@@ -60,7 +60,7 @@ maxLocalAuc.numRecordAucSamples = 100
 maxLocalAuc.recordStep = 10
 maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.rate = "constant"
-maxLocalAuc.alpha = 0.5
+maxLocalAuc.alpha = 0.1
 maxLocalAuc.t0 = 1.0
 maxLocalAuc.folds = 2
 maxLocalAuc.rho = 1.0
@@ -78,7 +78,7 @@ maxLocalAuc.validationUsers = 0
 os.system('taskset -p 0xffffffff %d' % os.getpid())
 
 logging.debug("Starting training")
-losses = [("tanh", 0.5), ("tanh", 1.0), ("tanh", 2.0), ("hinge", 1), ("square", 1), ("logistic", 0.5), ("logistic", 1.0), ("logistic", 2.0)]
+losses = [("tanh", 0.5), ("tanh", 1.0), ("tanh", 2.0), ("hinge", 1), ("square", 1), ("logistic", 0.5), ("logistic", 1.0), ("logistic", 2.0), ("sigmoid", 0.5), ("sigmoid", 1.0), ("sigmoid", 2.0)]
 
 def computeTestAuc(args): 
     trainX, testX, maxLocalAuc  = args 
@@ -148,7 +148,7 @@ else:
     matplotlib.use("GTK3Agg")
     import matplotlib.pyplot as plt   
     
-    plotInds = ["k-", "k--", "k-.", "r-", "b-", "c-", "c--", "c-."]
+    plotInds = ["k-", "k--", "k-.", "r-", "b-", "c-", "c--", "c-.", "g-", "g--", "g-."]
     
     for i, lossTuple in enumerate(losses):
         loss, rho = lossTuple
