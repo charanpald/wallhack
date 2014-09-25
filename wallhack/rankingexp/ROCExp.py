@@ -18,7 +18,7 @@ numpy.seterr(all="raise")
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "synthetic"
+    dataset = "flixster"
 
 saveResults = True
 prefix = "ROC"
@@ -33,7 +33,7 @@ elif dataset == "movielens":
     X = DatasetUtils.movieLens()
 elif dataset == "flixster": 
     X = DatasetUtils.flixster()
-    X = Sampling.sampleUsers(X, 1000)
+    X, userInds = Sampling.sampleUsers2(X, 50000)
 else: 
     raise ValueError("Unknown dataset: " + dataset)
 
@@ -161,11 +161,11 @@ else:
     plt.figure(0)
     plt.xlabel("false positive rate")
     plt.ylabel("true positive rate")
-    plt.legend()
+    plt.legend(loc="lower right")
     
     plt.figure(1)
     plt.xlabel("false positive rate")
     plt.ylabel("true positive rate")
-    plt.legend()
+    plt.legend(loc="lower right")
     
     plt.show()
