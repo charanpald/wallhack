@@ -18,7 +18,7 @@ numpy.seterr(all="raise")
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "flixster"
+    dataset = "synthetic"
 
 saveResults = True
 prefix = "ROC"
@@ -74,6 +74,7 @@ maxLocalAuc.metric = "f1"
 maxLocalAuc.itemExpP = 0.0
 maxLocalAuc.itemExpQ = 0.0
 maxLocalAuc.validationUsers = 0
+maxLocalAuc.numProcesses = 1
 
 os.system('taskset -p 0xffffffff %d' % os.getpid())
 
@@ -84,6 +85,8 @@ def computeTestAuc(args):
     trainX, testX, maxLocalAuc  = args 
     numpy.random.seed(21)
     logging.debug(maxLocalAuc)
+    
+    maxLocalAuc.learningRateSelect(trainX)
     U, V, trainMeasures, testMeasures, iterations, time = maxLocalAuc.learnModel(trainX, verbose=True)
     
     fprTrain, tprTrain = MCEvaluator.averageRocCurve(trainX, U, V)
