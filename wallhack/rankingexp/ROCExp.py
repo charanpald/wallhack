@@ -55,14 +55,14 @@ lmbda = 0.1
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbdaU=lmbda, lmbdaV=lmbda, stochastic=True)
 maxLocalAuc.maxIterations = 100
 maxLocalAuc.numRowSamples = 30
-maxLocalAuc.numAucSamples = 20
+maxLocalAuc.numAucSamples = 10
 maxLocalAuc.numRecordAucSamples = 100
 maxLocalAuc.recordStep = 10
 maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.rate = "constant"
 maxLocalAuc.alpha = 0.1
 maxLocalAuc.t0 = 1.0
-maxLocalAuc.folds = 2
+maxLocalAuc.folds = 1
 maxLocalAuc.rho = 1.0
 maxLocalAuc.ks = numpy.array([k2])
 maxLocalAuc.validationSize = 3
