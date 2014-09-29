@@ -99,12 +99,15 @@ class DatasetUtils(object):
         return X 
 
     @staticmethod         
-    def mendeley(minNnzRows=10, minNnzCols=10, quantile=90, dataset="Doc", sigma=0.05):
+    def mendeley(minNnzRows=10, minNnzCols=10, quantile=90, dataset="Doc", sigma=0.05, indicator=True):
         authorAuthorFileName = PathDefaults.getDataDir() + "reference/authorAuthor"+ dataset + "Matrix_sigma=" + str(sigma) + ".mtx"
         logging.debug("Reading file: " + authorAuthorFileName)
         X = sppy.io.mmread(authorAuthorFileName, storagetype="row")
-        X[X.nonzero()] = 1
-        X.prune()
+        
+        if indicator: 
+            X[X.nonzero()] = 1
+            X.prune()
+        
         logging.debug("Raw non-zero elements: " + str(X.nnz) + " shape: " + str(X.shape))
         
         #maxNnz = numpy.percentile(X.sum(0), quantile)
