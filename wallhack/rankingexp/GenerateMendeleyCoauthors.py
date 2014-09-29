@@ -110,7 +110,7 @@ def writeAuthorAuthorMatrix(authorXFileName, authorAuthorFileName, sigma=0.05):
 dataDir = PathDefaults.getDataDir()
 
 #Write out author-author from documents 
-sigmas = [0.01]
+sigmas = [0.05]
 
 inputFileName = dataDir + "reference/author_document_count"
 authorXFileName = dataDir + "reference/authorDocumentMatrix.mtx"  
