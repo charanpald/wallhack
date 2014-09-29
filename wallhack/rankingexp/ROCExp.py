@@ -10,6 +10,11 @@ from sandbox.util.PathDefaults import PathDefaults
 from sandbox.util.Sampling import Sampling
 from wallhack.rankingexp.DatasetUtils import DatasetUtils
 
+"""
+We look at the ROC curves for the different objective functions 
+"""
+
+
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.random.seed(21)        
 numpy.set_printoptions(precision=4, suppress=True, linewidth=150)
