@@ -23,7 +23,7 @@ numpy.seterr(all="raise")
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "synthetic2"
+    dataset = "synthetic"
 
 saveResults = True
 prefix = "ItemExpROC"
@@ -47,7 +47,7 @@ u = 0.1
 w = 1-u
 
 testSize = 5
-folds = 2
+folds = 5
 trainTestXs = Sampling.shuffleSplitRows(X, folds, testSize)
 
 numRecordAucSamples = 200
@@ -92,7 +92,7 @@ def computeTestAuc(args):
     numpy.random.seed(21)
     logging.debug(maxLocalAuc)
     
-    #maxLocalAuc.learningRateSelect(trainX)
+    maxLocalAuc.learningRateSelect(trainX)
     U, V, trainMeasures, testMeasures, iterations, time = maxLocalAuc.learnModel(trainX, U=U, V=V, verbose=True)
     
     fprTrain, tprTrain = MCEvaluator.averageRocCurve(trainX, U, V)
@@ -165,13 +165,13 @@ else:
     matplotlib.use("GTK3Agg")
     import matplotlib.pyplot as plt   
     
-    plotInds = ["k-", "k--", "k-.", "r-", "b-", "c-", "c--", "c-.", "g-", "g--", "g-."]
+    plotInds = ["k-", "k--", "k-.", "g-", "g--", "g-."]
     
     for i in range(len(itemExpPs) + len(itemExpQs)): 
-        if i <= len(itemExpPs): 
-            label = "itemExpP=" + itemExpPs[i]
+        if i < len(itemExpPs): 
+            label = "itemExpP=" + str(itemExpPs[i])
         else:
-            label = "itemExpQ=" + itemExpQs[i - len(itemExpPs)]
+            label = "itemExpQ=" + str(itemExpQs[i - len(itemExpPs)])
         
             
         fprTrainStart =   meanFprTrain[i, meanFprTrain[i, :]<=0.2]   
