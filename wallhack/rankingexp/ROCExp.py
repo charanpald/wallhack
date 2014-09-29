@@ -18,7 +18,7 @@ numpy.seterr(all="raise")
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "synthetic"
+    dataset = "synthetic2"
 
 saveResults = True
 prefix = "ROC"
@@ -42,7 +42,7 @@ u = 0.1
 w = 1-u
 
 testSize = 5
-folds = 3
+folds = 5
 trainTestXs = Sampling.shuffleSplitRows(X, folds, testSize)
 
 numRecordAucSamples = 200
@@ -82,12 +82,12 @@ logging.debug("Starting training")
 losses = [("tanh", 0.5), ("tanh", 1.0), ("tanh", 2.0), ("hinge", 1), ("square", 1), ("logistic", 0.5), ("logistic", 1.0), ("logistic", 2.0), ("sigmoid", 0.5), ("sigmoid", 1.0), ("sigmoid", 2.0)]
 
 def computeTestAuc(args): 
-    trainX, testX, maxLocalAuc  = args 
+    trainX, testX, maxLocalAuc, U, V  = args 
     numpy.random.seed(21)
     logging.debug(maxLocalAuc)
     
     maxLocalAuc.learningRateSelect(trainX)
-    U, V, trainMeasures, testMeasures, iterations, time = maxLocalAuc.learnModel(trainX, verbose=True)
+    U, V, trainMeasures, testMeasures, iterations, time = maxLocalAuc.learnModel(trainX, U=U, V=V, verbose=True)
     
     fprTrain, tprTrain = MCEvaluator.averageRocCurve(trainX, U, V)
     fprTest, tprTest = MCEvaluator.averageRocCurve(testX, U, V)
@@ -98,11 +98,13 @@ if saveResults:
     paramList = []
     chunkSize = 1
     
+    U, V = maxLocalAuc.initUV(X)
+    
     for loss, rho in losses: 
         for trainX, testX in trainTestXs: 
             maxLocalAuc.loss = loss 
             maxLocalAuc.rho = rho 
-            paramList.append((trainX, testX, maxLocalAuc.copy()))
+            paramList.append((trainX, testX, maxLocalAuc.copy(), U, V))
 
     pool = multiprocessing.Pool(maxtasksperchild=100, processes=multiprocessing.cpu_count())
     resultsIterator = pool.imap(computeTestAuc, paramList, chunkSize)
@@ -155,11 +157,31 @@ else:
     
     for i, lossTuple in enumerate(losses):
         loss, rho = lossTuple
-        plt.figure(0)
-        plt.plot(meanFprTrain[i, :], meanTprTrain[i, :], plotInds[i], label=loss + " rho=" + str(rho))
         
-        plt.figure(1)    
-        plt.plot(meanFprTest[i, :], meanTprTest[i, :], plotInds[i], label=loss + " rho=" + str(rho))    
+        if loss == "tanh": 
+            label=loss + r" $\rho=$" + str(rho)
+        elif loss == "sigmoid" or loss =="logistic": 
+            label=loss + r" $\beta=$" + str(rho)
+        else: 
+            label = loss 
+        
+        fprTrainStart =   meanFprTrain[i, meanFprTrain[i, :]<=0.2]   
+        tprTrainStart =   meanTprTrain[i, meanFprTrain[i, :]<=0.2]   
+        
+        plt.figure(0)
+        plt.plot(fprTrainStart, tprTrainStart, plotInds[i], label=label)
+        
+        plt.figure(1)
+        plt.plot(meanFprTrain[i, :], meanTprTrain[i, :], plotInds[i], label=label)
+        
+        fprTestStart =   meanFprTest[i, meanFprTest[i, :]<=0.2]   
+        tprTestStart =   meanTprTest[i, meanFprTest[i, :]<=0.2]         
+        
+        plt.figure(2)    
+        plt.plot(fprTestStart, tprTestStart, plotInds[i], label=label)            
+        
+        plt.figure(3)    
+        plt.plot(meanFprTest[i, :], meanTprTest[i, :], plotInds[i], label=label)    
     
     plt.figure(0)
     plt.xlabel("false positive rate")
@@ -167,6 +189,16 @@ else:
     plt.legend(loc="lower right")
     
     plt.figure(1)
+    plt.xlabel("false positive rate")
+    plt.ylabel("true positive rate")
+    plt.legend(loc="lower right")
+    
+    plt.figure(2)
+    plt.xlabel("false positive rate")
+    plt.ylabel("true positive rate")
+    plt.legend(loc="lower right")
+    
+    plt.figure(3)
     plt.xlabel("false positive rate")
     plt.ylabel("true positive rate")
     plt.legend(loc="lower right")
