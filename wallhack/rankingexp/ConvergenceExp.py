@@ -18,7 +18,7 @@ numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 
 #Create a low rank matrix  
 saveResults = True
-dataset = "synthetic2" 
+dataset = "synthetic" 
 prefix = "Convergence"
 outputFile = PathDefaults.getOutputDir() + "ranking/" + prefix + dataset.title() + "Results.npz" 
 print(outputFile)
@@ -182,15 +182,29 @@ else:
     data = numpy.load(outputFile)
     objectives1, objectives2, objectives3, objectives4 = data["arr_0"], data["arr_1"], data["arr_2"], data["arr_3"]         
     
-    objectives1 = numpy.mean(objectives1, 2)    
-    objectives2 = numpy.mean(objectives2, 2)
-    objectives3 = numpy.mean(objectives3, 2)
-    objectives4 = numpy.mean(objectives4, 2)
+    objectivesMean1 = numpy.mean(objectives1, 2) 
+    objectivesStd1 = numpy.std(objectives1, 2)
+
+    objectivesMean2 = numpy.mean(objectives2, 2)
+    objectivesStd2 = numpy.std(objectives2, 2)
+
+    objectivesMean3 = numpy.mean(objectives3, 2)
+    objectivesStd3 = numpy.std(objectives3, 2)
     
-    print(objectives1)
-    print(objectives2)
-    print(objectives3)
-    print(objectives4)
+    objectivesMean4 = numpy.mean(objectives4, 2)
+    objectivesStd4 = numpy.std(objectives4, 2)
+    
+    print(objectivesMean1)
+    print(objectivesStd1)
+    
+    print(objectivesMean2)
+    print(objectivesStd2)
+
+    print(objectivesMean3)
+    print(objectivesStd3)
+
+    print(objectivesMean4)
+    print(objectivesStd4)
     
     iterations = numpy.arange(0, maxLocalAuc.maxIterations+1, maxLocalAuc.recordStep)
     
@@ -200,7 +214,7 @@ else:
     
     plt.figure(0)
     for i, numRowSamples in enumerate(numRowSamplesArray):     
-        plt.plot(iterations, objectives1[i, :], label="s_W = " + str(numRowSamples))
+        plt.plot(iterations, objectivesMean1[i, :], label="s_W = " + str(numRowSamples))
         
     plt.xlabel("iteration")
     plt.ylabel("objective")
@@ -208,21 +222,21 @@ else:
     
     plt.figure(1)
     for i, numAucSamples in enumerate(numAucSamplesArray):     
-        plt.plot(iterations, objectives2[i, :], label="s_Y = " + str(numAucSamples))
+        plt.plot(iterations, objectivesMean2[i, :], label="s_Y = " + str(numAucSamples))
     plt.xlabel("iteration")
     plt.ylabel("objective")
     plt.legend()
     
     plt.figure(2)
     for i, eta in enumerate(etas):     
-        plt.plot(iterations, objectives3[i, :], label="eta = " + str(eta))
+        plt.plot(iterations, objectivesMean3[i, :], label="eta = " + str(eta))
     plt.xlabel("iteration")
     plt.ylabel("objective")
     plt.legend()
     
     plt.figure(3)
     for i, startAverage in enumerate(startAverages):     
-        plt.plot(iterations, objectives4[i, :], label="startAverage = " + str(startAverage))    
+        plt.plot(iterations, objectivesMean4[i, :], label="startAverage = " + str(startAverage))    
     
     plt.xlabel("iteration")
     plt.ylabel("objective")
