@@ -82,7 +82,7 @@ for dataset in datasets:
         sigmas = sigmas2
     
     for sigma in sigmas: 
-        X = DatasetUtils.mendeley(minNnzRows=0, dataset=dataset, sigma=sigma)
+        X = DatasetUtils.mendeley(minNnzRows=0, dataset=dataset, sigma=sigma, indicator=False)
         
         for learnerName, learner in learners: 
             
