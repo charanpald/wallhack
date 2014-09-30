@@ -44,7 +44,7 @@ softImpute.maxIterations = maxIterations
 softImpute.metric = "f1" 
 softImpute.q = 3
 
-wrmf = WeightedMf(k=k, maxIterations=maxIterations, alpha=alpha)
+wrmf = WeightedMf(k=k, maxIterations=maxIterations, alpha=1.0)
 wrmf.ks = ks
 wrmf.folds = folds 
 wrmf.lmbdas = 2.0**-numpy.arange(-1, 12, 2)
