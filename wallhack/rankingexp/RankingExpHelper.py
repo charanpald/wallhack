@@ -84,11 +84,11 @@ class RankingExpHelper(object):
     defaultAlgoArgs.fullGradient = False
     defaultAlgoArgs.initialAlg = "svd"
     defaultAlgoArgs.itemExpP = 0.5 
-    defaultAlgoArgs.itemExpQ = 0.5
-    defaultAlgoArgs.itemFactors = False
+    defaultAlgoArgs.itemExpQ = 0.5 
     defaultAlgoArgs.lmbdaUMlauc = 0.1
     defaultAlgoArgs.lmbdaVMlauc = 0.1
     defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(2, 7)
+    defaultAlgoArgs.loss = "square"
     defaultAlgoArgs.maxIterations = 100
     defaultAlgoArgs.normalise = True
     defaultAlgoArgs.numAucSamples = 10
@@ -103,7 +103,6 @@ class RankingExpHelper(object):
     defaultAlgoArgs.t0 = 1.0
     defaultAlgoArgs.t0s = 2.0**-numpy.arange(-1, 2, 1)
     defaultAlgoArgs.validationUsers = 0.2
-    defaultAlgoArgs.z = 10
     
     #Parameters for SoftImpute 
     defaultAlgoArgs.epsSi = 10**-14
@@ -181,17 +180,17 @@ class RankingExpHelper(object):
         algoParser.add_argument("--gamma", type=float, help="Regularisation parameter (gamma) for CLiMF (default: %(default)s)", default=defaultAlgoArgs.gamma)
         algoParser.add_argument("--gammaBpr", type=float, help="Regularisation parameter (gamma) for CLiMF (default: %(default)s)", default=defaultAlgoArgs.gammaBpr) 
         algoParser.add_argument("--folds", type=int, help="Folds/repetitions for model selection (default: %(default)s)", default=defaultAlgoArgs.folds)   
-        algoParser.add_argument("--initialAlg", type=str, help="Initial setup for U and V for max local AUC: either rand or svd (default: %(default)s)", default=defaultAlgoArgs.initialAlg)
-        algoParser.add_argument("--itemFactors", action="store_true", help="Whether to use only item factors (default: %(default)s)", default=defaultAlgoArgs.itemFactors)        
+        algoParser.add_argument("--initialAlg", type=str, help="Initial setup for U and V for max local AUC: either rand or svd (default: %(default)s)", default=defaultAlgoArgs.initialAlg)  
         algoParser.add_argument("--k", type=int, help="Max number of factors (default: %(default)s)", default=defaultAlgoArgs.k)
         algoParser.add_argument("--ks", type=int, nargs="+", help="Max number of factors (default: %(default)s)", default=defaultAlgoArgs.ks)
+        algoParser.add_argument("--learningRateSelect", action="store_true", help="Whether to do learning rate selection (default: %(default)s)", default=defaultAlgoArgs.learningRateSelect)
         algoParser.add_argument("--lmbdasCLiMF", type=float, nargs="+", help="Regularisation parameters (lambda) for CLiMF (default: %(default)s)", default=defaultAlgoArgs.lmbdasCLiMF) 
         algoParser.add_argument("--lmbdaUMlauc", type=float, help="Regularisation parameters (lambda) for max local AUC (default: %(default)s)", default=defaultAlgoArgs.lmbdaUMlauc)
         algoParser.add_argument("--lmbdaVMlauc", type=float, help="Regularisation parameters (lambda) for max local AUC (default: %(default)s)", default=defaultAlgoArgs.lmbdaVMlauc)
         algoParser.add_argument("--lmbdasMlauc", type=float, nargs="+", help="Regularisation parameters for max local AUC (default: %(default)s)", default=defaultAlgoArgs.lmbdasMlauc)        
         algoParser.add_argument("--lmbdaUserBpr", type=float, help="Regularisation parameters for BPR (default: %(default)s)", default=defaultAlgoArgs.lmbdaUserBpr) 
         algoParser.add_argument("--lmbdaItemBpr", type=float, help="Regularisation parameters for BPR (default: %(default)s)", default=defaultAlgoArgs.lmbdaItemBpr)         
-        algoParser.add_argument("--learningRateSelect", action="store_true", help="Whether to do learning rate selection (default: %(default)s)", default=defaultAlgoArgs.learningRateSelect)
+        algoParser.add_argument("--loss", type=str, help="Loss function for MLAUC (default: %(default)s)", default=defaultAlgoArgs.loss)        
         algoParser.add_argument("--maxIterations", type=int, help="Maximal number of iterations (default: %(default)s)", default=defaultAlgoArgs.maxIterations)
         algoParser.add_argument("--maxIterCLiMF", type=int, help="Maximal number of iterations for CLiMF algorithm (default: %(default)s)", default=defaultAlgoArgs.maxIterCLiMF)
         algoParser.add_argument("--metric", type=str, help="Validation loss metric (default: %(default)s)", default=defaultAlgoArgs.metric)
@@ -403,10 +402,8 @@ class RankingExpHelper(object):
                 
         if self.algoArgs.runMaxLocalAuc:
             logging.debug("Running max local AUC")
-            if self.algoArgs.itemFactors: 
-                resultsFileName = self.resultsDir + "ResultsMaxLocalAUCItem.npz"
-            else: 
-                resultsFileName = self.resultsDir + "ResultsMaxLocalAUCUser.npz"
+
+            resultsFileName = self.resultsDir + "ResultsMaxLocalAUC_loss=" + self.algoArgs.loss + ".npz"
                 
             fileLock = FileLock(resultsFileName)  
             
@@ -422,9 +419,9 @@ class RankingExpHelper(object):
                     learner.initialAlg = self.algoArgs.initialAlg
                     learner.itemExpP = self.algoArgs.itemExpP
                     learner.itemExpQ = self.algoArgs.itemExpQ
-                    learner.itemFactors = self.algoArgs.itemFactors
                     learner.ks = self.algoArgs.ks 
                     learner.lmbdas = self.algoArgs.lmbdasMlauc
+                    learner.loss = self.algoArgs.loss
                     learner.maxIterations = self.algoArgs.maxIterations  
                     learner.metric = self.algoArgs.metric 
                     learner.normalise = self.algoArgs.normalise
@@ -441,7 +438,6 @@ class RankingExpHelper(object):
                     learner.t0s = self.algoArgs.t0s
                     learner.validationSize = self.algoArgs.validationSize
                     learner.validationUsers = self.algoArgs.validationUsers
-                    learner.z = self.algoArgs.z
 
                     """
                     if self.algoArgs.learningRateSelect:
