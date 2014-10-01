@@ -117,4 +117,21 @@ class DatasetUtils(object):
         logging.debug("Read file: " + authorAuthorFileName)
         logging.debug("Non-zero elements: " + str(X.nnz) + " shape: " + str(X.shape))
         
+        return X
+        
+    @staticmethod         
+    def mendeley2(minNnzRows=10, minNnzCols=10, quantile=90, dataset="Document"):
+        authorAuthorFileName = PathDefaults.getDataDir() + "reference/author" + dataset + "Matrix.mtx"
+        logging.debug("Reading file: " + authorAuthorFileName)
+        X = sppy.io.mmread(authorAuthorFileName, storagetype="row")
+                
+        logging.debug("Raw non-zero elements: " + str(X.nnz) + " shape: " + str(X.shape))
+        
+        #maxNnz = numpy.percentile(X.sum(0), quantile)
+        #X = SparseUtils.pruneMatrixCols(X, minNnz=minNnzCols, maxNnz=maxNnz)
+        X = SparseUtils.pruneMatrixRows(X, minNnzRows=minNnzRows)     
+        
+        logging.debug("Read file: " + authorAuthorFileName)
+        logging.debug("Non-zero elements: " + str(X.nnz) + " shape: " + str(X.shape))
+        
         return X 

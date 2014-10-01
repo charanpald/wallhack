@@ -36,9 +36,6 @@ folds = 3
 ks = numpy.array([k])
 rhosSi = numpy.linspace(1.0, 0.0, 5)
 
-sigmas1 = [0.05, 0.1, 0.15]
-sigmas2 =  [0.5, 0.7, 0.8]
-
 softImpute = IterativeSoftImpute(k=k, postProcess=True, svdAlg="rsvd")
 softImpute.maxIterations = maxIterations
 softImpute.metric = "f1" 
@@ -64,7 +61,7 @@ sudo sysctl -w kernel.shmmax=2147483648
 """
 
 overwrite = False
-datasets = ["Keyword", "Doc"]
+datasets = ["Keyword", "Document"]
 learners = [("SoftImpute", softImpute), ("WRMF", wrmf)]
 #learners = [("MLAUC", maxLocalAuc)]
 #learners = [("SoftImpute", softImpute)]
@@ -75,116 +72,107 @@ interestsFilename = PathDefaults.getDataDir() + "reference/author_interest"
 os.system('taskset -p 0xffffffff %d' % os.getpid())
 
 for dataset in datasets: 
+    X = DatasetUtils.mendeley2(minNnzRows=0, dataset=dataset)
     
-    if dataset == "Doc": 
-        sigmas = sigmas1 
-    else: 
-        sigmas = sigmas2
-    
-    for sigma in sigmas: 
-        X = DatasetUtils.mendeley(minNnzRows=0, dataset=dataset, sigma=sigma, indicator=False)
+    for learnerName, learner in learners: 
+        outputFilename = resultsDir + "Results_" + learnerName + "_" + dataset + ".npz"  
+        similaritiesFileName = resultsDir + "Recommendations_" + learnerName + "_" + dataset + ".csv" 
+        fileLock = FileLock(outputFilename)  
+            
+        if not (fileLock.isLocked() or fileLock.fileExists()) or overwrite: 
+            fileLock.lock()       
+            
+            logging.debug(learner)      
         
-        for learnerName, learner in learners: 
-            
-            outputFilename = resultsDir + "Results_" + learnerName + "_" + dataset + "_sigma=" + str(sigma) + ".npz"  
-            similaritiesFileName = resultsDir + "Recommendations_" + learnerName + "_" + dataset + "_sigma=" + str(sigma) + ".csv" 
-            fileLock = FileLock(outputFilename)  
+            try: 
+                #Do some recommendation 
+                if type(learner) == IterativeSoftImpute:  
+                    trainX = X.toScipyCsc()
+                    trainIterator = iter([trainX])
+                             
+                    modelSelectX, userInds = Sampling.sampleUsers2(X, modelSelectSamples)
+                    modelSelectX = modelSelectX.toScipyCsc()                            
+                    
+                    cvInds = Sampling.randCrossValidation(folds, modelSelectX.nnz)
+                    logging.debug("Performing model selection")
+                    meanMetrics, stdMetrics = learner.modelSelect2(modelSelectX, rhosSi, ks, cvInds)
+                    
+                    ZList = learner.learnModel(trainIterator)    
+                    U, s, V = ZList.next()
+                    U = U*s
+                elif type(learner) == WeightedMf:  
+                    trainX = X.toScipyCsr()
+                    
+                    modelSelectX, userInds = Sampling.sampleUsers2(X, modelSelectSamples)
+                    modelSelectX = modelSelectX.toScipyCsc()  
+                    
+                    modelSelectX, userInds = Sampling.sampleUsers2(trainX, modelSelectSamples)
+                    meanMetrics, stdMetrics = learner.modelSelect(modelSelectX)                          
+                    
+                    learner.learnModel(trainX)
+                    U = learner.U 
+                    V = learner.V 
+                else: 
+                    trainX = X
+                    modelSelectX, userInds = Sampling.sampleUsers2(trainX, modelSelectSamples)
+                    meanMetrics, stdMetrics = learner.modelSelect(modelSelectX)
+                    
+                    learner.learnModel(X)
+                    U = learner.U 
+                    V = learner.V 
+                    
+                U = numpy.ascontiguousarray(U)
+                V = numpy.ascontiguousarray(V)
                 
-            if not (fileLock.isLocked() or fileLock.fileExists()) or overwrite: 
-                fileLock.lock()       
+                #Note that we compute UU^T for recommendations 
+                orderedItems, scores = MCEvaluator.recommendAtk(U, U, maxItems, verbose=True)
                 
-                logging.debug(learner)      
-            
-                try: 
-                                
-                    #Do some recommendation 
-                    if type(learner) == IterativeSoftImpute:  
-                        trainX = X.toScipyCsc()
-                        trainIterator = iter([trainX])
-                                 
-                        modelSelectX, userInds = Sampling.sampleUsers2(X, modelSelectSamples)
-                        modelSelectX = modelSelectX.toScipyCsc()                            
+                #Now let's write out the similarities file 
+                logging.debug("Generating recommendations for authors")
+                authorIndexerFilename = PathDefaults.getDataDir() + "reference/authorIndexer" + dataset + ".pkl"
+                authorIndexerFile = open(authorIndexerFilename)
+                authorIndexer = pickle.load(authorIndexerFile)
+                authorIndexerFile.close()
+                logging.debug("Loaded author indexer")
+                
+                reverseIndexer = authorIndexer.reverseTranslateDict()
+                
+                outputFile = open(similaritiesFileName, "w")
+                csvFile = csv.writer(outputFile, delimiter='\t')
+                
+                for i in range(orderedItems.shape[0]):
+                    if i % 10000 == 0 : 
+                        logging.debug("Iteration: " + str(i))
                         
-                        cvInds = Sampling.randCrossValidation(folds, modelSelectX.nnz)
-                        logging.debug("Performing model selection")
-                        meanMetrics, stdMetrics = learner.modelSelect2(modelSelectX, rhosSi, ks, cvInds)
+                    row = [reverseIndexer[i]]                
+                    
+                    #Check author isn't recommended him/herself
+                    for j in range(orderedItems.shape[1]): 
+                        row = [reverseIndexer[i], reverseIndexer[orderedItems[i, j]], scores[i, j]]
+                    
+                        csvFile.writerow(row)
                         
-                        ZList = learner.learnModel(trainIterator)    
-                        U, s, V = ZList.next()
-                        U = U*s
-                    elif type(learner) == WeightedMf:  
-                        trainX = X.toScipyCsr()
-                        
-                        modelSelectX, userInds = Sampling.sampleUsers2(X, modelSelectSamples)
-                        modelSelectX = modelSelectX.toScipyCsc()  
-                        
-                        modelSelectX, userInds = Sampling.sampleUsers2(trainX, modelSelectSamples)
-                        meanMetrics, stdMetrics = learner.modelSelect(modelSelectX)                          
-                        
-                        learner.learnModel(trainX)
-                        U = learner.U 
-                        V = learner.V 
-                    else: 
-                        trainX = X
-                        modelSelectX, userInds = Sampling.sampleUsers2(trainX, modelSelectSamples)
-                        meanMetrics, stdMetrics = learner.modelSelect(modelSelectX)
-                        
-                        learner.learnModel(X)
-                        U = learner.U 
-                        V = learner.V 
-                        
-                    U = numpy.ascontiguousarray(U)
-                    V = numpy.ascontiguousarray(V)
-                    
-                    orderedItems, scores = MCEvaluator.recommendAtk(U, V, maxItems, verbose=True)
-                    
-                    #Now let's write out the similarities file 
-                    logging.debug("Generating recommendations for authors")
-                    authorIndexerFilename = PathDefaults.getDataDir() + "reference/authorIndexer" + dataset + ".pkl"
-                    authorIndexerFile = open(authorIndexerFilename)
-                    authorIndexer = pickle.load(authorIndexerFile)
-                    authorIndexerFile.close()
-                    logging.debug("Loaded author indexer")
-                    
-                    reverseIndexer = authorIndexer.reverseTranslateDict()
-                    
-                    
-                    outputFile = open(similaritiesFileName, "w")
-                    csvFile = csv.writer(outputFile, delimiter='\t')
-                    
-                    for i in range(orderedItems.shape[0]):
-                        if i % 10000 == 0 : 
-                            logging.debug("Iteration: " + str(i))
-                            
-                        row = [reverseIndexer[i]]                
-                        
-                        #Check author isn't recommended him/herself
-                        for j in range(orderedItems.shape[1]): 
-                            row = [reverseIndexer[i], reverseIndexer[orderedItems[i, j]], scores[i, j]]
-                        
-                            csvFile.writerow(row)
-                            
-                    outputFile.close()
-                    logging.debug("Wrote recommendations to " + similaritiesFileName)
-                    
-                    #Figure out how good the recommendations are on the contacts network                      
-                    contacts = read_contacts(contactsFilename)
-                    research_interests = read_interests(interestsFilename)
-                    sims = read_similar_authors(similaritiesFileName, minScore)
-                    
-                    logging.debug('Evaluating against contacts...')
-                    meanStatsContacts = evaluate_against_contacts(sims, contacts, minContacts)
-                    
-                    logging.debug('Evaluating against research interests...') 
-                    meanStatsInterests = evaluate_against_research_interests(sims, research_interests, minAcceptableSims)
-                    
-                    logging.debug("Mean stats on contacts: " + str(meanStatsContacts))
-                    logging.debug("Mean stats on interests:" + str(meanStatsInterests))
-                    
-                    numpy.savez(outputFilename, meanStatsContacts, meanStatsInterests)
-                    logging.debug("Saved precisions/recalls on contacts/interests as " + outputFilename)
-            
-                finally: 
-                    fileLock.unlock()
-            else: 
-                logging.debug("File is locked or already computed: " + outputFilename)      
+                outputFile.close()
+                logging.debug("Wrote recommendations to " + similaritiesFileName)
+                
+                #Figure out how good the recommendations are on the contacts network                      
+                contacts = read_contacts(contactsFilename)
+                research_interests = read_interests(interestsFilename)
+                sims = read_similar_authors(similaritiesFileName, minScore)
+                
+                logging.debug('Evaluating against contacts...')
+                meanStatsContacts = evaluate_against_contacts(sims, contacts, minContacts)
+                
+                logging.debug('Evaluating against research interests...') 
+                meanStatsInterests = evaluate_against_research_interests(sims, research_interests, minAcceptableSims)
+                
+                logging.debug("Mean stats on contacts: " + str(meanStatsContacts))
+                logging.debug("Mean stats on interests:" + str(meanStatsInterests))
+                
+                numpy.savez(outputFilename, meanStatsContacts, meanStatsInterests)
+                logging.debug("Saved precisions/recalls on contacts/interests as " + outputFilename)
+        
+            finally: 
+                fileLock.unlock()
+        else: 
+            logging.debug("File is locked or already computed: " + outputFilename)      
