@@ -69,7 +69,7 @@ lmbda = 0.125
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbdaU=lmbda, lmbdaV=lmbda, stochastic=True)
 maxLocalAuc.maxIterations = 100
 maxLocalAuc.numRowSamples = 30
-maxLocalAuc.numAucSamples = 5
+maxLocalAuc.numAucSamples = 10
 maxLocalAuc.numRecordAucSamples = 100
 maxLocalAuc.recordStep = 10
 maxLocalAuc.initialAlg = "svd"
@@ -88,6 +88,7 @@ maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
 maxLocalAuc.metric = "f1"
 maxLocalAuc.itemExpP = 1.0
 maxLocalAuc.itemExpQ = 1.0
+maxLocalAuc.loss = "square" 
 #maxLocalAuc.parallelSGD = True
 
 os.system('taskset -p 0xffffffff %d' % os.getpid())

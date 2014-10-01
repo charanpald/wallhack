@@ -84,8 +84,8 @@ maxLocalAuc.numProcesses = 1
 os.system('taskset -p 0xffffffff %d' % os.getpid())
 
 logging.debug("Starting training")
-itemExpPs = numpy.linspace(0, 1, 3)
-itemExpQs = numpy.linspace(0, 1, 3)
+itemExpPs = numpy.linspace(-1, 1, 3)
+itemExpQs = numpy.array([-1, 1])
 
 def computeTestAuc(args): 
     trainX, testX, maxLocalAuc, U, V  = args 
