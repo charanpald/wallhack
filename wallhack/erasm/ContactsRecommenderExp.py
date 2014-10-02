@@ -22,7 +22,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 #Do model selection? 
 
-k = 64
+k = 32
 maxItems = 10
 minScore = 0.0
 minContacts = 3
@@ -32,6 +32,7 @@ alpha = 0.2
 numProcesses = 2
 modelSelectSamples = 10**6
 
+modelSelect = False
 folds = 3
 ks = numpy.array([k])
 rhosSi = numpy.linspace(1.0, 0.0, 5)
@@ -54,6 +55,8 @@ maxLocalAuc.initialAlg = "svd"
 maxLocalAuc.ks = ks
 maxLocalAuc.folds = folds
 maxLocalAuc.metric = "f1"
+
+
 
 """
 To run the parallel version of MLAUC you have to increase the amount of shared memory using 
@@ -90,32 +93,32 @@ for dataset in datasets:
                     trainX = X.toScipyCsc()
                     trainIterator = iter([trainX])
                              
-                    modelSelectX, userInds = Sampling.sampleUsers2(X, modelSelectSamples)
-                    modelSelectX = modelSelectX.toScipyCsc()                            
-                    
-                    cvInds = Sampling.randCrossValidation(folds, modelSelectX.nnz)
-                    logging.debug("Performing model selection")
-                    meanMetrics, stdMetrics = learner.modelSelect2(modelSelectX, rhosSi, ks, cvInds)
+                    if modelSelect: 
+                        modelSelectX, userInds = Sampling.sampleUsers2(X, modelSelectSamples)
+                        modelSelectX = modelSelectX.toScipyCsc()                            
+                        cvInds = Sampling.randCrossValidation(folds, modelSelectX.nnz)
+                        meanMetrics, stdMetrics = learner.modelSelect2(modelSelectX, rhosSi, ks, cvInds)
                     
                     ZList = learner.learnModel(trainIterator)    
                     U, s, V = ZList.next()
                     U = U*s
                 elif type(learner) == WeightedMf:  
                     trainX = X.toScipyCsr()
-                    
-                    modelSelectX, userInds = Sampling.sampleUsers2(X, modelSelectSamples)
-                    modelSelectX = modelSelectX.toScipyCsc()  
-                    
-                    modelSelectX, userInds = Sampling.sampleUsers2(trainX, modelSelectSamples)
-                    meanMetrics, stdMetrics = learner.modelSelect(modelSelectX)                          
+
+                    if modelSelect:                     
+                        modelSelectX, userInds = Sampling.sampleUsers2(X, modelSelectSamples)
+                        modelSelectX = modelSelectX.toScipyCsc()  
+                        meanMetrics, stdMetrics = learner.modelSelect(modelSelectX)                          
                     
                     learner.learnModel(trainX)
                     U = learner.U 
                     V = learner.V 
                 else: 
                     trainX = X
-                    modelSelectX, userInds = Sampling.sampleUsers2(trainX, modelSelectSamples)
-                    meanMetrics, stdMetrics = learner.modelSelect(modelSelectX)
+                    
+                    if modelSelect: 
+                        modelSelectX, userInds = Sampling.sampleUsers2(trainX, modelSelectSamples)
+                        meanMetrics, stdMetrics = learner.modelSelect(modelSelectX)
                     
                     learner.learnModel(X)
                     U = learner.U 
