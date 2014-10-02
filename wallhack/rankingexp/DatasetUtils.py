@@ -135,3 +135,43 @@ class DatasetUtils(object):
         logging.debug("Non-zero elements: " + str(X.nnz) + " shape: " + str(X.shape))
         
         return X 
+        
+        
+    @staticmethod 
+    def bookCrossing(minNnzRows=10, minNnzCols=10, quantile=90): 
+        matrixFileName = PathDefaults.getDataDir() + "book-crossing/BX-Book-Ratings.csv" 
+        matrixFile = open(matrixFileName)
+        matrixFile.readline()
+        userIndexer = IdIndexer("i")
+        itemIndexer = IdIndexer("i")
+        
+        ratings = array.array("f")
+        logging.debug("Loading ratings from " + matrixFileName)
+        
+        for i, line in enumerate(matrixFile):
+            if i % 1000000 == 0: 
+                logging.debug("Iteration: " + str(i))
+            vals = line.split(";")
+            
+            field1 = vals[0].strip("\"")
+            field2 = vals[1].strip("\"")
+            field3 = int(vals[2].strip("\"\n\r"))            
+            
+            userIndexer.append(field1)
+            itemIndexer.append(field2)
+            ratings.append(field3)
+                    
+        rowInds = userIndexer.getArray()
+        colInds = itemIndexer.getArray()
+        ratings = numpy.array(ratings)
+                
+        X = sppy.csarray((len(userIndexer.getIdDict()), len(itemIndexer.getIdDict())), storagetype="row", dtype=numpy.int)
+        X.put(numpy.array(numpy.logical_or(ratings>5, ratings==0), numpy.int), numpy.array(rowInds, numpy.int32), numpy.array(colInds, numpy.int32), init=True)
+        X.prune()
+        
+        X = SparseUtils.pruneMatrixRows(X, minNnzRows=minNnzRows)
+        
+        logging.debug("Read file: " + matrixFileName)
+        logging.debug("Non zero elements: " + str(X.nnz) + " shape: " + str(X.shape))
+
+        return X 
