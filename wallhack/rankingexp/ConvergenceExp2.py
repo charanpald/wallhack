@@ -85,7 +85,7 @@ maxLocalAuc.validationUsers = 0.0
 
 #First run with low learning rate to get a near-optimal solution 
 U, V = maxLocalAuc.initUV(trainX)  
-maxLocalAuc.maxIterations = 500
+maxLocalAuc.maxIterations = 2000
 U, V, trainMeasures, testMeasures, iterations, time = maxLocalAuc.learnModel(trainX, U=U, V=V, verbose=True)
 
 idealTrainMeasures = trainMeasures[:, 0]
