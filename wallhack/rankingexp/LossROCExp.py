@@ -26,7 +26,7 @@ else:
     dataset = "synthetic2"
 
 saveResults = True
-prefix = "ROC"
+prefix = "LossROC"
 outputFile = PathDefaults.getOutputDir() + "ranking/" + prefix + dataset.title() + "Results.npz" 
 print(outputFile)
 
