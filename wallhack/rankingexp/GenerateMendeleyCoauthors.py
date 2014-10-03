@@ -114,11 +114,11 @@ sigmas = [0.05]
 
 inputFileName = dataDir + "reference/author_document_count"
 authorXFileName = dataDir + "reference/authorDocumentMatrix.mtx"  
-authorIndexerFilename = dataDir + "reference/authorIndexerDoc.pkl"    
+authorIndexerFilename = dataDir + "reference/authorIndexerDocument.pkl"    
 writeAuthorXMatrix(inputFileName, authorIndexerFilename, authorXFileName, reverse=True)
 
 for sigma in sigmas: 
-    authorAuthorFileName = dataDir + "reference/authorAuthorDocMatrix_sigma=" + str(sigma) + ".mtx" 
+    authorAuthorFileName = dataDir + "reference/authorAuthorDocumentMatrix_sigma=" + str(sigma) + ".mtx" 
     writeAuthorAuthorMatrix(authorXFileName, authorAuthorFileName, sigma=sigma)
 
 #Write out author-author from keywords
