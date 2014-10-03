@@ -16,9 +16,14 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.random.seed(21)        
 numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 
+if len(sys.argv) > 1:
+    dataset = sys.argv[1]
+else: 
+    dataset = "synthetic"
+
+
 #Create a low rank matrix  
 saveResults = True
-dataset = "synthetic" 
 prefix = "Convergence"
 outputFile = PathDefaults.getOutputDir() + "ranking/" + prefix + dataset.title() + "Results.npz" 
 print(outputFile)
