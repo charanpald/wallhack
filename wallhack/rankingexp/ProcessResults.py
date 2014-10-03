@@ -13,16 +13,18 @@ numpy.set_printoptions(suppress=True, precision=3, linewidth=100)
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 ps = [1, 3, 5]
-dirNames = ["SyntheticDataset1", "SyntheticDataset2", "MovieLens", "Flixster", "MendeleyCoauthorsDoc"]
+dirNames = ["SyntheticDataset1", "SyntheticDataset2", "MovieLens", "Flixster", "BookCrossing"]
 
 verbose = False
 generateRecommendations = False
 
-#algs = ["Bpr", "CLiMF", "MaxLocalAUCUser", "SoftImpute", "WrMf"]
-#names = ["BPR\t", "CLiMF\t", "MLAUC\t",  "SoftImpute\t", "WrMf\t"]
+losses = ["hinge", "square", "sigmoid", "logistic", "tanh"]
+algs = ["SoftImpute", "WrMf"]
+names = ["SoftImpute\t\t", "WRMF\t\t"]
 
-algs = ["Bpr", "MaxLocalAUCUser", "SoftImpute", "WrMf"]
-names = ["BPR\t", "MLAUC\t",  "SoftImpute\t", "WRMF\t"]
+for loss in losses: 
+    algs.append("MaxLocalAUC_loss=" + loss)
+    names.append("MAUC " + loss.ljust(10) + "\t") 
 
 for dirName in dirNames:
     resultsDir = PathDefaults.getOutputDir() + "ranking/" + dirName + "/"
@@ -91,11 +93,12 @@ for dirName in dirNames:
         colNames.append("p@" + str(p)) 
     for i, p in enumerate(ps): 
         colNames.append("r@" + str(p)) 
-    for i, p in enumerate(ps): 
-        colNames.append("f1@" + str(p)) 
-    for i, p in enumerate(ps): 
-        colNames.append("mrr@" + str(p)) 
-    colNames.extend(["localAUC@u", "AUC"])
+    #for i, p in enumerate(ps): 
+    #    colNames.append("f1@" + str(p)) 
+    #for i, p in enumerate(ps): 
+    #    colNames.append("mrr@" + str(p)) 
+    #colNames.extend(["localAUC@u", "AUC"])
+    colNames.extend(["AUC"])
     
     #Restrict output to precision, recall and AUC 
     colInds = [0, 1, 2, 3, 4, 5, 13] 
