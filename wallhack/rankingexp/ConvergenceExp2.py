@@ -87,18 +87,13 @@ maxLocalAuc.t0 = 0.0001
 maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
 maxLocalAuc.validationUsers = 0.0
 
-#First run with low learning rate to get a near-optimal solution 
-U, V = maxLocalAuc.initUV(trainX)  
-maxLocalAuc.maxIterations = 2000
-U2, V2, trainMeasures, testMeasures, iterations, time = maxLocalAuc.learnModel(trainX, U=U, V=V, verbose=True)
 
-idealTrainMeasures = trainMeasures[:, 0]
 
 #Now try to get faster convergence 
 t0s = numpy.array([0, 0.5, 1.0])
 alphas = numpy.array([1.0, 0.5, 0.25])
 etas = numpy.array([0, 5, 10])
-startAverages = numpy.array([5, 10, 20])
+startAverages = numpy.array([5, 10, 20, 50])
 
 os.system('taskset -p 0xffffffff %d' % os.getpid())
 chunkSize = 1
@@ -116,6 +111,13 @@ def computeObjectives(args):
     
     
 if saveResults: 
+    #First run with low learning rate to get a near-optimal solution 
+    U, V = maxLocalAuc.initUV(trainX)  
+    maxLocalAuc.maxIterations = 2000
+    U2, V2, trainMeasures, testMeasures, iterations, time = maxLocalAuc.learnModel(trainX, U=U, V=V, verbose=True)
+    
+    idealTrainMeasures = trainMeasures[:, 0]    
+        
     paramList = []
     objectives1 = numpy.zeros((t0s.shape[0], alphas.shape[0], etas.shape[0], startAverages.shape[0], folds))
     
@@ -150,8 +152,14 @@ else:
     data = numpy.load(outputFile)
     objectives1, idealTrainMeasures = data["arr_0"],  data["arr_1"]
     
-    print(idealTrainMeasures)    
-    
-    print(objectives1)
+objectives1 = numpy.mean(objectives1, 4)
+inds = numpy.unravel_index(numpy.argmin(objectives1), objectives1.shape)
+
+logging.debug("Small learning rate objective=" + str(numpy.min(idealTrainMeasures)))     
+logging.debug("min obj=" + str(numpy.min(objectives1)))
+logging.debug("t0=" + str(t0s[inds[0]]))
+logging.debug("alpha=" + str(alphas[inds[1]]))
+logging.debug("eta=" + str(etas[inds[2]]))
+logging.debug("startAverage=" + str(startAverages[inds[3]]))
     
     
