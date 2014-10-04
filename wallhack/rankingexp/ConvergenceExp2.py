@@ -87,8 +87,6 @@ maxLocalAuc.t0 = 0.0001
 maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
 maxLocalAuc.validationUsers = 0.0
 
-
-
 #Now try to get faster convergence 
 t0s = numpy.array([0, 0.5, 1.0])
 alphas = numpy.array([1.0, 0.5, 0.25])
@@ -98,7 +96,7 @@ startAverages = numpy.array([5, 10, 20, 50])
 os.system('taskset -p 0xffffffff %d' % os.getpid())
 chunkSize = 1
 
-maxLocalAuc.maxIterations = 100
+
 
 def computeObjectives(args): 
     trainX, maxLocalAuc, U, V  = args 
@@ -117,7 +115,9 @@ if saveResults:
     U2, V2, trainMeasures, testMeasures, iterations, time = maxLocalAuc.learnModel(trainX, U=U, V=V, verbose=True)
     
     idealTrainMeasures = trainMeasures[:, 0]    
-        
+    
+    maxLocalAuc.maxIterations = 100
+    
     paramList = []
     objectives1 = numpy.zeros((t0s.shape[0], alphas.shape[0], etas.shape[0], startAverages.shape[0], folds))
     
