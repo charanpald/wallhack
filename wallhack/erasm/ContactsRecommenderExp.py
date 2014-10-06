@@ -4,6 +4,8 @@ import pickle
 import csv
 import sys 
 import os
+from mrec.item_similarity.knn import CosineKNNRecommender
+from mrec.sparse import fast_sparse_matrix
 from sandbox.recommendation.IterativeSoftImpute import IterativeSoftImpute
 from sandbox.recommendation.WeightedMf import WeightedMf
 from sandbox.recommendation.MaxLocalAUC import MaxLocalAUC
@@ -13,6 +15,7 @@ from sandbox.util.FileLock import FileLock
 from sandbox.util.Sampling import Sampling 
 from wallhack.rankingexp.DatasetUtils import DatasetUtils 
 from wallhack.erasm.Evaluator import evaluate_against_contacts, evaluate_against_research_interests, read_contacts, read_interests, read_similar_authors
+
 
 """
 Use Mendeley author-documents and author-keywords to recommend contacts. 
@@ -56,7 +59,8 @@ maxLocalAuc.ks = ks
 maxLocalAuc.folds = folds
 maxLocalAuc.metric = "f1"
 
-
+kNeighbours = 25
+knn = CosineKNNRecommender(kNeighbours)
 
 """
 To run the parallel version of MLAUC you have to increase the amount of shared memory using 
@@ -65,9 +69,10 @@ sudo sysctl -w kernel.shmmax=2147483648
 
 overwrite = False
 datasets = ["Keyword", "Document"]
-learners = [("SoftImpute", softImpute), ("WRMF", wrmf)]
+learners = [("SoftImpute", softImpute), ("WRMF", wrmf), ("KNN", knn)]
 #learners = [("MLAUC", maxLocalAuc)]
 #learners = [("SoftImpute", softImpute)]
+#learners = [("KNN", knn)]
 resultsDir = PathDefaults.getOutputDir() + "coauthors/"
 contactsFilename = PathDefaults.getDataDir() + "reference/contacts_anonymised.tsv"
 interestsFilename = PathDefaults.getDataDir() + "reference/author_interest"
@@ -112,7 +117,24 @@ for dataset in datasets:
                     
                     learner.learnModel(trainX)
                     U = learner.U 
-                    V = learner.V 
+                    V = learner.V
+                elif type(learner) == CosineKNNRecommender: 
+                    #X, userInds = Sampling.sampleUsers2(X, 5000)
+                    #print("Sampled X")
+                    trainX = fast_sparse_matrix(X.toScipyCsr())
+                    m, n = trainX.shape
+                    learner.fit(trainX)
+                    
+                    recommendations = learner.range_recommend_items(trainX, 0, m, max_items=maxItems)
+                    
+                    orderedItems = numpy.zeros((m, maxItems), numpy.int)
+                    scores = numpy.zeros((m, maxItems))
+                    
+                    for i in range(m):
+                        itemScores = numpy.array(recommendations[i])
+                        orderedItems[i, 0:itemScores.shape[0]] =  itemScores[:, 0]
+                        scores[i, 0:itemScores.shape[0]] = itemScores[:, 1]
+                        
                 else: 
                     trainX = X
                     
@@ -123,12 +145,13 @@ for dataset in datasets:
                     learner.learnModel(X)
                     U = learner.U 
                     V = learner.V 
-                    
-                U = numpy.ascontiguousarray(U)
-                V = numpy.ascontiguousarray(V)
                 
-                #Note that we compute UU^T for recommendations 
-                orderedItems, scores = MCEvaluator.recommendAtk(U, U, maxItems, verbose=True)
+                if type(learner) != CosineKNNRecommender:
+                    U = numpy.ascontiguousarray(U)
+                    V = numpy.ascontiguousarray(V)
+                    
+                    #Note that we compute UU^T for recommendations 
+                    orderedItems, scores = MCEvaluator.recommendAtk(U, U, maxItems, verbose=True)
                 
                 #Now let's write out the similarities file 
                 logging.debug("Generating recommendations for authors")
