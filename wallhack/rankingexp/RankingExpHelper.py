@@ -102,7 +102,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.rhosMlauc = numpy.array([0, 0.5, 1.0])
     defaultAlgoArgs.t0 = 1.0
     defaultAlgoArgs.t0s = 2.0**-numpy.arange(-1, 2, 1)
-    defaultAlgoArgs.validationUsers = 0.2
+    defaultAlgoArgs.validationUsers = 0.0
     
     #Parameters for SoftImpute 
     defaultAlgoArgs.epsSi = 10**-14
@@ -415,7 +415,7 @@ class RankingExpHelper(object):
                     
                     learner.alpha = self.algoArgs.alpha    
                     learner.alphas = self.algoArgs.alphas
-                    learner.eta = 10
+                    learner.eta = 0
                     learner.folds = self.algoArgs.folds  
                     learner.initialAlg = self.algoArgs.initialAlg
                     learner.itemExpP = self.algoArgs.itemExpP
@@ -435,7 +435,7 @@ class RankingExpHelper(object):
                     learner.rho = self.algoArgs.rhoMlauc
                     learner.rhos = self.algoArgs.rhosMlauc
                     learner.sampling = self.algoArgs.sampling 
-                    learner.startAverage = 50
+                    learner.startAverage = 30
                     learner.t0 = self.algoArgs.t0    
                     learner.t0s = self.algoArgs.t0s
                     learner.validationSize = self.algoArgs.validationSize
