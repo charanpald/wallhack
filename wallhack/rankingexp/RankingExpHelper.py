@@ -415,6 +415,7 @@ class RankingExpHelper(object):
                     
                     learner.alpha = self.algoArgs.alpha    
                     learner.alphas = self.algoArgs.alphas
+                    learner.eta = 10
                     learner.folds = self.algoArgs.folds  
                     learner.initialAlg = self.algoArgs.initialAlg
                     learner.itemExpP = self.algoArgs.itemExpP
@@ -434,6 +435,7 @@ class RankingExpHelper(object):
                     learner.rho = self.algoArgs.rhoMlauc
                     learner.rhos = self.algoArgs.rhosMlauc
                     learner.sampling = self.algoArgs.sampling 
+                    learner.startAverage = 50
                     learner.t0 = self.algoArgs.t0    
                     learner.t0s = self.algoArgs.t0s
                     learner.validationSize = self.algoArgs.validationSize
