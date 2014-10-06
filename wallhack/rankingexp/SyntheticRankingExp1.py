@@ -89,6 +89,7 @@ maxLocalAuc.metric = "f1"
 maxLocalAuc.itemExpP = 0.0
 maxLocalAuc.itemExpQ = 0.0
 maxLocalAuc.loss = "square" 
+maxLocalAuc.eta = 0
 #maxLocalAuc.parallelSGD = True
 
 os.system('taskset -p 0xffffffff %d' % os.getpid())
