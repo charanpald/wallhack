@@ -65,7 +65,7 @@ maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.itemExpP = 0.0
 maxLocalAuc.itemExpQ = 0.0
 maxLocalAuc.ks = numpy.array([k2])
-maxLocalAuc.lmbdas = 2.0**-numpy.arange(1, 7)
+maxLocalAuc.lmbdas = 2.0**-numpy.arange(0, 6)
 maxLocalAuc.loss = "hinge"
 maxLocalAuc.maxIterations = 100
 maxLocalAuc.metric = "f1"
@@ -162,7 +162,7 @@ else:
     
     for i, lmbda in enumerate(maxLocalAuc.lmbdas):
 
-        label = r"$\lmbda=$" + str(lmbda)
+        label = r"$\lambda=$" + str(lmbda)
 
         
         fprTrainStart =   meanFprTrain[i, meanFprTrain[i, :]<=0.2]   
