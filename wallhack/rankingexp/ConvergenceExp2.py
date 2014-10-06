@@ -88,10 +88,10 @@ maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
 maxLocalAuc.validationUsers = 0.0
 
 #Now try to get faster convergence 
-t0s = numpy.array([0, 0.5, 1.0])
+t0s = numpy.array([0, 0.25, 0.5])
 alphas = numpy.array([1.0, 0.5, 0.25])
-etas = numpy.array([0, 5, 10])
-startAverages = numpy.array([5, 10, 20, 50])
+etas = numpy.array([0, 5, 10, 20])
+startAverages = numpy.array([10, 20, 30, 50])
 
 os.system('taskset -p 0xffffffff %d' % os.getpid())
 chunkSize = 1
