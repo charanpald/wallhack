@@ -121,9 +121,10 @@ for dataset in datasets:
                 elif type(learner) == CosineKNNRecommender: 
                     #X, userInds = Sampling.sampleUsers2(X, 5000)
                     #print("Sampled X")
-                    trainX = fast_sparse_matrix(X.toScipyCsr())
+                    fastTrainX = fast_sparse_matrix(X.toScipyCsr())
+                    trainX = X.toScipyCsr()
                     m, n = trainX.shape
-                    learner.fit(trainX)
+                    learner.fit(fastTrainX)
                     
                     recommendations = learner.range_recommend_items(trainX, 0, m, max_items=maxItems)
                     
@@ -132,8 +133,9 @@ for dataset in datasets:
                     
                     for i in range(m):
                         itemScores = numpy.array(recommendations[i])
-                        orderedItems[i, 0:itemScores.shape[0]] =  itemScores[:, 0]
-                        scores[i, 0:itemScores.shape[0]] = itemScores[:, 1]
+                        if itemScores.shape[0] != 0: 
+                            orderedItems[i, 0:itemScores.shape[0]] =  itemScores[:, 0]
+                            scores[i, 0:itemScores.shape[0]] = itemScores[:, 1]
                         
                 else: 
                     trainX = X
