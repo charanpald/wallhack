@@ -403,7 +403,10 @@ class RankingExpHelper(object):
         if self.algoArgs.runMaxLocalAuc:
             logging.debug("Running max local AUC")
 
-            resultsFileName = self.resultsDir + "ResultsMaxLocalAUC_loss=" + self.algoArgs.loss + ".npz"
+            if self.algoArgs.loss != "tanh": 
+                resultsFileName = self.resultsDir + "ResultsMaxLocalAUC_loss=" + self.algoArgs.loss + ".npz"
+            else: 
+                resultsFileName = self.resultsDir + "ResultsMaxLocalAUC_loss=" + self.algoArgs.loss + "_rho=" + str(self.algoArgs.rhoMlauc) + ".npz"
                 
             fileLock = FileLock(resultsFileName)  
             
