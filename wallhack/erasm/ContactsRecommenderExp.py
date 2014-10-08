@@ -5,6 +5,7 @@ import csv
 import sys 
 import os
 from mrec.item_similarity.knn import CosineKNNRecommender
+from mrec.item_similarity.slim import SLIM
 from mrec.sparse import fast_sparse_matrix
 from sandbox.recommendation.IterativeSoftImpute import IterativeSoftImpute
 from sandbox.recommendation.WeightedMf import WeightedMf
@@ -62,6 +63,9 @@ maxLocalAuc.metric = "f1"
 kNeighbours = 25
 knn = CosineKNNRecommender(kNeighbours)
 
+numFeatures = 200
+slim = SLIM(num_selected_features=numFeatures)
+
 """
 To run the parallel version of MLAUC you have to increase the amount of shared memory using 
 sudo sysctl -w kernel.shmmax=2147483648
@@ -72,7 +76,7 @@ datasets = ["Keyword", "Document"]
 learners = [("SoftImpute", softImpute), ("WRMF", wrmf), ("KNN", knn)]
 #learners = [("MLAUC", maxLocalAuc)]
 #learners = [("SoftImpute", softImpute)]
-#learners = [("KNN", knn)]
+#learners = [("SLIM", slim)]
 resultsDir = PathDefaults.getOutputDir() + "coauthors/"
 contactsFilename = PathDefaults.getDataDir() + "reference/contacts_anonymised.tsv"
 interestsFilename = PathDefaults.getDataDir() + "reference/author_interest"
@@ -118,9 +122,7 @@ for dataset in datasets:
                     learner.learnModel(trainX)
                     U = learner.U 
                     V = learner.V
-                elif type(learner) == CosineKNNRecommender: 
-                    #X, userInds = Sampling.sampleUsers2(X, 5000)
-                    #print("Sampled X")
+                elif type(learner) == CosineKNNRecommender or type(learner) == SLIM: 
                     fastTrainX = fast_sparse_matrix(X.toScipyCsr())
                     trainX = X.toScipyCsr()
                     m, n = trainX.shape
@@ -176,9 +178,10 @@ for dataset in datasets:
                     
                     #Check author isn't recommended him/herself
                     for j in range(orderedItems.shape[1]): 
-                        row = [reverseIndexer[i], reverseIndexer[orderedItems[i, j]], scores[i, j]]
-                    
-                        csvFile.writerow(row)
+                        if orderedItems[i, j] != i:
+                            row = [reverseIndexer[i], reverseIndexer[orderedItems[i, j]], scores[i, j]]
+                        
+                            csvFile.writerow(row)
                         
                 outputFile.close()
                 logging.debug("Wrote recommendations to " + similaritiesFileName)
