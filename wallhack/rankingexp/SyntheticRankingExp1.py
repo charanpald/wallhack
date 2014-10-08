@@ -65,7 +65,7 @@ k2 = 8
 u2 = 5/float(n)
 w2 = 1-u2
 eps = 10**-8
-lmbda = 0.125
+lmbda = 0.01
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbdaU=lmbda, lmbdaV=lmbda, stochastic=True)
 maxLocalAuc.maxIterations = 100
 maxLocalAuc.numRowSamples = 30
@@ -77,7 +77,7 @@ maxLocalAuc.rate = "constant"
 maxLocalAuc.alpha = 0.1
 maxLocalAuc.t0 = 1.0
 maxLocalAuc.folds = 2
-maxLocalAuc.rho = 1.0
+maxLocalAuc.rho = 5.0
 maxLocalAuc.ks = numpy.array([k2])
 maxLocalAuc.validationSize = 3
 maxLocalAuc.lmbdas = numpy.linspace(0.5, 2.0, 7)
@@ -88,8 +88,9 @@ maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
 maxLocalAuc.metric = "f1"
 maxLocalAuc.itemExpP = 0.0
 maxLocalAuc.itemExpQ = 0.0
-maxLocalAuc.loss = "square" 
+maxLocalAuc.loss = "tanh" 
 maxLocalAuc.eta = 0
+maxLocalAuc.validationUsers = 0
 #maxLocalAuc.parallelSGD = True
 
 os.system('taskset -p 0xffffffff %d' % os.getpid())
