@@ -36,7 +36,7 @@ alpha = 0.2
 numProcesses = 2
 modelSelectSamples = 10**6
 
-modelSelect = True
+modelSelect = False
 folds = 3
 ks = numpy.array([k])
 rhosSi = numpy.linspace(1.0, 0.0, 5)
@@ -45,6 +45,7 @@ softImpute = IterativeSoftImpute(k=k, postProcess=True, svdAlg="rsvd")
 softImpute.maxIterations = maxIterations
 softImpute.metric = "f1" 
 softImpute.q = 3
+softImpute.rho = 0.1
 
 wrmf = WeightedMf(k=k, maxIterations=maxIterations, alpha=1.0)
 wrmf.ks = ks
