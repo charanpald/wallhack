@@ -23,7 +23,7 @@ numpy.seterr(all="raise")
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "synthetic2"
+    dataset = "synthetic"
 
 saveResults = True
 prefix = "Tanh"
@@ -85,7 +85,7 @@ maxLocalAuc.loss = "tanh"
 os.system('taskset -p 0xffffffff %d' % os.getpid())
 
 logging.debug("Starting training")
-rhos = numpy.array([0.2, 0.5, 1.0, 2.0, 5.0])
+rhos = numpy.array([0.5, 1.0, 2.0, 5.0, 10, 20])
 
 def computeTestAuc(args): 
     trainX, testX, maxLocalAuc, U, V  = args 
@@ -160,7 +160,7 @@ else:
     
     plotInds = ["k-", "k--", "k-.", "r-", "b-", "c-", "c--", "c-.", "g-", "g--", "g-."]
     
-    for i, rho in enumerate(rho):
+    for i, rho in enumerate(rhos):
 
         label= r" $\rho=$" + str(rho)
 
