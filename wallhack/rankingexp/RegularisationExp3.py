@@ -24,7 +24,7 @@ numpy.seterr(all="raise")
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "synthetic2"
+    dataset = "synthetic"
 
 saveResults = True
 prefix = "Regularisation3"
@@ -114,9 +114,9 @@ if saveResults:
         for nnz in nnzs: 
             for trainX, testX in trainTestXs: 
                 numpy.random.seed(21)
-                modelSelecX, userInds = Sampling.sampleUsers2(trainX, nnz*trainX.nnz)
+                modelSelectX, userInds = Sampling.sampleUsers2(trainX, nnz*trainX.nnz)
                 maxLocalAuc.loss = loss 
-                paramList.append((modelSelecX, trainX, testX, maxLocalAuc.copy(), U, V))
+                paramList.append((modelSelectX, trainX, testX, maxLocalAuc.copy(), U.copy(), V.copy()))
 
     pool = multiprocessing.Pool(maxtasksperchild=100, processes=multiprocessing.cpu_count())
     resultsIterator = pool.imap(computeTestAuc, paramList, chunkSize)
@@ -176,12 +176,12 @@ else:
        
             
             plt.figure(i*2)            
-            fprTrainStart =   meanFprTrain[ind, meanFprTrain[i, :]<=0.2]   
-            tprTrainStart =   meanTprTrain[ind, meanFprTrain[i, :]<=0.2]   
+            fprTrainStart =   meanFprTrain[ind, meanFprTrain[ind, :]<=0.2]   
+            tprTrainStart =   meanTprTrain[ind, meanFprTrain[ind, :]<=0.2]   
             plt.plot(fprTrainStart, tprTrainStart, plotInds[j*2], label="train nnz="+str(nnz))
             
-            fprTestStart =   meanFprTest[ind, meanFprTest[i, :]<=0.2]   
-            tprTestStart =   meanTprTest[ind, meanFprTest[i, :]<=0.2]         
+            fprTestStart =   meanFprTest[ind, meanFprTest[ind, :]<=0.2]   
+            tprTestStart =   meanTprTest[ind, meanFprTest[ind, :]<=0.2]         
             plt.plot(fprTestStart, tprTestStart, plotInds[j*2+1], label="test nnz="+str(nnz))              
 
             plt.title(loss)
