@@ -26,7 +26,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 #Do model selection? 
 
-k = 64
+k = 128
 maxItems = 10
 minScore = 0.0
 minContacts = 3
