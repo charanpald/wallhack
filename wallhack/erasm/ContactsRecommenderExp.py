@@ -36,7 +36,7 @@ alpha = 0.2
 numProcesses = 2
 modelSelectSamples = 10**6
 
-modelSelect = False
+modelSelect = True
 folds = 3
 ks = numpy.array([k])
 rhosSi = numpy.linspace(1.0, 0.0, 5)
@@ -157,6 +157,9 @@ for dataset in datasets:
                     
                     #Note that we compute UU^T for recommendations 
                     orderedItems, scores = MCEvaluator.recommendAtk(U, U, maxItems, verbose=True)
+                
+                #Normalise scores 
+                scores /= numpy.max(scores)                
                 
                 #Now let's write out the similarities file 
                 logging.debug("Generating recommendations for authors")
