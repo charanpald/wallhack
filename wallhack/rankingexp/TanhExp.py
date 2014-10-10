@@ -23,9 +23,9 @@ numpy.seterr(all="raise")
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "synthetic"
+    dataset = "synthetic2"
 
-saveResults = True
+saveResults = True 
 prefix = "Tanh"
 outputFile = PathDefaults.getOutputDir() + "ranking/" + prefix + dataset.title() + "Results.npz" 
 print(outputFile)
@@ -109,7 +109,7 @@ if saveResults:
     for rho in rhos: 
         for trainX, testX in trainTestXs: 
             maxLocalAuc.rho = rho 
-            paramList.append((trainX, testX, maxLocalAuc.copy(), U, V))
+            paramList.append((trainX, testX, maxLocalAuc.copy(), U.copy(), V.copy()))
 
     pool = multiprocessing.Pool(maxtasksperchild=100, processes=multiprocessing.cpu_count())
     resultsIterator = pool.imap(computeTestAuc, paramList, chunkSize)
