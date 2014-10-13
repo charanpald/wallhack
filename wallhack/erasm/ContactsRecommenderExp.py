@@ -38,7 +38,7 @@ modelSelectSamples = 10**6
 
 modelSelect = True
 folds = 3
-ks = numpy.array([k])
+ks = numpy.array([32, 64, 128])
 rhosSi = numpy.linspace(1.0, 0.0, 5)
 
 softImpute = IterativeSoftImpute(k=k, postProcess=True, svdAlg="rsvd")
@@ -74,9 +74,9 @@ sudo sysctl -w kernel.shmmax=2147483648
 
 overwrite = False
 datasets = ["Keyword", "Document"]
-learners = [("SoftImpute", softImpute), ("WRMF", wrmf), ("KNN", knn)]
+#learners = [("SoftImpute", softImpute), ("WRMF", wrmf), ("KNN", knn)]
 #learners = [("MLAUC", maxLocalAuc)]
-#learners = [("SoftImpute", softImpute)]
+learners = [("SoftImpute", softImpute)]
 #learners = [("SLIM", slim)]
 resultsDir = PathDefaults.getOutputDir() + "coauthors/"
 contactsFilename = PathDefaults.getDataDir() + "reference/contacts_anonymised.tsv"
