@@ -47,6 +47,7 @@ softImpute.metric = "f1"
 softImpute.q = 3
 softImpute.p = 10
 softImpute.rho = 0.1
+softImpute.eps = 10**-4 
 
 wrmf = WeightedMf(k=k, maxIterations=maxIterations, alpha=1.0)
 wrmf.ks = ks
