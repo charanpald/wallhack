@@ -45,6 +45,7 @@ softImpute = IterativeSoftImpute(k=k, postProcess=True, svdAlg="rsvd")
 softImpute.maxIterations = maxIterations
 softImpute.metric = "f1" 
 softImpute.q = 3
+softImpute.p = 10
 softImpute.rho = 0.1
 
 wrmf = WeightedMf(k=k, maxIterations=maxIterations, alpha=1.0)
