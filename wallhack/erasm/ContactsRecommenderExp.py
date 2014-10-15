@@ -5,6 +5,7 @@ import csv
 import sys 
 import os
 import argparse 
+import multiprocessing
 from mrec.item_similarity.knn import CosineKNNRecommender
 from mrec.item_similarity.slim import SLIM
 from mrec.sparse import fast_sparse_matrix
@@ -74,10 +75,12 @@ def saveResults(orderedItems, scores, dataset, similaritiesFileName, contactsFil
 
 
 parser = argparse.ArgumentParser(description='Recommend coauthors')
-parser.add_argument("--modelSelect", action="store_true", help="Perform model selection (default: %(default)s)", default=False)
-parser.add_argument("--overwrite", action="store_true", help="Overwrite results (default: %(default)s)", default=False)
 parser.add_argument("--alg", type=str, help="Choice of algorithm (default: %(default)s)", default="SoftImpute")
 parser.add_argument("--k", type=int, help="Number of latent factors (default: %(default)s)", default=128)
+parser.add_argument("--modelSelect", action="store_true", help="Perform model selection (default: %(default)s)", default=False)
+parser.add_argument("--overwrite", action="store_true", help="Overwrite results (default: %(default)s)", default=False)
+parser.add_argument("--processes", type=int, help="Number of processes (default: %(default)s)", default=multiprocessing.cpu_count())
+
 args = parser.parse_args()
 
 k = args.k
@@ -111,12 +114,14 @@ softImpute.q = 3
 softImpute.p = 10
 softImpute.rho = 0.1
 softImpute.eps = 10**-4 
+softImpute.numProcesses = args.processes
 
 wrmf = WeightedMf(k=k, maxIterations=maxIterations, alpha=1.0)
 wrmf.ks = ks
 wrmf.folds = folds 
 wrmf.lmbdas = 2.0**-numpy.arange(-1, 12, 2)
 wrmf.metric = "f1" 
+wrmf.numProcesses = args.processes
 
 maxLocalAuc = MaxLocalAUC(k=k, w=0.9, maxIterations=50, lmbdaU=0.1, lmbdaV=0.1, stochastic=True)
 maxLocalAuc.numRowSamples = 10
@@ -125,6 +130,7 @@ maxLocalAuc.initialAlg = "svd"
 maxLocalAuc.ks = ks
 maxLocalAuc.folds = folds
 maxLocalAuc.metric = "f1"
+maxLocalAuc.numProcesses = args.processes
 
 kNeighbours = 25
 knn = CosineKNNRecommender(kNeighbours)
