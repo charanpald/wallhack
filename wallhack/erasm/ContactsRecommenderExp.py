@@ -128,7 +128,7 @@ wrmf.numProcesses = args.processes
 maxLocalAuc = MaxLocalAUC(k=k, w=0.9, maxIterations=50, lmbdaU=0.1, lmbdaV=0.1, stochastic=True)
 maxLocalAuc.numRowSamples = 10
 maxLocalAuc.parallelSGD = True
-maxLocalAuc.initialAlg = "svd"
+maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.ks = ks
 maxLocalAuc.folds = folds
 maxLocalAuc.metric = "f1"
@@ -211,6 +211,8 @@ for dataset in datasets:
                         orderedItems[i, 0:itemScores.shape[0]] =  itemScores[:, 0]
                         scores[i, 0:itemScores.shape[0]] = itemScores[:, 1]
             else: 
+                #We take a subsample of users for these recommenders as they are slow 
+                X, userInds = Sampling.sampleUsers2(X, modelSelectSamples) 
                 trainX = X
                 
                 if modelSelect: 
