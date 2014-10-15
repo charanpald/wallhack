@@ -92,7 +92,7 @@ modelSelectSamples = 10**6
 
 modelSelect = args.modelSelect
 folds = 3
-ks = numpy.array([32, 64, 128])
+ks = numpy.array([64, 128, 256])
 rhosSi = numpy.linspace(1.0, 0.0, 5)
 
 overwrite = args.overwrite
