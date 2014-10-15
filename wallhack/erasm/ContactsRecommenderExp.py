@@ -83,6 +83,8 @@ parser.add_argument("--processes", type=int, help="Number of processes (default:
 
 args = parser.parse_args()
 
+logging.debug(args)
+
 k = args.k
 maxItems = 10
 minScore = 0.0
@@ -190,6 +192,9 @@ for dataset in datasets:
                 U = learner.U 
                 V = learner.V
             elif type(learner) == CosineKNNRecommender or type(learner) == SLIM: 
+                #We take a subsample of users for these recommenders as they are slow 
+                X, userInds = Sampling.sampleUsers2(X, modelSelectSamples)                
+                
                 fastTrainX = fast_sparse_matrix(X.toScipyCsr())
                 trainX = X.toScipyCsr()
                 m, n = trainX.shape
