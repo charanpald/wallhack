@@ -15,11 +15,7 @@ dataArgs = argparse.Namespace()
 # Arguments related to the algorithm
 defaultAlgoArgs = argparse.Namespace()
 defaultAlgoArgs.ks = numpy.array([64])
-defaultAlgoArgs.parallelSGD = True
 defaultAlgoArgs.recordFolds = 1
-defaultAlgoArgs.numRowSamples = 10
-defaultAlgoArgs.alphas = 2.0**-numpy.arange(3, 7)
-defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(2, 6)
 
 # data args parser #
 dataParser = argparse.ArgumentParser(description="", add_help=False)
