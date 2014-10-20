@@ -9,15 +9,16 @@ import sys
 import pickle
 import csv
 
-numpy.set_printoptions(suppress=True, precision=3, linewidth=100)
+numpy.set_printoptions(suppress=True, precision=4, linewidth=100)
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 ps = [1, 3, 5]
-dirNames = ["SyntheticDataset1", "SyntheticDataset2", "MovieLens", "Flixster", "BookCrossing"]
+dirNames = ["SyntheticDataset1", "SyntheticDataset2", "MovieLens", "Epinions", "Flixster", "BookCrossing"]
 
 verbose = False
 generateRecommendations = False
 
+precision = 4
 rhos = [0.5, 1.0, 2.0, 5.0]
 losses = ["hinge", "square", "sigmoid", "logistic", "tanh"]
 algs = ["SoftImpute", "WrMf"]
@@ -49,7 +50,7 @@ for dirName in dirNames:
             testResultsTable[s, 0:len(testMeasures)] = testMeasures      
             
             if verbose: 
-                logging.debug(names[s] + " metadata: " + str(metaData))
+                logging.debug(names[s].strip() + " metadata: " + str(metaData))
     
             if dirName == "MendeleyCoauthorsDoc" and generateRecommendations: 
                 logging.debug("Generating recommendations for authors")
@@ -112,9 +113,9 @@ for dirName in dirNames:
     print("")
     print("-"*20 + "Train metrics" + "-"*20)
     print("\t" + Latex.listToRow(colNames))
-    print(Latex.addRowNames(names, Latex.array2DToRows(trainResultsTable[:, colInds])))
+    print(Latex.addRowNames(names, Latex.array2DToRows(trainResultsTable[:, colInds], precision=precision)))
     
     
     print("-"*20 + "Test metrics" + "-"*20)
     print("\t" +  Latex.listToRow(colNames))
-    print(Latex.addRowNames(names, Latex.array2DToRows(testResultsTable[:, colInds])))
+    print(Latex.addRowNames(names, Latex.array2DToRows(testResultsTable[:, colInds], precision=precision)))
