@@ -29,7 +29,6 @@ else:
 saveResults = True
 prefix = "Regularisation2"
 outputFile = PathDefaults.getOutputDir() + "ranking/" + prefix + dataset.title() + "Results.npz" 
-print(outputFile)
 
 if dataset == "synthetic": 
     X, U, V = DatasetUtils.syntheticDataset1()
@@ -165,30 +164,37 @@ else:
     matplotlib.use("GTK3Agg")
     import matplotlib.pyplot as plt   
     
-    plotInds = ["k-", "k--", "k-.", "r-", "b-", "c-", "c--", "c-.", "g-", "g--", "g-."]
+    #print(meanFprTrain[0, :])
+    #print(meanTprTrain[0, :])
     
-    for i, lmbda in enumerate(maxLocalAuc.lmbdas):
+    plotInds = ["k-", "k--", "k-.", "r-", "b-", "c-", "c--", "c-.", "g-", "g--", "g-."]
+    ind = 0 
+    
+    for i, lmbdaU in enumerate(maxLocalAuc.lmbdas):
+        for j, lmbdaV in enumerate(maxLocalAuc.lmbdas):
 
-        label = r"$\lambda=$" + str(lmbda)
-
-        
-        fprTrainStart =   meanFprTrain[i, meanFprTrain[i, :]<=0.2]   
-        tprTrainStart =   meanTprTrain[i, meanFprTrain[i, :]<=0.2]   
-        
-        plt.figure(0)
-        plt.plot(fprTrainStart, tprTrainStart, plotInds[i], label=label)
-        
-        plt.figure(1)
-        plt.plot(meanFprTrain[i, :], meanTprTrain[i, :], plotInds[i], label=label)
-        
-        fprTestStart =   meanFprTest[i, meanFprTest[i, :]<=0.2]   
-        tprTestStart =   meanTprTest[i, meanFprTest[i, :]<=0.2]         
-        
-        plt.figure(2)    
-        plt.plot(fprTestStart, tprTestStart, plotInds[i], label=label)            
-        
-        plt.figure(3)    
-        plt.plot(meanFprTest[i, :], meanTprTest[i, :], plotInds[i], label=label)    
+            label = r"$\lambda_U=$" + str(lmbdaU) + r" $\lambda_V=$" + str(lmbdaV)
+    
+            
+            fprTrainStart =   meanFprTrain[ind, meanFprTrain[ind, :]<=0.2]   
+            tprTrainStart =   meanTprTrain[ind, meanFprTrain[ind, :]<=0.2]   
+            
+            plt.figure(0)
+            plt.plot(fprTrainStart, tprTrainStart, plotInds[ind], label=label)
+            
+            plt.figure(1)
+            plt.plot(meanFprTrain[ind, :], meanTprTrain[ind, :], plotInds[ind], label=label)
+            
+            fprTestStart =   meanFprTest[ind, meanFprTest[ind, :]<=0.2]   
+            tprTestStart =   meanTprTest[ind, meanFprTest[ind, :]<=0.2]         
+            
+            plt.figure(2)    
+            plt.plot(fprTestStart, tprTestStart, plotInds[ind], label=label)            
+            
+            plt.figure(3)    
+            plt.plot(meanFprTest[ind, :], meanTprTest[ind, :], plotInds[ind], label=label)    
+            
+            ind += 1
     
     plt.figure(0)
     plt.xlabel("false positive rate")
