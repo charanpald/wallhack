@@ -11,7 +11,7 @@ from sandbox.util.Sampling import Sampling
 from wallhack.rankingexp.DatasetUtils import DatasetUtils
 
 """
-We look at the ROC curves on the test set for different values of lambda 
+We look at the ROC curves on the test set for different values of lambda.  
 """
 
 
@@ -107,9 +107,10 @@ if saveResults:
     
     for lmbda in maxLocalAuc.lmbdas: 
         for trainX, testX in trainTestXs: 
-            maxLocalAuc.lmbdaU = lmbda 
-            maxLocalAuc.lmbdaV = lmbda 
-            paramList.append((trainX, testX, maxLocalAuc.copy(), U, V))
+            learner = maxLocalAuc.copy()
+            learner.lmbdaU = lmbda 
+            learner.lmbdaV = lmbda 
+            paramList.append((trainX, testX, learner, U.copy(), V.copy()))
 
     pool = multiprocessing.Pool(maxtasksperchild=100, processes=multiprocessing.cpu_count())
     resultsIterator = pool.imap(computeTestAuc, paramList, chunkSize)
