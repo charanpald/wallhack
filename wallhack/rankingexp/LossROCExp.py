@@ -23,7 +23,7 @@ numpy.seterr(all="raise")
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "synthetic2"
+    dataset = "movielens"
 
 saveResults = True
 prefix = "LossROC"
@@ -109,7 +109,7 @@ if saveResults:
         for trainX, testX in trainTestXs: 
             maxLocalAuc.loss = loss 
             maxLocalAuc.rho = rho 
-            paramList.append((trainX, testX, maxLocalAuc.copy(), U, V))
+            paramList.append((trainX, testX, maxLocalAuc.copy(), U.copy(), V.copy()))
 
     pool = multiprocessing.Pool(maxtasksperchild=100, processes=multiprocessing.cpu_count())
     resultsIterator = pool.imap(computeTestAuc, paramList, chunkSize)
