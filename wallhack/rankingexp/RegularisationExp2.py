@@ -68,7 +68,7 @@ maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.itemExpP = 0.0
 maxLocalAuc.itemExpQ = 0.0
 maxLocalAuc.ks = numpy.array([k2])
-maxLocalAuc.lmbdas = 2.0**-numpy.arange(0, 6, 2)
+maxLocalAuc.lmbdas = 2.0**-numpy.arange(-5, 6, 3)
 maxLocalAuc.loss = "hinge"
 maxLocalAuc.maxIterations = 100
 maxLocalAuc.metric = "f1"
@@ -175,9 +175,10 @@ else:
 
             label = r"$\lambda_U=$" + str(lmbdaU) + r" $\lambda_V=$" + str(lmbdaV)
     
-            
             fprTrainStart =   meanFprTrain[ind, meanFprTrain[ind, :]<=0.2]   
-            tprTrainStart =   meanTprTrain[ind, meanFprTrain[ind, :]<=0.2]   
+            tprTrainStart =   meanTprTrain[ind, meanFprTrain[ind, :]<=0.2]
+            
+            print(fprTrainStart, tprTrainStart)
             
             plt.figure(0)
             plt.plot(fprTrainStart, tprTrainStart, plotInds[ind], label=label)
