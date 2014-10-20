@@ -1,145 +1,213 @@
 import numpy
 import logging
 import sys
-import multiprocessing 
 import os
+import multiprocessing
 from sandbox.recommendation.MaxLocalAUC import MaxLocalAUC
 from sandbox.util.SparseUtils import SparseUtils
-from sandbox.util.PathDefaults import PathDefaults
 from sandbox.util.MCEvaluator import MCEvaluator
-from sandbox.util.MCEvaluatorCython import MCEvaluatorCython
+from sandbox.util.PathDefaults import PathDefaults
 from sandbox.util.Sampling import Sampling
 from wallhack.rankingexp.DatasetUtils import DatasetUtils
 
 """
-Test best regularisation 
+We look at the ROC curves on the test set for different values of lambda. We want 
+to find why on epinions, the learning overfits so vary lambdaU and lambdaV  
 """
 
+
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
-#numpy.random.seed(22)        
-#numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
-os.system('taskset -p 0xffffffff %d' % os.getpid())
+numpy.random.seed(21)        
+numpy.set_printoptions(precision=4, suppress=True, linewidth=150)
+numpy.seterr(all="raise")
 
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "movielens"
+    dataset = "epinions"
 
 saveResults = True
-expNum = 9
+prefix = "Regularisation2"
+outputFile = PathDefaults.getOutputDir() + "ranking/" + prefix + dataset.title() + "Results.npz" 
+print(outputFile)
 
 if dataset == "synthetic": 
     X, U, V = DatasetUtils.syntheticDataset1()
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp" + str(expNum) + "SyntheticResults.npz" 
 elif dataset == "synthetic2": 
     X = DatasetUtils.syntheticDataset2()
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp" + str(expNum) + "Synthetic2Results.npz" 
 elif dataset == "movielens": 
     X = DatasetUtils.movieLens()
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp" + str(expNum) + "MovieLensResults.npz" 
+elif dataset == "epinions": 
+    X = DatasetUtils.epinions()
+    X, userInds = Sampling.sampleUsers2(X, 10000)    
 elif dataset == "flixster": 
     X = DatasetUtils.flixster()
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp" + str(expNum) + "FlixsterResults.npz"  
-    X = Sampling.sampleUsers(X, 1000)
+    X, userInds = Sampling.sampleUsers2(X, 10000)
 else: 
     raise ValueError("Unknown dataset: " + dataset)
-        
+
+m, n = X.shape
+u = 0.1 
+w = 1-u
+
 testSize = 5
-folds = 2
+folds = 5
 trainTestXs = Sampling.shuffleSplitRows(X, folds, testSize)
 
-u = 0.1
-w2 = 1-u 
-k = 128
-eps = 10**-8
-maxLocalAuc = MaxLocalAUC(k, w2, eps=eps, stochastic=True)
-maxLocalAuc.maxIterations = 50
-maxLocalAuc.numRowSamples = 30
-maxLocalAuc.numAucSamples = 10
-maxLocalAuc.initialAlg = "rand"
-maxLocalAuc.recordStep = 20
-maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 0.5
-maxLocalAuc.t0 = 0.1
-maxLocalAuc.lmbdaU = 0.0
-maxLocalAuc.rho = 0.5
+numRecordAucSamples = 200
 
-maxItems = 10
-chunkSize = 1
-lmbdaVs = 10.0**numpy.arange(-0.5, 1.5, 0.25)
-print(lmbdaVs)
+k2 = 64
+u2 = 0.5
+w2 = 1-u2
+eps = 10**-8
+lmbda = 0.1
+maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbdaU=lmbda, lmbdaV=lmbda, stochastic=True)
+maxLocalAuc.alpha = 0.1
+maxLocalAuc.alphas = 2.0**-numpy.arange(0, 5, 1)
+maxLocalAuc.folds = 1
+maxLocalAuc.initialAlg = "rand"
+maxLocalAuc.itemExpP = 0.0
+maxLocalAuc.itemExpQ = 0.0
+maxLocalAuc.ks = numpy.array([k2])
+maxLocalAuc.lmbdas = 2.0**-numpy.arange(0, 6, 2)
+maxLocalAuc.loss = "hinge"
+maxLocalAuc.maxIterations = 100
+maxLocalAuc.metric = "f1"
+maxLocalAuc.normalise = True
+maxLocalAuc.numAucSamples = 10
+maxLocalAuc.numProcesses = 1
+maxLocalAuc.numRecordAucSamples = 100
+maxLocalAuc.numRowSamples = 30
+maxLocalAuc.rate = "constant"
+maxLocalAuc.recordStep = 10
+maxLocalAuc.rho = 1.0
+maxLocalAuc.t0 = 1.0
+maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
+maxLocalAuc.validationSize = 3
+maxLocalAuc.validationUsers = 0
+
+os.system('taskset -p 0xffffffff %d' % os.getpid())
+
+logging.debug("Starting training")
 
 def computeTestAuc(args): 
-    trainX, maxLocalAuc  = args 
+    trainX, testX, maxLocalAuc, U, V  = args 
     numpy.random.seed(21)
-    U, V, trainMeasures, testMeasures, iterations, totalTime = maxLocalAuc.learnModel(trainX, verbose=True)
-    return U, V, trainMeasures[-1, 1], testMeasures[-1, 1]
+    logging.debug(maxLocalAuc)
+    
+    maxLocalAuc.learningRateSelect(trainX)
+    U, V, trainMeasures, testMeasures, iterations, time = maxLocalAuc.learnModel(trainX, U=U, V=V, verbose=True)
+    
+    fprTrain, tprTrain = MCEvaluator.averageRocCurve(trainX, U, V)
+    fprTest, tprTest = MCEvaluator.averageRocCurve(testX, U, V)
+        
+    return fprTrain, tprTrain, fprTest, tprTest
 
-if saveResults:     
-    testLocalAucs = numpy.zeros((lmbdaVs.shape[0]))
-    testPrecisions = numpy.zeros((lmbdaVs.shape[0]))
-    testRecalls = numpy.zeros((lmbdaVs.shape[0]))
+if saveResults: 
+    paramList = []
+    chunkSize = 1
     
-    #maxLocalAuc.learningRateSelect(X)    
+    U, V = maxLocalAuc.initUV(X)
     
-    for trainX, testX in trainTestXs: 
-        trainOmegaPtr = SparseUtils.getOmegaListPtr(trainX)
-        testOmegaPtr = SparseUtils.getOmegaListPtr(testX)
-        allOmegaPtr = SparseUtils.getOmegaListPtr(X)
-        logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))        
-        
-        paramList = []      
-        
-        for j, lmbdaV in enumerate(lmbdaVs): 
-            maxLocalAuc.lmbdaV = lmbdaV
-            logging.debug(maxLocalAuc)
+    for lmbdaU in maxLocalAuc.lmbdas: 
+        for lmbdaV in maxLocalAuc.lmbdas: 
+            for trainX, testX in trainTestXs: 
+                learner = maxLocalAuc.copy()
+                learner.lmbdaU = lmbdaU 
+                learner.lmbdaV = lmbdaV 
+                paramList.append((trainX, testX, learner, U.copy(), V.copy()))
+
+    pool = multiprocessing.Pool(maxtasksperchild=100, processes=multiprocessing.cpu_count())
+    resultsIterator = pool.imap(computeTestAuc, paramList, chunkSize)
+    
+    #import itertools 
+    #resultsIterator = itertools.imap(computeTestAuc, paramList)
+    
+    meanFprTrains = []
+    meanTprTrains = []
+    meanFprTests = []
+    meanTprTests = []
+    
+    for lmbdaU in maxLocalAuc.lmbdas: 
+        for lmbdaV in maxLocalAuc.lmbdas: 
+            fprTrains = [] 
+            tprTrains = [] 
+            fprTests = [] 
+            tprTests = []
             
-            learner = maxLocalAuc.copy()
-            paramList.append((trainX, learner))
+            for trainX, testX in trainTestXs: 
+                fprTrain, tprTrain, fprTest, tprTest = resultsIterator.next()
                 
-        pool = multiprocessing.Pool(maxtasksperchild=100, processes=multiprocessing.cpu_count())
-        resultsIterator = pool.imap(computeTestAuc, paramList, chunkSize)
-    
-        for j, lmbdaV in enumerate(lmbdaVs): 
-            U, V, trainAuc, testAuc = resultsIterator.next()
+                fprTrains.append(fprTrain)
+                tprTrains.append(tprTrain)
+                fprTests.append(fprTest) 
+                tprTests.append(tprTest)
+                
+            meanFprTrain = numpy.mean(numpy.array(fprTrains), 0)    
+            meanTprTrain = numpy.mean(numpy.array(tprTrains), 0) 
+            meanFprTest = numpy.mean(numpy.array(fprTests), 0) 
+            meanTprTest = numpy.mean(numpy.array(tprTests), 0) 
             
-            testLocalAucs[j] += testAuc
-            testOrderedItems = MCEvaluatorCython.recommendAtk(U, V, maxItems, trainX)
-            testPrecisions[j] += MCEvaluator.precisionAtK(testX, testOrderedItems, maxItems)
-            testRecalls[j] += MCEvaluator.recallAtK(testX, testOrderedItems, maxItems)
+            meanFprTrains.append(meanFprTrain)
+            meanTprTrains.append(meanTprTrain)
+            meanFprTests.append(meanFprTest)
+            meanTprTests.append(meanTprTest)
         
-        pool.terminate()        
-        
-    testLocalAucs /= folds 
-    testPrecisions /= folds 
-    testRecalls /= folds 
+    numpy.savez(outputFile, meanFprTrains, meanTprTrains, meanFprTests, meanTprTests)
     
-    numpy.savez(outputFile, testLocalAucs, testPrecisions, testRecalls)
+    pool.terminate()   
+    logging.debug("Saved results in " + outputFile)
 else: 
     data = numpy.load(outputFile)
-    testLocalAucs, testPrecisions, testRecalls = data["arr_0"], data["arr_1"], data["arr_2"]
+    meanFprTrain, meanTprTrain, meanFprTest, meanTprTest = data["arr_0"], data["arr_1"], data["arr_2"], data["arr_3"]      
+   
     import matplotlib 
     matplotlib.use("GTK3Agg")
-    import matplotlib.pyplot as plt 
-   
+    import matplotlib.pyplot as plt   
+    
+    plotInds = ["k-", "k--", "k-.", "r-", "b-", "c-", "c--", "c-.", "g-", "g--", "g-."]
+    
+    for i, lmbda in enumerate(maxLocalAuc.lmbdas):
+
+        label = r"$\lambda=$" + str(lmbda)
+
+        
+        fprTrainStart =   meanFprTrain[i, meanFprTrain[i, :]<=0.2]   
+        tprTrainStart =   meanTprTrain[i, meanFprTrain[i, :]<=0.2]   
+        
+        plt.figure(0)
+        plt.plot(fprTrainStart, tprTrainStart, plotInds[i], label=label)
+        
+        plt.figure(1)
+        plt.plot(meanFprTrain[i, :], meanTprTrain[i, :], plotInds[i], label=label)
+        
+        fprTestStart =   meanFprTest[i, meanFprTest[i, :]<=0.2]   
+        tprTestStart =   meanTprTest[i, meanFprTest[i, :]<=0.2]         
+        
+        plt.figure(2)    
+        plt.plot(fprTestStart, tprTestStart, plotInds[i], label=label)            
+        
+        plt.figure(3)    
+        plt.plot(meanFprTest[i, :], meanTprTest[i, :], plotInds[i], label=label)    
+    
     plt.figure(0)
-    plt.plot(numpy.log10(lmbdaVs), testLocalAucs)
-    plt.xlabel("lmbdaUs")
-    plt.ylabel("AUC")
+    plt.xlabel("false positive rate")
+    plt.ylabel("true positive rate")
+    plt.legend(loc="lower right")
     
     plt.figure(1)
-    plt.plot(numpy.log10(lmbdaVs), testPrecisions)
-    plt.xlabel("lmbdaUs")
-    plt.ylabel("precision")
-
-    plt.figure(2)    
-    plt.plot(numpy.log10(lmbdaVs), testRecalls)
-    plt.xlabel("lmbdaUs")
-    plt.ylabel("recall")
- 
-   
+    plt.xlabel("false positive rate")
+    plt.ylabel("true positive rate")
+    plt.legend(loc="lower right")
+    
+    plt.figure(2)
+    plt.xlabel("false positive rate")
+    plt.ylabel("true positive rate")
+    plt.legend(loc="lower right")
+    
+    plt.figure(3)
+    plt.xlabel("false positive rate")
+    plt.ylabel("true positive rate")
+    plt.legend(loc="lower right")
+    
     plt.show()
-
-print(testLocalAucs)
-print(testPrecisions)
-print(testRecalls)
