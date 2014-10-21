@@ -62,7 +62,7 @@ eps = 10**-8
 lmbda = 0.1
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbdaU=lmbda, lmbdaV=lmbda, stochastic=True)
 maxLocalAuc.alpha = 0.1
-maxLocalAuc.alphas = 2.0**-numpy.arange(0, 5, 1)
+maxLocalAuc.alphas = 2.0**-numpy.arange(2, 8, 1)
 maxLocalAuc.folds = 1
 maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.itemExpP = 0.0
@@ -167,7 +167,7 @@ else:
     #print(meanFprTrain[0, :])
     #print(meanTprTrain[0, :])
     
-    plotInds = ["k-", "k--", "k-.", "r-", "b-", "c-", "c--", "c-.", "g-", "g--", "g-."]
+    plotInds = ["k-", "k--", "k-.", "k:", "r-", "r--", "r-.", "r:", "g-", "g--", "g-.", "g:", "b-", "b--", "b-.", "b:"]
     ind = 0 
     
     for i, lmbdaU in enumerate(maxLocalAuc.lmbdas):
