@@ -3,6 +3,7 @@ import logging
 import sys
 import os
 import multiprocessing
+import itertools 
 from sandbox.recommendation.MaxLocalAUC import MaxLocalAUC
 from sandbox.util.SparseUtils import SparseUtils
 from sandbox.util.MCEvaluator import MCEvaluator
@@ -116,11 +117,11 @@ if saveResults:
                 learner.lmbdaV = lmbdaV 
                 paramList.append((trainX, testX, learner, U.copy(), V.copy()))
 
-    pool = multiprocessing.Pool(maxtasksperchild=100, processes=multiprocessing.cpu_count())
-    resultsIterator = pool.imap(computeTestAuc, paramList, chunkSize)
+    #pool = multiprocessing.Pool(maxtasksperchild=100, processes=multiprocessing.cpu_count())
+    #resultsIterator = pool.imap(computeTestAuc, paramList, chunkSize)
     
-    #import itertools 
-    #resultsIterator = itertools.imap(computeTestAuc, paramList)
+
+    resultsIterator = itertools.imap(computeTestAuc, paramList)
     
     meanFprTrains = []
     meanTprTrains = []
@@ -154,7 +155,7 @@ if saveResults:
         
     numpy.savez(outputFile, meanFprTrains, meanTprTrains, meanFprTests, meanTprTests)
     
-    pool.terminate()   
+    #pool.terminate()   
     logging.debug("Saved results in " + outputFile)
 else: 
     data = numpy.load(outputFile)
