@@ -86,6 +86,7 @@ maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
 maxLocalAuc.validationSize = 3
 maxLocalAuc.validationUsers = 0
 
+numProcesses = multiprocessing.cpu_count()
 os.system('taskset -p 0xffffffff %d' % os.getpid())
 
 logging.debug("Starting training")
@@ -117,11 +118,11 @@ if saveResults:
                 learner.lmbdaV = lmbdaV 
                 paramList.append((trainX, testX, learner, U.copy(), V.copy()))
 
-    #pool = multiprocessing.Pool(maxtasksperchild=100, processes=multiprocessing.cpu_count())
-    #resultsIterator = pool.imap(computeTestAuc, paramList, chunkSize)
-    
-
-    resultsIterator = itertools.imap(computeTestAuc, paramList)
+    if numProcesses != 1: 
+        pool = multiprocessing.Pool(maxtasksperchild=100, processes=multiprocessing.cpu_count())
+        resultsIterator = pool.imap(computeTestAuc, paramList, chunkSize)
+    else: 
+        resultsIterator = itertools.imap(computeTestAuc, paramList)
     
     meanFprTrains = []
     meanTprTrains = []
@@ -155,7 +156,8 @@ if saveResults:
         
     numpy.savez(outputFile, meanFprTrains, meanTprTrains, meanFprTests, meanTprTests)
     
-    #pool.terminate()   
+    if numProcesses != 1: 
+        pool.terminate()   
     logging.debug("Saved results in " + outputFile)
 else: 
     data = numpy.load(outputFile)
