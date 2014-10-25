@@ -22,25 +22,25 @@ numpy.seterr(all="raise")
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "synthetic"
+    dataset = "epinions"
 
 saveResults = True
 
 if dataset == "synthetic": 
     X, U, V = DatasetUtils.syntheticDataset1()
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp1Synthetic1Results.npz" 
 elif dataset == "synthetic2": 
     X = DatasetUtils.syntheticDataset2()
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp1Synthetic2Results.npz" 
 elif dataset == "movielens": 
-    X = DatasetUtils.movieLens(minNnzRows=20)
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp1MovieLensResults.npz" 
+    X = DatasetUtils.movieLens()
+elif dataset == "epinions": 
+    X = DatasetUtils.epinions()
+    X, userInds = Sampling.sampleUsers2(X, 10000)    
 elif dataset == "flixster": 
     X = DatasetUtils.flixster()
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp1FlixsterResults.npz" 
-    X = Sampling.sampleUsers(X, 1000)
-else: 
-    raise ValueError("Unknown dataset: " + dataset)
+    X, userInds = Sampling.sampleUsers2(X, 10000)
+
+print(X.shape)    
+print(numpy.bincount(numpy.array(X.sum(0), numpy.int)))
 
 m, n = X.shape
 u = 0.1 
@@ -66,7 +66,7 @@ u2 = 5/float(n)
 w2 = 1-u2
 eps = 10**-8
 lmbda = 0.01
-maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbdaU=lmbda, lmbdaV=lmbda, stochastic=True)
+maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbdaU=0.1, lmbdaV=0.0, stochastic=True)
 maxLocalAuc.maxIterations = 100
 maxLocalAuc.numRowSamples = 30
 maxLocalAuc.numAucSamples = 10
@@ -88,7 +88,7 @@ maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
 maxLocalAuc.metric = "f1"
 maxLocalAuc.itemExpP = 0.0
 maxLocalAuc.itemExpQ = 0.0
-maxLocalAuc.loss = "tanh" 
+maxLocalAuc.loss = "hinge" 
 maxLocalAuc.eta = 0
 maxLocalAuc.validationUsers = 0
 #maxLocalAuc.parallelSGD = True
