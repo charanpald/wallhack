@@ -5,6 +5,7 @@ import os
 import multiprocessing
 import itertools 
 from sandbox.recommendation.MaxLocalAUC import MaxLocalAUC
+from sandbox.recommendation.IterativeSoftImpute import IterativeSoftImpute
 from sandbox.util.SparseUtils import SparseUtils
 from sandbox.util.MCEvaluator import MCEvaluator
 from sandbox.util.PathDefaults import PathDefaults
@@ -86,6 +87,8 @@ maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
 maxLocalAuc.validationSize = 3
 maxLocalAuc.validationUsers = 0
 
+softImpute = IterativeSoftImpute(k=k2, postProcess=True)
+
 numProcesses = multiprocessing.cpu_count()
 os.system('taskset -p 0xffffffff %d' % os.getpid())
 
@@ -108,6 +111,22 @@ if saveResults:
     paramList = []
     chunkSize = 1
     
+    #First generate SoftImpute results as a benchmark. 
+    trainX, testX = trainTestXs[0]
+    learner = softImpute.copy()
+    
+    trainIterator = iter([trainX.toScipyCsc()])
+    ZList = learner.learnModel(trainIterator)    
+    U, s, V = ZList.next()
+    U = U*s
+    
+    U = numpy.ascontiguousarray(U)
+    V = numpy.ascontiguousarray(V)
+    
+    fprTrainSI, tprTrainSI = MCEvaluator.averageRocCurve(trainX, U, V)
+    fprTestSI, tprTestSI = MCEvaluator.averageRocCurve(testX, U, V, trainX=trainX)
+    
+    #Now train MaxLocalAUC 
     U, V = maxLocalAuc.initUV(X)
     
     for lmbdaU in maxLocalAuc.lmbdas: 
@@ -154,7 +173,7 @@ if saveResults:
             meanFprTests.append(meanFprTest)
             meanTprTests.append(meanTprTest)
         
-    numpy.savez(outputFile, meanFprTrains, meanTprTrains, meanFprTests, meanTprTests)
+    numpy.savez(outputFile, meanFprTrains, meanTprTrains, meanFprTests, meanTprTests, fprTrainSI, tprTrainSI, fprTestSI, tprTestSI)
     
     if numProcesses != 1: 
         pool.terminate()   
