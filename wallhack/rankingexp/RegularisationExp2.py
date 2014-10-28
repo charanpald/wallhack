@@ -74,7 +74,7 @@ maxLocalAuc.lmbdas = 2.0**-numpy.arange(-5, 6, 3)
 maxLocalAuc.loss = "hinge"
 maxLocalAuc.maxIterations = 100
 maxLocalAuc.metric = "f1"
-maxLocalAuc.normalise = False
+maxLocalAuc.normalise = True
 maxLocalAuc.numAucSamples = 10
 maxLocalAuc.numProcesses = 1
 maxLocalAuc.numRecordAucSamples = 100
@@ -180,7 +180,7 @@ if saveResults:
     logging.debug("Saved results in " + outputFile)
 else: 
     data = numpy.load(outputFile)
-    meanFprTrain, meanTprTrain, meanFprTest, meanTprTest = data["arr_0"], data["arr_1"], data["arr_2"], data["arr_3"]      
+    meanFprTrain, meanTprTrain, meanFprTest, meanTprTest, fprTrainSI, tprTrainSI, fprTestSI, tprTestSI = data["arr_0"], data["arr_1"], data["arr_2"], data["arr_3"], data["arr_4"], data["arr_5"], data["arr_6"], data["arr_7"]      
    
     import matplotlib 
     matplotlib.use("GTK3Agg")
@@ -189,7 +189,7 @@ else:
     #print(meanFprTrain[0, :])
     #print(meanTprTrain[0, :])
     
-    plotInds = ["k-", "k--", "k-.", "k:", "r-", "r--", "r-.", "r:", "g-", "g--", "g-.", "g:", "b-", "b--", "b-.", "b:"]
+    plotInds = ["k-", "k--", "k-.", "k:", "r-", "r--", "r-.", "r:", "g-", "g--", "g-.", "g:", "b-", "b--", "b-.", "b:", "c-"]
     ind = 0 
     
     for i, lmbdaU in enumerate(maxLocalAuc.lmbdas):
@@ -218,6 +218,12 @@ else:
             plt.plot(meanFprTest[ind, :], meanTprTest[ind, :], plotInds[ind], label=label)    
             
             ind += 1
+    
+    plt.figure(1)
+    plt.plot(fprTrainSI, tprTrainSI, plotInds[ind], label="SI")    
+    
+    plt.figure(3)
+    plt.plot(fprTestSI, tprTestSI , plotInds[ind], label="SI")       
     
     plt.figure(0)
     plt.xlabel("false positive rate")
