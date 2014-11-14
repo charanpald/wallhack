@@ -95,3 +95,10 @@ logging.debug(maxLocalAuc)
 
 U, V, trainMeasures, testMeasures, iterations, time = maxLocalAuc.learnModel(trainX, verbose=True)
 
+print(trainMeasures)
+
+plt.plot(trainMeasures[:, 0], label="train Obj")
+plt.plot(testMeasures[:, 0], label="test Obj")
+plt.plot(trainMeasures[:, -1], label="bound")
+plt.legend()
+plt.show()
