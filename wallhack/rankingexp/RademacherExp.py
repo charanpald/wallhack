@@ -65,7 +65,7 @@ maxLocalAuc.maxNorm = numpy.sqrt(0.5)
 maxLocalAuc.metric = "f1"
 maxLocalAuc.normalise = True
 maxLocalAuc.numAucSamples = 10
-#maxLocalAuc.numProcesses = 1
+maxLocalAuc.numProcesses = 1
 maxLocalAuc.numRecordAucSamples = 200
 maxLocalAuc.numRowSamples = 30
 maxLocalAuc.rate = "constant"
@@ -83,7 +83,7 @@ def computeBound(args):
     X, maxLocalAuc, U, V = args 
     #numpy.random.seed(21)
     logging.debug(maxLocalAuc)
-    
+    maxLocalAuc.learningRateSelect()
     U, V, trainMeasures, testMeasures, iterations, time = maxLocalAuc.learnModel(X, U=U, V=V, verbose=True)
             
     return trainMeasures[-1, 0], trainMeasures[-1, -1], testMeasures[-1, 0]
@@ -124,6 +124,10 @@ if saveResults:
     
     pool.terminate()   
     logging.debug("Saved results in " + outputFile) 
+    
+    trainObjs = numpy.mean(trainObjs, 1)
+    bounds = numpy.mean(bounds, 1)
+    testObjs = numpy.mean(testObjs, 1)
     
 else: 
     data = numpy.load(outputFile)
