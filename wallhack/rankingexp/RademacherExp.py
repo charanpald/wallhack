@@ -39,9 +39,6 @@ elif dataset == "flixster":
     X = DatasetUtils.flixster()
     X, userInds = Sampling.sampleUsers2(X, 10000)
     
-testSize = 5
-trainTestXs = Sampling.shuffleSplitRows(X, 1, testSize)
-trainX, testX = trainTestXs[0]
 
 m, n = X.shape
 
@@ -63,7 +60,7 @@ maxLocalAuc.itemExpQ = 0.0
 maxLocalAuc.ks = numpy.array([2, 4, 8, 16, 32, 64])
 maxLocalAuc.lmbdas = numpy.linspace(0.5, 2.0, 7)
 maxLocalAuc.loss = "hinge" 
-maxLocalAuc.maxIterations = 5
+maxLocalAuc.maxIterations = 100
 maxLocalAuc.maxNorm = numpy.sqrt(0.5)
 maxLocalAuc.metric = "f1"
 maxLocalAuc.normalise = True
