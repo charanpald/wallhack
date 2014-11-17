@@ -22,7 +22,7 @@ numpy.seterr(all="raise")
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "epinions"
+    dataset = "synthetic2"
 
 saveResults = True
 
@@ -40,7 +40,7 @@ elif dataset == "flixster":
     X, userInds = Sampling.sampleUsers2(X, 10000)
 
 print(X.shape)    
-print(numpy.bincount(numpy.array(X.sum(0), numpy.int)))
+#print(numpy.bincount(numpy.array(X.sum(0), numpy.int)))
 
 m, n = X.shape
 u = 0.1 
@@ -67,31 +67,34 @@ w2 = 1-u2
 eps = 10**-8
 lmbda = 0.01
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbdaU=0.1, lmbdaV=0.0, stochastic=True)
-maxLocalAuc.maxIterations = 100
-maxLocalAuc.numRowSamples = 30
-maxLocalAuc.numAucSamples = 10
-maxLocalAuc.numRecordAucSamples = 100
-maxLocalAuc.recordStep = 10
-maxLocalAuc.initialAlg = "rand"
-maxLocalAuc.rate = "constant"
 maxLocalAuc.alpha = 0.1
-maxLocalAuc.t0 = 1.0
-maxLocalAuc.folds = 2
-maxLocalAuc.rho = 5.0
-maxLocalAuc.ks = numpy.array([k2])
-maxLocalAuc.validationSize = 3
-maxLocalAuc.lmbdas = numpy.linspace(0.5, 2.0, 7)
-maxLocalAuc.normalise = True
-#maxLocalAuc.numProcesses = 1
 maxLocalAuc.alphas = 2.0**-numpy.arange(0, 5, 1)
-maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
-maxLocalAuc.metric = "f1"
+maxLocalAuc.bound = False
+maxLocalAuc.delta = 0.1
+maxLocalAuc.eta = 0
+maxLocalAuc.folds = 2
+maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.itemExpP = 0.0
 maxLocalAuc.itemExpQ = 0.0
+maxLocalAuc.ks = numpy.array([4, 8, 16, 32, 64, 128])
+maxLocalAuc.lmbdas = numpy.linspace(0.5, 2.0, 7)
 maxLocalAuc.loss = "hinge" 
-maxLocalAuc.eta = 0
-maxLocalAuc.validationUsers = 0
-#maxLocalAuc.parallelSGD = True
+maxLocalAuc.maxIterations = 100
+maxLocalAuc.maxNorm = numpy.sqrt(0.5)
+maxLocalAuc.metric = "f1"
+maxLocalAuc.normalise = True
+maxLocalAuc.numAucSamples = 10
+maxLocalAuc.numProcesses = 1
+maxLocalAuc.numRecordAucSamples = 200
+maxLocalAuc.numRowSamples = 30
+maxLocalAuc.rate = "constant"
+maxLocalAuc.recordStep = 10
+maxLocalAuc.reg = False
+maxLocalAuc.rho = 1.0
+maxLocalAuc.t0 = 1.0
+maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
+maxLocalAuc.validationSize = 5
+maxLocalAuc.validationUsers = 1.0
 
 os.system('taskset -p 0xffffffff %d' % os.getpid())
 
