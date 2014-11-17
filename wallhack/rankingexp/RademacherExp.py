@@ -83,7 +83,7 @@ def computeBound(args):
     X, maxLocalAuc, U, V = args 
     #numpy.random.seed(21)
     logging.debug(maxLocalAuc)
-    maxLocalAuc.learningRateSelect()
+    maxLocalAuc.learningRateSelect(X)
     U, V, trainMeasures, testMeasures, iterations, time = maxLocalAuc.learnModel(X, U=U, V=V, verbose=True)
             
     return trainMeasures[-1, 0], trainMeasures[-1, -1], testMeasures[-1, 0]
