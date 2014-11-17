@@ -30,25 +30,25 @@ for dataset in datasets:
     else: 
         sigmas = sigmas2
     for learnerName in learnerNames: 
-        for sigma in sigmas:         
+      
         
             
-            outputFilename = resultsDir + "Results_" + learnerName + "_" + dataset + "_sigma=" + str(sigma) + ".npz"  
+        outputFilename = resultsDir + "Results_" + learnerName + "_" + dataset +  ".npz"  
+        
+        try : 
+            data = numpy.load(outputFilename)
             
-            try : 
-                data = numpy.load(outputFilename)
-                
-                meanStatsContacts, meanStatsInterests = data["arr_0"], data["arr_1"]
-                
-                logging.debug(outputFilename)
-                #print(meanStatsContacts)
-                #print(meanStatsInterests)
-                
-                rowNames.append(learnerName + " " + dataset + " $\sigma=" + str(sigma) + "$")
-                contactResults.append(meanStatsContacts[[2, 3, 4, 5, 7, 8, 9, 10, 12]])
-                interestResults.append(meanStatsInterests[[1, 2, 3, 4, 6]])
-            except: 
-                logging.debug("File not found: " + outputFilename)                
+            meanStatsContacts, meanStatsInterests = data["arr_0"], data["arr_1"]
+            
+            logging.debug(outputFilename)
+            #print(meanStatsContacts)
+            #print(meanStatsInterests)
+            
+            rowNames.append(learnerName + " " + dataset )
+            contactResults.append(meanStatsContacts[[2, 3, 4, 5, 7, 8, 9, 10, 12]])
+            interestResults.append(meanStatsInterests[[1, 2, 3, 4, 6]])
+        except: 
+            logging.debug("File not found: " + outputFilename)                
 
 print("")
 
@@ -58,11 +58,13 @@ interestResults = numpy.array(interestResults)
 
 contactsColNames = ["p@1", "p@3", "p@5", "p@10", "r@1", "r@3", "r@5", "r@10", "f1"]
 contactsTable = Latex.addRowNames(rowNames, Latex.array2DToRows(contactResults, precision=4))
+print("----- Contacts -----")
 print(Latex.listToRow(contactsColNames))
 print(contactsTable)
 
 
 interestsColNames = ["p@1", "p@3", "p@5", "p@10", "j@10"]
 interestsTable = Latex.addRowNames(rowNames, Latex.array2DToRows(interestResults))
+print("-----  Interests -----")
 print(Latex.listToRow(interestsColNames))
 print(interestsTable)
