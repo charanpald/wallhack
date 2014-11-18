@@ -96,7 +96,6 @@ class RankingExpHelper(object):
     defaultAlgoArgs.parallelSGD = False
     defaultAlgoArgs.rate = "constant"
     defaultAlgoArgs.recordStep = 10
-    defaultAlgoArgs.sampling = "uniform"
     defaultAlgoArgs.recommendSize = 5 
     defaultAlgoArgs.rhoMlauc = 1.0
     defaultAlgoArgs.rhosMlauc = numpy.array([0, 0.5, 1.0])
@@ -439,7 +438,6 @@ class RankingExpHelper(object):
                     learner.recordStep = self.algoArgs.recordStep
                     learner.rho = self.algoArgs.rhoMlauc
                     learner.rhos = self.algoArgs.rhosMlauc
-                    learner.sampling = self.algoArgs.sampling 
                     learner.startAverage = 30
                     learner.t0 = self.algoArgs.t0    
                     learner.t0s = self.algoArgs.t0s
