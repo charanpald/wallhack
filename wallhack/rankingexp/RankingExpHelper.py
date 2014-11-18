@@ -202,7 +202,6 @@ class RankingExpHelper(object):
         algoParser.add_argument("--processes", type=int, help="Number of CPU cores to use (default: %(default)s)", default=defaultAlgoArgs.processes)
         algoParser.add_argument("--rate", type=str, help="Learning rate type: either constant or optimal (default: %(default)s)", default=defaultAlgoArgs.rate)
         algoParser.add_argument("--recordStep", type=int, help="Number of iterations after which we display some partial results (default: %(default)s)", default=defaultAlgoArgs.recordStep)
-        algoParser.add_argument("--sampling", type=str, help="The random sampling for max local AUC: uniform/rank/top (default: %(default)s)", default=defaultAlgoArgs.sampling)
         algoParser.add_argument("--rhoMlauc", type=float, help="The rho penalty for max local AUC (default: %(default)s)", default=defaultAlgoArgs.rhoMlauc)        
         algoParser.add_argument("--rhosMlauc", type=float, nargs="+", help="The rho penalty for max local AUC model selection (default: %(default)s)", default=defaultAlgoArgs.rhosMlauc)
         algoParser.add_argument("--t0", type=float, help="Learning rate decay for max local AUC (default: %(default)s)", default=defaultAlgoArgs.t0)
