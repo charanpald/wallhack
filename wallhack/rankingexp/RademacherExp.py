@@ -58,10 +58,10 @@ maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.itemExpP = 0.0
 maxLocalAuc.itemExpQ = 0.0
 maxLocalAuc.ks = numpy.array([4, 8, 16, 32, 64, 128])
-maxLocalAuc.lmbdas = numpy.linspace(0.5, 2.0, 7)
+maxLocalAuc.lmbdas = 2.0**-numpy.arange(1, 10)
 maxLocalAuc.loss = "hinge" 
 maxLocalAuc.maxIterations = 100
-maxLocalAuc.maxNorm = numpy.sqrt(0.5)
+maxLocalAuc.maxNorm = 1/numpy.sqrt(2)
 maxLocalAuc.metric = "f1"
 maxLocalAuc.normalise = True
 maxLocalAuc.numAucSamples = 10
@@ -99,9 +99,10 @@ if saveResults:
     bounds = numpy.zeros((maxLocalAuc.ks.shape[0], folds))    
     
     for i in range(folds):
-        for k in maxLocalAuc.ks: 
+        for lmbda in maxLocalAuc.lmbdas: 
             learner = maxLocalAuc.copy()
-            learner.k = k
+            learner.lmbdaU = lmbda
+            learner.lmbdaV = lmbda
             U, V = learner.initUV(X)
             paramList.append((X, learner, U.copy(), V.copy()))
 
