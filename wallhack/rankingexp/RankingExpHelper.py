@@ -426,7 +426,9 @@ class RankingExpHelper(object):
                     learner.ks = self.algoArgs.ks 
                     learner.lmbdas = self.algoArgs.lmbdasMlauc
                     learner.loss = self.algoArgs.loss
-                    learner.maxIterations = self.algoArgs.maxIterations  
+                    learner.maxIterations = self.algoArgs.maxIterations 
+                    if self.algoArgs.loss in ["hinge", "square" "tanh"]: 
+                        learner.maxNorm = 1/numpy.sqrt(2)
                     learner.metric = self.algoArgs.metric 
                     learner.normalise = self.algoArgs.normalise
                     learner.numAucSamples = self.algoArgs.numAucSamples
