@@ -15,6 +15,7 @@ dataArgs = argparse.Namespace()
 # Arguments related to the algorithm
 defaultAlgoArgs = argparse.Namespace()
 defaultAlgoArgs.ks = numpy.array([64])
+defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(-6, 3)
 defaultAlgoArgs.recordFolds = 1
 
 # data args parser #
