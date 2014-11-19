@@ -73,6 +73,7 @@ maxLocalAuc.ks = numpy.array([k2])
 maxLocalAuc.lmbdas = 2.0**-numpy.arange(-5, 6, 3)
 maxLocalAuc.loss = "hinge"
 maxLocalAuc.maxIterations = 100
+maxLocalAuc.maxNorm = numpy.sqrt(0.5)
 maxLocalAuc.metric = "f1"
 maxLocalAuc.normalise = True
 maxLocalAuc.numAucSamples = 10
