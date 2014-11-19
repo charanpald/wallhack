@@ -18,10 +18,10 @@ y3 = numpy.zeros(n)
 y4 = numpy.zeros(n)
 
 for i in range(n): 
-    y1[i] = max(0, 1-x[i])**2
-    y2[i] = (1-x[i])**2
-    y3[i] = 1/(1+exp(-beta*x[i]))
-    y4[i] = log(1/(1+exp(-beta*x[i])))
+    y1[i] = 0.5*max(0, 1-x[i])**2
+    y2[i] = 0.5*(1-x[i])**2
+    y3[i] = -1/(1+exp(-beta*x[i]))
+    y4[i] = -log(1/(1+exp(-beta*x[i])))
     
 
 plt.plot(x, y1, "k-", label="hinge")
@@ -30,7 +30,8 @@ plt.plot(x, y3, "k-.", label="sigmoid")
 plt.plot(x, y4, "k:", label="logistic")
 plt.xlabel("x")
 plt.ylabel("L(x)")
-plt.legend(loc="lower right")
+plt.legend(loc="upper right")
+plt.ylim(-1.1,6)
 
 plt.show()
     
