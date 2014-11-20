@@ -94,9 +94,9 @@ if saveResults:
     paramList = []
     chunkSize = 1
     
-    trainObjs = numpy.zeros((maxLocalAuc.ks.shape[0], folds))
-    testObjs = numpy.zeros((maxLocalAuc.ks.shape[0], folds))
-    bounds = numpy.zeros((maxLocalAuc.ks.shape[0], folds))    
+    trainObjs = numpy.zeros((maxLocalAuc.lmbdas.shape[0], folds))
+    testObjs = numpy.zeros((maxLocalAuc.lmbdas.shape[0], folds))
+    bounds = numpy.zeros((maxLocalAuc.lmbdas.shape[0], folds))    
     
     for i in range(folds):
         for lmbda in maxLocalAuc.lmbdas: 
