@@ -20,7 +20,7 @@ numpy.seterr(all="raise")
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "synthetic2"
+    dataset = "movielens"
 
 saveResults = True
 prefix = "Rademacher"
@@ -115,7 +115,7 @@ if saveResults:
     i = 0    
     
     for i in range(folds):
-        for j, k in enumerate(maxLocalAuc.ks): 
+        for j, lmbda in enumerate(maxLocalAuc.lmbdas): 
             trainObj, bound, testObj = resultsIterator.next() 
             trainObjs[j, i] = trainObj 
             bounds[j, i] = bound 
@@ -148,10 +148,13 @@ else:
     plt.figure(0)
     plt.plot(trainObjs*2, label="train obj")
     plt.plot(testObjs*2, label="test obj")
+    plt.legend()    
+    
+    plt.figure(1)
     plt.plot(diffObjs*2, label="diff obj")
     plt.legend()
     
-    plt.figure(1)
+    plt.figure(2)
     plt.plot(bounds, label="bound")
     plt.legend()
     plt.show()
