@@ -51,6 +51,8 @@ m, n = X.shape
 u = 0.1 
 w = 1-u
 
+logging.debug("Sampled X shape: " + str(X.shape))
+
 testSize = 5
 folds = 5
 trainTestXs = Sampling.shuffleSplitRows(X, folds, testSize)
