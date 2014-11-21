@@ -2,6 +2,7 @@ import numpy
 import logging
 import sys
 import argparse 
+from sandbox.util.Sampling import Sampling 
 from wallhack.rankingexp.RankingExpHelper import RankingExpHelper
 from wallhack.rankingexp.DatasetUtils import DatasetUtils
 
@@ -33,7 +34,9 @@ if dataArgs.help:
 #Create/load a low rank matrix 
 X = DatasetUtils.epinions(minNnzRows=10)
 (m, n) = X.shape
+X, userInds = Sampling.sampleUsers2(X, 10000) 
 
+print(X.shape, X.nnz)
 
 dataArgs.extendedDirName = ""
 dataArgs.extendedDirName += "Epinions"
