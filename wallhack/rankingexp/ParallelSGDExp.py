@@ -6,6 +6,7 @@ from sandbox.recommendation.MaxLocalAUC import MaxLocalAUC
 from wallhack.rankingexp.DatasetUtils import DatasetUtils
 from sandbox.util.PathDefaults import PathDefaults 
 from sandbox.util.Sampling import Sampling 
+from sandbox.util.Latex import Latex 
 
 """
 Compare parallel versus non-parallel SGD 
@@ -22,7 +23,7 @@ if len(sys.argv) > 1:
 else: 
     dataset = "synthetic"
 
-saveResults = True
+saveResults = False
 prefix = "ParallelSGD"
 outputFile = PathDefaults.getOutputDir() + "ranking/" + prefix + dataset.title() + ".npz" 
 
@@ -120,6 +121,9 @@ else:
     data = numpy.load(outputFile)
     objectivesArray, timesArray = data["arr_0"], data["arr_1"] 
     import matplotlib.pyplot as plt       
+    
+    print(Latex.array1DToRow(objectivesArray[:, -1]))
+    print(Latex.array1DToRow(timesArray[:, -1], precision=1))
     
     for i in range(len(numCPUs)+1): 
         if i==0: 
