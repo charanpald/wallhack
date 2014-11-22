@@ -34,7 +34,7 @@ if dataArgs.help:
 #Create/load a low rank matrix 
 X = DatasetUtils.epinions(minNnzRows=10)
 (m, n) = X.shape
-X, userInds = Sampling.sampleUsers2(X, 10000) 
+#X, userInds = Sampling.sampleUsers2(X, 10000) 
 
 print(X.shape, X.nnz)
 
