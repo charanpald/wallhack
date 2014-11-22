@@ -26,7 +26,7 @@ numpy.seterr(all="raise")
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "synthetic"
+    dataset = "epinions"
 
 saveResults = True
 prefix = "Regularisation"
@@ -247,3 +247,7 @@ else:
     plt.legend(loc="lower right")
     
     plt.show()
+
+
+#Results are best with maxNorm=0.5 or 1.0 (lower might improve further)
+#SI is still best on Epinions, Synthetic 
