@@ -23,7 +23,7 @@ if len(sys.argv) > 1:
 else: 
     dataset = "synthetic"
 
-saveResults = False
+saveResults = True
 prefix = "ParallelSGD"
 outputFile = PathDefaults.getOutputDir() + "ranking/" + prefix + dataset.title() + ".npz" 
 
@@ -49,7 +49,7 @@ w = 1-u
 k = 8
 u = 5/float(n)
 w = 1-u
-eps = 10**-8
+eps = 10**-12
 lmbda = 10**-3
 maxLocalAuc = MaxLocalAUC(k, w, eps=eps, lmbdaV=lmbda, stochastic=True)
 maxLocalAuc.alpha = 0.1
@@ -63,7 +63,7 @@ maxLocalAuc.loss = "hinge"
 maxLocalAuc.lmbdas = numpy.linspace(0.5, 2.0, 7)
 maxLocalAuc.lmbdaU = 0.1
 maxLocalAuc.lmbdaV = 0.1
-maxLocalAuc.maxIterations = 100
+maxLocalAuc.maxIterations = 500
 maxLocalAuc.metric = "f1"
 maxLocalAuc.normalise = True
 maxLocalAuc.numAucSamples = 10
@@ -71,7 +71,7 @@ maxLocalAuc.numProcesses = 8
 maxLocalAuc.numRecordAucSamples = 100
 maxLocalAuc.numRowSamples = 30
 maxLocalAuc.parallelSGD = True
-maxLocalAuc.parallelStep = 1
+maxLocalAuc.parallelStep = 5
 maxLocalAuc.rate = "constant"
 maxLocalAuc.recordStep = 5
 maxLocalAuc.rho = 0.0
