@@ -15,7 +15,7 @@ dataArgs = argparse.Namespace()
 # Arguments related to the algorithm
 defaultAlgoArgs = argparse.Namespace()
 defaultAlgoArgs.ks = numpy.array([64])
-defaultAlgoArgs.parallelSGD = True
+#defaultAlgoArgs.parallelSGD = True
 defaultAlgoArgs.recordFolds = 1
 defaultAlgoArgs.numRowSamples = 10
 defaultAlgoArgs.alphas = 2.0**-numpy.arange(1, 6)
