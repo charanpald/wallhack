@@ -23,7 +23,7 @@ numpy.seterr(all="raise")
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "movielens"
+    dataset = "synthetic"
 
 saveResults = True
 prefix = "LossROC"
@@ -56,7 +56,7 @@ k2 = 8
 u2 = 0.5
 w2 = 1-u2
 eps = 10**-4
-lmbda = 0.01
+lmbda = 0.0
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbdaU=lmbda, lmbdaV=lmbda, stochastic=True)
 maxLocalAuc.alpha = 0.1
 maxLocalAuc.alphas = 2.0**-numpy.arange(0, 5, 1)
@@ -158,10 +158,36 @@ else:
     matplotlib.use("GTK3Agg")
     import matplotlib.pyplot as plt   
     
-    plotInds = ["k-", "k--", "k-.", "r-", "b-", "c-", "c--", "c-.", "g-", "g--", "g-."]
+    #plotInds = ["k-", "k--", "k-.", "r-", "b-", "c-", "c--", "c-.", "g-", "g--", "g-."]
+    plotInds = ["k-", "k--", "k-.", "k:", "r-"]
+    ind = 0 
+    
+    #Figure out which losses to output   
+    tanhMax = 0 
+    sigmoidMax = 0 
+    logisticMax = 0
     
     for i, lossTuple in enumerate(losses):
         loss, rho = lossTuple
+        if loss == "tanh" and meanTprTrain[i, meanFprTrain[i, :]<=0.2][-1] > tanhMax:
+            tanhMax = meanTprTrain[i, meanFprTrain[i, :]<=0.2][-1]
+            tanhMaxRho = rho
+        if loss == "sigmoid" and meanTprTrain[i, meanFprTrain[i, :]<=0.2][-1] > sigmoidMax:
+            sigmoidMax = meanTprTrain[i, meanFprTrain[i, :]<=0.2][-1]
+            sigmoidMaxRho = rho
+        if loss == "logistic" and meanTprTrain[i, meanFprTrain[i, :]<=0.2][-1] > logisticMax:
+            logisticMax = meanTprTrain[i, meanFprTrain[i, :]<=0.2][-1]
+            logisticMaxRho = rho
+    
+    for i, lossTuple in enumerate(losses):
+        loss, rho = lossTuple
+        
+        if loss == "tanh" and tanhMaxRho != rho: 
+            continue
+        if loss == "sigmoid" and sigmoidMaxRho != rho: 
+            continue
+        if loss == "logistic" and logisticMaxRho != rho: 
+            continue
         
         if loss == "tanh": 
             label=loss + r" $\rho=$" + str(rho)
@@ -169,24 +195,26 @@ else:
             label=loss + r" $\beta=$" + str(rho)
         else: 
             label = loss 
-        
+  
         fprTrainStart =   meanFprTrain[i, meanFprTrain[i, :]<=0.2]   
         tprTrainStart =   meanTprTrain[i, meanFprTrain[i, :]<=0.2]   
         
         plt.figure(0)
-        plt.plot(fprTrainStart, tprTrainStart, plotInds[i], label=label)
+        plt.plot(fprTrainStart, tprTrainStart, plotInds[ind], label=label)
         
         plt.figure(1)
-        plt.plot(meanFprTrain[i, :], meanTprTrain[i, :], plotInds[i], label=label)
+        plt.plot(meanFprTrain[i, :], meanTprTrain[i, :], plotInds[ind], label=label)
         
         fprTestStart =   meanFprTest[i, meanFprTest[i, :]<=0.2]   
         tprTestStart =   meanTprTest[i, meanFprTest[i, :]<=0.2]         
         
         plt.figure(2)    
-        plt.plot(fprTestStart, tprTestStart, plotInds[i], label=label)            
+        plt.plot(fprTestStart, tprTestStart, plotInds[ind], label=label)            
         
         plt.figure(3)    
-        plt.plot(meanFprTest[i, :], meanTprTest[i, :], plotInds[i], label=label)    
+        plt.plot(meanFprTest[i, :], meanTprTest[i, :], plotInds[ind], label=label)    
+        
+        ind += 1
     
     plt.figure(0)
     plt.xlabel("false positive rate")
