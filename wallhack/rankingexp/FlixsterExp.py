@@ -20,6 +20,7 @@ defaultAlgoArgs.recordFolds = 1
 defaultAlgoArgs.numRowSamples = 10
 defaultAlgoArgs.alphas = 2.0**-numpy.arange(1, 6)
 defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(2, 8)
+defaultAlgoArgs.folds = 1
 
 # data args parser #
 dataParser = argparse.ArgumentParser(description="", add_help=False)
