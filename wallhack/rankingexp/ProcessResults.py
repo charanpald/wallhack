@@ -110,12 +110,14 @@ for dirName in dirNames:
     #Restrict output to precision, recall and AUC 
     colInds = [0, 1, 2, 3, 4, 5, 13] 
     
+    firstCol = ["" for x in names]
+    
     print("")
     print("-"*20 + "Train metrics" + "-"*20)
     print("\t" + Latex.listToRow(colNames))
-    print(Latex.addRowNames(names, Latex.array2DToRows(trainResultsTable[:, colInds], precision=precision)))
+    print(Latex.addRowNames(firstCol, Latex.addRowNames(names, Latex.array2DToRows(trainResultsTable[:, colInds], precision=precision)))) 
     
     
     print("-"*20 + "Test metrics" + "-"*20)
     print("\t" +  Latex.listToRow(colNames))
-    print(Latex.addRowNames(names, Latex.array2DToRows(testResultsTable[:, colInds], precision=precision)))
+    print(Latex.addRowNames(firstCol,Latex.addRowNames(names, Latex.array2DToRows(testResultsTable[:, colInds], precision=precision))))
