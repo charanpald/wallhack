@@ -63,7 +63,7 @@ maxLocalAuc.loss = "hinge"
 maxLocalAuc.lmbdas = numpy.linspace(0.5, 2.0, 7)
 maxLocalAuc.lmbdaU = 0.1
 maxLocalAuc.lmbdaV = 0.1
-maxLocalAuc.maxIterations = 500
+maxLocalAuc.maxIterations = 100
 maxLocalAuc.metric = "f1"
 maxLocalAuc.normalise = True
 maxLocalAuc.numAucSamples = 10
@@ -89,8 +89,10 @@ if saveResults:
     logging.debug("Starting training")
     logging.debug(maxLocalAuc)
     
+    
     objectivesArray = numpy.zeros((len(numCPUs)+1, maxLocalAuc.maxIterations/maxLocalAuc.recordStep+1, folds))
     timesArray = numpy.zeros((len(numCPUs)+1, maxLocalAuc.maxIterations/maxLocalAuc.recordStep+1, folds))
+    iterationsArray = numpy.zeros((len(numCPUs)+1, maxLocalAuc.maxIterations/maxLocalAuc.recordStep+1, folds))
     
     for ind in range(folds): 
         #Non parallel version 
@@ -100,6 +102,7 @@ if saveResults:
         
         objectivesArray[0, :, ind] = trainMeasures[:, 0]
         timesArray[0, :, ind] = trainMeasures[:, 2]
+        iterationsArray[0, :, ind] = trainMeasures[:, 3]
         
         #Second is parallel version 
         maxLocalAuc.parallelSGD = True 
@@ -108,18 +111,22 @@ if saveResults:
             maxLocalAuc.numProcesses = j
             U, V, trainMeasures, testMeasures, iterations, totalTime = maxLocalAuc.learnModel(X, U=initU, V=initV, verbose=True)  
             
-            objectivesArray[i+1, :, ind] = trainMeasures[:, 0]
-            timesArray[i+1, :, ind] = trainMeasures[:, 2]
+            #Sometimes there are fewer iterations for parallel SGD 
+            numSteps = trainMeasures.shape[0]
+            objectivesArray[i+1, 0:numSteps, ind] = trainMeasures[:, 0]
+            timesArray[i+1, 0:numSteps, ind] = trainMeasures[:, 2]
+            iterationsArray[i+1, 0:numSteps, ind] = trainMeasures[:, 3]
         
     objectivesArray = numpy.mean(objectivesArray, 2)
     timesArray = numpy.mean(timesArray, 2)
+    iterationsArray = numpy.mean(iterationsArray, 2)
 
-    numpy.savez(outputFile, objectivesArray, timesArray)
+    numpy.savez(outputFile, objectivesArray, timesArray, iterationsArray)
     
     logging.debug("Saved results in " + outputFile) 
 else: 
     data = numpy.load(outputFile)
-    objectivesArray, timesArray = data["arr_0"], data["arr_1"] 
+    objectivesArray, timesArray, iterationsArray = data["arr_0"], data["arr_1"], data["arr_2"] 
     import matplotlib.pyplot as plt       
     
     print(Latex.array1DToRow(objectivesArray[:, -1]))
@@ -133,15 +140,17 @@ else:
         
         plotInds = ["k-", "k--", "k-.", "k:"]            
         
+        maxInd = numpy.argmax(iterationsArray[i, :])+1
+        
         plt.figure(0)
-        plt.plot(numpy.arange(0, maxLocalAuc.maxIterations+1, maxLocalAuc.recordStep), objectivesArray[i, :], plotInds[i], label=label)
+        plt.plot(iterationsArray[i, 0:maxInd], objectivesArray[i, 0:maxInd], plotInds[i], label=label)
         plt.ylabel("objective")
         plt.xlabel("iteration")
         plt.legend()
     
     
         plt.figure(1)
-        plt.plot(timesArray[i, :], objectivesArray[i, :], plotInds[i], label=label)
+        plt.plot(timesArray[i, 0:maxInd], objectivesArray[i, 0:maxInd], plotInds[i], label=label)
         plt.xlabel("time(s)")
         plt.ylabel("objective")
         plt.legend()
