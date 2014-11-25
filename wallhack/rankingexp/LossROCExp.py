@@ -84,7 +84,7 @@ maxLocalAuc.validationUsers = 0
 os.system('taskset -p 0xffffffff %d' % os.getpid())
 
 logging.debug("Starting training")
-losses = [("tanh", 0.5), ("tanh", 1.0), ("tanh", 2.0), ("hinge", 1), ("square", 1), ("logistic", 0.5), ("logistic", 1.0), ("logistic", 2.0), ("sigmoid", 0.5), ("sigmoid", 1.0), ("sigmoid", 2.0)]
+losses = [("tanh", 0.25), ("tanh", 0.5), ("tanh", 1.0), ("tanh", 2.0), ("hinge", 1), ("square", 1), ("logistic", 0.5), ("logistic", 1.0), ("logistic", 2.0), ("sigmoid", 0.5), ("sigmoid", 1.0), ("sigmoid", 2.0)]
 
 def computeTestAuc(args): 
     trainX, testX, maxLocalAuc, U, V  = args 
