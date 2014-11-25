@@ -380,9 +380,7 @@ class RankingExpHelper(object):
                     learner.recommendSize = self.algoArgs.recommendSize
                     learner.validationSize = self.algoArgs.validationSize
                     
-                    if self.algoArgs.modelSelect: 
-                        logging.debug("Performing model selection, taking subsample of entries of size " + str(self.sampleSize))
-                        
+                    if self.algoArgs.modelSelect:                         
                         cvInds = Sampling.randCrossValidation(self.algoArgs.folds, modelSelectX.nnz)
                         meanErrors, stdErrors = learner.modelSelect2(modelSelectX, self.algoArgs.rhosSi, self.algoArgs.ks, cvInds)
                         
