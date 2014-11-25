@@ -18,7 +18,7 @@ We look at the ROC curves for the different objective functions
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 numpy.random.seed(21)        
 numpy.set_printoptions(precision=4, suppress=True, linewidth=150)
-numpy.seterr(all="raise")
+#numpy.seterr(all="raise")
 
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
