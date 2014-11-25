@@ -370,7 +370,7 @@ class RankingExpHelper(object):
             if not (fileLock.isLocked() or fileLock.fileExists()) or self.algoArgs.overwrite:
                 fileLock.lock()
                 logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
-                modelSelectX, userInds = Sampling.sampleUsers2(trainXScipy, self.algoArgs.modelSelectSamples)
+                modelSelectX, userInds = Sampling.sampleUsers2(trainXScipy, self.algoArgs.modelSelectSamples, prune=True)
                                 
                 try: 
                     learner = IterativeSoftImpute(self.algoArgs.rhoSi, eps=self.algoArgs.epsSi, k=self.algoArgs.k, svdAlg=self.algoArgs.svdAlg, postProcess=self.algoArgs.postProcess, p=self.algoArgs.pSi, q=self.algoArgs.qSi)
@@ -457,7 +457,7 @@ class RankingExpHelper(object):
                     
                     if self.algoArgs.modelSelect: 
                         logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
-                        modelSelectX, userInds = Sampling.sampleUsers2(trainX, self.algoArgs.modelSelectSamples)
+                        modelSelectX, userInds = Sampling.sampleUsers2(trainX, self.algoArgs.modelSelectSamples, prune=True)
                         
                         meanAucs, stdAucs = learner.modelSelect(modelSelectX)
                         #meanAucs, stdAucs = learner.modelSelectRandom(modelSelectX)
@@ -495,8 +495,7 @@ class RankingExpHelper(object):
                                         
                     if self.algoArgs.modelSelect: 
                         logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
-                        logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
-                        modelSelectX, userInds = Sampling.sampleUsers2(trainXScipy, self.algoArgs.modelSelectSamples)
+                        modelSelectX, userInds = Sampling.sampleUsers2(trainX, self.algoArgs.modelSelectSamples, prune=True)
                         
                         meanAucs, stdAucs = learner.modelSelect(modelSelectX)
                         
@@ -540,7 +539,7 @@ class RankingExpHelper(object):
                     
                     if self.algoArgs.modelSelect: 
                         logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
-                        modelSelectX, userInds = Sampling.sampleUsers2(trainXScipy, self.algoArgs.modelSelectSamples)
+                        modelSelectX, userInds = Sampling.sampleUsers2(trainX, self.algoArgs.modelSelectSamples, prune=True)
                         
                         meanAucs, stdAucs = learner.modelSelect(modelSelectX)
                         
@@ -585,7 +584,7 @@ class RankingExpHelper(object):
                     
                     if self.algoArgs.modelSelect: 
                         logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
-                        modelSelectX, userInds = Sampling.sampleUsers2(trainX, self.algoArgs.modelSelectSamples)
+                        modelSelectX, userInds = Sampling.sampleUsers2(trainX, self.algoArgs.modelSelectSamples, prune=True)
                         
                         meanAucs, stdAucs = learner.modelSelect(modelSelectX)
                         
@@ -637,7 +636,7 @@ class RankingExpHelper(object):
                 
                 try: 
                     logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
-                    modelSelectX, userInds = Sampling.sampleUsers2(trainX, self.algoArgs.modelSelectSamples)
+                    modelSelectX, userInds = Sampling.sampleUsers2(trainX, self.algoArgs.modelSelectSamples, prune=True)
                     modelSelectX = scipy.sparse.csr_matrix(modelSelectX.toScipyCsr(), dtype=numpy.float64)
                     trainX = scipy.sparse.csr_matrix(trainX.toScipyCsr(), dtype=numpy.float64)
                     testX = testX.toScipyCsr()
