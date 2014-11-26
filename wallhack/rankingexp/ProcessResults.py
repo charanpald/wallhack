@@ -18,7 +18,7 @@ dirNames = ["SyntheticDataset1", "SyntheticDataset2", "MovieLens", "Epinions", "
 verbose = False
 generateRecommendations = False
 
-precision = 4
+precision = 3
 rhos = [0.5, 1.0, 2.0, 5.0]
 losses = ["hinge", "square", "sigmoid", "logistic", "tanh"]
 algs = ["SoftImpute", "WrMf"]
@@ -28,10 +28,10 @@ for loss in losses:
     if loss == "tanh": 
         for rho in rhos: 
             algs.append("MaxLocalAUC_loss=" + loss + "_rho=" + str(rho))
-            names.append("MAUC " + (loss+ " " + "$\\rho=" + str(rho) + "$").ljust(10) + "\t") 
+            names.append("MFAUC " + (loss+ " " + "$\\rho=" + str(rho) + "$").ljust(10) + "\t") 
     else:         
         algs.append("MaxLocalAUC_loss=" + loss)
-        names.append("MAUC " + loss.ljust(10) + "\t") 
+        names.append("MFAUC " + loss.ljust(10) + "\t") 
 
 for dirName in dirNames:
     resultsDir = PathDefaults.getOutputDir() + "ranking/" + dirName + "/"
