@@ -20,7 +20,7 @@ defaultAlgoArgs.ks = numpy.array([64])
 defaultAlgoArgs.recordFolds = 1
 defaultAlgoArgs.numRowSamples = 10
 defaultAlgoArgs.alphas = 2.0**-numpy.arange(2, 7)
-defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(2, 7)
+defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(0, 6)
 defaultAlgoArgs.folds = 1
 
 # data args parser #
