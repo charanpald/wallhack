@@ -17,8 +17,8 @@ defaultAlgoArgs.ks = numpy.array([64])
 #defaultAlgoArgs.parallelSGD = True
 defaultAlgoArgs.recordFolds = 1
 defaultAlgoArgs.numRowSamples = 10
-defaultAlgoArgs.alphas = 2.0**-numpy.arange(1, 6)
-defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(2, 8)
+defaultAlgoArgs.alphas = 2.0**-numpy.arange(2, 7)
+defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(2, 7)
 defaultAlgoArgs.folds = 1
 
 # data args parser #
