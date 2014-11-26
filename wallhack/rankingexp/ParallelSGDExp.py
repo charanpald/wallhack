@@ -63,7 +63,7 @@ maxLocalAuc.loss = "hinge"
 maxLocalAuc.lmbdas = numpy.linspace(0.5, 2.0, 7)
 maxLocalAuc.lmbdaU = 0.1
 maxLocalAuc.lmbdaV = 0.1
-maxLocalAuc.maxIterations = 300
+maxLocalAuc.maxIterations = 500
 maxLocalAuc.metric = "f1"
 maxLocalAuc.normalise = True
 maxLocalAuc.numAucSamples = 10
@@ -117,9 +117,9 @@ if saveResults:
             timesArray[i+1, 0:numSteps, ind] = trainMeasures[:, 2]
             iterationsArray[i+1, 0:numSteps, ind] = trainMeasures[:, 3]
         
-    objectivesArray = numpy.mean(objectivesArray, 2)
-    timesArray = numpy.mean(timesArray, 2)
-    iterationsArray = numpy.mean(iterationsArray, 2)
+    #objectivesArray = numpy.mean(objectivesArray, 2)
+    #timesArray = numpy.mean(timesArray, 2)
+    #iterationsArray = numpy.mean(iterationsArray, 2)
 
     numpy.savez(outputFile, objectivesArray, timesArray, iterationsArray)
     
@@ -127,7 +127,9 @@ if saveResults:
 else: 
     data = numpy.load(outputFile)
     objectivesArray, timesArray, iterationsArray = data["arr_0"], data["arr_1"], data["arr_2"] 
-    import matplotlib.pyplot as plt       
+    import matplotlib.pyplot as plt   
+
+    #Have to use scipy interpolate here     
     
     print(Latex.array1DToRow(objectivesArray[:, -1]))
     print(Latex.array1DToRow(timesArray[:, -1], precision=1))
