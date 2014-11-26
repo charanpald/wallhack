@@ -58,7 +58,7 @@ w2 = 1-u2
 eps = 10**-4
 lmbda = 0.0
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbdaU=lmbda, lmbdaV=lmbda, stochastic=True)
-maxLocalAuc.alpha = 0.1
+maxLocalAuc.alpha = 0.05
 maxLocalAuc.alphas = 2.0**-numpy.arange(0, 5, 1)
 maxLocalAuc.folds = 1
 maxLocalAuc.initialAlg = "rand"
@@ -91,7 +91,7 @@ def computeTestAuc(args):
     numpy.random.seed(21)
     logging.debug(maxLocalAuc)
     
-    maxLocalAuc.learningRateSelect(trainX)
+    #maxLocalAuc.learningRateSelect(trainX)
     U, V, trainMeasures, testMeasures, iterations, time = maxLocalAuc.learnModel(trainX, U=U, V=V, verbose=True)
     
     fprTrain, tprTrain = MCEvaluator.averageRocCurve(trainX, U, V)
