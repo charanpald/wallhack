@@ -21,7 +21,7 @@ numpy.seterr(all="raise")
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "synthetic"
+    dataset = "synthetic2"
 
 saveResults = True
 prefix = "ParallelSGD"
@@ -52,7 +52,7 @@ w = 1-u
 eps = 10**-12
 lmbda = 10**-3
 maxLocalAuc = MaxLocalAUC(k, w, eps=eps, lmbdaV=lmbda, stochastic=True)
-maxLocalAuc.alpha = 0.1
+maxLocalAuc.alpha = 0.05
 maxLocalAuc.alphas = 2.0**-numpy.arange(0, 5, 1)
 maxLocalAuc.folds = 4
 maxLocalAuc.initialAlg = "rand"
