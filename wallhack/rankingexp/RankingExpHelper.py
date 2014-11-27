@@ -53,6 +53,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.overwrite = False 
     defaultAlgoArgs.processes = multiprocessing.cpu_count()
     defaultAlgoArgs.recordFolds = 5
+    defaultAlgoArgs.skipRecordResults = False 
     defaultAlgoArgs.testSize = 5
     defaultAlgoArgs.u = 0.1
     defaultAlgoArgs.validationSize = 3
@@ -204,6 +205,7 @@ class RankingExpHelper(object):
         algoParser.add_argument("--recordStep", type=int, help="Number of iterations after which we display some partial results (default: %(default)s)", default=defaultAlgoArgs.recordStep)
         algoParser.add_argument("--rhoMlauc", type=float, help="The rho penalty for max local AUC (default: %(default)s)", default=defaultAlgoArgs.rhoMlauc)        
         algoParser.add_argument("--rhosMlauc", type=float, nargs="+", help="The rho penalty for max local AUC model selection (default: %(default)s)", default=defaultAlgoArgs.rhosMlauc)
+        algoParser.add_argument("--skipRecordResults", action="store_true", help="Whether to perform recommendation and save results (default: %(default)s)", default=defaultAlgoArgs.skipRecordResults)        
         algoParser.add_argument("--t0", type=float, help="Learning rate decay for max local AUC (default: %(default)s)", default=defaultAlgoArgs.t0)
         algoParser.add_argument("--u", type=float, help="Focus on top proportion of u items (default: %(default)s)", default=defaultAlgoArgs.u)
         algoParser.add_argument("--validationSize", type=int, help="Number of items to use for validation users (default: %(default)s)", default=defaultAlgoArgs.validationSize)
@@ -235,6 +237,10 @@ class RankingExpHelper(object):
         """
         Save results for a particular recommendation 
         """
+        if self.algoArgs.skipRecordResults: 
+            logging.debug("Skipping final evaluation of algorithm")
+            return 
+        
         allTrainMeasures = [] 
         allTestMeasures = []
         allMetaData = []        
@@ -423,8 +429,6 @@ class RankingExpHelper(object):
                     learner.lmbdas = self.algoArgs.lmbdasMlauc
                     learner.loss = self.algoArgs.loss
                     learner.maxIterations = self.algoArgs.maxIterations 
-                    #if self.algoArgs.loss in ["hinge", "square", "tanh"]: 
-                    #    learner.maxNorm = 1.0/numpy.sqrt(2)
                     learner.metric = self.algoArgs.metric 
                     learner.normalise = self.algoArgs.normalise
                     learner.numAucSamples = self.algoArgs.numAucSamples
@@ -441,28 +445,23 @@ class RankingExpHelper(object):
                     learner.validationSize = self.algoArgs.validationSize
                     learner.validationUsers = self.algoArgs.validationUsers
 
-                    """
-                    if self.algoArgs.learningRateSelect:
-                        logging.debug("Performing learning rate selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
-                        modelSelectX = Sampling.sampleUsers(trainX, self.algoArgs.modelSelectSamples)
-                        logging.debug("Done")
-                        objectives = learner.learningRateSelect(X)        
-                        
-                        rateSelectFileName = resultsFileName.replace("Results", "LearningRateSelect")
-                        numpy.savez(rateSelectFileName, objectives)
-                        logging.debug("Saved learning rate selection grid as " + rateSelectFileName) 
-                    """
+                    modelSelectFileName = resultsFileName.replace("Results", "ModelSelect") 
                     
-                    if self.algoArgs.modelSelect: 
+                    if self.algoArgs.modelSelect and not os.path.isfile(modelSelectFileName): 
                         logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
                         modelSelectX, userInds = Sampling.sampleUsers2(trainX, self.algoArgs.modelSelectSamples, prune=True)
                         
-                        meanAucs, stdAucs = learner.modelSelect(modelSelectX)
-                        #meanAucs, stdAucs = learner.modelSelectRandom(modelSelectX)
+                        meanMetrics, stdMetrics = learner.modelSelect(modelSelectX)
                         
-                        modelSelectFileName = resultsFileName.replace("Results", "ModelSelect") 
-                        numpy.savez(modelSelectFileName, meanAucs, stdAucs)
-                        logging.debug("Saved model selection grid as " + modelSelectFileName)                            
+                        numpy.savez(modelSelectFileName, meanMetrics, stdMetrics)
+                        logging.debug("Saved model selection grid as " + modelSelectFileName)   
+                    elif self.algoArgs.modelSelect: 
+                        data = numpy.load(modelSelectFileName)
+                        logging.debug("Read model selection file " + modelSelectFileName)   
+                        meanMetrics, stdMetrics = data["arr_0"], data["arr_1"] 
+                        
+                        learner.setModelParams(meanMetrics, stdMetrics)
+                                             
                     
                     logging.debug(learner)                
 
