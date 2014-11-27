@@ -462,11 +462,9 @@ class RankingExpHelper(object):
                         
                         learner.setModelParams(meanMetrics, stdMetrics)
                                              
-                    
-                    logging.debug(learner)                
-
                     #Turn on (optionally) parallel SGD only at the final learning stage 
                     learner.parallelSGD = self.algoArgs.parallelSGD
+                    logging.debug(learner) 
 
                     self.recordResults(X, trainX, testX, learner, resultsFileName)
                 finally: 
