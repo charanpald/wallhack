@@ -14,13 +14,14 @@ dataArgs = argparse.Namespace()
 
 # Arguments related to the algorithm
 defaultAlgoArgs = argparse.Namespace()
-defaultAlgoArgs.ks = numpy.array([64])
-#defaultAlgoArgs.parallelSGD = True
-defaultAlgoArgs.recordFolds = 1
-defaultAlgoArgs.numRowSamples = 10
 defaultAlgoArgs.alphas = 2.0**-numpy.arange(2, 7)
-defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(0, 6)
 defaultAlgoArgs.folds = 1
+defaultAlgoArgs.ks = numpy.array([64])
+defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(0, 6)
+defaultAlgoArgs.numRowSamples = 10
+defaultAlgoArgs.parallelSGD = True
+defaultAlgoArgs.recordFolds = 1
+defaultAlgoArgs.validationUsers = 0.1
 
 # data args parser #
 dataParser = argparse.ArgumentParser(description="", add_help=False)
