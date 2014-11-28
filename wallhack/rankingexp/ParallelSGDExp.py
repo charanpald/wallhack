@@ -22,9 +22,9 @@ numpy.seterr(all="raise")
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "synthetic"
+    dataset = "synthetic2"
 
-saveResults = True
+saveResults = False
 prefix = "ParallelSGD"
 outputFile = PathDefaults.getOutputDir() + "ranking/" + prefix + dataset.title() + ".npz" 
 
@@ -72,7 +72,7 @@ maxLocalAuc.numProcesses = 8
 maxLocalAuc.numRecordAucSamples = 100
 maxLocalAuc.numRowSamples = 30
 maxLocalAuc.parallelSGD = True
-maxLocalAuc.parallelStep = 5
+maxLocalAuc.parallelStep = 2
 maxLocalAuc.rate = "constant"
 maxLocalAuc.recordStep = 5
 maxLocalAuc.rho = 0.0
@@ -80,6 +80,7 @@ maxLocalAuc.startAverage = 30
 maxLocalAuc.t0 = 0.1
 maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
 maxLocalAuc.validationSize = 3
+maxLocalAuc.validationUsers = 0.0
 
 os.system('taskset -p 0xffffffff %d' % os.getpid())
 
@@ -139,18 +140,24 @@ else:
         for j in range(folds):
             newIterationsArray[i, :, j] = numpy.arange(0, maxLocalAuc.maxIterations+1, maxLocalAuc.recordStep)            
             
-            f = interpolate.interp1d(iterationsArray[i, :, j], objectivesArray[i, :, j])
-            newObjectivesArray[i, :, j] = f(newIterationsArray[i, :, j])
+            maxInd = numpy.argmax(iterationsArray[i, :, j])+1            
             
-            g = interpolate.interp1d(iterationsArray[i, :, j], timesArray[i, :, j])
+            f = interpolate.interp1d(iterationsArray[i, 0:maxInd, j], objectivesArray[i, 0:maxInd, j])
+            newObjectivesArray[i, :, j] = f(newIterationsArray[i, :, j])
+                        
+            g = interpolate.interp1d(iterationsArray[i, 0:maxInd, j], timesArray[i, 0:maxInd, j])
             newTimesArray[i, :, j] = g(newIterationsArray[i, :, j])
     
     newIterationsArray = numpy.mean(newIterationsArray, 2)    
     newObjectivesArray = numpy.mean(newObjectivesArray, 2)
     newTimesArray = numpy.mean(newTimesArray, 2)
     
+    #print(newIterationsArray[3, :])
+    #print(newObjectivesArray[3, :])
+    #print(newTimesArray[3, :])
+    
     print(Latex.array1DToRow(newObjectivesArray[:, -1]))
-    print(Latex.array1DToRow(newTimesArray[:, -1], precision=1))
+    print(Latex.array1DToRow(numpy.max(newTimesArray, 1), precision=1))
     
     for i in range(len(numCPUs)+1): 
         if i==0: 
@@ -160,15 +167,17 @@ else:
         
         plotInds = ["k-", "k--", "k-.", "k:"]            
         
+        maxInd = numpy.argmax(newIterationsArray[i, :])        
+        
         plt.figure(0)
-        plt.plot(newIterationsArray[i, :], newObjectivesArray[i, :], plotInds[i], label=label)
+        plt.plot(newIterationsArray[i, 0:maxInd], newObjectivesArray[i, 0:maxInd], plotInds[i], label=label)
         plt.ylabel("objective")
         plt.xlabel("iteration")
         plt.legend()
     
     
         plt.figure(1)
-        plt.plot(newIterationsArray[i, :], newObjectivesArray[i, :], plotInds[i], label=label)
+        plt.plot(newTimesArray[i, 0:maxInd], newObjectivesArray[i, 0:maxInd], plotInds[i], label=label)
         plt.xlabel("time(s)")
         plt.ylabel("objective")
         plt.legend()
