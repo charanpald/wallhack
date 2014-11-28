@@ -24,7 +24,7 @@ if len(sys.argv) > 1:
 else: 
     dataset = "synthetic2"
 
-saveResults = False
+saveResults = True
 prefix = "ParallelSGD"
 outputFile = PathDefaults.getOutputDir() + "ranking/" + prefix + dataset.title() + ".npz" 
 
@@ -72,7 +72,7 @@ maxLocalAuc.numProcesses = 8
 maxLocalAuc.numRecordAucSamples = 100
 maxLocalAuc.numRowSamples = 30
 maxLocalAuc.parallelSGD = True
-maxLocalAuc.parallelStep = 2
+maxLocalAuc.parallelStep = 1
 maxLocalAuc.rate = "constant"
 maxLocalAuc.recordStep = 5
 maxLocalAuc.rho = 0.0
