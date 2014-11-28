@@ -2,6 +2,7 @@ import numpy
 import logging
 import sys
 import os
+from scipy import interpolate 
 from sandbox.recommendation.MaxLocalAUC import MaxLocalAUC
 from wallhack.rankingexp.DatasetUtils import DatasetUtils
 from sandbox.util.PathDefaults import PathDefaults 
@@ -21,7 +22,7 @@ numpy.seterr(all="raise")
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "synthetic2"
+    dataset = "synthetic"
 
 saveResults = True
 prefix = "ParallelSGD"
@@ -83,7 +84,7 @@ maxLocalAuc.validationSize = 3
 os.system('taskset -p 0xffffffff %d' % os.getpid())
 
 numCPUs = [2, 4, 8]
-folds = 5
+folds = 3
 
 if saveResults: 
     logging.debug("Starting training")
@@ -129,10 +130,27 @@ else:
     objectivesArray, timesArray, iterationsArray = data["arr_0"], data["arr_1"], data["arr_2"] 
     import matplotlib.pyplot as plt   
 
-    #Have to use scipy interpolate here     
+    newObjectivesArray = numpy.zeros(objectivesArray.shape)
+    newTimesArray = numpy.zeros(timesArray.shape)
+    newIterationsArray = numpy.zeros(iterationsArray.shape)
+
+    #Have to use scipy interpolate here 
+    for i in range(len(numCPUs)+1): 
+        for j in range(folds):
+            newIterationsArray[i, :, j] = numpy.arange(0, maxLocalAuc.maxIterations+1, maxLocalAuc.recordStep)            
+            
+            f = interpolate.interp1d(iterationsArray[i, :, j], objectivesArray[i, :, j])
+            newObjectivesArray[i, :, j] = f(newIterationsArray[i, :, j])
+            
+            g = interpolate.interp1d(iterationsArray[i, :, j], timesArray[i, :, j])
+            newTimesArray[i, :, j] = g(newIterationsArray[i, :, j])
     
-    print(Latex.array1DToRow(objectivesArray[:, -1]))
-    print(Latex.array1DToRow(timesArray[:, -1], precision=1))
+    newIterationsArray = numpy.mean(newIterationsArray, 2)    
+    newObjectivesArray = numpy.mean(newObjectivesArray, 2)
+    newTimesArray = numpy.mean(newTimesArray, 2)
+    
+    print(Latex.array1DToRow(newObjectivesArray[:, -1]))
+    print(Latex.array1DToRow(newTimesArray[:, -1], precision=1))
     
     for i in range(len(numCPUs)+1): 
         if i==0: 
@@ -142,17 +160,15 @@ else:
         
         plotInds = ["k-", "k--", "k-.", "k:"]            
         
-        maxInd = numpy.argmax(iterationsArray[i, :])+1
-        
         plt.figure(0)
-        plt.plot(iterationsArray[i, 0:maxInd], objectivesArray[i, 0:maxInd], plotInds[i], label=label)
+        plt.plot(newIterationsArray[i, :], newObjectivesArray[i, :], plotInds[i], label=label)
         plt.ylabel("objective")
         plt.xlabel("iteration")
         plt.legend()
     
     
         plt.figure(1)
-        plt.plot(timesArray[i, 0:maxInd], objectivesArray[i, 0:maxInd], plotInds[i], label=label)
+        plt.plot(newIterationsArray[i, :], newObjectivesArray[i, :], plotInds[i], label=label)
         plt.xlabel("time(s)")
         plt.ylabel("objective")
         plt.legend()
