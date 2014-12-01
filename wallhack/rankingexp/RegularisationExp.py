@@ -6,7 +6,6 @@ import multiprocessing
 import itertools 
 from sandbox.recommendation.MaxLocalAUC import MaxLocalAUC
 from sandbox.recommendation.IterativeSoftImpute import IterativeSoftImpute
-from sandbox.util.SparseUtils import SparseUtils
 from sandbox.util.MCEvaluator import MCEvaluator
 from sandbox.util.PathDefaults import PathDefaults
 from sandbox.util.Sampling import Sampling
@@ -40,10 +39,10 @@ elif dataset == "movielens":
     X = DatasetUtils.movieLens()
 elif dataset == "epinions": 
     X = DatasetUtils.epinions()
-    X, userInds = Sampling.sampleUsers2(X, 10000)    
+    X, userInds = Sampling.sampleUsers2(X, 10000, prune=True)    
 elif dataset == "flixster": 
     X = DatasetUtils.flixster()
-    X, userInds = Sampling.sampleUsers2(X, 10000)
+    X, userInds = Sampling.sampleUsers2(X, 10000, prune=True)
 else: 
     raise ValueError("Unknown dataset: " + dataset)
 
@@ -65,7 +64,7 @@ w2 = 1-u2
 eps = 10**-8
 lmbda = 0.0
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbdaU=lmbda, lmbdaV=lmbda, stochastic=True)
-maxLocalAuc.alpha = 0.1
+maxLocalAuc.alpha = 0.05
 maxLocalAuc.alphas = 2.0**-numpy.arange(0, 9, 1)
 maxLocalAuc.folds = 1
 maxLocalAuc.initialAlg = "rand"
@@ -74,8 +73,8 @@ maxLocalAuc.itemExpQ = 0.0
 maxLocalAuc.ks = numpy.array([k2])
 maxLocalAuc.lmbdas = 2.0**-numpy.arange(-5, 6, 3)
 maxLocalAuc.loss = "hinge"
-maxLocalAuc.maxIterations = 100
-maxLocalAuc.maxNorm = numpy.sqrt(0.5)
+maxLocalAuc.maxIterations = 500
+maxLocalAuc.maxNorm = 1
 maxLocalAuc.metric = "f1"
 maxLocalAuc.normalise = True
 maxLocalAuc.numAucSamples = 10
@@ -105,7 +104,6 @@ def computeTestAuc(args):
     numpy.random.seed(21)
     logging.debug(maxLocalAuc)
     
-    maxLocalAuc.learningRateSelect(trainX)
     U, V, trainMeasures, testMeasures, iterations, time = maxLocalAuc.learnModel(trainX, U=U, V=V, verbose=True)
     
     fprTrain, tprTrain = MCEvaluator.averageRocCurve(trainX, U, V)
