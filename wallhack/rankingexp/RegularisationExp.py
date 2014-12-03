@@ -42,7 +42,7 @@ elif dataset == "epinions":
     X, userInds = Sampling.sampleUsers2(X, 10000, prune=True)    
 elif dataset == "flixster": 
     X = DatasetUtils.flixster()
-    X, userInds = Sampling.sampleUsers2(X, 10000, prune=True)
+    X, userInds = Sampling.sampleUsers2(X, 50000, prune=True)
 else: 
     raise ValueError("Unknown dataset: " + dataset)
 
@@ -91,7 +91,7 @@ maxLocalAuc.validationUsers = 0
 
 softImpute = IterativeSoftImpute(k=k2, postProcess=True)
 
-maxNorms = 2.0**numpy.arange(-1, 6)
+maxNorms = 2.0**numpy.arange(-3, 4)
 
 #numProcesses = 1
 numProcesses = multiprocessing.cpu_count()
