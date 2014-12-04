@@ -5,8 +5,8 @@ import argparse
 from sandbox.util.Sampling import Sampling 
 from wallhack.rankingexp.DatasetUtils import DatasetUtils 
 from wallhack.rankingexp.RankingExpHelper import RankingExpHelper
-
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+from sandbox.util.Util import Util 
+Util.setupScript()
 
 # Arguments related to the dataset
 dataArgs = argparse.Namespace()

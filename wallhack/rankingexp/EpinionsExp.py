@@ -3,12 +3,11 @@ import logging
 import sys
 import argparse 
 from sandbox.util.Sampling import Sampling 
+from sandbox.util.Util import Util 
 from wallhack.rankingexp.RankingExpHelper import RankingExpHelper
 from wallhack.rankingexp.DatasetUtils import DatasetUtils
 
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
-numpy.random.seed(21)        
-numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
+Util.setupScript()
 
 # Arguments related to the dataset
 dataArgs = argparse.Namespace()

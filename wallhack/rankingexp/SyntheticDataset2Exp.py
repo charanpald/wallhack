@@ -4,10 +4,8 @@ import sys
 import argparse 
 from wallhack.rankingexp.RankingExpHelper import RankingExpHelper
 from wallhack.rankingexp.DatasetUtils import DatasetUtils
-
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
-numpy.random.seed(21)        
-numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
+from sandbox.util.Util import Util 
+Util.setupScript()
 
 #Create a low rank matrix  
 X = DatasetUtils.syntheticDataset2()
