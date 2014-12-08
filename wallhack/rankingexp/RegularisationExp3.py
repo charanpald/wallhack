@@ -37,7 +37,7 @@ u = 0.1
 w = 1-u
 
 testSize = 5
-folds = 5
+folds = 3
 trainTestXs = Sampling.shuffleSplitRows(X, folds, testSize)
 
 numRecordAucSamples = 200
