@@ -29,19 +29,7 @@ else:
 saveResults = True
 prefix = "Regularisation3"
 outputFile = PathDefaults.getOutputDir() + "ranking/" + prefix + dataset.title() + "Results.npz" 
-print(outputFile)
-
-if dataset == "synthetic": 
-    X, U, V = DatasetUtils.syntheticDataset1()
-elif dataset == "synthetic2": 
-    X = DatasetUtils.syntheticDataset2()
-elif dataset == "movielens": 
-    X = DatasetUtils.movieLens()
-elif dataset == "flixster": 
-    X = DatasetUtils.flixster()
-    X, userInds = Sampling.sampleUsers2(X, 50000)
-else: 
-    raise ValueError("Unknown dataset: " + dataset)
+X = DatasetUtils.getDataset(dataset)
 
 m, n = X.shape
 logging.debug(X.shape)
@@ -69,7 +57,7 @@ maxLocalAuc.itemExpQ = 0.0
 maxLocalAuc.ks = numpy.array([k2])
 maxLocalAuc.lmbdas = 2.0**-numpy.arange(0, 6)
 maxLocalAuc.loss = "hinge"
-maxLocalAuc.maxIterations = 100
+maxLocalAuc.maxIterations = 500
 maxLocalAuc.metric = "f1"
 maxLocalAuc.normalise = True
 maxLocalAuc.numAucSamples = 10
@@ -89,7 +77,7 @@ os.system('taskset -p 0xffffffff %d' % os.getpid())
 logging.debug("Starting training")
 
 losses = ["square", "hinge", "sigmoid", "logistic", "tanh"]
-nnzs = [0.5, 1.0]
+nnzs = [0.25, 1.0]
 
 def computeTestAuc(args): 
     modelSelecX, trainX, testX, maxLocalAuc, U, V  = args 

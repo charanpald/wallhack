@@ -30,21 +30,7 @@ else:
 saveResults = True
 prefix = "Regularisation2"
 outputFile = PathDefaults.getOutputDir() + "ranking/" + prefix + dataset.title() + "Results.npz" 
-
-if dataset == "synthetic": 
-    X, U, V = DatasetUtils.syntheticDataset1()
-elif dataset == "synthetic2": 
-    X = DatasetUtils.syntheticDataset2()
-elif dataset == "movielens": 
-    X = DatasetUtils.movieLens()
-elif dataset == "epinions": 
-    X = DatasetUtils.epinions()
-    X, userInds = Sampling.sampleUsers2(X, 10000, prune=True)    
-elif dataset == "flixster": 
-    X = DatasetUtils.flixster()
-    X, userInds = Sampling.sampleUsers2(X, 50000, prune=True)
-else: 
-    raise ValueError("Unknown dataset: " + dataset)
+X = DatasetUtils.getDataset(dataset)
 
 m, n = X.shape
 u = 0.1 
