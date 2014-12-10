@@ -9,6 +9,8 @@ from sandbox.util.MCEvaluator import MCEvaluator
 from sandbox.util.PathDefaults import PathDefaults
 from sandbox.util.Sampling import Sampling
 from wallhack.rankingexp.DatasetUtils import DatasetUtils
+from sandbox.util.Util import Util 
+Util.setupScript()
 
 """
 We look at the ROC curves on the test set using the regularisation parameters 
@@ -16,17 +18,12 @@ chosen on a training set versus full set.
 """
 
 
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
-numpy.random.seed(21)        
-numpy.set_printoptions(precision=4, suppress=True, linewidth=150)
-numpy.seterr(all="raise")
-
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
     dataset = "synthetic"
 
-saveResults = True
+saveResults = False
 prefix = "Regularisation3"
 outputFile = PathDefaults.getOutputDir() + "ranking/" + prefix + dataset.title() + "Results.npz" 
 X = DatasetUtils.getDataset(dataset)

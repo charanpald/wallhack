@@ -10,17 +10,13 @@ from sandbox.util.MCEvaluator import MCEvaluator
 from sandbox.util.PathDefaults import PathDefaults
 from sandbox.util.Sampling import Sampling
 from wallhack.rankingexp.DatasetUtils import DatasetUtils
+from sandbox.util.Util import Util 
+Util.setupScript()
 
 """
 We look at the ROC curves on the test set for different values of maxNorm. We want 
 to find why on epinions, the learning overfits so vary lambdaU and lambdaV  
 """
-
-
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
-numpy.random.seed(21)        
-numpy.set_printoptions(precision=4, suppress=True, linewidth=150)
-numpy.seterr(all="raise")
 
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
