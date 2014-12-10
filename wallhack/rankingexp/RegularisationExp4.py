@@ -41,7 +41,7 @@ maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.itemExpP = 0.0
 maxLocalAuc.itemExpQ = 0.0
 maxLocalAuc.ks = numpy.array([k2])
-maxLocalAuc.lmbdas = 2.0**-numpy.arange(0, 6)
+maxLocalAuc.lmbdas = 2.0**-numpy.arange(0, 8)
 maxLocalAuc.loss = "hinge"
 maxLocalAuc.maxIterations = 500
 maxLocalAuc.metric = "f1"
@@ -70,25 +70,34 @@ if saveResults:
 else: 
     data = numpy.load(outputFile)
     meanObjs1, meanObjs2, meanObjs3 = data["arr_0"], data["arr_1"], data["arr_2"]
+    
+    meanObjs1 = numpy.squeeze(meanObjs1)    
+    meanObjs2 = numpy.squeeze(meanObjs2) 
+    meanObjs3 = numpy.squeeze(meanObjs3) 
+    
+    
     import matplotlib 
     matplotlib.use("GTK3Agg")
     import matplotlib.pyplot as plt 
     plt.figure(0)
-    plt.contourf(numpy.log2(maxLocalAuc.lmbdas), numpy.log2(maxLocalAuc.ks), meanObjs1)
-    plt.xlabel("lambda")
-    plt.ylabel("k")
+    plt.title("X")
+    plt.contourf(numpy.log2(maxLocalAuc.alphas), numpy.log2(maxLocalAuc.lmbdas), meanObjs1)
+    plt.xlabel("alpha")
+    plt.ylabel("lambda")
     plt.colorbar()
     
     plt.figure(1)
-    plt.contourf(numpy.log2(maxLocalAuc.lmbdas), numpy.log2(maxLocalAuc.ks), meanObjs2)
-    plt.xlabel("lambda")
-    plt.ylabel("k")
+    plt.title("trainX")
+    plt.contourf(numpy.log2(maxLocalAuc.alphas), numpy.log2(maxLocalAuc.lmbdas), meanObjs2)
+    plt.xlabel("alpha")
+    plt.ylabel("lambda")
     plt.colorbar()
     
-    plt.figure(2)    
-    plt.contourf(numpy.log2(maxLocalAuc.lmbdas), numpy.log2(maxLocalAuc.ks), meanObjs3)
-    plt.xlabel("lambda")
-    plt.ylabel("k")
+    plt.figure(2) 
+    plt.title("modelSelectX")
+    plt.contourf(numpy.log2(maxLocalAuc.alphas), numpy.log2(maxLocalAuc.lmbdas), meanObjs3)
+    plt.xlabel("alpha")
+    plt.ylabel("lambda")
     plt.colorbar()
     
     plt.show()
