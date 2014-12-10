@@ -1,42 +1,27 @@
 import numpy
 import logging
 import sys
+import multiprocessing 
 from sandbox.recommendation.MaxLocalAUC import MaxLocalAUC
 from sandbox.util.PathDefaults import PathDefaults
 from sandbox.util.Sampling import Sampling
 from wallhack.rankingexp.DatasetUtils import DatasetUtils
+from sandbox.util.Util import Util 
+Util.setupScript()
 
 """
 Script to see if model selection is the same on a subset of rows or elements 
 """
 
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
-#numpy.random.seed(22)        
-#numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
-
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "movielens"
+    dataset = "synthetic"
 
 saveResults = True
-expNum = 5
-
-if dataset == "synthetic": 
-    X, U, V = DatasetUtils.syntheticDataset1()
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp" + str(expNum) + "SyntheticResults.npz" 
-elif dataset == "synthetic2": 
-    X = DatasetUtils.syntheticDataset2()
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp" + str(expNum) + "Synthetic2Results.npz" 
-elif dataset == "movielens": 
-    X = DatasetUtils.movieLens()
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp" + str(expNum) + "MovieLensResults.npz" 
-elif dataset == "flixster": 
-    X = DatasetUtils.flixster()
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp" + str(expNum) + "FlixsterResults.npz"  
-    X = Sampling.sampleUsers(X, 1000)
-else: 
-    raise ValueError("Unknown dataset: " + dataset)
+prefix = "Regularisation4"
+outputFile = PathDefaults.getOutputDir() + "ranking/" + prefix + dataset.title() + "Results.npz" 
+X = DatasetUtils.getDataset(dataset)
 
 testSize = 5
 trainTestXs = Sampling.shuffleSplitRows(X, 1, testSize)
@@ -46,25 +31,34 @@ logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))
 
 u = 0.1
 w = 1-u
-k2 = 16
+k2 = 64
 eps = 10**-6
 maxLocalAuc = MaxLocalAUC(k2, w, eps=eps, stochastic=True)
-maxLocalAuc.maxIterations = 50
-maxLocalAuc.numRowSamples = 30
-maxLocalAuc.numAucSamples = 10
+maxLocalAuc.alpha = 0.1
+maxLocalAuc.alphas = 2.0**-numpy.arange(0, 5, 1)
+maxLocalAuc.folds = 1
 maxLocalAuc.initialAlg = "rand"
+maxLocalAuc.itemExpP = 0.0
+maxLocalAuc.itemExpQ = 0.0
+maxLocalAuc.ks = numpy.array([k2])
+maxLocalAuc.lmbdas = 2.0**-numpy.arange(0, 6)
+maxLocalAuc.loss = "hinge"
+maxLocalAuc.maxIterations = 500
+maxLocalAuc.metric = "f1"
+maxLocalAuc.normalise = True
+maxLocalAuc.numAucSamples = 10
+maxLocalAuc.numProcesses = multiprocessing.cpu_count()
+maxLocalAuc.numRecordAucSamples = 100
+maxLocalAuc.numRowSamples = 30
+maxLocalAuc.rate = "constant"
 maxLocalAuc.recordStep = 10
-maxLocalAuc.rate = "optimal"
-maxLocalAuc.alpha = 1.0
-maxLocalAuc.t0 = 0.1
-maxLocalAuc.lmbdaU = 0.0
-maxLocalAuc.lmbdaV = 1.0
-#maxLocalAuc.numProcesses = 1
-maxLocalAuc.t0s = 2.0**-numpy.arange(0, 8)
-maxLocalAuc.alphas = 2.0**-numpy.arange(1, 5, 0.5)
-maxLocalAuc.folds = 3
+maxLocalAuc.rho = 1.0
+maxLocalAuc.t0 = 1.0
+maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
+maxLocalAuc.validationSize = 3
+maxLocalAuc.validationUsers = 0
 
-newM = X.shape[0]/2
+newM = X.shape[0]/4
 modelSelectX = Sampling.sampleUsers(X, newM)
 
 if saveResults: 
