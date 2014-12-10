@@ -59,7 +59,7 @@ maxLocalAuc.validationSize = 3
 maxLocalAuc.validationUsers = 0
 
 newM = X.shape[0]/4
-modelSelectX = Sampling.sampleUsers(X, newM)
+modelSelectX, userInds = Sampling.sampleUsers(X, newM)
 
 if saveResults: 
     meanObjs1, stdObjs1 = maxLocalAuc.modelSelect(X)
