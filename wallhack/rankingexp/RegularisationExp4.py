@@ -10,7 +10,8 @@ from sandbox.util.Util import Util
 Util.setupScript()
 
 """
-Script to see if model selection is the same on a subset of rows or elements 
+Script to see if model selection is the same on a subset of rows or elements. We 
+use penalties on ||U|| and ||V||. 
 """
 
 if len(sys.argv) > 1:
