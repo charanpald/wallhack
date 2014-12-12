@@ -91,6 +91,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(1, 7)
     defaultAlgoArgs.loss = "square"
     defaultAlgoArgs.maxIterations = 500
+    defaultAlgoArgs.maxNorm = 100
     defaultAlgoArgs.maxNorms = 2.0**numpy.arange(-2, 4)
     defaultAlgoArgs.normalise = True
     defaultAlgoArgs.numAucSamples = 10
@@ -194,6 +195,7 @@ class RankingExpHelper(object):
         algoParser.add_argument("--loss", type=str, help="Loss function for MLAUC (default: %(default)s)", default=defaultAlgoArgs.loss)        
         algoParser.add_argument("--maxIterations", type=int, help="Maximal number of iterations (default: %(default)s)", default=defaultAlgoArgs.maxIterations)
         algoParser.add_argument("--maxIterCLiMF", type=int, help="Maximal number of iterations for CLiMF algorithm (default: %(default)s)", default=defaultAlgoArgs.maxIterCLiMF)
+        algoParser.add_argument("--maxNorm", type=float, help="Regularisation parameters for max local AUC (default: %(default)s)", default=defaultAlgoArgs.maxNorm)    
         algoParser.add_argument("--metric", type=str, help="Validation loss metric (default: %(default)s)", default=defaultAlgoArgs.metric)
         algoParser.add_argument("--modelSelect", action="store_true", help="Whether to do model selection(default: %(default)s)", default=defaultAlgoArgs.modelSelect)
         algoParser.add_argument("--numAucSamples", type=int, help="Number of AUC samples for max local AUC (default: %(default)s)", default=defaultAlgoArgs.numAucSamples)
@@ -430,6 +432,7 @@ class RankingExpHelper(object):
                     learner.lmbdas = self.algoArgs.lmbdasMlauc
                     learner.loss = self.algoArgs.loss
                     learner.maxIterations = self.algoArgs.maxIterations 
+                    learner.maxNorm = self.algoArgs.maxNorm 
                     learner.maxNorms = self.algoArgs.maxNorms 
                     learner.metric = self.algoArgs.metric 
                     learner.normalise = self.algoArgs.normalise
