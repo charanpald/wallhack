@@ -80,7 +80,7 @@ class RankingExpHelper(object):
     
     #Parameters for MlAuc
     defaultAlgoArgs.alpha = 0.5 
-    defaultAlgoArgs.alphas = 2.0**-numpy.arange(0, 9)
+    defaultAlgoArgs.alphas = 2.0**-numpy.arange(1, 5)
     defaultAlgoArgs.epsMlauc = 10**-5    
     defaultAlgoArgs.fullGradient = False
     defaultAlgoArgs.initialAlg = "rand"
@@ -92,7 +92,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.loss = "square"
     defaultAlgoArgs.maxIterations = 500
     defaultAlgoArgs.maxNorm = 100
-    defaultAlgoArgs.maxNorms = 2.0**numpy.arange(-2, 4)
+    defaultAlgoArgs.maxNorms = 2.0**numpy.arange(-2, 2.5, 0.5)
     defaultAlgoArgs.normalise = True
     defaultAlgoArgs.numAucSamples = 10
     defaultAlgoArgs.numRowSamples = 30
@@ -465,7 +465,7 @@ class RankingExpHelper(object):
                         logging.debug("Read model selection file " + modelSelectFileName)   
                         meanMetrics, stdMetrics = data["arr_0"], data["arr_1"] 
                         
-                        learner.setModelParams(meanMetrics, stdMetrics)
+                        learner.setModelParams2(meanMetrics, stdMetrics)
                                              
                     #Turn on (optionally) parallel SGD only at the final learning stage 
                     learner.parallelSGD = self.algoArgs.parallelSGD
