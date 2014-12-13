@@ -15,7 +15,7 @@ Util.setupScript()
 
 """
 We look at the ROC curves on the test set for different values of maxNorm. We want 
-to find why on epinions, the learning overfits so vary lambdaU and lambdaV  
+to find why on epinions, the learning overfits.
 """
 
 if len(sys.argv) > 1:
