@@ -14,14 +14,14 @@ from sandbox.util.Util import Util
 Util.setupScript()
 
 """
-We look at the ROC curves on the test set for different values of maxNorm. We want 
-to find why on epinions, the learning overfits.
+We look at the ROC curves on the test set for different values of lambda. We want 
+to find why on epinions, the learning overfits so vary maxNormU and maxNormV.  
 """
 
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "epinions"
+    dataset = "synthetic"
 
 saveResults = True
 prefix = "Regularisation"
@@ -44,8 +44,7 @@ k2 = 64
 u2 = 0.5
 w2 = 1-u2
 eps = 10**-8
-lmbda = 0.0
-maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbdaU=lmbda, lmbdaV=lmbda, stochastic=True)
+maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps,stochastic=True)
 maxLocalAuc.alpha = 0.05
 maxLocalAuc.alphas = 2.0**-numpy.arange(0, 9, 1)
 maxLocalAuc.folds = 1
@@ -53,10 +52,14 @@ maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.itemExpP = 0.0
 maxLocalAuc.itemExpQ = 0.0
 maxLocalAuc.ks = numpy.array([k2])
-maxLocalAuc.lmbdas = 2.0**-numpy.arange(-5, 6, 3)
+maxLocalAuc.maxNorms = 2.0**numpy.arange(-2, 2)
+maxLocalAuc.maxIterations = 500
+maxLocalAuc.lmbdaU = 0
+maxLocalAuc.lmbdaV = 0
 maxLocalAuc.loss = "hinge"
 maxLocalAuc.maxIterations = 500
-maxLocalAuc.maxNorm = 1
+maxLocalAuc.maxNormU = 100
+maxLocalAuc.maxNormV = 100
 maxLocalAuc.metric = "f1"
 maxLocalAuc.normalise = True
 maxLocalAuc.numAucSamples = 10
@@ -73,9 +76,6 @@ maxLocalAuc.validationUsers = 0
 
 softImpute = IterativeSoftImpute(k=k2, postProcess=True)
 
-maxNorms = 2.0**numpy.arange(-3, 4)
-
-#numProcesses = 1
 numProcesses = multiprocessing.cpu_count()
 os.system('taskset -p 0xffffffff %d' % os.getpid())
 
@@ -86,6 +86,7 @@ def computeTestAuc(args):
     numpy.random.seed(21)
     logging.debug(maxLocalAuc)
     
+    #maxLocalAuc.learningRateSelect(trainX)
     U, V, trainMeasures, testMeasures, iterations, time = maxLocalAuc.learnModel(trainX, U=U, V=V, verbose=True)
     
     fprTrain, tprTrain = MCEvaluator.averageRocCurve(trainX, U, V)
@@ -115,11 +116,13 @@ if saveResults:
     #Now train MaxLocalAUC 
     U, V = maxLocalAuc.initUV(X)
     
-    for maxNorm in maxNorms:  
-        for trainX, testX in trainTestXs: 
-            learner = maxLocalAuc.copy()
-            learner.maxNorm = maxNorm 
-            paramList.append((trainX, testX, learner, U.copy(), V.copy()))
+    for maxNormU in maxLocalAuc.maxNorms: 
+        for maxNormV in maxLocalAuc.maxNorms: 
+            for trainX, testX in trainTestXs: 
+                learner = maxLocalAuc.copy()
+                learner.maxNormU = maxNormU 
+                learner.maxNormV = maxNormV 
+                paramList.append((trainX, testX, learner, U.copy(), V.copy()))
 
     if numProcesses != 1: 
         pool = multiprocessing.Pool(maxtasksperchild=100, processes=multiprocessing.cpu_count())
@@ -132,29 +135,30 @@ if saveResults:
     meanFprTests = []
     meanTprTests = []
     
-    for maxNorm in maxNorms:  
-        fprTrains = [] 
-        tprTrains = [] 
-        fprTests = [] 
-        tprTests = []
-        
-        for trainX, testX in trainTestXs: 
-            fprTrain, tprTrain, fprTest, tprTest = resultsIterator.next()
+    for maxNormU in maxLocalAuc.maxNorms: 
+        for maxNormV in maxLocalAuc.maxNorms: 
+            fprTrains = [] 
+            tprTrains = [] 
+            fprTests = [] 
+            tprTests = []
             
-            fprTrains.append(fprTrain)
-            tprTrains.append(tprTrain)
-            fprTests.append(fprTest) 
-            tprTests.append(tprTest)
+            for trainX, testX in trainTestXs: 
+                fprTrain, tprTrain, fprTest, tprTest = resultsIterator.next()
+                
+                fprTrains.append(fprTrain)
+                tprTrains.append(tprTrain)
+                fprTests.append(fprTest) 
+                tprTests.append(tprTest)
+                
+            meanFprTrain = numpy.mean(numpy.array(fprTrains), 0)    
+            meanTprTrain = numpy.mean(numpy.array(tprTrains), 0) 
+            meanFprTest = numpy.mean(numpy.array(fprTests), 0) 
+            meanTprTest = numpy.mean(numpy.array(tprTests), 0) 
             
-        meanFprTrain = numpy.mean(numpy.array(fprTrains), 0)    
-        meanTprTrain = numpy.mean(numpy.array(tprTrains), 0) 
-        meanFprTest = numpy.mean(numpy.array(fprTests), 0) 
-        meanTprTest = numpy.mean(numpy.array(tprTests), 0) 
-        
-        meanFprTrains.append(meanFprTrain)
-        meanTprTrains.append(meanTprTrain)
-        meanFprTests.append(meanFprTest)
-        meanTprTests.append(meanTprTest)
+            meanFprTrains.append(meanFprTrain)
+            meanTprTrains.append(meanTprTrain)
+            meanFprTests.append(meanFprTest)
+            meanTprTests.append(meanTprTest)
         
     numpy.savez(outputFile, meanFprTrains, meanTprTrains, meanFprTests, meanTprTests, fprTrainSI, tprTrainSI, fprTestSI, tprTestSI)
     
@@ -175,30 +179,32 @@ else:
     plotInds = ["k-", "k--", "k-.", "k:", "r-", "r--", "r-.", "r:", "g-", "g--", "g-.", "g:", "b-", "b--", "b-.", "b:", "c-"]
     ind = 0 
     
-    for i, maxNorm in enumerate(maxNorms):
-        label = r"$maxNorm=$" + str(maxNorm)
+    for i, maxNormU in enumerate(maxLocalAuc.maxNorms):
+        for j, maxNormV in enumerate(maxLocalAuc.maxNorms):
 
-        fprTrainStart =   meanFprTrain[ind, meanFprTrain[ind, :]<=0.2]   
-        tprTrainStart =   meanTprTrain[ind, meanFprTrain[ind, :]<=0.2]
-        
-        print(fprTrainStart, tprTrainStart)
-        
-        plt.figure(0)
-        plt.plot(fprTrainStart, tprTrainStart, plotInds[ind], label=label)
-        
-        plt.figure(1)
-        plt.plot(meanFprTrain[ind, :], meanTprTrain[ind, :], plotInds[ind], label=label)
-        
-        fprTestStart =   meanFprTest[ind, meanFprTest[ind, :]<=0.2]   
-        tprTestStart =   meanTprTest[ind, meanFprTest[ind, :]<=0.2]         
-        
-        plt.figure(2)    
-        plt.plot(fprTestStart, tprTestStart, plotInds[ind], label=label)            
-        
-        plt.figure(3)    
-        plt.plot(meanFprTest[ind, :], meanTprTest[ind, :], plotInds[ind], label=label)    
-        
-        ind += 1
+            label = r"$maxNorm_U=$" + str(maxNormU) + r" $maxNorm_V=$" + str(maxNormV)
+    
+            fprTrainStart =   meanFprTrain[ind, meanFprTrain[ind, :]<=0.2]   
+            tprTrainStart =   meanTprTrain[ind, meanFprTrain[ind, :]<=0.2]
+            
+            print(fprTrainStart, tprTrainStart)
+            
+            plt.figure(0)
+            plt.plot(fprTrainStart, tprTrainStart, plotInds[ind], label=label)
+            
+            plt.figure(1)
+            plt.plot(meanFprTrain[ind, :], meanTprTrain[ind, :], plotInds[ind], label=label)
+            
+            fprTestStart =   meanFprTest[ind, meanFprTest[ind, :]<=0.2]   
+            tprTestStart =   meanTprTest[ind, meanFprTest[ind, :]<=0.2]         
+            
+            plt.figure(2)    
+            plt.plot(fprTestStart, tprTestStart, plotInds[ind], label=label)            
+            
+            plt.figure(3)    
+            plt.plot(meanFprTest[ind, :], meanTprTest[ind, :], plotInds[ind], label=label)    
+            
+            ind += 1
     
     plt.figure(1)
     plt.plot(fprTrainSI, tprTrainSI, plotInds[ind], label="SI")    
@@ -227,7 +233,3 @@ else:
     plt.legend(loc="lower right")
     
     plt.show()
-
-
-#Results are best with maxNorm=0.5 or 1.0 (lower might improve further)
-#SI is still best on Epinions, Synthetic 
