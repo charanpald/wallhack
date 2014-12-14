@@ -27,7 +27,6 @@ X = DatasetUtils.movieLens()
 (m, n) = X.shape
 
 defaultAlgoArgs.u = 0.1
-#defaultAlgoArgs.validationUsers = 0.0
 defaultAlgoArgs.ks = numpy.array([64])
 
 dataArgs.extendedDirName = ""
