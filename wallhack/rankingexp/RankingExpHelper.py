@@ -80,7 +80,7 @@ class RankingExpHelper(object):
     
     #Parameters for MlAuc
     defaultAlgoArgs.alpha = 0.5 
-    defaultAlgoArgs.alphas = 2.0**-numpy.arange(1, 5)
+    defaultAlgoArgs.alphas = 2.0**-numpy.arange(3, 5)
     defaultAlgoArgs.epsMlauc = 10**-5    
     defaultAlgoArgs.fullGradient = False
     defaultAlgoArgs.initialAlg = "rand"
@@ -88,7 +88,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.itemExpQ = 0.0 
     defaultAlgoArgs.lmbdaUMlauc = 0.0
     defaultAlgoArgs.lmbdaVMlauc = 0.0
-    defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(1, 7)
+    defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(2, 7)
     defaultAlgoArgs.loss = "square"
     defaultAlgoArgs.maxIterations = 500
     defaultAlgoArgs.maxNorm = 100
@@ -456,7 +456,7 @@ class RankingExpHelper(object):
                         logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
                         modelSelectX, userInds = Sampling.sampleUsers2(trainX, self.algoArgs.modelSelectSamples, prune=True)
                         
-                        meanMetrics, stdMetrics = learner.modelSelect2(modelSelectX)
+                        meanMetrics, stdMetrics = learner.modelSelectUV(modelSelectX)
                         
                         numpy.savez(modelSelectFileName, meanMetrics, stdMetrics)
                         logging.debug("Saved model selection grid as " + modelSelectFileName)   
@@ -465,7 +465,7 @@ class RankingExpHelper(object):
                         logging.debug("Read model selection file " + modelSelectFileName)   
                         meanMetrics, stdMetrics = data["arr_0"], data["arr_1"] 
                         
-                        learner.setModelParams2(meanMetrics, stdMetrics)
+                        learner.setModelParamsUV(meanMetrics, stdMetrics)
                                              
                     #Turn on (optionally) parallel SGD only at the final learning stage 
                     learner.parallelSGD = self.algoArgs.parallelSGD
