@@ -19,7 +19,7 @@ defaultAlgoArgs.ks = numpy.array([64])
 defaultAlgoArgs.numRowSamples = 15
 defaultAlgoArgs.parallelSGD = True
 defaultAlgoArgs.recordFolds = 1
-defaultAlgoArgs.validationUsers = 0.1
+#defaultAlgoArgs.validationUsers = 0.1
 
 # data args parser #
 dataParser = argparse.ArgumentParser(description="", add_help=False)
