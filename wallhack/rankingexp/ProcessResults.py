@@ -35,7 +35,7 @@ for loss in losses:
 
 for dirName in dirNames:
     resultsDir = PathDefaults.getOutputDir() + "ranking/" + dirName + "/"
-    print("="*30 + dirName + "="*30)
+    print("="*30 + " " + dirName + " " + "="*30)
     
     trainResultsTable = numpy.zeros((len(algs), len(ps)*4+2))
     testResultsTable = numpy.zeros((len(algs), len(ps)*4+2))
@@ -80,7 +80,8 @@ for dirName in dirNames:
                 logging.debug("Wrote recommendations to " + outputFileName)
             
         except IOError: 
-            logging.debug("Missing file " + resultsFileName)
+            if verbose:
+                logging.debug("Missing file " + resultsFileName)
             #raise 
         
         modelSelectFileName = resultsDir + "ModelSelect" + alg + ".npz"
@@ -90,10 +91,11 @@ for dirName in dirNames:
             meanMetrics, stdMetrics = data["arr_0"], data["arr_1"]
             
             if verbose: 
-                logging.debug(meanMetrics)
-                logging.debug(numpy.unravel_index(numpy.argmax(meanMetrics), meanMetrics.shape))
-        except IOError: 
-            logging.debug("Missing file " + modelSelectFileName)
+                #logging.debug(meanMetrics)
+                logging.debug(str(numpy.unravel_index(numpy.argmax(meanMetrics), meanMetrics.shape)) + " " + str(numpy.max(meanMetrics)))
+        except IOError:
+            if verbose: 
+                logging.debug("Missing file " + modelSelectFileName)
     
     colNames = []
     for i, p in enumerate(ps): 
@@ -113,11 +115,11 @@ for dirName in dirNames:
     firstCol = ["" for x in names]
     
     print("")
-    print("-"*20 + "Train metrics" + "-"*20)
+    print("-"*30 + " Train Metrics " + "-"*30)
     print("\t" + Latex.listToRow(colNames))
     print(Latex.addRowNames(firstCol, Latex.addRowNames(names, Latex.array2DToRows(trainResultsTable[:, colInds], precision=precision)))) 
     
     
-    print("-"*20 + "Test metrics" + "-"*20)
+    print("-"*30 + " Test Metrics " + "-"*30)
     print("\t" +  Latex.listToRow(colNames))
     print(Latex.addRowNames(firstCol,Latex.addRowNames(names, Latex.array2DToRows(testResultsTable[:, colInds], precision=precision))))
