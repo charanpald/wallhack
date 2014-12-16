@@ -16,6 +16,7 @@ dataArgs = argparse.Namespace()
 defaultAlgoArgs = argparse.Namespace()
 defaultAlgoArgs.folds = 1
 defaultAlgoArgs.ks = numpy.array([64])
+defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(1, 8)
 defaultAlgoArgs.numRowSamples = 15
 defaultAlgoArgs.parallelSGD = True
 defaultAlgoArgs.recordFolds = 1
