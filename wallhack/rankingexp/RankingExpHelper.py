@@ -92,7 +92,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.loss = "square"
     defaultAlgoArgs.maxIterations = 500
     defaultAlgoArgs.maxNorm = 100
-    defaultAlgoArgs.maxNorms = 2.0**numpy.arange(-2, 2.5, 0.5)
+    defaultAlgoArgs.maxNorms = 2.0**numpy.arange(-2, 2.5)
     defaultAlgoArgs.normalise = True
     defaultAlgoArgs.numAucSamples = 10
     defaultAlgoArgs.numRowSamples = 30
