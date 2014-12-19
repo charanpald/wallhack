@@ -66,7 +66,7 @@ if saveResults:
     meanObjs1, stdObjs1 = maxLocalAuc.learningRateSelect(X)
     meanObjs2, stdObjs2 = maxLocalAuc.learningRateSelect(modelSelectX)
 
-    numpy.savez(outputFile, meanObjs1, meanObjs2, meanObjs3)
+    numpy.savez(outputFile, meanObjs1, meanObjs2)
 else: 
     data = numpy.load(outputFile)
     meanObjs1, meanObjs2 = data["arr_0"], data["arr_1"]
