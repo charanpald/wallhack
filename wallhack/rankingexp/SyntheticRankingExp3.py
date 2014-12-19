@@ -23,24 +23,9 @@ else:
     dataset = "synthetic"
 
 saveResults = True
-
-expNum = 13
-
-if dataset == "synthetic": 
-    X, U, V = DatasetUtils.syntheticDataset1(m=100, n=50)
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp" + str(expNum) + "SyntheticResults.pkl" 
-elif dataset == "synthetic2": 
-    X = DatasetUtils.syntheticDataset2()
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp" + str(expNum) + "Synthetic2Results.pkl" 
-elif dataset == "movielens": 
-    X = DatasetUtils.movieLens()
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp" + str(expNum) + "MovieLensResults.pkl" 
-elif dataset == "flixster": 
-    X = DatasetUtils.flixster()
-    outputFile = PathDefaults.getOutputDir() + "ranking/Exp" + str(expNum) + "FlixsterResults.pkl"  
-    X = Sampling.sampleUsers(X, 1000)
-else: 
-    raise ValueError("Unknown dataset: " + dataset)
+prefix = "Exp3"
+outputFile = PathDefaults.getOutputDir() + "ranking/" + prefix + dataset.title() + "Results.npz" 
+X = DatasetUtils.getDataset(dataset)
     
 m, n = X.shape
 
