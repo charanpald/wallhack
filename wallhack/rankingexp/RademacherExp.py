@@ -25,19 +25,7 @@ else:
 saveResults = True
 prefix = "Rademacher"
 outputFile = PathDefaults.getOutputDir() + "ranking/" + prefix + dataset.title() + "Results.npz" 
-
-if dataset == "synthetic": 
-    X, U, V = DatasetUtils.syntheticDataset1()
-elif dataset == "synthetic2": 
-    X = DatasetUtils.syntheticDataset2()
-elif dataset == "movielens": 
-    X = DatasetUtils.movieLens()
-elif dataset == "epinions": 
-    X = DatasetUtils.epinions()
-    X, userInds = Sampling.sampleUsers2(X, 10000)    
-elif dataset == "flixster": 
-    X = DatasetUtils.flixster()
-    X, userInds = Sampling.sampleUsers2(X, 10000)
+X = DatasetUtils.getDataset(dataset, nnz=20000)
     
 
 m, n = X.shape

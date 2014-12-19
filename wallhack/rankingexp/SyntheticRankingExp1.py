@@ -26,18 +26,7 @@ else:
 
 saveResults = True
 
-if dataset == "synthetic": 
-    X, U, V = DatasetUtils.syntheticDataset1()
-elif dataset == "synthetic2": 
-    X = DatasetUtils.syntheticDataset2()
-elif dataset == "movielens": 
-    X = DatasetUtils.movieLens()
-elif dataset == "epinions": 
-    X = DatasetUtils.epinions()
-    X, userInds = Sampling.sampleUsers2(X, 10000)    
-elif dataset == "flixster": 
-    X = DatasetUtils.flixster()
-    X, userInds = Sampling.sampleUsers2(X, 10000)
+X = DatasetUtils.getDataset(dataset)
 
 print(X.shape)    
 #print(numpy.bincount(numpy.array(X.sum(0), numpy.int)))

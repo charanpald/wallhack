@@ -26,19 +26,7 @@ else:
 saveResults = True
 prefix = "Convergence"
 outputFile = PathDefaults.getOutputDir() + "ranking/" + prefix + dataset.title() + "Results.npz" 
-print(outputFile)
-
-if dataset == "synthetic": 
-    X, U, V = DatasetUtils.syntheticDataset1()
-elif dataset == "synthetic2": 
-    X = DatasetUtils.syntheticDataset2()
-elif dataset == "movielens": 
-    X = DatasetUtils.movieLens()
-elif dataset == "flixster": 
-    X = DatasetUtils.flixster()
-    X, userInds = Sampling.sampleUsers2(X, 50000)
-else: 
-    raise ValueError("Unknown dataset: " + dataset)
+X = DatasetUtils.getDataset(dataset, nnz=20000)
 
 m, n = X.shape 
 
