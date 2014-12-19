@@ -29,8 +29,8 @@ k2 = 64
 eps = 10**-6
 maxLocalAuc = MaxLocalAUC(k2, w, eps=eps, stochastic=True)
 maxLocalAuc.alpha = 0.1
-maxLocalAuc.alphas = 2.0**-numpy.arange(0, 6, 1)
-maxLocalAuc.folds = 1
+maxLocalAuc.alphas = 2.0**-numpy.arange(0, 8, 1)
+maxLocalAuc.folds = 2
 maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.itemExpP = 0.0
 maxLocalAuc.itemExpQ = 0.0
