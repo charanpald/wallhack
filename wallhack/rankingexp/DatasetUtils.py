@@ -200,7 +200,7 @@ class DatasetUtils(object):
         return X 
         
     @staticmethod
-    def getDataset(dataset): 
+    def getDataset(dataset, nnz=20000): 
         """
         Return a dataset by name
         """        
@@ -213,10 +213,10 @@ class DatasetUtils(object):
             X = DatasetUtils.movieLens()
         elif dataset == "epinions": 
             X = DatasetUtils.epinions()
-            X, userInds = Sampling.sampleUsers2(X, 10000, prune=True)    
+            X, userInds = Sampling.sampleUsers2(X, nnz, prune=True)    
         elif dataset == "flixster": 
             X = DatasetUtils.flixster()
-            X, userInds = Sampling.sampleUsers2(X, 50000, prune=True)
+            X, userInds = Sampling.sampleUsers2(X, nnz, prune=True)
         else: 
             raise ValueError("Unknown dataset: " + dataset)
             
