@@ -21,7 +21,7 @@ else:
 saveResults = True
 prefix = "LearningRate"
 outputFile = PathDefaults.getOutputDir() + "ranking/" + prefix + dataset.title() + "Results.npz" 
-X = DatasetUtils.getDataset(dataset, nnz=500000)
+X = DatasetUtils.getDataset(dataset, nnz=200000)
 
 u = 0.1
 w = 1-u
@@ -47,7 +47,7 @@ maxLocalAuc.normalise = True
 maxLocalAuc.numAucSamples = 10
 maxLocalAuc.numProcesses = multiprocessing.cpu_count()
 maxLocalAuc.numRecordAucSamples = 100
-maxLocalAuc.numRowSamples = 30
+maxLocalAuc.numRowSamples = 15
 maxLocalAuc.rate = "constant"
 maxLocalAuc.recordStep = 10
 maxLocalAuc.rho = 1.0
