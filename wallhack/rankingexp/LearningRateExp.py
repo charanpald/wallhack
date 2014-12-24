@@ -21,7 +21,6 @@ else:
 saveResults = True
 prefix = "LearningRate"
 outputFile = PathDefaults.getOutputDir() + "ranking/" + prefix + dataset.title() + "Results.npz" 
-X = DatasetUtils.getDataset(dataset, nnz=200000)
 
 u = 0.1
 w = 1-u
@@ -30,7 +29,7 @@ eps = 10**-6
 maxLocalAuc = MaxLocalAUC(k2, w, eps=eps, stochastic=True)
 maxLocalAuc.alpha = 0.1
 maxLocalAuc.alphas = 2.0**-numpy.arange(0, 8, 1)
-maxLocalAuc.folds = 2
+maxLocalAuc.folds = 1
 maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.itemExpP = 0.0
 maxLocalAuc.itemExpQ = 0.0
@@ -56,14 +55,16 @@ maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
 maxLocalAuc.validationSize = 3
 maxLocalAuc.validationUsers = 0
 
-newM = X.nnz/10
-modelSelectX, userInds = Sampling.sampleUsers2(X, newM, prune=True)
-
-print(X.shape, X.nnz)
-print(modelSelectX.shape, modelSelectX.nnz)
-
 if saveResults: 
+    X = DatasetUtils.getDataset(dataset, nnz=200000)
+    newM = X.nnz/10
+    modelSelectX, userInds = Sampling.sampleUsers2(X, newM, prune=True)
+    
+    print(X.shape, X.nnz)
+    print(modelSelectX.shape, modelSelectX.nnz)    
     meanObjs1, stdObjs1 = maxLocalAuc.learningRateSelect(X)
+    
+    maxLocalAuc.folds = 2
     meanObjs2, stdObjs2 = maxLocalAuc.learningRateSelect(modelSelectX)
 
     numpy.savez(outputFile, meanObjs1, meanObjs2)
@@ -74,7 +75,6 @@ else:
     meanObjs1 = numpy.squeeze(meanObjs1)    
     meanObjs2 = numpy.squeeze(meanObjs2) 
     
-    
     import matplotlib 
     matplotlib.use("GTK3Agg")
     import matplotlib.pyplot as plt 
@@ -82,16 +82,14 @@ else:
     plt.title("X")
     plt.plot(numpy.log2(maxLocalAuc.alphas), meanObjs1)
     plt.xlabel("alpha")
-    plt.ylabel("lambda")
-    plt.colorbar()
-    
+    plt.ylabel("objective")
+
     plt.figure(1)
     plt.title("modelSelectX")
     plt.plot(numpy.log2(maxLocalAuc.alphas), meanObjs2)
     plt.xlabel("alpha")
-    plt.ylabel("lambda")
-    plt.colorbar()
-    
+    plt.ylabel("objective")
+
     plt.show()
     
 print(meanObjs1)
