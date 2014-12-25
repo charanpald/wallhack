@@ -16,7 +16,7 @@ Script to see if the learning is the same on a subset of rows or elements.
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "epinions"
+    dataset = "flixster"
 
 saveResults = True
 prefix = "LearningRate"
@@ -56,7 +56,7 @@ maxLocalAuc.validationSize = 3
 maxLocalAuc.validationUsers = 0
 
 if saveResults: 
-    X = DatasetUtils.getDataset(dataset, nnz=200000)
+    X = DatasetUtils.getDataset(dataset, nnz=500000)
     newM = X.nnz/10
     modelSelectX, userInds = Sampling.sampleUsers2(X, newM, prune=True)
     
