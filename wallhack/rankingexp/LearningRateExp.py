@@ -56,24 +56,34 @@ maxLocalAuc.validationSize = 3
 maxLocalAuc.validationUsers = 0
 
 if saveResults: 
-    X = DatasetUtils.getDataset(dataset, nnz=500000)
-    newM = X.nnz/10
-    modelSelectX, userInds = Sampling.sampleUsers2(X, newM, prune=True)
+    X = DatasetUtils.getDataset(dataset, nnz=1000000)
+    X2, userInds = Sampling.sampleUsers2(X, 500000, prune=True)
+    X3, userInds = Sampling.sampleUsers2(X, 200000, prune=True)
+    X4, userInds = Sampling.sampleUsers2(X, 100000, prune=True)
+    X5, userInds = Sampling.sampleUsers2(X, 50000, prune=True)
     
     print(X.shape, X.nnz)
-    print(modelSelectX.shape, modelSelectX.nnz)    
-    meanObjs1, stdObjs1 = maxLocalAuc.learningRateSelect(X)
+    print(X2.shape, X2.nnz)  
+    print(X3.shape, X3.nnz)  
+    print(X4.shape, X4.nnz)  
+    print(X5.shape, X5.nnz)   
     
-    maxLocalAuc.folds = 2
-    meanObjs2, stdObjs2 = maxLocalAuc.learningRateSelect(modelSelectX)
+    meanObjs1, stdObjs1 = maxLocalAuc.learningRateSelect(X)
+    meanObjs2, stdObjs2 = maxLocalAuc.learningRateSelect(X2)
+    meanObjs3, stdObjs3 = maxLocalAuc.learningRateSelect(X3)
+    meanObjs4, stdObjs4 = maxLocalAuc.learningRateSelect(X4)
+    meanObjs5, stdObjs5 = maxLocalAuc.learningRateSelect(X5)
 
-    numpy.savez(outputFile, meanObjs1, meanObjs2)
+    numpy.savez(outputFile, meanObjs1, meanObjs2, meanObjs3, meanObjs4, meanObjs5)
 else: 
     data = numpy.load(outputFile)
-    meanObjs1, meanObjs2 = data["arr_0"], data["arr_1"]
+    meanObjs1, meanObjs2, meanObjs3, meanObjs4, meanObjs5 = data["arr_0"], data["arr_1"], data["arr_2"], data["arr_3"], data["arr_4"]
     
     meanObjs1 = numpy.squeeze(meanObjs1)    
     meanObjs2 = numpy.squeeze(meanObjs2) 
+    meanObjs3 = numpy.squeeze(meanObjs3)
+    meanObjs4 = numpy.squeeze(meanObjs4)
+    meanObjs5 = numpy.squeeze(meanObjs5)
     
     import matplotlib 
     matplotlib.use("GTK3Agg")
@@ -90,7 +100,29 @@ else:
     plt.xlabel("alpha")
     plt.ylabel("objective")
 
+    plt.figure(2)
+    plt.title("modelSelectX")
+    plt.plot(numpy.log2(maxLocalAuc.alphas), meanObjs3)
+    plt.xlabel("alpha")
+    plt.ylabel("objective")
+    
+    plt.figure(3)
+    plt.title("modelSelectX")
+    plt.plot(numpy.log2(maxLocalAuc.alphas), meanObjs4)
+    plt.xlabel("alpha")
+    plt.ylabel("objective")
+
+    plt.figure(4)
+    plt.title("modelSelectX")
+    plt.plot(numpy.log2(maxLocalAuc.alphas), meanObjs5)
+    plt.xlabel("alpha")
+    plt.ylabel("objective")    
+    
+
     plt.show()
     
 print(meanObjs1)
 print(meanObjs2)
+print(meanObjs3)
+print(meanObjs4)
+print(meanObjs5)
