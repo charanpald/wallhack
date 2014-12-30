@@ -456,7 +456,7 @@ class RankingExpHelper(object):
                         logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
                         modelSelectX, userInds = Sampling.sampleUsers2(trainX, self.algoArgs.modelSelectSamples, prune=True)
                         
-                        meanMetrics, stdMetrics = learner.modelSelectUV2(modelSelectX)
+                        meanMetrics, stdMetrics = learner.modelSelectUV(modelSelectX)
                         
                         numpy.savez(modelSelectFileName, meanMetrics, stdMetrics)
                         logging.debug("Saved model selection grid as " + modelSelectFileName)   
