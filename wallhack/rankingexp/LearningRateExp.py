@@ -18,7 +18,7 @@ if len(sys.argv) > 1:
 else: 
     dataset = "flixster"
 
-saveResults = True
+saveResults = False
 prefix = "LearningRate"
 outputFile = PathDefaults.getOutputDir() + "ranking/" + prefix + dataset.title() + "Results.npz" 
 
@@ -95,25 +95,25 @@ else:
     plt.ylabel("objective")
 
     plt.figure(1)
-    plt.title("modelSelectX")
+    plt.title("X2")
     plt.plot(numpy.log2(maxLocalAuc.alphas), meanObjs2)
     plt.xlabel("alpha")
     plt.ylabel("objective")
 
     plt.figure(2)
-    plt.title("modelSelectX")
+    plt.title("X3")
     plt.plot(numpy.log2(maxLocalAuc.alphas), meanObjs3)
     plt.xlabel("alpha")
     plt.ylabel("objective")
     
     plt.figure(3)
-    plt.title("modelSelectX")
+    plt.title("X4")
     plt.plot(numpy.log2(maxLocalAuc.alphas), meanObjs4)
     plt.xlabel("alpha")
     plt.ylabel("objective")
 
     plt.figure(4)
-    plt.title("modelSelectX")
+    plt.title("X5")
     plt.plot(numpy.log2(maxLocalAuc.alphas), meanObjs5)
     plt.xlabel("alpha")
     plt.ylabel("objective")    
