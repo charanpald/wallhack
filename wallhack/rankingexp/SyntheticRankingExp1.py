@@ -56,7 +56,7 @@ w2 = 1-u2
 eps = 10**-8
 lmbda = 0.01
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbdaU=0.1, lmbdaV=0.1, stochastic=True)
-maxLocalAuc.alpha = 0.2
+maxLocalAuc.alpha = 50
 maxLocalAuc.alphas = 2.0**-numpy.arange(0, 5, 1)
 maxLocalAuc.beta = 2
 maxLocalAuc.bound = False
