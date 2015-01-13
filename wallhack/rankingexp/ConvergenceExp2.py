@@ -21,7 +21,7 @@ numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "synthetic"
+    dataset = "movielens"
 
 #Create a low rank matrix  
 saveResults = True
@@ -45,41 +45,47 @@ numRecordAucSamples = 200
 
 logging.debug("Number of non-zero elements: " + str((trainX.nnz, testX.nnz)))
 
-#w = 1.0
-k2 = 8
-u2 = 10.0/n
+k2 = 64
+u2 = 5/float(n)
 w2 = 1-u2
-eps = 10**-15
-lmbda = 0.1
-maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbdaV=lmbda, stochastic=True)
-maxLocalAuc.alpha = 0.001
-maxLocalAuc.alphas = 2.0**-numpy.arange(0, 6, 1)
+eps = 10**-8
+lmbda = 0.01
+maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbdaU=0.1, lmbdaV=0.1, stochastic=True)
+maxLocalAuc.alpha = 16
+maxLocalAuc.alphas = 2.0**-numpy.arange(0, 5, 1)
+maxLocalAuc.beta = 2
+maxLocalAuc.bound = False
+maxLocalAuc.delta = 0.1
 maxLocalAuc.eta = 0
 maxLocalAuc.folds = 2
 maxLocalAuc.initialAlg = "rand"
 maxLocalAuc.itemExpP = 0.0
 maxLocalAuc.itemExpQ = 0.0
-maxLocalAuc.ks = numpy.array([k2])
-maxLocalAuc.lmbdas = 2.0**-numpy.arange(0, 10, 2)
-maxLocalAuc.loss = "square"
-maxLocalAuc.maxIterations = 50
-maxLocalAuc.normalise = True
+maxLocalAuc.ks = numpy.array([4, 8, 16, 32, 64, 128])
+maxLocalAuc.lmbdas = numpy.linspace(0.5, 2.0, 7)
+maxLocalAuc.loss = "hinge" 
+maxLocalAuc.maxIterations = 100
+maxLocalAuc.maxNorm = 100
+maxLocalAuc.metric = "f1"
+maxLocalAuc.normalise = False
 maxLocalAuc.numAucSamples = 10
-#maxLocalAuc.numProcesses = 1
+maxLocalAuc.numProcesses = 1
 maxLocalAuc.numRecordAucSamples = 200
-maxLocalAuc.numRowSamples = 10
+maxLocalAuc.numRowSamples = 30
 maxLocalAuc.rate = "constant"
-maxLocalAuc.recordStep = 5
+maxLocalAuc.recordStep = 10
+maxLocalAuc.reg = False
 maxLocalAuc.rho = 1.0
-maxLocalAuc.t0 = 0.0001
+maxLocalAuc.t0 = 1.0
 maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
-maxLocalAuc.validationUsers = 0.0
+maxLocalAuc.validationSize = 5
+maxLocalAuc.validationUsers = 1.0
 
 #Now try to get faster convergence 
 t0s = numpy.array([0, 0.25, 0.5])
-alphas = numpy.array([1.0, 0.5, 0.25])
-etas = numpy.array([0, 5, 10, 20])
-startAverages = numpy.array([10, 20, 30, 50])
+alphas = numpy.array([32, 64, 128])
+etas = numpy.array([0, 5, 10])
+startAverages = numpy.array([10, 20, 50])
 
 os.system('taskset -p 0xffffffff %d' % os.getpid())
 chunkSize = 1
