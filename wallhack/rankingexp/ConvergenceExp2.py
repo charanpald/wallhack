@@ -51,7 +51,7 @@ w2 = 1-u2
 eps = 10**-8
 lmbda = 0.01
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbdaU=0.1, lmbdaV=0.1, stochastic=True)
-maxLocalAuc.alpha = 16
+maxLocalAuc.alpha = 8
 maxLocalAuc.alphas = 2.0**-numpy.arange(0, 5, 1)
 maxLocalAuc.beta = 2
 maxLocalAuc.bound = False
@@ -82,10 +82,10 @@ maxLocalAuc.validationSize = 5
 maxLocalAuc.validationUsers = 1.0
 
 #Now try to get faster convergence 
-t0s = numpy.array([0, 0.25, 0.5])
-alphas = numpy.array([32, 64, 128])
-etas = numpy.array([0, 5, 10])
-startAverages = numpy.array([10, 20, 50])
+t0s = numpy.array([0, 0.05, 0.1])
+alphas = numpy.array([32, 64, 128, 256])
+etas = numpy.array([0, 10, 20, 50])
+startAverages = numpy.array([10, 20, 50, 100])
 
 os.system('taskset -p 0xffffffff %d' % os.getpid())
 chunkSize = 1
@@ -147,6 +147,9 @@ else:
     objectives1, idealTrainMeasures = data["arr_0"],  data["arr_1"]
     
 objectives1 = numpy.mean(objectives1, 4)
+
+print(objectives1)
+
 inds = numpy.unravel_index(numpy.argmin(objectives1), objectives1.shape)
 
 logging.debug("Small learning rate objective=" + str(numpy.min(idealTrainMeasures)))     
