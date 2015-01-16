@@ -79,10 +79,11 @@ class RankingExpHelper(object):
     defaultAlgoArgs.kns = numpy.array([20]) 
     
     #Parameters for MlAuc
-    defaultAlgoArgs.alpha = 0.5 
+    defaultAlgoArgs.alpha = 128 
     #defaultAlgoArgs.alphas = 2.0**-numpy.arange(3, 6)
-    defaultAlgoArgs.alphas = 2.0**numpy.arange(5, 8)
+    defaultAlgoArgs.alphas = 2.0**numpy.arange(6, 9)
     defaultAlgoArgs.epsMlauc = 10**-5    
+    defaultAlgoArgs.eta = 10
     defaultAlgoArgs.fullGradient = False
     defaultAlgoArgs.initialAlg = "rand"
     defaultAlgoArgs.itemExpP = 0.0 
@@ -103,6 +104,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.recommendSize = 5 
     defaultAlgoArgs.rhoMlauc = 1.0
     defaultAlgoArgs.rhosMlauc = numpy.array([0, 0.5, 1.0])
+    defaultAlgoArgs.startAverage = 50
     defaultAlgoArgs.t0 = 1.0
     defaultAlgoArgs.t0s = 2.0**-numpy.arange(-1, 2, 1)
     defaultAlgoArgs.validationUsers = 0.0
@@ -424,7 +426,7 @@ class RankingExpHelper(object):
                     
                     learner.alpha = self.algoArgs.alpha    
                     learner.alphas = self.algoArgs.alphas
-                    learner.eta = 0
+                    learner.eta = self.algoArgs.eta 
                     learner.folds = self.algoArgs.folds  
                     learner.initialAlg = self.algoArgs.initialAlg
                     learner.itemExpP = self.algoArgs.itemExpP
@@ -445,7 +447,7 @@ class RankingExpHelper(object):
                     learner.recordStep = self.algoArgs.recordStep
                     learner.rho = self.algoArgs.rhoMlauc
                     learner.rhos = self.algoArgs.rhosMlauc
-                    learner.startAverage = 30
+                    learner.startAverage = self.algoArgs.startAverage
                     learner.t0 = self.algoArgs.t0    
                     learner.t0s = self.algoArgs.t0s
                     learner.validationSize = self.algoArgs.validationSize
