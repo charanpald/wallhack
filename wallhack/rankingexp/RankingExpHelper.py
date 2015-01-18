@@ -83,7 +83,7 @@ class RankingExpHelper(object):
     #defaultAlgoArgs.alphas = 2.0**-numpy.arange(3, 6)
     defaultAlgoArgs.alphas = 2.0**numpy.arange(6, 9)
     defaultAlgoArgs.epsMlauc = 10**-5    
-    defaultAlgoArgs.eta = 10
+    defaultAlgoArgs.eta = 20
     defaultAlgoArgs.fullGradient = False
     defaultAlgoArgs.initialAlg = "rand"
     defaultAlgoArgs.itemExpP = 0.0 
@@ -104,7 +104,7 @@ class RankingExpHelper(object):
     defaultAlgoArgs.recommendSize = 5 
     defaultAlgoArgs.rhoMlauc = 1.0
     defaultAlgoArgs.rhosMlauc = numpy.array([0, 0.5, 1.0])
-    defaultAlgoArgs.startAverage = 50
+    defaultAlgoArgs.startAverage = 100
     defaultAlgoArgs.t0 = 1.0
     defaultAlgoArgs.t0s = 2.0**-numpy.arange(-1, 2, 1)
     defaultAlgoArgs.validationUsers = 0.0

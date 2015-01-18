@@ -21,7 +21,7 @@ numpy.set_printoptions(precision=3, suppress=True, linewidth=150)
 if len(sys.argv) > 1:
     dataset = sys.argv[1]
 else: 
-    dataset = "movielens"
+    dataset = "epinions"
 
 #Create a low rank matrix  
 saveResults = True
@@ -82,10 +82,10 @@ maxLocalAuc.validationSize = 5
 maxLocalAuc.validationUsers = 1.0
 
 #Now try to get faster convergence 
-t0s = numpy.array([0, 0.01, 0.1])
+t0s = numpy.array([0])
 alphas = numpy.array([32, 64, 128, 256, 512])
 etas = numpy.array([0, 10, 20, 50])
-startAverages = numpy.array([10, 20, 50, 100])
+startAverages = numpy.array([20, 50, 100])
 
 os.system('taskset -p 0xffffffff %d' % os.getpid())
 chunkSize = 1
@@ -105,7 +105,7 @@ def computeObjectives(args):
 if saveResults: 
     #First run with low learning rate to get a near-optimal solution 
     U, V = maxLocalAuc.initUV(trainX)  
-    maxLocalAuc.maxIterations = 2000
+    maxLocalAuc.maxIterations = 5000
     U2, V2, trainMeasures, testMeasures, iterations, time = maxLocalAuc.learnModel(trainX, U=U, V=V, verbose=True)
     
     idealTrainMeasures = trainMeasures[:, 0]    
