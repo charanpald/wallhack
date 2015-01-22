@@ -454,12 +454,13 @@ class RankingExpHelper(object):
                     learner.validationUsers = self.algoArgs.validationUsers
 
                     modelSelectFileName = resultsFileName.replace("Results", "ModelSelect") 
+                    modelSelectionFunc = learner.modelSelectUV
                     
                     if self.algoArgs.modelSelect and not os.path.isfile(modelSelectFileName): 
                         logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
                         modelSelectX, userInds = Sampling.sampleUsers2(trainX, self.algoArgs.modelSelectSamples, prune=True)
                         
-                        meanMetrics, stdMetrics = learner.modelSelectUV(modelSelectX)
+                        meanMetrics, stdMetrics = modelSelectionFunc(modelSelectX)
                         
                         numpy.savez(modelSelectFileName, meanMetrics, stdMetrics)
                         logging.debug("Saved model selection grid as " + modelSelectFileName)   
@@ -468,7 +469,7 @@ class RankingExpHelper(object):
                         logging.debug("Read model selection file " + modelSelectFileName)   
                         meanMetrics, stdMetrics = data["arr_0"], data["arr_1"] 
                         
-                        learner.setModelParamsUV2(meanMetrics, stdMetrics)
+                        modelSelectionFunc(meanMetrics, stdMetrics)
                                              
                     #Turn on (optionally) parallel SGD only at the final learning stage 
                     learner.parallelSGD = self.algoArgs.parallelSGD
