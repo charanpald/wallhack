@@ -455,6 +455,7 @@ class RankingExpHelper(object):
 
                     modelSelectFileName = resultsFileName.replace("Results", "ModelSelect") 
                     modelSelectionFunc = learner.modelSelectUV
+                    loadModelFunc = learner.setModelParamsUV
                     
                     if self.algoArgs.modelSelect and not os.path.isfile(modelSelectFileName): 
                         logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
@@ -469,7 +470,7 @@ class RankingExpHelper(object):
                         logging.debug("Read model selection file " + modelSelectFileName)   
                         meanMetrics, stdMetrics = data["arr_0"], data["arr_1"] 
                         
-                        modelSelectionFunc(meanMetrics, stdMetrics)
+                        loadModelFunc(meanMetrics, stdMetrics)
                                              
                     #Turn on (optionally) parallel SGD only at the final learning stage 
                     learner.parallelSGD = self.algoArgs.parallelSGD
