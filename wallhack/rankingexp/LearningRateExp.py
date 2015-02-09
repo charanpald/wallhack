@@ -21,6 +21,8 @@ else:
 saveResults = False
 prefix = "LearningRate"
 outputFile = PathDefaults.getOutputDir() + "ranking/" + prefix + dataset.title() + "Results.npz" 
+X = DatasetUtils.getDataset(dataset)
+m, n = X.shape
 
 k2 = 64
 u2 = 5/float(n)
