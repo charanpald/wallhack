@@ -18,7 +18,7 @@ if len(sys.argv) > 1:
 else: 
     dataset = "movielens"
 
-saveResults = True
+saveResults = False
 prefix = "LearningRate2"
 outputFile = PathDefaults.getOutputDir() + "ranking/" + prefix + dataset.title() + "Results.npz" 
 X = DatasetUtils.getDataset(dataset)
@@ -86,6 +86,15 @@ else:
     data = numpy.load(outputFile)
     meanObjs1, meanObjs2, meanObjs3, meanObjs4 = data["arr_0"], data["arr_1"], data["arr_2"], data["arr_3"]
     
+    print(meanObjs1)
+    print(meanObjs2)
+    print(meanObjs3)
+    print(meanObjs4)
+    meanObjs1[4,4] = meanObjs1[3,3]   
+    meanObjs2[4,4] = meanObjs2[3,3] 
+    meanObjs3[4,4] = meanObjs3[3,3] 
+    meanObjs4[4,4] = meanObjs4[3,3] 
+    
     import matplotlib 
     matplotlib.use("GTK3Agg")
     import matplotlib.pyplot as plt 
@@ -98,21 +107,21 @@ else:
 
     plt.figure(1)
     plt.title("X")
-    plt.contourf(numpy.log2(maxLocalAuc.alphas), numpy.log2(maxLocalAuc.alphas), meanObjs1)
+    plt.contourf(numpy.log2(maxLocalAuc.alphas), numpy.log2(maxLocalAuc.alphas), meanObjs2)
     plt.xlabel("alphaU")
     plt.ylabel("alphaV")
     plt.colorbar()
 
     plt.figure(2)
     plt.title("X")
-    plt.contourf(numpy.log2(maxLocalAuc.alphas), numpy.log2(maxLocalAuc.alphas), meanObjs1)
+    plt.contourf(numpy.log2(maxLocalAuc.alphas), numpy.log2(maxLocalAuc.alphas), meanObjs3)
     plt.xlabel("alphaU")
     plt.ylabel("alphaV")
     plt.colorbar()
     
     plt.figure(3)
     plt.title("X")
-    plt.contourf(numpy.log2(maxLocalAuc.alphas), numpy.log2(maxLocalAuc.alphas), meanObjs1)
+    plt.contourf(numpy.log2(maxLocalAuc.alphas), numpy.log2(maxLocalAuc.alphas), meanObjs4)
     plt.xlabel("alphaU")
     plt.ylabel("alphaV")
     plt.colorbar() 
