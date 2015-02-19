@@ -13,6 +13,7 @@ dataArgs = argparse.Namespace()
 
 # Arguments related to the algorithm
 defaultAlgoArgs = argparse.Namespace()
+defaultAlgoArgs.alphas = 2.0**numpy.arange(10, 11)
 defaultAlgoArgs.folds = 1
 defaultAlgoArgs.ks = numpy.array([64])
 defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(2, 8)
