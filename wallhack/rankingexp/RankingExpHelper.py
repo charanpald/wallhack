@@ -81,7 +81,7 @@ class RankingExpHelper(object):
     #Parameters for MlAuc
     defaultAlgoArgs.alpha = 0.001
     #defaultAlgoArgs.alphas = 2.0**-numpy.arange(3, 6)
-    defaultAlgoArgs.alphas = 2.0**-numpy.arange(5, 9)
+    defaultAlgoArgs.alphas = 2.0**-numpy.arange(3, 8)
     defaultAlgoArgs.epsMlauc = 10**-5
     defaultAlgoArgs.eta = 20
     defaultAlgoArgs.fullGradient = False
