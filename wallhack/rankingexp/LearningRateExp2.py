@@ -18,7 +18,7 @@ if len(sys.argv) > 1:
 else: 
     dataset = "movielens"
 
-saveResults = False
+saveResults = True
 prefix = "LearningRate2"
 outputFile = PathDefaults.getOutputDir() + "ranking/" + prefix + dataset.title() + "Results.npz" 
 X = DatasetUtils.getDataset(dataset)
@@ -30,14 +30,14 @@ w2 = 1-u2
 eps = 10**-8
 lmbda = 0.01
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbdaU=0.1, lmbdaV=0.1, stochastic=True)
-maxLocalAuc.alpha = 50
-maxLocalAuc.alphas = 2.0**numpy.arange(6, 11)
+maxLocalAuc.alpha = 0.5
+maxLocalAuc.alphas = 2.0**-numpy.arange(2, 9, 2)
 maxLocalAuc.beta = 2
 maxLocalAuc.bound = False
 maxLocalAuc.delta = 0.1
-maxLocalAuc.eta = 0
+maxLocalAuc.eta = 20
 maxLocalAuc.folds = 2
-maxLocalAuc.initialAlg = "rand"
+maxLocalAuc.initialAlg = "svd"
 maxLocalAuc.itemExpP = 0.0
 maxLocalAuc.itemExpQ = 0.0
 maxLocalAuc.ks = numpy.array([4, 8, 16, 32, 64, 128])
@@ -50,13 +50,14 @@ maxLocalAuc.normalise = False
 maxLocalAuc.numAucSamples = 10
 maxLocalAuc.numProcesses = multiprocessing.cpu_count()
 maxLocalAuc.numRecordAucSamples = 200
-maxLocalAuc.numRowSamples = 30
-maxLocalAuc.rate = "constant"
+maxLocalAuc.numRowSamples = 15
+maxLocalAuc.rate = "optimal"
 maxLocalAuc.recordStep = 10
 maxLocalAuc.reg = False
 maxLocalAuc.rho = 1.0
+maxLocalAuc.startAverage = 100
 maxLocalAuc.t0 = 1.0
-maxLocalAuc.t0s = 2.0**-numpy.arange(7, 12, 1)
+maxLocalAuc.t0s = 2.0**-numpy.arange(1, 12, 2)
 maxLocalAuc.validationSize = 5
 maxLocalAuc.validationUsers = 0.0
 
@@ -69,16 +70,16 @@ if saveResults:
     maxLocalAuc.lmbdaV = 0.25
     meanObjs1, paramDict = maxLocalAuc.learningRateSelect(X)
 
-    maxLocalAuc.lmbdaU = 0.0625
+    maxLocalAuc.lmbdaU = 0.03125
     maxLocalAuc.lmbdaV = 0.25
     meanObjs2, paramDict = maxLocalAuc.learningRateSelect(X)
 
     maxLocalAuc.lmbdaU = 0.25
-    maxLocalAuc.lmbdaV = 0.0625
+    maxLocalAuc.lmbdaV = 0.03125
     meanObjs3, paramDict = maxLocalAuc.learningRateSelect(X)
     
-    maxLocalAuc.lmbdaU = 0.0625
-    maxLocalAuc.lmbdaV = 0.0625
+    maxLocalAuc.lmbdaU = 0.03125
+    maxLocalAuc.lmbdaV = 0.03125
     meanObjs4, paramDict = maxLocalAuc.learningRateSelect(X)
 
     numpy.savez(outputFile, meanObjs1, meanObjs2, meanObjs3, meanObjs4)
