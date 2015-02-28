@@ -4,13 +4,11 @@ Some common functions used for the recommendation experiments
 """
 import argparse
 import errno
-import gc
 import logging
 import multiprocessing
 import numpy
 import os
 import scipy.sparse
-import sppy
 import time
 from copy import copy
 from sandbox.recommendation.BprRecommender import BprRecommender
@@ -92,14 +90,14 @@ class RankingExpHelper(object):
     defaultAlgoArgs.lmbdaVMlauc = 0.001
     defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(2, 6)
     defaultAlgoArgs.loss = "hinge"
-    defaultAlgoArgs.maxIterations = 500
+    defaultAlgoArgs.maxIterations = 1000
     defaultAlgoArgs.maxNorm = 100
     defaultAlgoArgs.maxNorms = 2.0**numpy.arange(-2, 2.5)
     defaultAlgoArgs.normalise = False
     defaultAlgoArgs.numAucSamples = 10
     defaultAlgoArgs.numRowSamples = 30
     defaultAlgoArgs.parallelSGD = False
-    defaultAlgoArgs.rate = "scale"
+    defaultAlgoArgs.rate = "constant"
     defaultAlgoArgs.recordStep = 10
     defaultAlgoArgs.recommendSize = 5
     defaultAlgoArgs.rhoMlauc = 1.0
@@ -458,17 +456,20 @@ class RankingExpHelper(object):
                     if self.algoArgs.modelSelect and not os.path.isfile(modelSelectFileName):
                         logging.debug("Performing model selection, taking sample size " + str(self.algoArgs.modelSelectSamples))
                         modelSelectX, userInds = Sampling.sampleUsers2(trainX, self.algoArgs.modelSelectSamples, prune=True)
+                        #
+                        meanMetricsLR, paramDictLR = learner.learningRateSelect(modelSelectX)
+                        meanMetricsMS, paramDictMS = learner.modelSelectLmbda(modelSelectX)
 
-                        meanMetrics, paramDict = learner.modelSelectLmbda(modelSelectX)
-
-                        numpy.savez(modelSelectFileName, meanMetrics)
+                        numpy.savez(modelSelectFileName, meanMetricsLR, meanMetricsMS)
                         logging.debug("Saved model selection grid as " + modelSelectFileName)
                     elif self.algoArgs.modelSelect:
                         data = numpy.load(modelSelectFileName)
                         logging.debug("Read model selection file " + modelSelectFileName)
-                        meanMetrics = data["arr_0"]
+                        meanMetricsLR = data["arr_0"]
+                        meanMetricsMS = data["arr_1"]
 
-                        meanMetrics, paramDict = learner.modelSelectLmbda(meanMetrics=meanMetrics)
+                        learner.learningRateSelect(meanMetrics=meanMetricsLR)
+                        learner.modelSelectLmbda(meanMetrics=meanMetricsMS)
 
                     #Turn on (optionally) parallel SGD only at the final learning stage
                     learner.parallelSGD = self.algoArgs.parallelSGD
