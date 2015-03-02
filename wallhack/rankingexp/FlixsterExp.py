@@ -21,7 +21,7 @@ defaultAlgoArgs.modelSelectSamples = 2*10**5
 defaultAlgoArgs.numRowSamples = 15
 defaultAlgoArgs.parallelSGD = False
 defaultAlgoArgs.recordFolds = 1
-defaultAlgoArgs.validationUsers = 0.1
+defaultAlgoArgs.validationUsers = 0.0
 
 # data args parser #
 dataParser = argparse.ArgumentParser(description="", add_help=False)
