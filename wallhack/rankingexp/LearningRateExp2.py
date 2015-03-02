@@ -18,7 +18,7 @@ if len(sys.argv) > 1:
 else: 
     dataset = "movielens"
 
-saveResults = True
+saveResults = False
 prefix = "LearningRate2"
 outputFile = PathDefaults.getOutputDir() + "ranking/" + prefix + dataset.title() + "Results.npz" 
 X = DatasetUtils.getDataset(dataset)
@@ -41,7 +41,7 @@ maxLocalAuc.initialAlg = "svd"
 maxLocalAuc.itemExpP = 0.0
 maxLocalAuc.itemExpQ = 0.0
 maxLocalAuc.ks = numpy.array([4, 8, 16, 32, 64, 128])
-maxLocalAuc.lmbdas = 2.0**-numpy.arange(1, 7)
+maxLocalAuc.lmbdas = 2.0**-numpy.arange(1, 5)
 maxLocalAuc.loss = "hinge" 
 maxLocalAuc.maxIterations = 500
 maxLocalAuc.maxNorm = 100
@@ -91,40 +91,40 @@ else:
     print(meanObjs2)
     print(meanObjs3)
     print(meanObjs4)
-    meanObjs1[4,4] = meanObjs1[3,3]   
-    meanObjs2[4,4] = meanObjs2[3,3] 
-    meanObjs3[4,4] = meanObjs3[3,3] 
-    meanObjs4[4,4] = meanObjs4[3,3] 
+    #meanObjs1[4,4] = meanObjs1[3,3]   
+    #meanObjs2[4,4] = meanObjs2[3,3] 
+    #meanObjs3[4,4] = meanObjs3[3,3] 
+    #meanObjs4[4,4] = meanObjs4[3,3] 
     
     import matplotlib 
     matplotlib.use("GTK3Agg")
     import matplotlib.pyplot as plt 
     plt.figure(0)
     plt.title("X")
-    plt.contourf(numpy.log2(maxLocalAuc.alphas), numpy.log2(maxLocalAuc.alphas), meanObjs1)
-    plt.xlabel("alphaU")
-    plt.ylabel("alphaV")
+    plt.contourf(numpy.log2(maxLocalAuc.t0s), numpy.log2(maxLocalAuc.alphas), meanObjs1)
+    plt.xlabel("t0")
+    plt.ylabel("alpha")
     plt.colorbar()
 
     plt.figure(1)
     plt.title("X")
-    plt.contourf(numpy.log2(maxLocalAuc.alphas), numpy.log2(maxLocalAuc.alphas), meanObjs2)
-    plt.xlabel("alphaU")
-    plt.ylabel("alphaV")
+    plt.contourf(numpy.log2(maxLocalAuc.t0s), numpy.log2(maxLocalAuc.alphas), meanObjs2)
+    plt.xlabel("t0")
+    plt.ylabel("alpha")
     plt.colorbar()
 
     plt.figure(2)
     plt.title("X")
-    plt.contourf(numpy.log2(maxLocalAuc.alphas), numpy.log2(maxLocalAuc.alphas), meanObjs3)
-    plt.xlabel("alphaU")
-    plt.ylabel("alphaV")
+    plt.contourf(numpy.log2(maxLocalAuc.t0s), numpy.log2(maxLocalAuc.alphas), meanObjs3)
+    plt.xlabel("t0")
+    plt.ylabel("alpha")
     plt.colorbar()
     
     plt.figure(3)
     plt.title("X")
-    plt.contourf(numpy.log2(maxLocalAuc.alphas), numpy.log2(maxLocalAuc.alphas), meanObjs4)
-    plt.xlabel("alphaU")
-    plt.ylabel("alphaV")
+    plt.contourf(numpy.log2(maxLocalAuc.t0s), numpy.log2(maxLocalAuc.alphas), meanObjs4)
+    plt.xlabel("t0")
+    plt.ylabel("alpha")
     plt.colorbar() 
     
     plt.show()
@@ -133,3 +133,5 @@ print(meanObjs1)
 print(meanObjs2)
 print(meanObjs3)
 print(meanObjs4)
+
+#Looks like best results are with small t0 and high alpha 
