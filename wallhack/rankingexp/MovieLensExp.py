@@ -1,6 +1,5 @@
 import numpy
 import logging
-import sys
 import argparse 
 from wallhack.rankingexp.RankingExpHelper import RankingExpHelper
 from wallhack.rankingexp.DatasetUtils import DatasetUtils
@@ -27,7 +26,7 @@ X = DatasetUtils.movieLens()
 (m, n) = X.shape
 
 defaultAlgoArgs.u = 0.1
-defaultAlgoArgs.ks = numpy.array([64])
+defaultAlgoArgs.ks = numpy.array([32, 64, 128])
 
 dataArgs.extendedDirName = ""
 dataArgs.extendedDirName += "MovieLens"
