@@ -36,9 +36,8 @@ X = DatasetUtils.flixster()
 (m, n) = X.shape
 
 #For the moment, use a subsample 
-modelSelectSamples = 2*10**5
-X, userInds = Sampling.sampleUsers2(X, modelSelectSamples, prune=True)
-
+#modelSelectSamples = 2*10**5
+#X, userInds = Sampling.sampleUsers2(X, modelSelectSamples, prune=True)
 
 dataArgs.extendedDirName = ""
 dataArgs.extendedDirName += "Flixster"
