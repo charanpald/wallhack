@@ -88,10 +88,10 @@ class RankingExpHelper(object):
     defaultAlgoArgs.itemExpQ = 0.0
     defaultAlgoArgs.lmbdaUMlauc = 0.001
     defaultAlgoArgs.lmbdaVMlauc = 0.001
-    defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(2, 6)
+    defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(2, 8)
     defaultAlgoArgs.loss = "hinge"
     defaultAlgoArgs.maxIterations = 1000
-    defaultAlgoArgs.maxNorm = 100
+    defaultAlgoArgs.maxNorm = 10
     defaultAlgoArgs.maxNorms = 2.0**numpy.arange(-2, 2.5)
     defaultAlgoArgs.normalise = False
     defaultAlgoArgs.numAucSamples = 10
@@ -433,8 +433,9 @@ class RankingExpHelper(object):
                     learner.lmbdas = self.algoArgs.lmbdasMlauc
                     learner.loss = self.algoArgs.loss
                     learner.maxIterations = self.algoArgs.maxIterations
-                    learner.maxNorm = self.algoArgs.maxNorm
                     learner.maxNorms = self.algoArgs.maxNorms
+                    learner.maxNormU = self.algoArgs.maxNorm
+                    learner.maxNormV = self.algoArgs.maxNorm
                     learner.metric = self.algoArgs.metric
                     learner.normalise = self.algoArgs.normalise
                     learner.numAucSamples = self.algoArgs.numAucSamples
