@@ -18,7 +18,7 @@ defaultAlgoArgs.ks = numpy.array([32, 64, 128])
 defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(2, 8)
 defaultAlgoArgs.modelSelectSamples = 2*10**5
 defaultAlgoArgs.numRowSamples = 15
-defaultAlgoArgs.parallelSGD = False
+defaultAlgoArgs.parallelSGD = True
 defaultAlgoArgs.recordFolds = 1
 defaultAlgoArgs.validationUsers = 0.2
 
