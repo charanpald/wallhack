@@ -1,6 +1,5 @@
 import numpy
 import logging
-import sys
 import argparse 
 from wallhack.rankingexp.RankingExpHelper import RankingExpHelper
 from wallhack.rankingexp.DatasetUtils import DatasetUtils
@@ -12,12 +11,14 @@ dataArgs = argparse.Namespace()
 
 # Arguments related to the algorithm
 defaultAlgoArgs = argparse.Namespace()
-defaultAlgoArgs.folds = 1
-defaultAlgoArgs.ks = numpy.array([64])
+defaultAlgoArgs.folds = 2
+defaultAlgoArgs.ks = numpy.array([32, 64, 128])
+defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(2, 8)
+defaultAlgoArgs.modelSelectSamples = 2*10**5
 defaultAlgoArgs.numRowSamples = 15
 defaultAlgoArgs.parallelSGD = True
 defaultAlgoArgs.recordFolds = 1
-#defaultAlgoArgs.validationUsers = 0.1
+defaultAlgoArgs.validationUsers = 0.2
 
 # data args parser #
 dataParser = argparse.ArgumentParser(description="", add_help=False)
