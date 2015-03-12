@@ -172,7 +172,7 @@ class DatasetUtils(object):
         return X 
         
     @staticmethod 
-    def epinions(minNnzRows=10, minNnzCols=2, quantile=90): 
+    def epinions(minNnzRows=10, minNnzCols=3, quantile=90): 
         matrixFileName = PathDefaults.getDataDir() + "epinions/rating.mat" 
         A = scipy.io.loadmat(matrixFileName)["rating"]
         
