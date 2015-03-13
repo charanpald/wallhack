@@ -86,9 +86,9 @@ class RankingExpHelper(object):
     defaultAlgoArgs.initialAlg = "svd"
     defaultAlgoArgs.itemExpP = 0.0
     defaultAlgoArgs.itemExpQ = 0.0
-    defaultAlgoArgs.lmbdaUMlauc = 0.001
-    defaultAlgoArgs.lmbdaVMlauc = 0.001
-    defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(2, 8)
+    defaultAlgoArgs.lmbdaUMlauc = 0.01
+    defaultAlgoArgs.lmbdaVMlauc = 0.01
+    defaultAlgoArgs.lmbdasMlauc = 2.0**-numpy.arange(0, 10)
     defaultAlgoArgs.loss = "hinge"
     defaultAlgoArgs.maxIterations = 1000
     defaultAlgoArgs.maxNorm = 10
