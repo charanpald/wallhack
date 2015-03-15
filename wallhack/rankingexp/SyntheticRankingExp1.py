@@ -56,7 +56,7 @@ w2 = 1-u2
 eps = 10**-8
 lmbda = 0.01
 maxLocalAuc = MaxLocalAUC(k2, w2, eps=eps, lmbdaU=0.1, lmbdaV=0.1, stochastic=True)
-maxLocalAuc.alpha = 50
+maxLocalAuc.alpha = 0.1
 maxLocalAuc.alphas = 2.0**-numpy.arange(0, 5, 1)
 maxLocalAuc.beta = 2
 maxLocalAuc.bound = False
@@ -77,6 +77,7 @@ maxLocalAuc.numAucSamples = 10
 maxLocalAuc.numProcesses = 1
 maxLocalAuc.numRecordAucSamples = 200
 maxLocalAuc.numRowSamples = 30
+maxLocalAuc.parallelSGD = True
 maxLocalAuc.rate = "constant"
 maxLocalAuc.recordStep = 10
 maxLocalAuc.reg = False
