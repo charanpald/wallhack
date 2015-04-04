@@ -133,7 +133,7 @@ class DatasetUtils(object):
         
         
     @staticmethod 
-    def bookCrossing(minNnzRows=10, minNnzCols=2, quantile=90): 
+    def bookCrossing(minNnzRows=10, minNnzCols=3, quantile=90): 
         matrixFileName = PathDefaults.getDataDir() + "book-crossing/BX-Book-Ratings.csv" 
         matrixFile = open(matrixFileName)
         matrixFile.readline()
